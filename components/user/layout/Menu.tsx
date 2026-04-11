@@ -1,0 +1,116 @@
+import { NavLink } from 'react-router-dom';
+import { FaAlignLeft, FaBuffer, FaChevronRight } from 'react-icons/fa6';
+import type { MenuItem } from './ui.types';
+import { menuData } from 'lib/mock/menu';
+
+function filterMenu(
+  items: MenuItem[],
+  options: {
+    allowProducts: boolean;
+    allowServices: boolean;
+    allowDepartments: boolean;
+  },
+): MenuItem[] {
+  return items
+    .map((item) => {
+      if (!options.allowProducts && item.to === '/user/qrcode/products') {
+        return null;
+      }
+
+      if (!options.allowServices && item.to === '/user/qrcode/services') {
+        return null;
+      }
+
+      if (
+        !options.allowDepartments &&
+        item.to === '/user/qrcode/departments'
+      ) {
+        return null;
+      }
+
+      if (Array.isArray(item.children) && item.children.length > 0) {
+        const children = filterMenu(item.children, options);
+        const filteredItem: MenuItem = { ...item };
+
+        if (children.length > 0) {
+          filteredItem.children = children;
+        } else {
+          delete filteredItem.children;
+        }
+
+        return filteredItem;
+      }
+
+      return { ...item };
+    })
+    .filter((item): item is MenuItem => item !== null);
+}
+
+function Item({ item }: { item: MenuItem }) {
+  const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+
+  if (!hasChildren) {
+    return (
+      <li>
+        <NavLink
+          to={item.to || '#'}
+          className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-(--text-secondary) transition-colors hover:bg-(--seventh-color) hover:text-(--text-primary)">
+          <FaBuffer className="h-3.5 w-3.5 text-(--text-tertiary)" />
+          <span>{item.label}</span>
+        </NavLink>
+      </li>
+    );
+  }
+
+  return (
+    <li className="relative menu-item group">
+      <div className="flex cursor-pointer items-center justify-between gap-3 rounded-md px-3 py-2 text-sm text-(--text-secondary) transition-colors hover:bg-(--seventh-color) hover:text-(--text-primary)">
+        <div className="flex items-center gap-2">
+          <FaAlignLeft className="h-3.5 w-3.5 text-(--text-tertiary) group-hover:text-(--text-secondary)" />
+          <span>{item.label}</span>
+        </div>
+        <FaChevronRight className="h-3.5 w-3.5 text-(--text-tertiary) transition-transform group-hover:translate-x-0.5 group-hover:text-(--text-secondary)" />
+      </div>
+
+      <div className="submenu pointer-events-none absolute left-full -top-1.5 z-40 ml-2 origin-left scale-95 opacity-0 transition-all duration-150 ease-out">
+        <ul className="min-w-48 max-h-[calc(100vh-64px-16px)] space-y-1 rounded-md border border-(--quaternary-color)/12 bg-(--bg-secondary) p-2 ring-1 ring-(--quaternary-color)/10">
+          {item.children!.map((child) => (
+            <Item
+              key={child.label}
+              item={child}
+            />
+          ))}
+        </ul>
+      </div>
+    </li>
+  );
+}
+
+export default function Menu({
+  usesCompanyProducts,
+  usesCompanyServices,
+  usesCompanyDepartments,
+}: {
+  usesCompanyProducts: boolean;
+  usesCompanyServices: boolean;
+  usesCompanyDepartments: boolean;
+}) {
+  const items = filterMenu(menuData, {
+    allowProducts: usesCompanyProducts,
+    allowServices: usesCompanyServices,
+    allowDepartments: usesCompanyDepartments,
+  });
+
+  return (
+    <nav>
+      <ul className="space-y-1 p-2.5">
+        {items.map((item) => (
+          <Item
+            key={item.label}
+            item={item}
+          />
+        ))}
+      </ul>
+    </nav>
+  );
+}
