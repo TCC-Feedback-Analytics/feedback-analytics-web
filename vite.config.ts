@@ -1,7 +1,6 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import * as path from 'path';
-import { existsSync } from 'fs';
 import tailwindcss from '@tailwindcss/vite';
 import { execSync } from 'child_process';
 
@@ -19,20 +18,6 @@ function getGitVersionTag(): string {
 
 const gitVersion = getGitVersionTag();
 
-function resolveSharedPath(): string {
-  const candidates = [
-    path.resolve(__dirname, '../../shared'),
-    path.resolve(__dirname, './shared'),
-    path.resolve(process.cwd(), 'shared'),
-    path.resolve(process.cwd(), '../../shared'),
-  ];
-
-  const found = candidates.find((candidate) => existsSync(candidate));
-
-  return found ?? path.resolve(__dirname, '../../shared');
-}
-
-const sharedPath = resolveSharedPath();
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -52,10 +37,9 @@ export default defineConfig({
       src: path.resolve(__dirname, './src'),
       layouts: path.resolve(__dirname, './layouts'),
       pages: path.resolve(__dirname, './pages'),
-      server: path.resolve(__dirname, '../../backends/api-gateway'),
       'lib/utils': path.resolve(__dirname, './src/lib/utils'),
       'lib/constants': path.resolve(__dirname, './src/lib/constants'),
-      lib: sharedPath,
+      lib: path.resolve(__dirname, './node_modules/@feedback/lib-shared/dist'),
       components: path.resolve(__dirname, './components'),
       styles: path.resolve(__dirname, './styles'),
     },
