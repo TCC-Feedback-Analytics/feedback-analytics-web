@@ -1,0 +1,82 @@
+name: CI Pipeline - Web
+
+on:
+  push:
+    branches: [main, homolog]
+  pull_request:
+    branches: [main, homolog]
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Job 1: lint + typecheck + build.
+  # O typecheck usa tsconfig.ci.json (exclui testes); o codigo de producao
+  # compila limpo via `tsc --noEmit`.
+  # ---------------------------------------------------------------------------
+  quality:
+    name: lint-typecheck-build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      # @feedback/lib-shared vive num repo PRIVADO. O GITHUB_TOKEN padrao so
+      # enxerga este repo, entao usamos um PAT (secret CONTRACTS_TOKEN, read-only
+      # em feedback-analytics-contracts) reescrevendo https para incluir o token.
+      - name: Auth do contrato privado (@feedback/lib-shared)
+        run: |
+          git config --global --add url."https://x-access-token:${{ secrets.CONTRACTS_TOKEN }}@github.com/".insteadOf "ssh://git@github.com/"
+          git config --global --add url."https://x-access-token:${{ secrets.CONTRACTS_TOKEN }}@github.com/".insteadOf "https://github.com/"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Typecheck (sem testes)
+        run: ./node_modules/.bin/tsc -p tsconfig.ci.json --noEmit
+
+      - name: Build web
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+  # ---------------------------------------------------------------------------
+  # Job 2: unit + integracao (vitest). 100% mockado, nenhum secret necessario.
+  # O script "test" e `vitest` SEM `run` (modo watch); `-- run` o coloca em
+  # modo CI-safe.
+  # ---------------------------------------------------------------------------
+  unit-tests:
+    name: unit-tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Auth do contrato privado (@feedback/lib-shared)
+        run: |
+          git config --global --add url."https://x-access-token:${{ secrets.CONTRACTS_TOKEN }}@github.com/".insteadOf "ssh://git@github.com/"
+          git config --global --add url."https://x-access-token:${{ secrets.CONTRACTS_TOKEN }}@github.com/".insteadOf "https://github.com/"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run vitest
+        run: npm run test -- run

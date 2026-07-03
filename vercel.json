@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "apps/web/package.json",
+      "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
         "distDir": "dist"
@@ -11,12 +11,8 @@
   ],
   "rewrites": [
     {
-      "source": "/assets/(.*)",
-      "destination": "/apps/web/assets/$1"
-    },
-    {
       "source": "/(.*)",
-      "destination": "/apps/web/index.html"
+      "destination": "/index.html"
     }
   ]
 }
