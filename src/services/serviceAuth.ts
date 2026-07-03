@@ -1,5 +1,4 @@
 import { requestApi } from 'src/lib/utils/http';
-import { supabase } from 'src/supabase/supabaseClient';
 
 export type LoginPayload =
   { email: string; password: string; remember: boolean };
@@ -163,7 +162,6 @@ export async function ServiceLogin(
 }
 
 export async function ServiceLogout(): Promise<boolean> {
-  await supabase.auth.signOut().catch(() => {});
   const res = await requestApi('/api/public/auth/logout', {
     method: 'POST',
     credentials: 'include',

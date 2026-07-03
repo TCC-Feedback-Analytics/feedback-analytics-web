@@ -10,8 +10,7 @@ Configure em **Settings → Secrets and variables → Actions**:
 | Secret | Usado em | Para quê |
 |---|---|---|
 | `CONTRACTS_TOKEN` | ci · deploy · e2e | PAT (fine-grained, **read-only Contents** no repo `feedback-analytics-contracts`) para o `npm ci` clonar o pacote privado. O `GITHUB_TOKEN` padrão só enxerga este repo. |
-| `VITE_SUPABASE_URL` | ci (build) · deploy | Env de build do Vite. |
-| `VITE_SUPABASE_ANON_KEY` | ci (build) | Env de build do Vite. |
+| `SUPABASE_URL` | deploy (homolog) · e2e-main | URL do Supabase usada **pelo e2e** (setup/limpeza de dados via service role). O app **não** usa Supabase no browser. |
 | `VERCEL_TOKEN` | deploy | Token da conta/projeto Vercel. |
 | `VERCEL_ORG_ID` | deploy | ID da org no Vercel. |
 | `VERCEL_PROJECT_ID_WEB` | deploy | ID do projeto Vercel do frontend. |
