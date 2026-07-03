@@ -1,29 +1,35 @@
 # CI / Deploy — secrets necessários
 
-Este repositório consome os contratos de um repositório **privado**
-(`@feedback/lib-shared` → `TCC-Feedback-Analytics/feedback-analytics-contracts`,
-via dependência git por tag). Por isso o CI precisa de um token para instalar
-essa dependência, além dos secrets de build/deploy.
+Este repositório consome os contratos de `@feedback/lib-shared`
+(`TCC-Feedback-Analytics/feedback-analytics-contracts`, **repositório público**,
+via dependência git por tag). Como o repo é público, o `npm ci` clona sem token —
+os workflows só reescrevem `ssh→https` (ver abaixo). Nenhum secret é necessário
+para o **CI** (lint/typecheck/build/unit).
 
-Configure em **Settings → Secrets and variables → Actions**:
+Configure em **Settings → Secrets and variables → Actions** apenas o que os
+workflows de **deploy** e **e2e** usam:
 
 | Secret | Usado em | Para quê |
 |---|---|---|
-| `CONTRACTS_TOKEN` | ci · deploy · e2e | PAT (fine-grained, **read-only Contents** no repo `feedback-analytics-contracts`) para o `npm ci` clonar o pacote privado. O `GITHUB_TOKEN` padrão só enxerga este repo. |
-| `SUPABASE_URL` | deploy (homolog) · e2e-main | URL do Supabase usada **pelo e2e** (setup/limpeza de dados via service role). O app **não** usa Supabase no browser. |
 | `VERCEL_TOKEN` | deploy | Token da conta/projeto Vercel. |
 | `VERCEL_ORG_ID` | deploy | ID da org no Vercel. |
 | `VERCEL_PROJECT_ID_WEB` | deploy | ID do projeto Vercel do frontend. |
-| `E2E_TEST_EMAIL` · `E2E_TEST_PASSWORD` · `E2E_TEST_ENTERPRISE_ID` | deploy (homolog) · e2e-main | Credenciais do e2e contra o homolog. |
+| `SUPABASE_URL` | deploy (homolog) · e2e-main | URL do Supabase usada **pelo e2e** (setup/limpeza de dados via service role). O app **não** usa Supabase no browser. |
 | `SUPABASE_SERVICE_ROLE_KEY` | deploy (homolog) · e2e-main | Setup/limpeza de dados do e2e. |
+| `E2E_TEST_EMAIL` · `E2E_TEST_PASSWORD` · `E2E_TEST_ENTERPRISE_ID` | deploy (homolog) · e2e-main | Credenciais do e2e contra o homolog. |
 
-## Por que o token do contrato
+## Por que o rewrite ssh→https
 
-O `package-lock.json` resolve `@feedback/lib-shared` como `git+ssh://…` (npm
-canonicaliza deps do GitHub para ssh). Os workflows reescrevem **ssh→https** e
-**https→https** com o `CONTRACTS_TOKEN` antes do `npm ci`
-(`git config --global --add url.<token@github>.insteadOf …`), então o clone do
-pacote privado funciona sem chave SSH no runner.
+O `package-lock.json` resolve `@feedback/lib-shared` como `git+ssh://…` (o npm
+canonicaliza deps do GitHub para ssh). Os runners não têm chave SSH, então cada
+workflow reescreve a URL para https **anônimo** antes do `npm ci`:
+
+```
+git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+```
+
+Como o repo de contratos é público, isso basta — sem token. Se um dia o contrato
+voltar a ser privado, este passo precisaria injetar um PAT com read no repo.
 
 ## Vercel
 

@@ -30,10 +30,8 @@ jobs:
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
-      - name: Auth do contrato privado (@feedback/lib-shared)
-        run: |
-          git config --global --add url."https://x-access-token:${{ secrets.CONTRACTS_TOKEN }}@github.com/".insteadOf "ssh://git@github.com/"
-          git config --global --add url."https://x-access-token:${{ secrets.CONTRACTS_TOKEN }}@github.com/".insteadOf "https://github.com/"
+      - name: Resolver @feedback/lib-shared (ssh->https, repo público)
+        run: git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
 
       - name: Install dependencies
         run: npm ci
