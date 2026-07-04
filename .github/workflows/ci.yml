@@ -2,9 +2,9 @@ name: CI Pipeline - Web
 
 on:
   push:
-    branches: [main, homolog]
+    branches: [main, developer]
   pull_request:
-    branches: [main, homolog]
+    branches: [main, developer]
 
 jobs:
   # ---------------------------------------------------------------------------

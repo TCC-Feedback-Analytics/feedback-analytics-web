@@ -19,8 +19,8 @@ jobs:
     steps:
       - name: Validação manual de requests
         run: |
-          if [ "${{ github.ref_name }}" != "homolog" ] && [ "${{ github.ref_name }}" != "main" ]; then
-            echo "Este workflow deve ser executado apenas nas branches main ou homolog"
+          if [ "${{ github.ref_name }}" != "developer" ] && [ "${{ github.ref_name }}" != "main" ]; then
+            echo "Este workflow deve ser executado apenas nas branches main ou developer"
             exit 1
           fi
 
@@ -47,7 +47,7 @@ jobs:
 
       - name: Deploy preview (homolog)
         id: deploy-homolog
-        if: github.ref_name == 'homolog'
+        if: github.ref_name == 'developer'
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -68,18 +68,18 @@ jobs:
           echo "url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
 
       - name: Atribuir alias fixo ao homolog
-        if: github.ref_name == 'homolog'
+        if: github.ref_name == 'developer'
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           npx vercel alias set ${{ steps.deploy-homolog.outputs.url }} feedback-analytics-web-homolog.vercel.app --token "$VERCEL_TOKEN"
 
       - name: Install Playwright browsers
-        if: github.ref_name == 'homolog'
+        if: github.ref_name == 'developer'
         run: npx playwright install chromium --with-deps
 
       - name: Run E2E tests (homolog)
-        if: github.ref_name == 'homolog'
+        if: github.ref_name == 'developer'
         run: npm run test:e2e
         env:
           PLAYWRIGHT_BASE_URL: https://feedback-analytics-web-homolog.vercel.app
@@ -90,7 +90,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
       - name: Upload Playwright report
-        if: github.ref_name == 'homolog' && always()
+        if: github.ref_name == 'developer' && always()
         uses: actions/upload-artifact@v7
         with:
           name: playwright-report
