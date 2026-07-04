@@ -50,29 +50,31 @@ beforeEach(() => {
 
 ## Executando os Testes
 
-### Todos os testes de páginas
+> `npm test` roda o Vitest em **modo watch** por padrão. Para execução única (single-shot, como no CI), use `npm run test -- run`.
+
+### Todos os testes de páginas (single-shot)
 
 ```bash
-npm test pages/tests
+npm run test -- run pages/tests
 ```
 
 ### Teste específico
 
 ```bash
-npm test pages/tests/login.test.tsx
+npm run test -- run pages/tests/login.test.tsx
 ```
 
 ### Modo watch (desenvolvimento)
 
 ```bash
-npm test pages/tests -- --watch
+npm test pages/tests
 ```
 
 ## Configuração
 
 ### Setup Global
 
-O arquivo `apps/web/tests/setup.ts` contém:
+O arquivo `tests/setup.ts` (na raiz do repo) contém:
 
 - Importação do `@testing-library/jest-dom`
 - Mocks globais para `react-router-dom`

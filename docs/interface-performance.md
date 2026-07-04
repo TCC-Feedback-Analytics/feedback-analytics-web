@@ -26,12 +26,11 @@ Exemplos implementados:
 | Insights (Estatísticas) | `InsightsStatisticsSkeleton` |
 | Perfil | `ProfileSkeleton` |
 | QR Code Empresa | `QrCodeEnterpriseSkeleton` |
-| QR Code Catálogo | `QrCodeProductsSkeleton`, `QrCodeServicesSkeleton`, `QrCodeDepartmentsSkeleton` |
 | Edição (Configurações) | `EditFeedbackSettingsSkeleton` |
 
-### Lazy loading de imagens
+### Decodificação assíncrona de imagens
 
-Imagens de QR Code e itens de catálogo usam `loading="lazy"` e `decoding="async"` nativos do browser, evitando que imagens fora da viewport bloqueiem a renderização inicial.
+A imagem do QR Code (`components/user/pages/qrcodeEnterprise/SectionQrCodeDisplay.tsx`) usa `decoding="async"` nativo do browser, para não bloquear a renderização inicial.
 
 ### Code splitting por rota
 
@@ -54,7 +53,7 @@ Todo fluxo de dados no frontend prevê 4 estados visuais distintos. A ausência 
 
 ### Loading — Skeletons
 
-Blocos animados que espelham o layout da página real. Implementados via `SkeletonBlock` (componente base) composto em skeletons específicos por tela. O padrão visual usa `animate-pulse` com a variável `--seventh-color`.
+Mesmo mecanismo descrito em **Carregamento Inteligente → Skeletons por rota** (`SkeletonBlock` + `animate-pulse` com `--seventh-color`), exibido enquanto o loader da rota executa.
 
 ### Sucesso — Dados na tela
 
@@ -104,7 +103,6 @@ A tela que o cliente final vê ao escanear o QR Code. Tem estados visuais dedica
 
 | Estado | Componente |
 |---|---|
-| Carregando dados da empresa | `stateLoading` |
 | Formulário disponível | `PublicQrFeedbackTemplateRenderer` |
 | Feedback já enviado anteriormente | `stateSentPreviousFeedback` |
 | Enviado com sucesso | `stateSubmitted` |
