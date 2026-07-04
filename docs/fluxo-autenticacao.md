@@ -27,7 +27,7 @@ LoaderUserProtected executa
   Chama loadUserContextData()
         ↓
   ServiceGetUser() → GET /api/protected/user/auth_user
-  ServiceGetEnterprise() → GET /api/protected/... (paralelo)
+  ServiceGetEnterprise() → GET /api/protected/user/enterprise (+ collecting_data)
         ↓
     ┌───┴───┐
   Sucesso   Erro (401, rede, etc.)
@@ -56,22 +56,11 @@ Esses dados ficam disponíveis via `useRouteLoaderData` em qualquer componente d
 
 ### Como a sessão é armazenada
 
-O token usado nas chamadas à API trafega via **cookie HttpOnly**, gerenciado pelo backend. Todas as requisições para `/api/protected/*` e `/api/public/auth/*` usam `credentials: 'include'`, que envia o cookie automaticamente. A sessão do Supabase, por outro lado, é persistida em **localStorage** por padrão (`persistSession: true`, sem storage customizado).
+A sessão trafega via **cookie httpOnly**, definido e gerenciado **pelo backend** (API Gateway). O frontend **não instancia cliente Supabase nem manipula tokens**: apenas envia o cookie automaticamente em cada requisição, porque `src/lib/utils/http.ts` usa `credentials: 'include'` em todos os helpers. Não há sessão em `localStorage` no frontend.
 
-### Renovação automática de token
+### Validade e renovação
 
-O cliente Supabase é inicializado com:
-
-```ts
-{
-  auth: {
-    persistSession: true,   // mantém a sessão entre recarregamentos
-    autoRefreshToken: true, // renova o token antes de expirar, silenciosamente
-  }
-}
-```
-
-O Supabase cuida da renovação do token em background. Na prática, o usuário raramente experimenta uma expiração de sessão durante uso ativo.
+A validade e a renovação da sessão são **responsabilidade do backend** (o cookie httpOnly). O frontend não renova token: se o cookie expirar, a próxima chamada protegida recebe `401` e o app redireciona para o login (ver abaixo).
 
 ### O que acontece quando a sessão expira
 
@@ -80,7 +69,7 @@ Cenário: o usuário fica inativo por muito tempo e o token expira de vez.
 1. Na próxima navegação para qualquer rota `/user/*`, o `LoaderUserProtected` executa
 2. `ServiceGetUser()` faz `GET /api/protected/user/auth_user`
 3. O backend retorna `401` pois o cookie é inválido/expirado
-4. `getJson` lança um `HttpError` com `status: 401`
+4. `getJson` lança um `Error` anotado com `status: 401` (extraído da resposta HTTP)
 5. O `try/catch` do `LoaderUserProtected` captura o erro
 6. `throw redirect('/login')` — o usuário é redirecionado para o login
 
@@ -125,14 +114,12 @@ Usuário clica em "Sair"
         ↓
 ActionLogout valida o intent (INTENT_LOGOUT)
         ↓
-ServiceLogout executa dois passos em sequência:
-  1. supabase.auth.signOut()    → limpa a sessão Supabase local
-  2. POST /api/public/auth/logout → invalida o cookie no servidor
+ServiceLogout → POST /api/public/auth/logout  (invalida o cookie no servidor)
         ↓
 redirect('/login')
 ```
 
-Os dois passos garantem que tanto o lado cliente (Supabase) quanto o lado servidor (cookie) sejam limpos. Falhas no `signOut` do Supabase são ignoradas (`catch(() => {})`) para não bloquear o logout.
+Falhas na chamada de logout são ignoradas (`ServiceLogout().catch(() => {})` em `ActionLogout`) para não bloquear a saída — o redirecionamento para `/login` acontece de qualquer forma.
 
 ---
 
@@ -156,7 +143,7 @@ Resposta sempre genérica (não revela se o e-mail existe):
 ```
 Usuário clica no link recebido por e-mail
         ↓
-O link estabelece uma sessão temporária via Supabase
+O link (processado pelo callback do gateway) estabelece uma sessão temporária via cookie
         ↓
 Usuário define nova senha
         ↓

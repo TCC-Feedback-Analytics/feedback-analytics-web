@@ -27,9 +27,9 @@ jobs:
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
-      # @feedback/lib-shared vive num repo PRIVADO. O GITHUB_TOKEN padrao so
-      # enxerga este repo, entao usamos um PAT (secret CONTRACTS_TOKEN, read-only
-      # em feedback-analytics-contracts) reescrevendo https para incluir o token.
+      # @feedback/lib-shared vive num repo PÚBLICO (feedback-analytics-contracts).
+      # O npm canonicaliza a dep do GitHub para ssh; os runners não têm chave SSH,
+      # então reescrevemos ssh->https anônimo antes do npm ci (sem token/secret).
       - name: Resolver @feedback/lib-shared (ssh->https, repo público)
         run: git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
 

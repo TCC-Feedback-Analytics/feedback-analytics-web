@@ -44,9 +44,9 @@ graph TD
 
 ### O que isso significa na prática ?
 
-- **Para ler (Loaders):** Quando o usuário acessa `insights`, o `loader` pede os dados, chamando o `serviceFeedbacks.ServiceGetFeedbackInsightsReport()`. O **Service** anexa o JWT, faz o GET no Gateway, trata possíveis erros HTTP e devolve o JSON limpo para o `loader`. O `loader` entrega para a tela via `useRouteLoaderData()`.
+- **Para ler (Loaders):** Quando o usuário acessa `insights`, o `loader` pede os dados, chamando o `serviceFeedbacks.ServiceGetFeedbackInsightsReport()`. O **Service** monta a URL e faz o GET no Gateway (a sessão vai no **cookie httpOnly**, enviado automaticamente via `credentials: 'include'`), trata possíveis erros HTTP e devolve o JSON limpo para o `loader`. O `loader` entrega para a tela via `useRouteLoaderData()`.
 
-- **Para escrever (Actions):** O usuário preenche um `<Form>` e submete. A `action` extrai os dados do formulário e repassa para o `serviceEnterprise.ServiceUpdateCollectingDataEnterprise(dados)`. O **Service** faz o POST/PATCH. A `action` apenas recebe a confirmação e avisa a tela.
+- **Para escrever (Actions):** O usuário preenche um `<Form>` e submete. A `action` (ex.: `ActionCollectingData`) extrai os dados do formulário e chama o service correspondente em `serviceEnterprise.ts`, que faz o POST/PATCH. A `action` apenas recebe a confirmação e avisa a tela.
 
 ## As 4 Camadas do Sistema
 Para manter o código fácil de dar manutenção, separamos as responsabilidades:
@@ -57,11 +57,11 @@ Para manter o código fácil de dar manutenção, separamos as responsabilidades
 
 3. **Rotas (`src/routes/`)** — **Os Controladores:** Onde vivem Loaders e Actions. Eles conectam a tela ao motor de dados.
 
-4. **Infraestrutura (`src/services/`)** — **O coração da comunicação**. Contém as funções que isolam todo o uso de `fetch`, URLs da API e injeção de tokens de autenticação.
+4. **Infraestrutura (`src/services/` + `src/lib/utils/http.ts`)** — **O coração da comunicação**. Os services montam as URLs da API; o `http.ts` centraliza o `fetch` com `credentials: 'include'` (a sessão vai no **cookie httpOnly** — não há injeção de token).
 
 ## Onde Encontrar Cada Arquivo
 ```
-apps/web/
+feedback-analytics-web/
 ├── src/
 │   ├── routes/                 → Orquestradores (Loaders, Actions e a árvore de Rotas)
 │   │   ├── actions/            → Funções de mutation (POST, PATCH, DELETE)
@@ -74,7 +74,6 @@ apps/web/
 │   │   ├── serviceFeedbackQRCode.ts
 │   │   ├── serviceFeedbacks.ts
 │   │   └── serviceUser.ts
-│   ├── supabase/               → Inicialização do client Supabase
 │   └── lib/
 │       ├── constants/          → Constantes de rotas e intents
 │       ├── context/            → Contextos React (ex: insightsControls)
@@ -122,7 +121,7 @@ apps/web/
 
 O frontend usa dois tipos TypeScript distintos para representar a empresa — cada um com uma responsabilidade clara.
 
-### `Enterprise` (em `shared/interfaces/entities/enterprise.entity.ts`)
+### `Enterprise` (de `@feedback/lib-shared`, via alias `lib/interfaces/entities/enterprise.entity`)
 
 Representa exatamente o que existe na tabela `public.enterprise` do banco de dados:
 
