@@ -2,7 +2,7 @@
 
 Este repositório consome os contratos de `@feedback/lib-shared`
 (`TCC-Feedback-Analytics/feedback-analytics-contracts`, **repositório público**,
-via dependência git por tag). Como o repo é público, o `npm ci` clona sem token —
+via dependência git — tag `v1.0.0`). Como o repo é público, o `npm ci` clona sem token —
 os workflows só reescrevem `ssh→https` (ver abaixo). Nenhum secret é necessário
 para o **CI** (lint/typecheck/build/unit).
 
@@ -36,5 +36,6 @@ voltar a ser privado, este passo precisaria injetar um PAT com read no repo.
 O deploy é por **CLI com token** (`npx vercel deploy --local-config vercel.json`),
 disparado manualmente (`workflow_dispatch`). O `vercel.json` já aponta para a raiz
 do repo (build de `package.json`, saída em `dist`, SPA fallback para `index.html`).
-Se o projeto Vercel ainda estiver conectado ao monorepo via Git Integration,
-desconecte lá para evitar deploy duplicado — este repo publica via CLI.
+Se o projeto Vercel ainda tiver uma Git Integration ativa (de uma configuração
+anterior), desconecte-a para evitar deploy duplicado — este repo publica
+exclusivamente via CLI com token.

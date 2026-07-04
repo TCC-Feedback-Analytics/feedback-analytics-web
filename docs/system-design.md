@@ -43,7 +43,7 @@ Isso significa que trocar o tema (ex: dark → light) exige apenas reatribuir es
 
 ### Ícones
 
-**React Icons** (v5) é a biblioteca de ícones. Importar sempre de um sub-pacote específico (ex: `react-icons/fi`) para evitar importar a coleção inteira.
+**React Icons** (v5) é a biblioteca de ícones. Importar sempre de um sub-pacote específico (ex: `react-icons/fa`) para evitar importar a coleção inteira.
 
 ### Utilitário `glass-card`
 
@@ -64,7 +64,7 @@ No roteador raiz (`src/routes/source.tsx`), o `errorElement` captura qualquer er
   path: '/',
   errorElement: <ErrorPage />,        // captura erros da árvore inteira
   hydrateFallbackElement: <FallbackType01 />,
-  children: [RoutePublic(), RouteUser()]
+  children: createRoutesFromElements(<>{RoutePublic()}{RouteUser()}</>)
 }
 ```
 
