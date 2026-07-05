@@ -140,7 +140,7 @@ interface Enterprise {
 
 ### `EnterpriseContext` (mesmo arquivo, exportado como `type`)
 
-É o tipo composto usado pelos componentes do dashboard — `Enterprise` mais os campos que vêm de `auth.users` (e são mesclados no loader):
+É o tipo composto usado pelos componentes do dashboard — `Enterprise` mais os campos do usuário autenticado (e-mail, telefone, nome), que vêm da resposta `GET /api/protected/user/auth_user` do gateway e são mesclados no loader:
 
 ```typescript
 type EnterpriseContext = Enterprise & {
@@ -152,7 +152,7 @@ type EnterpriseContext = Enterprise & {
 
 ### Por que essa separação?
 
-`full_name`, `email` e `phone` não existem na tabela `enterprise` — eles vivem em `auth.users`. O loader `loadUserContext` faz o merge antes de entregar os dados para as rotas:
+`full_name`, `email` e `phone` não existem na tabela `enterprise` — eles pertencem ao usuário autenticado e chegam pela resposta `auth_user` do gateway. O loader `loadUserContext` faz o merge antes de entregar os dados para as rotas:
 
 ```typescript
 const enterprise: EnterpriseContext = {

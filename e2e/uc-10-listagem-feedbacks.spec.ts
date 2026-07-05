@@ -9,9 +9,14 @@ test.describe('UC-10: Listagem de feedbacks', () => {
   test('[CT-UC10-01] Listagem carrega feedbacks ou exibe estado vazio', async ({ page }) => {
     await expect(page).toHaveURL(/\/user\/feedbacks\/all/);
 
-    const hasFeedbacks = await page.locator('[data-feedback-card], .feedback-card, article').first().isVisible().catch(() => false);
-    const isEmpty = await page.getByText(/nenhum feedback|sem feedbacks|vazio/i).isVisible().catch(() => false);
+    // Espera o carregamento assíncrono: a lista deve mostrar OU um card de
+    // feedback OU o estado vazio. (O `.isVisible()` instantâneo anterior corria
+    // com o fetch e falhava de forma intermitente quando os dados ainda não
+    // haviam renderizado — `toBeVisible` faz auto-retry até o timeout.)
+    const feedbackOrEmpty = page
+      .locator('[data-feedback-card], .feedback-card, article')
+      .or(page.getByText(/nenhum feedback|sem feedbacks|vazio/i));
 
-    expect(hasFeedbacks || isEmpty).toBe(true);
+    await expect(feedbackOrEmpty.first()).toBeVisible({ timeout: 15000 });
   });
 });

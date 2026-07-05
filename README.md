@@ -2,7 +2,7 @@
 
 Frontend do [Feedback Analytics](https://github.com/TCC-Feedback-Analytics/feedback-analytics) — uma **SPA React** com a área pública (login, cadastro, recuperação de senha e coleta de feedback por QR Code) e o **dashboard** da empresa (feedbacks, catálogo, QR Codes e painel de insights por IA).
 
-O frontend **não fala com o banco nem com o Supabase diretamente**: toda comunicação passa pelo **API Gateway** (via `src/lib/utils/http.ts`, com `credentials: 'include'` — a sessão é um cookie httpOnly gerenciado pela API).
+O frontend **não fala com o banco nem com o provedor de auth diretamente**: toda comunicação passa pelo **API Gateway** (via `src/lib/utils/http.ts`, com `credentials: 'include'` — a sessão é um cookie httpOnly gerenciado pela API). A autenticação do backend usa **Better Auth**, mas isso é transparente para o frontend: os endpoints de auth do gateway (`/api/public/auth/...`) seguem com os mesmos caminhos.
 
 - **Stack:** React 19 · Vite 7 · React Router DOM 7 (loaders/actions) · Tailwind CSS v4 · TypeScript
 - **Formulários:** React Hook Form + Zod

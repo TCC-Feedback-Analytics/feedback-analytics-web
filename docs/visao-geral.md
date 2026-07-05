@@ -105,7 +105,9 @@ O frontend usa exclusivamente o padrão **loader/action do React Router v7**.
 
 ## Autenticação
 
-O frontend **não instancia cliente Supabase**. A sessão vive em um **cookie httpOnly** definido pela API e enviado automaticamente (`credentials: 'include'`) em cada requisição — o backend é quem a gerencia. O loader raiz `LoaderUserProtected` valida a sessão (chamando `GET /api/protected/user/auth_user`) antes de renderizar qualquer página protegida e redireciona para `/login` caso inválida.
+O frontend **não instancia SDK de auth** (não fala com Supabase nem com o Better Auth diretamente). A sessão vive em um **cookie httpOnly** definido pela API e enviado automaticamente (`credentials: 'include'`) em cada requisição — o backend é quem a gerencia. O loader raiz `LoaderUserProtected` valida a sessão (chamando `GET /api/protected/user/auth_user`) antes de renderizar qualquer página protegida e redireciona para `/login` caso inválida.
+
+> O provedor de auth do backend migrou do **Supabase Auth** para o **Better Auth**. Do ponto de vista do frontend o **contrato não muda**: mesmos endpoints (`/api/public/auth/...`), mesma sessão via cookie httpOnly.
 
 ---
 

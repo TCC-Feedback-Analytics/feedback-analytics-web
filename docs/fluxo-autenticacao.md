@@ -56,7 +56,9 @@ Esses dados ficam disponíveis via `useRouteLoaderData` em qualquer componente d
 
 ### Como a sessão é armazenada
 
-A sessão trafega via **cookie httpOnly**, definido e gerenciado **pelo backend** (API Gateway). O frontend **não instancia cliente Supabase nem manipula tokens**: apenas envia o cookie automaticamente em cada requisição, porque `src/lib/utils/http.ts` usa `credentials: 'include'` em todos os helpers. Não há sessão em `localStorage` no frontend.
+A sessão trafega via **cookie httpOnly**, definido e gerenciado **pelo backend** (API Gateway, que usa **Better Auth** por baixo). O frontend **não instancia SDK de auth nem manipula tokens**: apenas envia o cookie automaticamente em cada requisição, porque `src/lib/utils/http.ts` usa `credentials: 'include'` em todos os helpers. Não há sessão em `localStorage` no frontend.
+
+> **Nota:** a autenticação do backend migrou do **Supabase Auth** para o **Better Auth**. Para o frontend **nada muda**: os endpoints de auth do gateway continuam nos mesmos caminhos (`/api/public/auth/...`) — só o provedor por baixo mudou. O importante continua sendo enviar as requisições com credencial (cookie) e deixar o gateway devolver/gerenciar o cookie de sessão.
 
 ### Validade e renovação
 
@@ -166,7 +168,7 @@ Senha alterada  "O link de redefinição expirou. Solicite um novo."
         ↓
 ActionRegister → POST /api/public/auth/register
         ↓
-Supabase envia e-mail de confirmação
+Gateway (Better Auth) envia e-mail de confirmação via SMTP
         ↓
 Usuário clica no link → /auth/success
         ↓
