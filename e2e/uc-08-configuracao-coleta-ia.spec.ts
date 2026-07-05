@@ -19,7 +19,14 @@ test.describe('UC-08: Configuração de coleta e contexto de IA', () => {
       .locator('textarea, input[name*="objective"], input[name*="goal"], #companyObjective')
       .first();
 
-    if (!(await objectiveField.isVisible().catch(() => false))) {
+    // Aguarda o campo aparecer (auto-wait). Se não existir nesse estado da app,
+    // o teste não se aplica e é pulado — o `.isVisible()` instantâneo anterior
+    // pulava por engano quando o formulário ainda estava carregando.
+    const objectiveVisible = await objectiveField
+      .waitFor({ state: 'visible', timeout: 10_000 })
+      .then(() => true)
+      .catch(() => false);
+    if (!objectiveVisible) {
       test.skip();
       return;
     }
@@ -41,7 +48,14 @@ test.describe('UC-08: Configuração de coleta e contexto de IA', () => {
       .locator('textarea[name*="summary"], textarea[name*="business"], #businessSummary')
       .first();
 
-    if (!(await summaryField.isVisible().catch(() => false))) {
+    // Aguarda o campo aparecer (auto-wait). Se não existir nesse estado da app,
+    // o teste não se aplica e é pulado — o `.isVisible()` instantâneo anterior
+    // pulava por engano quando o formulário ainda estava carregando.
+    const summaryVisible = await summaryField
+      .waitFor({ state: 'visible', timeout: 10_000 })
+      .then(() => true)
+      .catch(() => false);
+    if (!summaryVisible) {
       test.skip();
       return;
     }

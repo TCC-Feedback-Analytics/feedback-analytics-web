@@ -24,7 +24,14 @@ test.describe('UC-12: Gestão de perfil', () => {
     await expect(page.getByRole('main')).toBeVisible();
 
     const qrLink = page.getByRole('link', { name: /qr code|acessar qr code/i }).first();
-    if (!(await qrLink.isVisible().catch(() => false))) {
+    // Aguarda o link aparecer (auto-wait). Se não existir nesse estado da app, o
+    // teste não se aplica e é pulado — o `.isVisible()` instantâneo anterior
+    // pulava por engano quando a página ainda estava carregando.
+    const qrLinkVisible = await qrLink
+      .waitFor({ state: 'visible', timeout: 10_000 })
+      .then(() => true)
+      .catch(() => false);
+    if (!qrLinkVisible) {
       test.skip();
       return;
     }
@@ -48,7 +55,14 @@ test.describe('UC-12: Gestão de perfil', () => {
     // Logout fica dentro do menu de conta (avatar com aria-haspopup="menu"),
     // como item de menu (role="menuitem"). Abre o dropdown e clica em "Sair".
     const accountTrigger = page.locator('button[aria-haspopup="menu"]').first();
-    if (!(await accountTrigger.isVisible().catch(() => false))) {
+    // Aguarda o gatilho do menu aparecer (auto-wait). Se não existir nesse estado
+    // da app, o teste não se aplica e é pulado — o `.isVisible()` instantâneo
+    // anterior pulava por engano quando a página ainda estava carregando.
+    const accountTriggerVisible = await accountTrigger
+      .waitFor({ state: 'visible', timeout: 10_000 })
+      .then(() => true)
+      .catch(() => false);
+    if (!accountTriggerVisible) {
       test.skip();
       return;
     }
