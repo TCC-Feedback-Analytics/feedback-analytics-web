@@ -5,30 +5,29 @@ test.describe('UC-11: Insights de IA', () => {
     await page.goto('/user/insights/reports');
     await expect(page.getByRole('main')).toBeVisible();
 
-    const hasSummary = await page.getByText(/sum.rio|resumo|insights/i).first().isVisible().catch(() => false);
-    const isEmpty = await page.getByText(/nenhum insight|sem dados|gerar insights|sem feedbacks/i).isVisible().catch(() => false);
+    // Espera o carregamento assíncrono: a tela deve mostrar OU o sumário/insights
+    // OU o estado vazio. O `.isVisible()` instantâneo anterior corria com o fetch
+    // e falhava de forma intermitente — `toBeVisible` faz auto-retry até o timeout.
+    const summaryOrEmpty = page
+      .getByText(/sum.rio|resumo|insights/i)
+      .or(page.getByText(/nenhum insight|sem dados|gerar insights|sem feedbacks/i));
 
-    expect(hasSummary || isEmpty).toBe(true);
+    await expect(summaryOrEmpty.first()).toBeVisible({ timeout: 15_000 });
   });
 
   test('[CT-UC11-02] Página de insights exibe análise de sentimentos e keywords', async ({ page }) => {
     await page.goto('/user/insights/reports');
     await expect(page.getByRole('main')).toBeVisible();
 
-    const hasAnalysis = await page
+    // Espera o carregamento assíncrono: a tela deve mostrar OU a análise
+    // (sentimentos/keywords) OU o estado vazio (que também é válido). O
+    // `.isVisible()` instantâneo anterior corria com o fetch e falhava de forma
+    // intermitente — `toBeVisible` faz auto-retry até o timeout.
+    const analysisOrEmpty = page
       .getByText(/positivo|negativo|neutro|palavra-chave|keywords/i)
-      .first()
-      .isVisible()
-      .catch(() => false);
+      .or(page.getByText(/nenhum insight|sem dados|gerar insights|ainda não há relatório/i));
 
-    const isEmptyState = await page
-      .getByText(/nenhum insight|sem dados|gerar insights|ainda não há relatório/i)
-      .first()
-      .isVisible()
-      .catch(() => false);
-
-    // Se não houver dados, o estado vazio é válido
-    expect(hasAnalysis || isEmptyState).toBe(true);
+    await expect(analysisOrEmpty.first()).toBeVisible({ timeout: 15_000 });
   });
 
 
@@ -39,10 +38,14 @@ test.describe('UC-11: Insights de IA', () => {
     const regenerateBtn = page.getByRole('button', { name: /regenerar|gerar insights|atualizar insights/i }).first();
 
     // O botão fica desabilitado quando não há análise nova para gerar insights
-    // (comportamento intencional). Nesse estado o teste não se aplica.
-    const regenerateReady =
-      (await regenerateBtn.isVisible().catch(() => false)) &&
-      (await regenerateBtn.isEnabled().catch(() => false));
+    // (comportamento intencional). Nesse estado o teste não se aplica. Aguarda o
+    // botão aparecer (auto-wait) e então verifica se está habilitado — o
+    // `.isVisible()` instantâneo anterior pulava por engano quando a página ainda
+    // estava carregando.
+    const regenerateReady = await regenerateBtn
+      .waitFor({ state: 'visible', timeout: 10_000 })
+      .then(() => regenerateBtn.isEnabled())
+      .catch(() => false);
     if (!regenerateReady) {
       test.skip();
       return;
