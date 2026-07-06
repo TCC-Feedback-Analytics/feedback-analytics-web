@@ -23,7 +23,6 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
 
-    "ignoreDeprecations": "6.0",
     "paths": {
       "components/*": ["./components/*"],
       "pages/*": ["./pages/*"],
