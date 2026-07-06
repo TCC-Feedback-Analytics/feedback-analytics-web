@@ -23,23 +23,22 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
 
-    "baseUrl": ".",
-    "ignoreDeprecations": "5.0",
     "paths": {
-      "components/*": ["components/*"],
-      "pages/*": ["pages/*"],
-      "layouts/*": ["layouts/*"],
-      "lib/utils/*": ["src/lib/utils/*"],
-      "lib/constants/*": ["src/lib/constants/*"],
+      "components/*": ["./components/*"],
+      "pages/*": ["./pages/*"],
+      "layouts/*": ["./layouts/*"],
+      "lib/utils/*": ["./src/lib/utils/*"],
+      "lib/constants/*": ["./src/lib/constants/*"],
       "lib/*": ["./node_modules/@feedback/lib-shared/dist/*"],
-      "src/*": ["src/*"],
-      "styles/*": ["styles/*"]
-    }
+      "src/*": ["./src/*"],
+      "styles/*": ["./styles/*"]
+    },
+
+    "types": ["node"],
   },
   "include": [
     "src",
     "components",
-    
     "styles",
     "pages",
     "layouts"
