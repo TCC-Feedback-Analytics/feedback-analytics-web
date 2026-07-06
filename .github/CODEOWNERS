@@ -1,0 +1,9 @@
+# CODEOWNERS
+# Define os donos do código. Quando um PR altera arquivos cobertos aqui,
+# o GitHub solicita revisão automaticamente do(s) dono(s) correspondente(s).
+#
+# A ordem importa: a ÚLTIMA regra que casar com um arquivo é a que vale.
+# Docs: https://docs.github.com/pt/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Dono padrão de todo o repositório
+*       @Nando006
