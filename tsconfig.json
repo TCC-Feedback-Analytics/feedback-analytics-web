@@ -32,7 +32,9 @@
       "lib/*": ["./node_modules/@feedback/lib-shared/dist/*"],
       "src/*": ["./src/*"],
       "styles/*": ["./styles/*"]
-    }
+    },
+
+    "types": ["node"],
   },
   "include": [
     "src",
