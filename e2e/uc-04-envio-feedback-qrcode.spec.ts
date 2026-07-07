@@ -37,7 +37,7 @@ test.describe('UC-04: Envio de feedback via QR Code', () => {
     test.skip(!TEST_ENTERPRISE_ID, 'E2E_TEST_ENTERPRISE_ID não configurado');
     test.skip(
       !qrCollectionPointId,
-      'Empresa de teste não possui collection_point QR ativo — verifique a config no homolog',
+      'Empresa de teste não possui collection_point QR ativo — verifique a config no developer',
     );
 
     await page.goto(buildQrPath());
