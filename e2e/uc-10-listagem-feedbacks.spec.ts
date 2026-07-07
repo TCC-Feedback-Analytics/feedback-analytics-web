@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('UC-10: Listagem de feedbacks', () => {
   test('[CT-UC10-01] Listagem carrega feedbacks ou exibe estado vazio', async ({ page }) => {
-    // O gate de e2e roda contra o homolog DEPLOYADO (Vercel serverless + Supabase).
+    // O gate de e2e roda contra o developer DEPLOYADO (Vercel serverless + Supabase).
     // Se a função de listagem der cold start / blip transitório, o loader rejeita e
     // a página cai no estado de erro ("Erro ao carregar feedbacks"). Damos algumas
     // tentativas com reload para absorver esse transitório; se o erro PERSISTIR, o
@@ -29,7 +29,7 @@ test.describe('UC-10: Listagem de feedbacks', () => {
       await expect(page.getByRole('main')).toBeVisible();
 
       // Aguarda um estado TERMINAL: sucesso (cards/estado vazio) OU erro.
-      // `toBeVisible` faz auto-retry até o timeout, cobrindo a latência do homolog.
+      // `toBeVisible` faz auto-retry até o timeout, cobrindo a latência do developer.
       await expect(success.or(errorState).first()).toBeVisible({ timeout: 15_000 });
 
       if (await success.first().isVisible()) {
@@ -47,7 +47,7 @@ test.describe('UC-10: Listagem de feedbacks', () => {
       success.first(),
       `A listagem continuou em estado de erro ("Erro ao carregar feedbacks") após ` +
         `${MAX_ATTEMPTS} tentativas. O endpoint GET /api/protected/user/feedbacks ` +
-        `provavelmente está falhando no ambiente alvo (verifique o deploy do homolog).`,
+        `provavelmente está falhando no ambiente alvo (verifique o deploy do developer).`,
     ).toBeVisible({ timeout: 15_000 });
   });
 });
