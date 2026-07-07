@@ -45,8 +45,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Deploy preview (homolog)
-        id: deploy-homolog
+      - name: Deploy preview (developer)
+        id: deploy-developer
         if: github.ref_name == 'developer'
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -67,22 +67,22 @@ jobs:
           DEPLOY_URL=$(npx vercel deploy --yes --prod --token "$VERCEL_TOKEN" --local-config vercel.json)
           echo "url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
 
-      - name: Atribuir alias fixo ao homolog
+      - name: Atribuir alias fixo ao developer
         if: github.ref_name == 'developer'
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          npx vercel alias set ${{ steps.deploy-homolog.outputs.url }} feedback-analytics-web-homolog.vercel.app --token "$VERCEL_TOKEN"
+          npx vercel alias set ${{ steps.deploy-developer.outputs.url }} feedback-analytics-web-developer.vercel.app --token "$VERCEL_TOKEN"
 
       - name: Install Playwright browsers
         if: github.ref_name == 'developer'
         run: npx playwright install chromium --with-deps
 
-      - name: Run E2E tests (homolog)
+      - name: Run E2E tests (developer)
         if: github.ref_name == 'developer'
         run: npm run test:e2e
         env:
-          PLAYWRIGHT_BASE_URL: https://feedback-analytics-web-homolog.vercel.app
+          PLAYWRIGHT_BASE_URL: https://feedback-analytics-web-developer.vercel.app
           E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
           E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
           E2E_TEST_ENTERPRISE_ID: ${{ secrets.E2E_TEST_ENTERPRISE_ID }}
