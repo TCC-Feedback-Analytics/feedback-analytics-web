@@ -89,3 +89,84 @@ export async function getActiveQrCollectionPoint(
     catalogItemId: (data.catalog_item_id as string | null) ?? null,
   };
 }
+
+export async function ensureTestUserExists(email: string, password: string, enterpriseId?: string) {
+  try {
+    const supabase = getAdminClient();
+    console.log(`[supabase-helpers] Checking if test user exists: ${email}`);
+    const { data, error: listError } = await supabase.auth.admin.listUsers();
+    if (listError) {
+      console.warn('[supabase-helpers] listUsers error:', listError.message);
+      return;
+    }
+
+    const user = data?.users?.find((u: any) => u.email === email);
+    if (!user) {
+      console.log(`[supabase-helpers] Creating test user ${email}...`);
+      const { error: createError } = await supabase.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: { full_name: 'Gestor Teste' },
+      });
+      if (createError) {
+        console.warn('[supabase-helpers] createUser error:', createError.message);
+      } else {
+        console.log(`[supabase-helpers] Test user ${email} created successfully.`);
+      }
+    } else {
+      console.log(`[supabase-helpers] Updating test user ${email}...`);
+      const { error: updateError } = await supabase.auth.admin.updateUserById(user.id, {
+        password,
+        email_confirm: true,
+        user_metadata: { full_name: 'Gestor Teste' },
+      });
+      if (updateError) {
+        console.warn('[supabase-helpers] updateUserById error:', updateError.message);
+      } else {
+        console.log(`[supabase-helpers] Test user ${email} updated/confirmed successfully.`);
+      }
+    }
+
+    if (enterpriseId) {
+      console.log(`[supabase-helpers] Ensuring enterprise exists: ${enterpriseId} for ${email}`);
+      const { data: entData, error: entError } = await supabase
+        .from('enterprises')
+        .select('id')
+        .eq('id', enterpriseId)
+        .maybeSingle();
+
+      if (entError) {
+        console.warn('[supabase-helpers] error querying enterprise:', entError.message);
+      }
+
+      if (!entData) {
+        console.log(`[supabase-helpers] Inserting enterprise ${enterpriseId} linked to ${email}...`);
+        const { error: insertError } = await supabase
+          .from('enterprises')
+          .insert({
+            id: enterpriseId,
+            email: email,
+            document: '529.982.247-25',
+            subscription_status: 'TRIAL',
+          });
+        if (insertError) {
+          console.warn('[supabase-helpers] insert enterprise error:', insertError.message);
+        } else {
+          console.log('[supabase-helpers] Enterprise inserted successfully.');
+        }
+      } else {
+        // Se a empresa existe, garante que o e-mail está associado a ela
+        const { error: updateEntError } = await supabase
+          .from('enterprises')
+          .update({ email })
+          .eq('id', enterpriseId);
+        if (updateEntError) {
+          console.warn('[supabase-helpers] update enterprise email error:', updateEntError.message);
+        }
+      }
+    }
+  } catch (err: any) {
+    console.warn('[supabase-helpers] ensureTestUserExists error:', err.message || err);
+  }
+}
