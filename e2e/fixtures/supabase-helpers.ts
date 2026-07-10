@@ -100,7 +100,7 @@ export async function ensureTestUserExists(email: string, password: string, ente
       return;
     }
 
-    const user = data?.users?.find((u: any) => u.email === email);
+    const user = data?.users?.find((u) => u.email === email);
     if (!user) {
       console.log(`[supabase-helpers] Creating test user ${email}...`);
       const { error: createError } = await supabase.auth.admin.createUser({
@@ -166,7 +166,8 @@ export async function ensureTestUserExists(email: string, password: string, ente
         }
       }
     }
-  } catch (err: any) {
-    console.warn('[supabase-helpers] ensureTestUserExists error:', err.message || err);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.warn('[supabase-helpers] ensureTestUserExists error:', message);
   }
 }
