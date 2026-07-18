@@ -1,9 +1,26 @@
 export const TEST_USER = {
-  email: process.env.E2E_TEST_EMAIL || 'gestor@empresateste.com',
-  password: process.env.E2E_TEST_PASSWORD || 'Teste@123',
+  email: process.env.E2E_TEST_EMAIL ?? '',
+  password: process.env.E2E_TEST_PASSWORD ?? '',
 };
 
-export const TEST_ENTERPRISE_ID = process.env.E2E_TEST_ENTERPRISE_ID || '';
+export const TEST_ENTERPRISE_ID = process.env.E2E_TEST_ENTERPRISE_ID ?? '';
+
+export function requireE2EEnvironment(): void {
+  const requiredVariables = [
+    'E2E_TEST_EMAIL',
+    'E2E_TEST_PASSWORD',
+    'E2E_TEST_ENTERPRISE_ID',
+  ] as const;
+  const missingVariables = requiredVariables.filter(
+    (name) => !process.env[name]?.trim(),
+  );
+
+  if (missingVariables.length > 0) {
+    throw new Error(
+      `O E2E exige as seguintes variáveis de ambiente: ${missingVariables.join(', ')}.`,
+    );
+  }
+}
 
 export const VALID_CPF = '529.982.247-25';
 export const INVALID_CPF = '111.111.111-11';
