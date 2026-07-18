@@ -3,7 +3,7 @@ import { TEST_ENTERPRISE_ID, QR_FEEDBACK } from './fixtures/test-data';
 import {
   resetDeviceFingerprint,
   getActiveQrCollectionPoint,
-} from './fixtures/supabase-helpers';
+} from './fixtures/e2e-db-helpers';
 
 test.use({ storageState: { cookies: [], origins: [] } });
 

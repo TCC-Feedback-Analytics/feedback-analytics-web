@@ -14,9 +14,9 @@ workflows de **deploy** e **e2e** usam:
 | `VERCEL_TOKEN` | deploy | Token da conta/projeto Vercel. |
 | `VERCEL_ORG_ID` | deploy | ID da org no Vercel. |
 | `VERCEL_PROJECT_ID_WEB` | deploy | ID do projeto Vercel do frontend. |
-| `SUPABASE_URL` | deploy (developer) · e2e-main | URL do Supabase usada **pelo e2e** (setup/limpeza de dados via service role). O app **não** usa Supabase no browser. |
-| `SUPABASE_SERVICE_ROLE_KEY` | deploy (developer) · e2e-main | Setup/limpeza de dados do e2e. |
-| `E2E_TEST_EMAIL` · `E2E_TEST_PASSWORD` · `E2E_TEST_ENTERPRISE_ID` | deploy (developer) · e2e-main | Credenciais do e2e contra o developer. |
+| `SUPABASE_URL` | deploy (developer) · e2e-main | URL do banco usada apenas pelos helpers E2E de QR/device. O app não usa Supabase no browser ou para autenticação. |
+| `SUPABASE_SERVICE_ROLE_KEY` | deploy (developer) · e2e-main | Acesso administrativo aos dados E2E de QR/device; não é usado para criar, alterar ou autenticar usuários. |
+| `E2E_TEST_EMAIL` · `E2E_TEST_PASSWORD` · `E2E_TEST_ENTERPRISE_ID` | deploy (developer) · e2e-main | Dados da fixture Better Auth do ambiente developer. |
 
 ## Por que o rewrite ssh→https
 
