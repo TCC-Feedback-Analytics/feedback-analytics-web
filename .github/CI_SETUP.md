@@ -16,7 +16,7 @@ workflows de **deploy** e **e2e** usam:
 | `VERCEL_PROJECT_ID_WEB` | deploy | ID do projeto Vercel do frontend. |
 | `SUPABASE_URL` | deploy (developer) · e2e-main | URL do Supabase usada **pelo e2e** (setup/limpeza de dados via service role). O app **não** usa Supabase no browser. |
 | `SUPABASE_SERVICE_ROLE_KEY` | deploy (developer) · e2e-main | Setup/limpeza de dados do e2e. |
-| `E2E_TEST_EMAIL` · `E2E_TEST_PASSWORD` · `E2E_TEST_ENTERPRISE_ID` | deploy (developer) · e2e-main | Credenciais do e2e contra o developer. |
+| `E2E_TEST_EMAIL` · `E2E_TEST_PASSWORD` · `E2E_TEST_ENTERPRISE_ID` | deploy (developer) · e2e-main | Dados obrigatórios da fixture Better Auth do ambiente developer; o setup falha de imediato se algum estiver ausente. |
 
 ## Por que o rewrite ssh→https
 
