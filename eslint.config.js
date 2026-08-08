@@ -46,7 +46,7 @@ const restrictedPresentationTypeSyntax = [
 ]
 
 export default tseslint.config([
-  globalIgnores(['dist', 'coverage', 'playwright-report', 'test-results']),
+  globalIgnores(['dist', 'coverage']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [

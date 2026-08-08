@@ -1,8 +1,5 @@
 node_modules
 dist
 coverage
-playwright-report/
-test-results/
 .claude
 .env
-e2e/.auth
