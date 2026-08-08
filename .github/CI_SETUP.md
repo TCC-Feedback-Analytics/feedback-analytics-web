@@ -7,16 +7,15 @@ os workflows só reescrevem `ssh→https` (ver abaixo). Nenhum secret é necess�
 para o **CI** (lint/typecheck/build/unit).
 
 Configure em **Settings → Secrets and variables → Actions** apenas o que os
-workflows de **deploy** e **e2e** usam:
+workflows de **deploy** usam:
 
 | Secret | Usado em | Para quê |
 |---|---|---|
 | `VERCEL_TOKEN` | deploy | Token da conta/projeto Vercel. |
 | `VERCEL_ORG_ID` | deploy | ID da org no Vercel. |
 | `VERCEL_PROJECT_ID_WEB` | deploy | ID do projeto Vercel do frontend. |
-| `SUPABASE_URL` | deploy (homolog) · e2e-main | URL do Supabase usada **pelo e2e** (setup/limpeza de dados via service role). O app **não** usa Supabase no browser. |
-| `SUPABASE_SERVICE_ROLE_KEY` | deploy (homolog) · e2e-main | Setup/limpeza de dados do e2e. |
-| `E2E_TEST_EMAIL` · `E2E_TEST_PASSWORD` · `E2E_TEST_ENTERPRISE_ID` | deploy (homolog) · e2e-main | Credenciais do e2e contra o homolog. |
+
+> O deploy é **só `main` → produção** (sem ambiente homolog/`developer`). O e2e (Playwright) foi **removido do CI** e virou **teste manual**, então os secrets de Supabase/E2E não são mais necessários. Runbook manual: `feedback-analytics/docs/guias/testes/manuais-web.md`.
 
 ## Por que o rewrite ssh→https
 
