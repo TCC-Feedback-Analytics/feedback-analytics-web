@@ -22,11 +22,12 @@ npm run dev             # http://localhost:5173
 ```bash
 npm run build           # build de produção (dist/)
 npm test                # unitários (Vitest); use `npm run test -- run` para single-shot
-npm run test:e2e        # e2e (Playwright)
 npm run lint
 ```
 
 > Em previews/produção na Vercel, `VITE_API_BASE_URL` fica **vazia**: a base da API é derivada pelo hostname (o slug `feedback-analytics-web` vira `feedback-analytics-api` no mesmo `.vercel.app`).
+
+> Os casos de uso (UC-01…UC-12), antes cobertos por e2e Playwright, agora têm um **runbook de teste manual** na documentação central: `feedback-analytics/docs/guias/testes/manuais-web.md`.
 
 ## Documentação
 
