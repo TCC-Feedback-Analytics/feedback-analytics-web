@@ -5,7 +5,6 @@ import {
   FaChartPie,
   FaWandMagicSparkles,
   FaSliders,
-  FaCompass,
   FaChevronLeft,
   FaChevronRight,
   FaXmark,
@@ -40,13 +39,6 @@ export const INTERACTIVE_STEPS: TourStepData[] = [
     title: "Contexto de IA",
     icon: FaSliders,
     description: "Configure os dados da sua empresa no perfil para personalizar os relatórios da IA.",
-  },
-  {
-    selector: '[data-tour="header-tour-btn"]',
-    route: "/user/dashboard",
-    title: "Guia Rápido",
-    icon: FaCompass,
-    description: "Revise este tutorial a qualquer momento clicando no botão Guia Rápido no topo.",
   },
 ];
 

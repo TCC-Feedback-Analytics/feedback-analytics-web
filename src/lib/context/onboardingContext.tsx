@@ -30,7 +30,7 @@ interface OnboardingProviderProps {
   collecting: CollectingDataEnterprise | null;
 }
 
-export const TOUR_STEPS_COUNT = 4;
+export const TOUR_STEPS_COUNT = 3;
 
 export function OnboardingProvider({ children, collecting }: OnboardingProviderProps) {
   const hasCompletedAIContext = Boolean(
