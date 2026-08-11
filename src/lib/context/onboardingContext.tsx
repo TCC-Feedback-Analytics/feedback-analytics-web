@@ -1,22 +1,12 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { CollectingDataEnterprise } from "lib/interfaces/entities/enterprise.entity";
+import { TOUR_STEPS_COUNT, type OnboardingContextValue } from "./onboardingContext.types";
 
 const STORAGE_KEY = "feedback_onboarding_tour_seen";
 
-export interface OnboardingContextValue {
-  isTourActive: boolean;
-  currentTourStep: number;
-  hasCompletedAIContext: boolean;
-  isTourDismissed: boolean;
-  startTour: () => void;
-  skipTour: () => void;
-  nextTourStep: () => void;
-  prevTourStep: () => void;
-  goToStep: (step: number) => void;
-}
-
 const OnboardingContext = createContext<OnboardingContextValue | null>(null);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useOnboarding() {
   const context = useContext(OnboardingContext);
   if (!context) {
@@ -29,8 +19,6 @@ interface OnboardingProviderProps {
   children: ReactNode;
   collecting: CollectingDataEnterprise | null;
 }
-
-export const TOUR_STEPS_COUNT = 3;
 
 export function OnboardingProvider({ children, collecting }: OnboardingProviderProps) {
   const hasCompletedAIContext = Boolean(

@@ -4,7 +4,7 @@ import { MemoryRouter, useNavigation, useRouteLoaderData } from 'react-router-do
 import Profile from '../user/profile';
 
 vi.mock('react-router-dom', async (importActual) => {
-  const actual = await importActual<typeof import('react-router-dom')>('react-router-dom');
+  const actual = await importActual<typeof import('react-router-dom')>();
 
   return {
     ...actual,
@@ -13,7 +13,7 @@ vi.mock('react-router-dom', async (importActual) => {
     useFetcher: () => ({
       state: 'idle',
       data: undefined,
-      Form: (props: any) => <form {...props} />,
+      Form: (props: React.FormHTMLAttributes<HTMLFormElement>) => <form {...props} />,
       submit: vi.fn(),
     }),
   };

@@ -8,11 +8,11 @@ import {
   FaWandMagicSparkles,
   FaCheck,
   FaChevronLeft,
-  FaChevronRight,
   FaXmark,
   FaCircleInfo,
   FaShieldHalved,
 } from "react-icons/fa6";
+import type { AIContextDialogProps } from "./ui.types";
 
 const STEPS = [
   {
@@ -44,38 +44,14 @@ const STEPS = [
   },
 ] as const;
 
-interface AIContextDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  isMandatory?: boolean;
-}
-
-function useCollectingData(): CollectingDataEnterprise | null {
-  try {
-    const data = useRouteLoaderData("user") as { collecting: CollectingDataEnterprise | null } | undefined;
-    return data?.collecting ?? null;
-  } catch {
-    return null;
-  }
-}
-
 export default function AIContextDialog({
   open,
   onOpenChange,
   isMandatory = false,
 }: AIContextDialogProps) {
-  const collecting = useCollectingData();
-
-  let fetcher: ReturnType<typeof useFetcher>;
-  try {
-    fetcher = useFetcher();
-  } catch {
-    fetcher = { state: "idle", data: undefined, Form: (props: any) => <form {...props} />, submit: () => {} } as any;
-  }
-  if (!fetcher.Form) {
-    fetcher = { ...fetcher, Form: (props: any) => <form {...props} /> };
-  }
-
+  const routeData = useRouteLoaderData("user") as { collecting: CollectingDataEnterprise | null } | undefined;
+  const collecting = routeData?.collecting ?? null;
+  const fetcher = useFetcher();
   const toast = useToast();
   const isSaving = fetcher.state === "submitting";
 
@@ -119,7 +95,6 @@ export default function AIContextDialog({
 
   if (!open) return null;
 
-  const currentStepItem = STEPS[step];
   const isLast = step === STEPS.length - 1;
 
   const setValue = (key: keyof typeof values, value: string) =>
@@ -232,14 +207,11 @@ export default function AIContextDialog({
         </div>
 
         {/* Formulário do Passo Ativo */}
-        {(() => {
-          const FormComponent = fetcher?.Form || "form";
-          return (
-            <FormComponent
-              method="post"
-              action="/user/edit/collecting-data-enterprise"
-              className="relative z-10 space-y-4"
-            >
+        <fetcher.Form
+          method="post"
+          action="/user/edit/collecting-data-enterprise"
+          className="relative z-10 space-y-4"
+        >
           {/* Mantém todos os 3 campos renderizados (escondidos se não ativos) para submit único */}
           {STEPS.map((stepItem, index) => (
             <div
@@ -319,9 +291,7 @@ export default function AIContextDialog({
               </button>
             )}
           </div>
-        </FormComponent>
-      );
-    })()}
+        </fetcher.Form>
 
         {isSaving && (
           <div className="pointer-events-none absolute inset-0 rounded-3xl border border-(--quaternary-color)/12 bg-(--bg-primary)/40 backdrop-blur-[2px] flex items-center justify-center">

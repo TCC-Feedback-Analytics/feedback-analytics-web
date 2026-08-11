@@ -33,7 +33,7 @@ function createArgs(body: Record<string, string | undefined>): ActionFunctionArg
     request,
     params: {},
     context: undefined
-  }
+  } as ActionFunctionArgs;
 }
 
 describe('[Integração] ActionCollectingData', () => {

@@ -59,7 +59,7 @@ describe('[Unidade] LayoutUser', () => {
     vi.mocked(useFetcher).mockReturnValue({
       state: 'idle',
       submit: vi.fn(),
-      Form: (props: any) => <form {...props} />,
+      Form: (props: React.FormHTMLAttributes<HTMLFormElement>) => <form {...props} />,
     } as unknown as ReturnType<typeof useFetcher>);
 
     vi.mocked(useLocation).mockReturnValue({
@@ -68,7 +68,7 @@ describe('[Unidade] LayoutUser', () => {
       hash: '',
       state: null,
       key: 'default',
-    });
+    } as unknown as ReturnType<typeof useLocation>);
   });
 
   afterEach(() => {

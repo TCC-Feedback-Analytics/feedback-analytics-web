@@ -14,6 +14,12 @@ vi.mock("react-router-dom", async (importOriginal) => {
     useRouteLoaderData: () => ({
       collecting: null,
     }),
+    useFetcher: () => ({
+      state: "idle",
+      data: undefined,
+      Form: (props: React.FormHTMLAttributes<HTMLFormElement>) => <form {...props} />,
+      submit: vi.fn(),
+    }),
   };
 });
 
@@ -41,11 +47,11 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
   });
 
   it("calcula corretamente hasCompletedAIContext como falso se algum dos 3 campos faltar", () => {
-    const collecting: CollectingDataEnterprise = {
+    const collecting = {
       business_summary: "Resumo",
       company_objective: "",
       analytics_goal: "Objetivo",
-    };
+    } as CollectingDataEnterprise;
 
     render(
       <MemoryRouter>
@@ -59,11 +65,11 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
   });
 
   it("calcula corretamente hasCompletedAIContext como verdadeiro se os 3 campos estiverem preenchidos", () => {
-    const collecting: CollectingDataEnterprise = {
+    const collecting = {
       business_summary: "Resumo da empresa",
       company_objective: "Foco no atendimento",
       analytics_goal: "Descobrir causa de reclamações",
-    };
+    } as CollectingDataEnterprise;
 
     render(
       <MemoryRouter>
