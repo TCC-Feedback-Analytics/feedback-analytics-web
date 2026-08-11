@@ -29,6 +29,29 @@ import type { CollectingDataEnterprise, EnterpriseContext } from 'lib/interfaces
 import type { InsightScopeOption, InsightsCatalogItemOption } from 'components/user/pages/feedbacksInsightsReport/ui.types';
 import { INTENT_LOGOUT, INTENT_FEEDBACK_ANALYZE_RAW, INTENT_FEEDBACK_RUN_IA } from 'src/lib/constants/routes/intents';
 import { useToast } from 'components/public/forms/messages/useToast';
+import { OnboardingProvider, useOnboarding } from 'src/lib/context/onboardingContext';
+import AIContextDialog from 'components/user/onboarding/AIContextDialog';
+import UserInteractiveTour from 'components/user/onboarding/UserInteractiveTour';
+
+function UserOnboardingManager() {
+  const { hasCompletedAIContext } = useOnboarding();
+  const [mandatoryOpen, setMandatoryOpen] = useState(!hasCompletedAIContext);
+
+  useEffect(() => {
+    setMandatoryOpen(!hasCompletedAIContext);
+  }, [hasCompletedAIContext]);
+
+  return (
+    <>
+      <AIContextDialog
+        open={mandatoryOpen}
+        onOpenChange={setMandatoryOpen}
+        isMandatory={true}
+      />
+      <UserInteractiveTour />
+    </>
+  );
+}
 
 function buildInsightsInitialData(collecting: CollectingDataEnterprise | null): InsightsControlsInitialData {
   const availableScopes: InsightScopeOption[] = ['COMPANY'];
@@ -269,62 +292,65 @@ export default function User() {
   };
 
   return (
-    <InsightsControlsProvider
-      value={{
-        ...insightsState,
-        analyzeRaw,
-        regenerateInsights,
-        isAnalyzingRaw: analyzeRawFetcher.state !== 'idle',
-        isRegeneratingInsights: insightsFetcher.state !== 'idle',
-      }}
-    >
-      <div className="private-user-theme min-h-screen bg-(--bg-primary) text-(--text-primary)">
-        <header className="sticky top-0 z-50 h-16 border-b border-(--quaternary-color)/10 bg-linear-to-r from-(--bg-secondary) to-(--sixth-color)">
-          <Header
-            isSidebarOpen={isSidebarOpen}
-            onToggleSidebar={() => setIsSidebarOpen((v) => !v)}
-            enterprise={enterprise}
-            onSignOut={handleSignOut}
-            isSigningOut={isSigningOut}
-          />
-        </header>
+    <OnboardingProvider collecting={collecting}>
+      <InsightsControlsProvider
+        value={{
+          ...insightsState,
+          analyzeRaw,
+          regenerateInsights,
+          isAnalyzingRaw: analyzeRawFetcher.state !== 'idle',
+          isRegeneratingInsights: insightsFetcher.state !== 'idle',
+        }}
+      >
+        <div className="private-user-theme min-h-screen bg-(--bg-primary) text-(--text-primary)">
+          <header className="sticky top-0 z-50 h-16 border-b border-(--quaternary-color)/10 bg-linear-to-r from-(--bg-secondary) to-(--sixth-color)">
+            <Header
+              isSidebarOpen={isSidebarOpen}
+              onToggleSidebar={() => setIsSidebarOpen((v) => !v)}
+              enterprise={enterprise}
+              onSignOut={handleSignOut}
+              isSigningOut={isSigningOut}
+            />
+          </header>
 
-        <div className="relative bg-(--bg-primary)">
-          {/* Ativador de borda: invoca a sidebar ao aproximar o cursor da esquerda. */}
-          <div
-            className="fixed left-0 top-16 z-30 h-[calc(100vh-64px)] w-2"
-            onMouseEnter={() => {
+          <div className="relative bg-(--bg-primary)">
+            {/* Ativador de borda: invoca a sidebar ao aproximar o cursor da esquerda. */}
+            <div
+              className="fixed left-0 top-16 z-30 h-[calc(100vh-64px)] w-2"
+              onMouseEnter={() => {
+                cancelClose();
+                setIsSidebarOpen(true);
+                setIsHoverActivator(true);
+              }}
+              onMouseLeave={() => {
+                setIsHoverActivator(false);
+                scheduleClose();
+              }}
+            />
+
+            <main className="min-w-0">
+              <div className="bg-(--bg-primary) p-4 md:p-5">
+                <InsightsActionBar />
+                <SectionTabs className="mb-5" />
+                {pendingContent}
+              </div>
+            </main>
+          </div>
+
+          <Sidebar
+            isOpen={isSidebarOpen}
+            onOpen={() => {
               cancelClose();
               setIsSidebarOpen(true);
-              setIsHoverActivator(true);
             }}
-            onMouseLeave={() => {
-              setIsHoverActivator(false);
+            onClose={() => {
               scheduleClose();
             }}
+            pendingPathname={pendingPathname}
           />
-
-          <main className="min-w-0">
-            <div className="bg-(--bg-primary) p-4 md:p-5">
-              <InsightsActionBar />
-              <SectionTabs className="mb-5" />
-              {pendingContent}
-            </div>
-          </main>
+          <UserOnboardingManager />
         </div>
-
-        <Sidebar
-          isOpen={isSidebarOpen}
-          onOpen={() => {
-            cancelClose();
-            setIsSidebarOpen(true);
-          }}
-          onClose={() => {
-            scheduleClose();
-          }}
-          pendingPathname={pendingPathname}
-        />
-      </div>
-    </InsightsControlsProvider>
+      </InsightsControlsProvider>
+    </OnboardingProvider>
   );
 }
