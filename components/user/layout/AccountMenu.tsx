@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaChevronDown, FaRightFromBracket, FaUser } from 'react-icons/fa6';
+import { FaChevronDown, FaRightFromBracket, FaUser, FaCompass } from 'react-icons/fa6';
 import Avatar from 'components/user/shared/avatar';
 import { useTruncatedText } from 'src/lib/utils/truncateText';
 import type { EnterpriseContext } from 'lib/interfaces/entities/enterprise.entity';
 import type { AccountMenuProps } from './ui.types';
+import { useOnboarding } from 'src/lib/context/onboardingContext';
 
 function getSubscriptionBadge(enterprise: EnterpriseContext) {
   const status = enterprise.subscription_status;
@@ -51,10 +52,11 @@ function getSubscriptionBadge(enterprise: EnterpriseContext) {
 
 /**
  * Menu de conta no topo do layout: identidade da empresa, status do plano e
- * acesso a "Minha conta" e "Sair".
+ * acesso a "Minha conta", "Guia do Sistema" e "Sair".
  */
 export default function AccountMenu({ enterprise, onSignOut, isSigningOut = false }: AccountMenuProps) {
   const [open, setOpen] = useState(false);
+  const { startTour } = useOnboarding();
   const name = enterprise.full_name ?? enterprise.email ?? 'Minha conta';
   const { display } = useTruncatedText(name, 22);
 
@@ -97,6 +99,18 @@ export default function AccountMenu({ enterprise, onSignOut, isSigningOut = fals
               <FaUser className="h-3.5 w-3.5 text-(--text-tertiary)" />
               Minha conta
             </Link>
+
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                startTour();
+              }}
+              role="menuitem"
+              className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm text-(--text-secondary) transition-colors hover:bg-(--seventh-color) hover:text-(--text-primary)">
+              <FaCompass className="h-3.5 w-3.5 text-(--primary-color)" />
+              Guia do Sistema
+            </button>
 
             <button
               type="button"

@@ -21,6 +21,9 @@ interface OnboardingProviderProps {
 }
 
 export function OnboardingProvider({ children, collecting }: OnboardingProviderProps) {
+  const enterpriseId = collecting?.enterprise_id ?? "";
+  const storageKey = enterpriseId ? `feedback_onboarding_tour_seen_${enterpriseId}` : STORAGE_KEY;
+
   const hasCompletedAIContext = Boolean(
     collecting &&
       String(collecting.business_summary ?? "").trim().length > 0 &&
@@ -30,7 +33,7 @@ export function OnboardingProvider({ children, collecting }: OnboardingProviderP
 
   const [isTourDismissed, setIsTourDismissed] = useState<boolean>(() => {
     try {
-      return localStorage.getItem(STORAGE_KEY) === "true";
+      return localStorage.getItem(storageKey) === "true";
     } catch {
       return false;
     }
@@ -39,17 +42,17 @@ export function OnboardingProvider({ children, collecting }: OnboardingProviderP
   const [isTourActive, setIsTourActive] = useState<boolean>(false);
   const [currentTourStep, setCurrentTourStep] = useState<number>(0);
 
-  // Inicia o tour automaticamente se o usuário nunca viu o tour nem recusou previamente
+  // Inicia o tour automaticamente quando o contexto inicial de IA for concluído (se a conta criada ainda não viu o tour)
   useEffect(() => {
     try {
-      const seen = localStorage.getItem(STORAGE_KEY) === "true";
-      if (!seen) {
+      const seen = localStorage.getItem(storageKey) === "true";
+      if (!seen && hasCompletedAIContext) {
         setIsTourActive(true);
       }
     } catch {
       // Ignora falhas de localStorage se restrito
     }
-  }, []);
+  }, [hasCompletedAIContext, storageKey]);
 
   const startTour = () => {
     setCurrentTourStep(0);
@@ -60,7 +63,7 @@ export function OnboardingProvider({ children, collecting }: OnboardingProviderP
     setIsTourActive(false);
     setIsTourDismissed(true);
     try {
-      localStorage.setItem(STORAGE_KEY, "true");
+      localStorage.setItem(storageKey, "true");
     } catch {
       // Ignora falhas de localStorage
     }

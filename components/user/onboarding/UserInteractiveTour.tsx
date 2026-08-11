@@ -20,13 +20,17 @@ export default function UserInteractiveTour() {
   const IconComponent = stepData.icon;
   const isLast = currentTourStep === TOUR_STEPS_COUNT - 1;
 
-  // Garante troca automática de rota se o passo atual pertencer a outra tela
+  // Garante troca automática de rota e rolagem até o elemento alvo
   useEffect(() => {
     if (!isTourActive) return;
     if (location.pathname !== stepData.route) {
       navigate(stepData.route);
     }
-  }, [isTourActive, currentTourStep, stepData.route, location.pathname, navigate]);
+    const el = document.querySelector(stepData.selector);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [isTourActive, currentTourStep, stepData.route, stepData.selector, location.pathname, navigate]);
 
   // Função para recalcular as dimensões e posição do elemento destacado (spotlight)
   const updateSpotlight = useCallback(() => {
@@ -36,8 +40,8 @@ export default function UserInteractiveTour() {
     if (el) {
       const bounds = el.getBoundingClientRect();
       setRect({
-        top: bounds.top + window.scrollY,
-        left: bounds.left + window.scrollX,
+        top: bounds.top,
+        left: bounds.left,
         width: bounds.width,
         height: bounds.height,
       });

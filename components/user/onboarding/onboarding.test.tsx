@@ -113,9 +113,15 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
   });
 
   it("permite navegar pelos passos do Tour Interativo Spotlight e pular a introdução", () => {
+    const completeCollecting = {
+      business_summary: "Resumo",
+      company_objective: "Objetivo",
+      analytics_goal: "Analítico",
+    } as CollectingDataEnterprise;
+
     render(
       <MemoryRouter initialEntries={["/user/dashboard"]}>
-        <OnboardingProvider collecting={null}>
+        <OnboardingProvider collecting={completeCollecting}>
           <UserInteractiveTour />
         </OnboardingProvider>
       </MemoryRouter>
@@ -128,9 +134,13 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     fireEvent.click(screen.getByText("Próximo"));
     expect(screen.getByText("Insights com IA")).toBeInTheDocument();
 
+    // Avançar para o passo 3
+    fireEvent.click(screen.getByText("Próximo"));
+    expect(screen.getByText("Feedback Geral")).toBeInTheDocument();
+
     // Pular tour
     fireEvent.click(screen.getByText("Pular"));
-    expect(screen.queryByText("Insights com IA")).not.toBeInTheDocument();
+    expect(screen.queryByText("Feedback Geral")).not.toBeInTheDocument();
     expect(localStorage.getItem("feedback_onboarding_tour_seen")).toBe("true");
   });
 });
