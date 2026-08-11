@@ -26,10 +26,18 @@ export default function HeaderNav({ className = "" }: HeaderNavProps) {
             ? isMatch(item.to, pathname)
             : hasActiveDescendant(item, pathname);
 
+          const getTourAttr = (label: string, route: string) => {
+            if (route === "/user/dashboard" || label === "Visão geral") return "nav-dashboard";
+            if (label === "Insights") return "nav-insights";
+            if (label === "Configuração da coleta") return "nav-collecting";
+            return undefined;
+          };
+
           return (
             <li key={item.label}>
               <Link
                 to={to}
+                data-tour={getTourAttr(item.label, to)}
                 aria-current={active ? "page" : undefined}
                 className={`block whitespace-nowrap rounded-md px-3 py-1.5 text-[13px] font-semibold transition-colors ${
                   active

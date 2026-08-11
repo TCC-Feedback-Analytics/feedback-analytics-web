@@ -6,3 +6,4 @@ test-results/
 .claude
 .env
 e2e/.auth
+.agents
