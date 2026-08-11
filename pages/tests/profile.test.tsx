@@ -10,6 +10,12 @@ vi.mock('react-router-dom', async (importActual) => {
     ...actual,
     useNavigation: vi.fn(),
     useRouteLoaderData: vi.fn(),
+    useFetcher: () => ({
+      state: 'idle',
+      data: undefined,
+      Form: (props: any) => <form {...props} />,
+      submit: vi.fn(),
+    }),
   };
 });
 
