@@ -19,8 +19,8 @@ jobs:
     steps:
       - name: Validação manual de requests
         run: |
-          if [ "${{ github.ref_name }}" != "developer" ] && [ "${{ github.ref_name }}" != "main" ]; then
-            echo "Este workflow deve ser executado apenas nas branches main ou developer"
+          if [ "${{ github.ref_name }}" != "main" ]; then
+            echo "Este workflow deve ser executado apenas na branch main (produção)."
             exit 1
           fi
 
@@ -45,54 +45,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Deploy preview (developer)
-        id: deploy-developer
-        if: github.ref_name == 'developer'
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_WEB }}
-        run: |
-          DEPLOY_URL=$(npx vercel deploy --yes --token "$VERCEL_TOKEN" --local-config vercel.json)
-          echo "url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
-
       - name: Deploy production (main)
-        id: deploy-main
-        if: github.ref_name == 'main'
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_WEB }}
-        run: |
-          DEPLOY_URL=$(npx vercel deploy --yes --prod --token "$VERCEL_TOKEN" --local-config vercel.json)
-          echo "url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
-
-      - name: Atribuir alias fixo ao developer
-        if: github.ref_name == 'developer'
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: |
-          npx vercel alias set ${{ steps.deploy-developer.outputs.url }} feedback-analytics-web-developer.vercel.app --token "$VERCEL_TOKEN"
-
-      - name: Install Playwright browsers
-        if: github.ref_name == 'developer'
-        run: npx playwright install chromium --with-deps
-
-      - name: Run E2E tests (developer)
-        if: github.ref_name == 'developer'
-        run: npm run test:e2e
-        env:
-          PLAYWRIGHT_BASE_URL: https://feedback-analytics-web-developer.vercel.app
-          E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
-          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
-          E2E_TEST_ENTERPRISE_ID: ${{ secrets.E2E_TEST_ENTERPRISE_ID }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-
-      - name: Upload Playwright report
-        if: github.ref_name == 'developer' && always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 7
+        run: npx vercel deploy --yes --prod --token "$VERCEL_TOKEN" --local-config vercel.json
