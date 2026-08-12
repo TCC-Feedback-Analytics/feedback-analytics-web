@@ -28,9 +28,9 @@ export const menuData: MenuItem[] = [
   {
     label: "Configuração da coleta",
     children: [
-      { label: "Dados da empresa", to: "/user/edit/collecting-data-enterprise" },
       { label: "Feedback geral", to: "/user/edit/feedback-general" },
       { label: "Catálogo", to: "/user/edit/types-feedback" },
+      { label: "Dados da empresa", to: "/user/edit/collecting-data-enterprise" },
     ],
   },
   // { label: "Clientes", to: "/user/edit/customers" },

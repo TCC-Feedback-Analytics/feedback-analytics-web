@@ -20,10 +20,18 @@ export default function SectionTabs({ className = "" }: SectionTabsProps) {
         {tabs.map((tab) => {
           const active = isMatch(tab.to, pathname);
 
+          const getTourAttr = (to: string) => {
+            if (to === "/user/edit/feedback-general") return "tour-feedback-general";
+            if (to === "/user/edit/types-feedback") return "tour-catalog";
+            if (to === "/user/edit/collecting-data-enterprise") return "ai-context-steps";
+            return undefined;
+          };
+
           return (
             <NavLink
               key={tab.to}
               to={tab.to}
+              data-tour={getTourAttr(tab.to)}
               aria-current={active ? "page" : undefined}
               className={`whitespace-nowrap rounded-md px-4 py-1.5 text-[13px] font-semibold transition-colors ${
                 active

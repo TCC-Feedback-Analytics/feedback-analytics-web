@@ -5,6 +5,7 @@ import type {
 import type { AuthUser } from "lib/interfaces/entities/auth-user.entity";
 import PageHeader from "components/user/shared/PageHeader";
 import Information from "components/user/pages/profile/editUser/information";
+import AIContextProfileCard from "components/user/pages/profile/AIContextProfileCard";
 
 export default function Profile() {
   const { enterprise, user } = useRouteLoaderData("user") as {
@@ -29,6 +30,8 @@ export default function Profile() {
           defaultEmail={email}
           defaultPhone={phone}
         />
+
+        <AIContextProfileCard />
 
         {isSavingProfile && (
           <div className="pointer-events-none absolute inset-0 rounded-2xl border border-(--quaternary-color)/12 bg-(--bg-primary)/35 backdrop-blur-[1px]" />

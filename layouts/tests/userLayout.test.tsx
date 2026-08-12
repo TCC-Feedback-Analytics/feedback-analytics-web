@@ -6,6 +6,8 @@ const mocks = vi.hoisted(() => ({
   useLoaderData: vi.fn(),
   useFetcher: vi.fn(),
   useNavigation: vi.fn(),
+  useLocation: vi.fn(),
+  useNavigate: vi.fn(),
 }));
 
 vi.mock('react-router-dom', async () => {
@@ -14,9 +16,15 @@ vi.mock('react-router-dom', async () => {
   return {
     ...actual,
     useLoaderData: mocks.useLoaderData,
+    useRouteLoaderData: mocks.useLoaderData,
     useFetcher: mocks.useFetcher,
     useNavigation: mocks.useNavigation,
+    useLocation: mocks.useLocation,
+    useNavigate: mocks.useNavigate,
     Outlet: () => <div data-testid="outlet-content">Outlet content</div>,
+    Link: ({ children, to, className }: { children: React.ReactNode; to: string; className?: string }) => (
+      <a href={to} className={className}>{children}</a>
+    ),
   };
 });
 
@@ -37,7 +45,7 @@ vi.mock('components/user/layout/InsightsActionBar', () => ({
 }));
 
 import LayoutUser from '../user';
-import { useFetcher, useLoaderData, useNavigation } from 'react-router-dom';
+import { useFetcher, useLoaderData, useNavigation, useLocation } from 'react-router-dom';
 
 describe('[Unidade] LayoutUser', () => {
   beforeEach(() => {
@@ -51,7 +59,16 @@ describe('[Unidade] LayoutUser', () => {
     vi.mocked(useFetcher).mockReturnValue({
       state: 'idle',
       submit: vi.fn(),
+      Form: (props: React.FormHTMLAttributes<HTMLFormElement>) => <form {...props} />,
     } as unknown as ReturnType<typeof useFetcher>);
+
+    vi.mocked(useLocation).mockReturnValue({
+      pathname: '/user/dashboard',
+      search: '',
+      hash: '',
+      state: null,
+      key: 'default',
+    } as unknown as ReturnType<typeof useLocation>);
   });
 
   afterEach(() => {

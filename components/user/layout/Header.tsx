@@ -23,7 +23,7 @@ export default function Header({
 
       <HeaderNav className="hidden min-w-0 flex-1 sm:block" />
 
-      <div className="ml-auto shrink-0">
+      <div className="ml-auto flex items-center gap-2 shrink-0">
         <AccountMenu
           enterprise={enterprise}
           onSignOut={onSignOut}
