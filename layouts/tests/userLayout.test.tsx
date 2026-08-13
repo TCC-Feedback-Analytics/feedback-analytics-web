@@ -25,6 +25,9 @@ vi.mock('react-router-dom', async () => {
     Link: ({ children, to, className }: { children: React.ReactNode; to: string; className?: string }) => (
       <a href={to} className={className}>{children}</a>
     ),
+    NavLink: ({ children, to, className }: { children: React.ReactNode; to: string; className?: string }) => (
+      <a href={to} className={className}>{children}</a>
+    ),
   };
 });
 
@@ -34,6 +37,14 @@ vi.mock('components/user/layout/Header', () => ({
 
 vi.mock('components/user/layout/Sidebar', () => ({
   default: () => <aside data-testid="layout-sidebar">Sidebar</aside>,
+}));
+
+vi.mock('components/user/layout/MobileBottomNav', () => ({
+  default: () => <nav data-testid="mobile-bottom-nav">MobileBottomNav</nav>,
+}));
+
+vi.mock('components/user/layout/MobileMenuDrawer', () => ({
+  default: () => <div data-testid="mobile-menu-drawer">MobileMenuDrawer</div>,
 }));
 
 vi.mock('components/user/shared/SectionTabs', () => ({

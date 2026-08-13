@@ -7,6 +7,9 @@ import {
 } from 'src/lib/context/insightsControls';
 import type { InsightsControlsInitialData } from 'src/lib/context/insightsControls.types';
 import Sidebar from 'components/user/layout/Sidebar';
+import MobileBottomNav from 'components/user/layout/MobileBottomNav';
+import MobileMenuDrawer from 'components/user/layout/MobileMenuDrawer';
+import { SidebarProvider } from 'components/ui/sidebar';
 import SectionTabs from 'components/user/shared/SectionTabs';
 import InsightsActionBar from 'components/user/layout/InsightsActionBar';
 import DashboardSkeleton from 'components/user/pages/dashboard/DashboardSkeleton';
@@ -116,11 +119,6 @@ export default function User() {
     insightsState.setCatalogItemOptions(updated.catalogItemOptions);
     insightsState.setCanAnalyze(updated.canAnalyze);
 
-    // Reconcilia a seleção atual com as novas opções: após editar o catálogo, o
-    // escopo (tipo desativado) ou o item (removido/renomeado de kind) pode ter
-    // sumido. Sem isto, a seleção aponta para algo inexistente e o escopo volta
-    // vazio — ou trava o gestor num escopo que nem aparece mais no seletor.
-    // Espelha a lógica de handleScopeChange (InsightsControlsBar).
     if (!updated.availableScopes.includes(insightsState.scope)) {
       insightsState.setScope('COMPANY');
       insightsState.setCatalogItemId('');
@@ -143,6 +141,7 @@ export default function User() {
   const shouldRevalidateInsightsRef = useRef(false);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [isHoverActivator, setIsHoverActivator] = useState(false);
   const closeTimerRef = useRef<number | null>(null);
   const isSigningOut = logoutFetcher.state !== 'idle';
@@ -220,8 +219,6 @@ export default function User() {
       | { ok?: boolean; error?: string; reportGenerated?: boolean }
       | undefined;
     if (data?.ok) {
-      // Só comemora se um relatório foi DE FATO gerado para o escopo. Caso
-      // contrário, evita o "falso sucesso" e orienta o gestor.
       if (data.reportGenerated === false) {
         toast.warning(
           'Nenhum relatório gerado',
@@ -302,54 +299,75 @@ export default function User() {
           isRegeneratingInsights: insightsFetcher.state !== 'idle',
         }}
       >
-        <div className="private-user-theme min-h-screen bg-(--bg-primary) text-(--text-primary)">
-          <header className="sticky top-0 z-50 h-16 border-b border-(--quaternary-color)/10 bg-linear-to-r from-(--bg-secondary) to-(--sixth-color)">
-            <Header
-              isSidebarOpen={isSidebarOpen}
-              onToggleSidebar={() => setIsSidebarOpen((v) => !v)}
-              enterprise={enterprise}
-              onSignOut={handleSignOut}
-              isSigningOut={isSigningOut}
-            />
-          </header>
+        <SidebarProvider open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+          <div className="private-user-theme min-h-screen w-full max-w-full overflow-x-hidden bg-(--bg-primary) text-(--text-primary)">
+            <header className="fixed top-0 left-0 right-0 z-50 h-16 w-full max-w-full border-b border-(--quaternary-color)/10 bg-linear-to-r from-(--bg-secondary) to-(--sixth-color) backdrop-blur-md">
+              <Header
+                isSidebarOpen={isSidebarOpen}
+                onToggleSidebar={() => setIsSidebarOpen((v) => !v)}
+                enterprise={enterprise}
+                onSignOut={handleSignOut}
+                isSigningOut={isSigningOut}
+              />
+            </header>
 
-          <div className="relative bg-(--bg-primary)">
-            {/* Ativador de borda: invoca a sidebar ao aproximar o cursor da esquerda. */}
-            <div
-              className="fixed left-0 top-16 z-30 h-[calc(100vh-64px)] w-2"
-              onMouseEnter={() => {
+            <div className="relative w-full max-w-full overflow-x-hidden bg-(--bg-primary) pt-16">
+              {/* Ativador de borda desktop */}
+              <div
+                className="hidden md:block fixed left-0 top-16 z-30 h-[calc(100vh-64px)] w-2"
+                onMouseEnter={() => {
+                  cancelClose();
+                  setIsSidebarOpen(true);
+                  setIsHoverActivator(true);
+                }}
+                onMouseLeave={() => {
+                  setIsHoverActivator(false);
+                  scheduleClose();
+                }}
+              />
+
+              <main className={`w-full max-w-full min-w-0 overflow-x-hidden pb-24 md:pb-5 transition-all duration-300 ${
+                isSidebarOpen ? 'md:pl-64' : 'md:pl-16'
+              }`}>
+                <div className="w-full max-w-full min-w-0 overflow-x-hidden bg-(--bg-primary) p-4 md:p-5">
+                  <InsightsActionBar />
+                  <SectionTabs className="mb-5" />
+                  {pendingContent}
+                </div>
+              </main>
+            </div>
+
+            {/* Desktop Sidebar (shadcn UI pattern) */}
+            <Sidebar
+              isOpen={isSidebarOpen}
+              onOpen={() => {
                 cancelClose();
                 setIsSidebarOpen(true);
-                setIsHoverActivator(true);
               }}
-              onMouseLeave={() => {
-                setIsHoverActivator(false);
+              onClose={() => {
                 scheduleClose();
               }}
+              pendingPathname={pendingPathname}
             />
 
-            <main className="min-w-0">
-              <div className="bg-(--bg-primary) p-4 md:p-5">
-                <InsightsActionBar />
-                <SectionTabs className="mb-5" />
-                {pendingContent}
-              </div>
-            </main>
-          </div>
+            {/* Mobile Bottom Navigation (Apenas no Mobile) */}
+            <MobileBottomNav
+              onOpenDrawer={() => setIsMobileDrawerOpen(true)}
+              pendingPathname={pendingPathname}
+            />
 
-          <Sidebar
-            isOpen={isSidebarOpen}
-            onOpen={() => {
-              cancelClose();
-              setIsSidebarOpen(true);
-            }}
-            onClose={() => {
-              scheduleClose();
-            }}
-            pendingPathname={pendingPathname}
-          />
-          <UserOnboardingManager />
-        </div>
+            {/* Mobile Bottom Sheet Drawer */}
+            <MobileMenuDrawer
+              isOpen={isMobileDrawerOpen}
+              onClose={() => setIsMobileDrawerOpen(false)}
+              pendingPathname={pendingPathname}
+              enterprise={enterprise}
+              onSignOut={handleSignOut}
+            />
+
+            <UserOnboardingManager />
+          </div>
+        </SidebarProvider>
       </InsightsControlsProvider>
     </OnboardingProvider>
   );

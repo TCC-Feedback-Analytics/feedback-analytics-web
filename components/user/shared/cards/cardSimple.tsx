@@ -68,7 +68,7 @@ export default function CardSimple({
     case 'header':
       return (
         <section className={baseClass}>
-          <div className="flex flex-col gap-6 md:flex-row md:items-cente justify-center">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center justify-between">
             {children}
           </div>
           <div className="gradient-banner" />

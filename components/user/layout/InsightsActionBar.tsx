@@ -78,7 +78,7 @@ export default function InsightsActionBar() {
         : `${pendingCount} feedback(s) novo(s) para analisar`;
 
   return (
-    <div className="mb-5 flex flex-wrap items-center gap-3 rounded-xl border border-(--quaternary-color)/12 bg-(--bg-secondary) p-3">
+    <div className="mb-5 flex w-full max-w-full flex-wrap items-center gap-3 overflow-x-hidden rounded-xl border border-(--quaternary-color)/12 bg-(--bg-secondary) p-3">
       <InsightsControlsBar />
 
       <span
