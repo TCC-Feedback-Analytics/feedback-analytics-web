@@ -27,6 +27,8 @@ export interface HeaderNavProps {
 export interface MenuItem {
   label: string;
   to?: string;
+  icon?: React.ElementType;
+  tourAttr?: string;
   children?: MenuItem[];
 }
 
@@ -49,4 +51,25 @@ export interface AccountMenuProps {
   enterprise: EnterpriseContext;
   onSignOut: () => void;
   isSigningOut?: boolean;
+}
+
+/**
+ * Props da barra de navegação inferior mobile.
+ * Usado em: components/user/layout/MobileBottomNav.tsx.
+ */
+export interface MobileBottomNavProps {
+  onOpenDrawer: () => void;
+  pendingPathname?: string;
+}
+
+/**
+ * Props da gaveta de menu de navegação mobile.
+ * Usado em: components/user/layout/MobileMenuDrawer.tsx.
+ */
+export interface MobileMenuDrawerProps {
+  isOpen: boolean;
+  onClose: () => void;
+  pendingPathname?: string;
+  enterprise?: EnterpriseContext;
+  onSignOut?: () => void;
 }

@@ -35,8 +35,8 @@ li.group>div+div::before {
 }
 
 li.group:hover>div:first-child {
-  background-color: color-mix(in srgb, var(--seventh-color) 92%, transparent) !important;
-  color: var(--text-primary) !important;
+  background-color: color-mix(in srgb, var(--seventh-color) 92%, transparent);
+  color: var(--text-primary);
   position: relative;
 }
 
@@ -53,33 +53,64 @@ li.group:hover>div:first-child::before {
 
 aside nav a[aria-current='page'],
 aside nav a[data-pending-current='true'] {
-  color: var(--text-primary) !important;
-  background-color: color-mix(in srgb, var(--seventh-color) 88%, transparent) !important;
+  color: var(--text-primary);
+  background-color: transparent;
   position: relative;
+}
+
+/* Subitens do menu (modo expandido e colapsado): remover background e indicador ● quando selecionados */
+aside nav ul ul a[aria-current='page'],
+aside nav ul ul a[data-pending-current='true'],
+aside nav div.overflow-hidden a[aria-current='page'],
+aside nav div.overflow-hidden a[data-pending-current='true'] {
+  background-color: transparent;
+}
+
+aside nav ul ul a::after,
+aside nav div.overflow-hidden a::after {
+  content: none;
+  display: none;
 }
 
 aside nav a[aria-current='page']::after,
 aside nav a[data-pending-current='true']::after {
   content: '●';
   position: absolute;
-  right: 8px;
-  top: 45%;
+  right: 14px;
+  top: 50%;
   transform: translateY(-50%);
-  width: 12px;
-  height: 12px;
-  font-size: 12px;
+  margin-top: -1px;
+  line-height: 1;
+  width: 10px;
+  height: 10px;
+  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--quaternary-color);
-  text-shadow: 0 0 8px color-mix(in srgb, var(--primary-color) 90%, transparent),
-    0 0 16px color-mix(in srgb, var(--primary-color) 70%, transparent),
-    0 0 24px color-mix(in srgb, var(--primary-color) 45%, transparent);
-  filter: drop-shadow(0 0 6px color-mix(in srgb, white 35%, transparent)) drop-shadow(0 0 12px color-mix(in srgb, var(--quaternary-color) 55%, transparent));
+  text-shadow: 0 0 6px color-mix(in srgb, var(--primary-color) 90%, transparent),
+    0 0 12px color-mix(in srgb, var(--primary-color) 60%, transparent);
   animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Ocultar o ponto de indicação ● e bordas quando o sidebar estiver colapsado/retraído */
+aside[data-state='collapsed'] nav a::after,
+aside[data-state='collapsed'] nav div::after,
+aside[data-state='collapsed'] nav span::after {
+  content: none;
+  display: none;
+}
+
+aside[data-state='collapsed'] nav a,
+aside[data-state='collapsed'] nav button {
+  border-left: none;
+  outline: none;
 }
 
 /* Enquanto a navegação está pendente, apenas o destino clicado deve ficar ativo. */
 aside nav[data-has-pending='true'] a[aria-current='page']:not([data-pending-current='true']) {
-  color: var(--text-secondary) !important;
-  background-color: transparent !important;
+  color: var(--text-secondary);
+  background-color: transparent;
 }
 
 aside nav[data-has-pending='true'] a[aria-current='page']:not([data-pending-current='true'])::after {
@@ -103,13 +134,13 @@ aside nav[data-has-pending='true'] a[aria-current='page']:not([data-pending-curr
 
 li.group:has(a[aria-current='page'])>div:first-child,
 li.group:has(a[data-pending-current='true'])>div:first-child {
-  background-color: color-mix(in srgb, var(--seventh-color) 92%, transparent) !important;
-  color: var(--text-primary) !important;
+  background-color: color-mix(in srgb, var(--seventh-color) 92%, transparent);
+  color: var(--text-primary);
 }
 
 li.group:has(a[aria-current='page'])>div:first-child svg,
 li.group:has(a[data-pending-current='true'])>div:first-child svg {
-  color: var(--quaternary-color) !important;
+  color: var(--quaternary-color);
 }
 
 li.group:has(a[aria-current='page'])>div:first-child,
@@ -122,26 +153,29 @@ li.group:has(a[data-pending-current='true'])>div:first-child span::after {
   content: '●';
   position: absolute;
   right: 32px;
-  top: 45%;
+  top: 50%;
   transform: translateY(-50%);
-  width: 12px;
-  height: 12px;
-  font-size: 12px;
+  margin-top: -1px;
+  line-height: 1;
+  width: 10px;
+  height: 10px;
+  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--quaternary-color);
-  text-shadow: 0 0 8px color-mix(in srgb, var(--primary-color) 90%, transparent),
-    0 0 16px color-mix(in srgb, var(--primary-color) 70%, transparent),
-    0 0 24px color-mix(in srgb, var(--primary-color) 45%, transparent);
-  filter: drop-shadow(0 0 6px color-mix(in srgb, white 35%, transparent)) drop-shadow(0 0 12px color-mix(in srgb, var(--quaternary-color) 55%, transparent));
+  text-shadow: 0 0 6px color-mix(in srgb, var(--primary-color) 90%, transparent),
+    0 0 12px color-mix(in srgb, var(--primary-color) 60%, transparent);
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
 aside nav[data-has-pending='true'] li.group:has(a[aria-current='page']):not(:has(a[data-pending-current='true']))>div:first-child {
-  background-color: transparent !important;
-  color: var(--text-secondary) !important;
+  background-color: transparent;
+  color: var(--text-secondary);
 }
 
 aside nav[data-has-pending='true'] li.group:has(a[aria-current='page']):not(:has(a[data-pending-current='true']))>div:first-child svg {
-  color: var(--text-tertiary) !important;
+  color: var(--text-tertiary);
 }
 
 aside nav[data-has-pending='true'] li.group:has(a[aria-current='page']):not(:has(a[data-pending-current='true']))>div:first-child span::after {
@@ -152,16 +186,14 @@ aside nav[data-has-pending='true'] li.group:has(a[aria-current='page']):not(:has
 
   0%,
   100% {
-    text-shadow: 0 0 8px color-mix(in srgb, var(--primary-color) 90%, transparent),
-      0 0 16px color-mix(in srgb, var(--primary-color) 70%, transparent),
-      0 0 24px color-mix(in srgb, var(--primary-color) 45%, transparent);
-    filter: drop-shadow(0 0 6px color-mix(in srgb, white 35%, transparent)) drop-shadow(0 0 12px color-mix(in srgb, var(--quaternary-color) 55%, transparent));
+    text-shadow: 0 0 6px color-mix(in srgb, var(--primary-color) 80%, transparent),
+      0 0 12px color-mix(in srgb, var(--primary-color) 50%, transparent);
+    opacity: 0.85;
   }
 
   50% {
-    text-shadow: 0 0 12px color-mix(in srgb, var(--primary-color) 100%, transparent),
-      0 0 24px color-mix(in srgb, var(--primary-color) 85%, transparent),
-      0 0 36px color-mix(in srgb, var(--primary-color) 65%, transparent);
-    filter: drop-shadow(0 0 10px color-mix(in srgb, white 45%, transparent)) drop-shadow(0 0 20px color-mix(in srgb, var(--quaternary-color) 70%, transparent));
+    text-shadow: 0 0 10px color-mix(in srgb, var(--primary-color) 100%, transparent),
+      0 0 18px color-mix(in srgb, var(--primary-color) 75%, transparent);
+    opacity: 1;
   }
 }
