@@ -1,31 +1,49 @@
 import Menu from "./Menu";
 import type { SidebarProps } from "./ui.types";
+import {
+  Sidebar as ShadcnSidebar,
+  SidebarContent,
+  SidebarHeader,
+  SidebarGroupLabel,
+} from "components/ui/sidebar";
+import { FaCompass } from "react-icons/fa6";
 
 /**
- * Sidebar overlay-only: invocada pelo hover na borda esquerda (ou pelo botão do
- * header no toque), sobrepondo o conteúdo sem ocupar espaço.
+ * Sidebar Desktop (padronizado com a arquitetura de shadcn UI Sidebar)
+ * Suporta alternar entre modo Expandido (w-64) e modo Recolhido (w-16 com ícones).
  */
 export default function Sidebar({
   isOpen,
-  onOpen,
-  onClose,
   pendingPathname,
 }: SidebarProps) {
+
   return (
-    <aside
-      onMouseEnter={onOpen}
-      onMouseLeave={onClose}
-      className={`fixed left-0 top-16 z-40 h-[calc(100vh-64px)] w-72 transform border-r border-(--quaternary-color)/10 bg-linear-to-b from-(--bg-secondary)/95 to-(--sixth-color)/95 backdrop-blur-sm transition-transform duration-300 ease-in-out ${
-        isOpen
-          ? "translate-x-0 pointer-events-auto"
-          : "-translate-x-full pointer-events-none"
-      }`}
-    >
-      <div className="flex h-full flex-col">
-        <div className="flex-1">
-          <Menu pendingPathname={pendingPathname} />
-        </div>
-      </div>
-    </aside>
+    <div className="hidden md:block">
+      <ShadcnSidebar
+        className={`translate-x-0 pointer-events-auto shadow-2xl transition-all duration-300 ease-in-out ${isOpen ? "w-64" : "w-16"
+          }`}
+      >
+        <SidebarHeader className="bg-(--seventh-color)/30 border-b border-(--quaternary-color)/10">
+          <>
+            <div className="flex items-center justify-start gap-2.5 w-full">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-(--primary-color)/15 text-(--primary-color) ring-1 ring-(--primary-color)/30">
+                <FaCompass className="h-4 w-4" />
+              </div>
+              <div className="flex flex-col truncate">
+                <span className="text-xs font-bold uppercase tracking-wider text-(--text-primary)">
+                  Navegação
+                </span>
+              </div>
+            </div>
+
+          </>
+        </SidebarHeader>
+
+        <SidebarContent>
+          {isOpen && <SidebarGroupLabel>Menu de Opções</SidebarGroupLabel>}
+          <Menu pendingPathname={pendingPathname} isCollapsed={!isOpen} />
+        </SidebarContent>
+      </ShadcnSidebar>
+    </div>
   );
 }
