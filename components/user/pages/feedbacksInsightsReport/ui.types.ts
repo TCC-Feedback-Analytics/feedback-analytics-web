@@ -135,6 +135,15 @@ export interface InsightsReportErrorStateProps {
 }
 
 /**
+ * Props do estado vazio da tela de insights em relatório.
+ * Usado em: components/user/pages/feedbacksInsightsReport/InsightsReportEmptyState.tsx.
+ */
+export interface InsightsReportEmptyStateProps {
+  refreshing: boolean;
+  onRefresh: () => void;
+}
+
+/**
  * Props do modal de geração de insights em lote.
  * Usado em: components/user/pages/feedbacksInsightsReport/GenerateInsightsDialog.tsx.
  */
