@@ -35,6 +35,8 @@ import { useToast } from 'components/public/forms/messages/useToast';
 import { OnboardingProvider, useOnboarding } from 'src/lib/context/onboardingContext';
 import AIContextDialog from 'components/user/onboarding/AIContextDialog';
 import UserInteractiveTour from 'components/user/onboarding/UserInteractiveTour';
+import { useAnalysisJobPolling } from 'src/lib/hooks/useAnalysisJobPolling';
+import { getIaErrorMessage } from 'src/lib/utils/iaErrorMapper';
 
 function UserOnboardingManager() {
   const { hasCompletedAIContext } = useOnboarding();
@@ -188,24 +190,65 @@ export default function User() {
     insightsFetcher.submit(form, { method: 'post', action: '/user/insights/reports' });
   }, [insightsState.canAnalyze, insightsState.scope, insightsState.catalogItemId, insightsFetcher, toast]);
 
-  useEffect(() => {
-    if (analyzeRawFetcher.state !== 'idle' || !shouldRevalidateRawRef.current) return;
-    shouldRevalidateRawRef.current = false;
-    const data = analyzeRawFetcher.data as
-      | { ok?: boolean; error?: string; analyzedCount?: number }
-      | undefined;
-    if (data?.ok) {
-      const count = data.analyzedCount ?? 0;
-      if (count > 0) {
+  const [activeRawJobId, setActiveRawJobId] = useState<string | null>(null);
+  const [activeInsightsJobId, setActiveInsightsJobId] = useState<string | null>(null);
+
+  const rawJobPolling = useAnalysisJobPolling({
+    jobId: activeRawJobId,
+    onCompleted: (job) => {
+      setActiveRawJobId(null);
+      if (job.total > 0) {
         toast.success(
           'Feedbacks analisados!',
-          `${count} feedback(s) processado(s) com sucesso.`,
+          `${job.done} feedback(s) processado(s) com sucesso.`,
         );
       } else {
         toast.success(
           'Nenhum feedback novo',
           'Os feedbacks deste escopo já estavam analisados.',
         );
+      }
+    },
+    onFailed: (errorCode) => {
+      setActiveRawJobId(null);
+      toast.error('Erro na análise', getIaErrorMessage(errorCode));
+    },
+  });
+
+  const insightsJobPolling = useAnalysisJobPolling({
+    jobId: activeInsightsJobId,
+    onCompleted: () => {
+      setActiveInsightsJobId(null);
+      toast.success('Insights atualizados!', 'Relatório atualizado com os novos insights da IA');
+    },
+    onFailed: (errorCode) => {
+      setActiveInsightsJobId(null);
+      toast.error('Erro na análise', getIaErrorMessage(errorCode));
+    },
+  });
+
+  useEffect(() => {
+    if (analyzeRawFetcher.state !== 'idle' || !shouldRevalidateRawRef.current) return;
+    shouldRevalidateRawRef.current = false;
+    const data = analyzeRawFetcher.data as
+      | { ok?: boolean; jobId?: string; error?: string; analyzedCount?: number }
+      | undefined;
+    if (data?.ok) {
+      if (data.jobId) {
+        setActiveRawJobId(data.jobId);
+      } else {
+        const count = data.analyzedCount ?? 0;
+        if (count > 0) {
+          toast.success(
+            'Feedbacks analisados!',
+            `${count} feedback(s) processado(s) com sucesso.`,
+          );
+        } else {
+          toast.success(
+            'Nenhum feedback novo',
+            'Os feedbacks deste escopo já estavam analisados.',
+          );
+        }
       }
     } else if (data?.error) {
       toast.error('Erro na análise', data.error);
@@ -216,16 +259,20 @@ export default function User() {
     if (insightsFetcher.state !== 'idle' || !shouldRevalidateInsightsRef.current) return;
     shouldRevalidateInsightsRef.current = false;
     const data = insightsFetcher.data as
-      | { ok?: boolean; error?: string; reportGenerated?: boolean }
+      | { ok?: boolean; jobId?: string; error?: string; reportGenerated?: boolean }
       | undefined;
     if (data?.ok) {
-      if (data.reportGenerated === false) {
-        toast.warning(
-          'Nenhum relatório gerado',
-          'Não há feedbacks com comentários analisados suficientes neste escopo para a IA gerar um relatório. Use "Analisar feedbacks" e tente novamente.',
-        );
+      if (data.jobId) {
+        setActiveInsightsJobId(data.jobId);
       } else {
-        toast.success('Insights atualizados!', 'Relatório atualizado com os novos insights da IA');
+        if (data.reportGenerated === false) {
+          toast.warning(
+            'Nenhum relatório gerado',
+            'Não há feedbacks com comentários analisados suficientes neste escopo para a IA gerar um relatório. Use "Analisar feedbacks" e tente novamente.',
+          );
+        } else {
+          toast.success('Insights atualizados!', 'Relatório atualizado com os novos insights da IA');
+        }
       }
     } else if (data?.error) {
       toast.error('Erro na análise', data.error);
@@ -288,6 +335,16 @@ export default function User() {
     }, 120);
   };
 
+  const isAnalyzingRaw = analyzeRawFetcher.state !== 'idle' || activeRawJobId !== null;
+  const isRegeneratingInsights = insightsFetcher.state !== 'idle' || activeInsightsJobId !== null;
+
+  const rawProgress = activeRawJobId
+    ? { done: rawJobPolling.done, total: rawJobPolling.total }
+    : null;
+  const insightsProgress = activeInsightsJobId
+    ? { done: insightsJobPolling.done, total: insightsJobPolling.total }
+    : null;
+
   return (
     <OnboardingProvider collecting={collecting}>
       <InsightsControlsProvider
@@ -295,8 +352,10 @@ export default function User() {
           ...insightsState,
           analyzeRaw,
           regenerateInsights,
-          isAnalyzingRaw: analyzeRawFetcher.state !== 'idle',
-          isRegeneratingInsights: insightsFetcher.state !== 'idle',
+          isAnalyzingRaw,
+          isRegeneratingInsights,
+          rawProgress,
+          insightsProgress,
         }}
       >
         <SidebarProvider open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
@@ -326,10 +385,10 @@ export default function User() {
                 }}
               />
 
-              <main className={`w-full max-w-full min-w-0 overflow-x-hidden pb-24 md:pb-5 transition-all duration-300 ${
+              <main className={`w-full max-w-full min-w-0 pb-24 md:pb-5 transition-all duration-300 ${
                 isSidebarOpen ? 'md:pl-64' : 'md:pl-16'
               }`}>
-                <div className="w-full max-w-full min-w-0 overflow-x-hidden bg-(--bg-primary) p-4 md:p-5">
+                <div className="w-full max-w-full min-w-0 bg-(--bg-primary) p-4 md:p-5">
                   <InsightsActionBar />
                   <SectionTabs className="mb-5" />
                   {pendingContent}
