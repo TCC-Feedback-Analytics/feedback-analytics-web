@@ -3,6 +3,11 @@ import type {
   InsightsCatalogItemOption,
 } from 'components/user/pages/feedbacksInsightsReport/ui.types';
 
+export interface AnalysisProgress {
+  done: number;
+  total: number;
+}
+
 export interface InsightsControlsContextValue {
   scope: InsightScopeOption;
   setScope: (scope: InsightScopeOption) => void;
@@ -18,6 +23,8 @@ export interface InsightsControlsContextValue {
   regenerateInsights: () => void;
   isAnalyzingRaw: boolean;
   isRegeneratingInsights: boolean;
+  rawProgress?: AnalysisProgress | null;
+  insightsProgress?: AnalysisProgress | null;
 }
 
 export interface InsightsControlsInitialData {
@@ -25,3 +32,4 @@ export interface InsightsControlsInitialData {
   catalogItemOptions: InsightsCatalogItemOption[];
   canAnalyze: boolean;
 }
+

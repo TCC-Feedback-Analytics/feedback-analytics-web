@@ -73,10 +73,16 @@ export async function ActionFeedbackInsightsReport({
   try {
     if (intent === INTENT_FEEDBACK_ANALYZE_RAW) {
       const result = await ServiceRunRawFeedbackAnalysis({ scope_type, catalog_item_id });
+      if ('jobId' in result) {
+        return { ok: true, jobId: result.jobId, jobType: 'analyze_raw' };
+      }
       return { ok: true, analyzedCount: result.analyzedCount };
     }
 
     const result = await ServiceRunFeedbackIAAnalysis({ scope_type, catalog_item_id });
+    if ('jobId' in result) {
+      return { ok: true, jobId: result.jobId, jobType: 'regenerate_insights' };
+    }
     return { ok: true, reportGenerated: result.reportGenerated };
   } catch (error) {
     const typedError = error as HttpActionError;
