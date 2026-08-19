@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Outlet, useFetcher, useLoaderData, useNavigation } from 'react-router-dom';
+import { Outlet, useFetcher, useLoaderData, useLocation, useNavigation } from 'react-router-dom';
 import Header from 'components/user/layout/Header';
 import {
   InsightsControlsProvider,
@@ -146,9 +146,11 @@ export default function User() {
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [isHoverActivator, setIsHoverActivator] = useState(false);
   const closeTimerRef = useRef<number | null>(null);
+  const location = useLocation();
   const isSigningOut = logoutFetcher.state !== 'idle';
   const isRouteLoading = navigation.state === 'loading';
   const pendingPathname = navigation.location?.pathname ?? '';
+  const isNavigatingToNewPage = isRouteLoading && pendingPathname !== location.pathname;
 
   const analyzeRaw = useCallback(() => {
     if (!insightsState.canAnalyze) {
@@ -280,7 +282,7 @@ export default function User() {
   }, [insightsFetcher.state, insightsFetcher.data, toast]);
 
   const pendingContent = (() => {
-    if (!isRouteLoading) {
+    if (!isNavigatingToNewPage) {
       return <Outlet />;
     }
 
