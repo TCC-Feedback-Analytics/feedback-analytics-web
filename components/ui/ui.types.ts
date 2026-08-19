@@ -25,3 +25,23 @@ export interface SidebarMenuButtonProps extends React.ButtonHTMLAttributes<HTMLB
   size?: 'default' | 'sm' | 'lg';
   asChild?: boolean;
 }
+
+export type ToastVariant = 'default' | 'success' | 'error' | 'destructive' | 'warning' | 'info';
+
+export interface ToastProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: ToastVariant;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  duration?: number;
+}
+
+export interface ToasterToast extends ToastProps {
+  id: string | number;
+  title?: React.ReactNode;
+  message?: React.ReactNode;
+  description?: React.ReactNode;
+  action?: React.ReactNode;
+  actionLabel?: string;
+  onAction?: () => void;
+}
+
