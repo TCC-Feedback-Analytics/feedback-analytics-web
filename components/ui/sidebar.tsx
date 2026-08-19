@@ -85,14 +85,18 @@ export function Sidebar({
 }
 
 export function SidebarHeader({ className = '', children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  const { open } = useSidebar();
   return (
-    <div className={`flex flex-col gap-2 p-3 border-b border-(--quaternary-color)/10 ${className}`} {...props}>
+    <div className={`flex flex-col gap-2 ${open ? 'p-3' : 'px-1.5 py-2.5'} border-b border-(--quaternary-color)/10 ${className}`} {...props}>
       {children}
     </div>
   );
-}export function SidebarContent({ className = '', children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+}
+
+export function SidebarContent({ className = '', children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  const { open } = useSidebar();
   return (
-    <div className={`flex flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden p-3 custom-scrollbar ${className}`} {...props}>
+    <div className={`flex flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden ${open ? 'p-3' : 'px-1 py-2'} custom-scrollbar ${className}`} {...props}>
       {children}
     </div>
   );

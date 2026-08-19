@@ -72,7 +72,7 @@ export function CatalogItemDropdown({
         <div
           role="listbox"
           aria-label={`Selecionar ${scopeConfig.label}`}
-          className="absolute left-0 top-full z-50 mt-1.5 max-h-60 w-56 overflow-y-auto origin-top-left rounded-xl border border-(--quaternary-color)/16 bg-(--bg-secondary) p-1.5 shadow-xl backdrop-blur-md animate-in fade-in-50 zoom-in-95"
+          className="absolute left-0 top-full z-50 mt-1.5 max-h-60 w-56 overflow-y-auto custom-scrollbar origin-top-left rounded-xl border border-(--quaternary-color)/16 bg-(--bg-secondary) p-1.5 shadow-xl backdrop-blur-md animate-in fade-in-50 zoom-in-95"
         >
           <div className="px-2.5 py-1 text-[10px] font-semibold tracking-wider text-(--text-tertiary) uppercase">
             {scopeConfig.label}s Cadastrados

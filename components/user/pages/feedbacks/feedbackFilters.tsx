@@ -36,10 +36,10 @@ export default function FeedbackFilters({
   onLimitChange,
 }: FeedbackFiltersProps) {
   return (
-    <div className="font-work-sans relative z-30 overflow-visible rounded-2xl border border-(--quaternary-color)/10 bg-gradient-to-br from-(--bg-secondary) to-(--sixth-color) p-6 glass-card">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center">
+    <div className="font-work-sans relative z-30 overflow-visible rounded-2xl border border-(--quaternary-color)/10 bg-gradient-to-br from-(--bg-secondary) to-(--sixth-color) p-4 md:p-5 glass-card">
+      <div className="flex flex-wrap items-center gap-3">
         {/* Busca por mensagem */}
-        <div className="flex-1">
+        <div className="min-w-[200px] flex-1 basis-56">
           <Input
             type="text"
             placeholder="Buscar por mensagem..."
@@ -49,8 +49,18 @@ export default function FeedbackFilters({
           />
         </div>
 
+        {/* Filtro por item */}
+        <div className="min-w-[200px] flex-1 basis-56">
+          <Input
+            type="text"
+            placeholder="Filtrar por item (ex: Bola de couro)"
+            value={filters.item || ''}
+            onChange={onItemChange}
+          />
+        </div>
+
         {/* Filtro por rating */}
-        <div className="flex items-center gap-2 min-w-[180px]">
+        <div className="w-full sm:w-auto sm:min-w-[160px]">
           <Select
             options={RATING_OPTIONS}
             value={filters.rating !== undefined ? String(filters.rating) : ''}
@@ -62,7 +72,7 @@ export default function FeedbackFilters({
         </div>
 
         {/* Filtro por categoria */}
-        <div className="flex items-center gap-2 min-w-[210px]">
+        <div className="w-full sm:w-auto sm:min-w-[180px]">
           <Select
             options={CATEGORY_OPTIONS}
             value={filters.category || ''}
@@ -81,25 +91,17 @@ export default function FeedbackFilters({
           />
         </div>
 
-        {/* Filtro por item */}
-        <div className="flex-1 min-w-[220px]">
-          <Input
-            type="text"
-            placeholder="Filtrar por item (ex: Bola de couro)"
-            value={filters.item || ''}
-            onChange={onItemChange}
-          />
-        </div>
-
         {/* Itens por página */}
-        <div className="flex items-center gap-2 min-w-[140px]">
-          <span className="text-sm text-[var(--text-tertiary)] shrink-0">Por página:</span>
-          <Select
-            options={LIMIT_OPTIONS}
-            value={filters.limit}
-            align="right"
-            onChange={(val) => onLimitChange(Number(val))}
-          />
+        <div className="flex items-center gap-2 sm:ml-auto">
+          <span className="text-xs sm:text-sm text-[var(--text-tertiary)] shrink-0">Por página:</span>
+          <div className="w-20">
+            <Select
+              options={LIMIT_OPTIONS}
+              value={filters.limit}
+              align="right"
+              onChange={(val) => onLimitChange(Number(val))}
+            />
+          </div>
         </div>
       </div>
     </div>

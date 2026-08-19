@@ -49,7 +49,7 @@ export default function InsightsActionBar() {
           onOpenGenerateDialog={() => setIsDialogOpen(true)}
         />
 
-        <div className="ml-auto flex flex-wrap items-center gap-2">
+        <div className="sm:ml-auto flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => setIsDialogOpen(true)}

@@ -16,7 +16,7 @@ export default function HeaderNav({ className = "" }: HeaderNavProps) {
   const { pathname } = useLocation();
 
   return (
-    <nav aria-label="Navegação principal" className={`overflow-x-auto ${className}`}>
+    <nav aria-label="Navegação principal" className={`overflow-x-auto scrollbar-none ${className}`}>
       <ul className="flex items-center gap-1">
         {menuData.map((item) => {
           const to = item.to ?? firstLeafTo(item);

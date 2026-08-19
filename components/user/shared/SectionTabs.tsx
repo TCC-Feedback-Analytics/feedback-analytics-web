@@ -15,7 +15,7 @@ export default function SectionTabs({ className = "" }: SectionTabsProps) {
   if (tabs.length === 0) return null;
 
   return (
-    <nav aria-label="Navegação da seção" className={`overflow-x-auto ${className}`}>
+    <nav aria-label="Navegação da seção" className={`overflow-x-auto scrollbar-none ${className}`}>
       <div className="inline-flex gap-1 rounded-lg border border-(--quaternary-color)/14 bg-(--bg-secondary) p-1">
         {tabs.map((tab) => {
           const active = isMatch(tab.to, pathname);
