@@ -178,7 +178,7 @@ export default function FeedbacksAll() {
       />
 
       {/* Lista de feedbacks + Paginação + Overlay */}
-      <div className="relative">
+      <div className="relative min-h-[250px]">
         <div className="space-y-4">
           {feedbacks.length === 0 ? (
             <FeedbacksAllEmptyState
@@ -205,10 +205,8 @@ export default function FeedbacksAll() {
           />
         )}
 
-        {/* Loading overlay (agora cobre só a lista/paginação, nunca os filtros) */}
-        {loading && feedbacks.length > 0 && !suppressOverlay && (
-          <FeedbacksAllLoadingOverlay />
-        )}
+        {/* Loading overlay da lista de feedbacks */}
+        {loading && <FeedbacksAllLoadingOverlay />}
       </div>
 
       {selectedFeedback && (

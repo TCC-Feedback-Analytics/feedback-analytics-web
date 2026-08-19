@@ -28,6 +28,7 @@ export interface FeedbackFiltersProps {
     category: 'COMPANY' | 'PRODUCT' | 'SERVICE' | 'DEPARTMENT' | undefined,
   ) => void;
   onLimitChange: (limit: number) => void;
+  isSearching?: boolean;
 }
 
 /**
