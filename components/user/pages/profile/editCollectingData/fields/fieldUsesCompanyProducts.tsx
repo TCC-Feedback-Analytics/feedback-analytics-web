@@ -1,4 +1,5 @@
 import { memo, type ChangeEvent } from 'react';
+import { Checkbox } from 'components/ui/checkbox';
 import type { FieldUsesCompanyProductsProps } from './ui.types';
 
 const CheckboxItem = memo(function CheckboxItem({
@@ -15,26 +16,13 @@ const CheckboxItem = memo(function CheckboxItem({
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
-    <label className="flex cursor-pointer items-start gap-4">
-      <div className="relative mt-0.5">
-        <input
-          type="checkbox"
+    <label className="flex cursor-pointer items-start gap-3.5">
+      <div className="mt-0.5">
+        <Checkbox
           name={name}
           checked={checked}
           onChange={onChange}
-          className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border-2 border-(--quaternary-color)/18 bg-(--seventh-color) transition-all checked:border-(--primary-color) checked:bg-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/30"
         />
-        <svg
-          className="pointer-events-none absolute left-0.5 top-0.5 h-4 w-4 text-white opacity-0 transition-opacity peer-checked:opacity-100"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="3"
-          strokeLinecap="round"
-          strokeLinejoin="round">
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
       </div>
       <div className="flex-1">
         <span className="block text-sm font-medium text-(--text-primary)">{title}</span>

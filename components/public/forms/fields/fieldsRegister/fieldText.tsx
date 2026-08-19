@@ -1,3 +1,5 @@
+import { Input } from 'components/ui/input';
+import { Label } from 'components/ui/label';
 import type { FieldFormProps } from '../ui.types';
 
 export default function FieldText({
@@ -12,26 +14,28 @@ export default function FieldText({
 }: FieldFormProps) {
   return (
     <div className="space-y-1 relative">
-      <label
+      <Label
         htmlFor={name}
-        className="flex items-center gap-2 pl-2 text-sm text-(--text-secondary) font-work-sans">
+        className="flex items-center gap-2 pl-2 text-sm text-(--text-secondary) font-work-sans font-normal"
+      >
         {icon && <span>{icon}</span>}
         <span>{label}</span>
-      </label>
-      <input
+      </Label>
+      <Input
         id={id}
         name={name}
         type={type}
         placeholder={placeholder}
+        error={!!error}
         aria-invalid={error ? true : undefined}
         autoComplete={type === 'email' ? 'email' : 'off'}
-        className="h-12 w-full rounded-lg border border-(--quaternary-color)/18 bg-(--seventh-color) px-4 font-poppins text-(--text-primary) outline-none transition-colors placeholder-(--text-tertiary) hover:border-(--quaternary-color)/30 focus:border-(--primary-color)"
         {...register}
       />
       {error && (
         <span
           role="alert"
-          className="font-work-sans absolute -right-1 -bottom-5 text-(--negative)/70 text-sm font-medium">
+          className="font-work-sans absolute -right-1 -bottom-5 text-(--negative)/70 text-sm font-medium"
+        >
           {error}
         </span>
       )}
