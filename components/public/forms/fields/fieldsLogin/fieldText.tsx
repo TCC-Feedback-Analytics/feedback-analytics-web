@@ -14,9 +14,9 @@ export default function FieldText({
     <div className="space-y-1 relative">
       <Label
         htmlFor={name}
-        className="flex flex-row pl-2 space-x-2 cursor-pointer text-(--text-secondary) font-work-sans font-normal"
+        className="flex items-center gap-2 pl-1 cursor-pointer text-(--text-secondary) font-work-sans font-normal"
       >
-        <span>{icon}</span>
+        {icon && <span className="inline-flex items-center text-sm">{icon}</span>}
         <span className="text-sm">{label}</span>
       </Label>
       <Input
@@ -25,7 +25,7 @@ export default function FieldText({
         name={name}
         error={!!error}
         aria-invalid={error ? true : undefined}
-        className="pl-5"
+        className="px-4"
         {...register}
       />
       {error && (

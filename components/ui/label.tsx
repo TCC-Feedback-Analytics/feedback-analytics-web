@@ -12,10 +12,13 @@ export const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
         ? 'text-xs font-semibold uppercase tracking-wider text-(--text-tertiary)'
         : 'text-sm font-medium text-(--text-primary)';
 
+    const hasDisplay = /\b(block|inline-block|inline|flex|inline-flex|grid|inline-grid|hidden)\b/.test(className);
+    const displayClass = hasDisplay ? '' : 'inline-block';
+
     return (
       <label
         ref={ref}
-        className={`inline-block leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${variantClasses} ${className}`}
+        className={`${displayClass} leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${variantClasses} ${className}`}
         {...props}
       >
         {children}

@@ -17,9 +17,9 @@ export default function FieldPassword({
     <div className="space-y-1 relative">
       <Label
         htmlFor={name}
-        className="flex flex-row pl-2 space-x-2 cursor-pointer text-(--text-secondary) font-work-sans font-normal"
+        className="flex items-center gap-2 pl-1 cursor-pointer text-(--text-secondary) font-work-sans font-normal"
       >
-        <span>{icon}</span>
+        {icon && <span className="inline-flex items-center text-sm">{icon}</span>}
         <span className="text-sm">{label}</span>
       </Label>
       <div className="relative">
@@ -29,7 +29,7 @@ export default function FieldPassword({
           name={name}
           error={!!error}
           aria-invalid={error ? true : undefined}
-          className="pl-5 pr-12"
+          className="pl-4 pr-12"
           {...register}
           onChange={(e) => {
             register?.onChange?.(e);
