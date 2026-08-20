@@ -23,20 +23,24 @@ export default function Sidebar({
         className={`translate-x-0 pointer-events-auto shadow-2xl transition-all duration-300 ease-in-out ${isOpen ? "w-64" : "w-16"
           }`}
       >
-        <SidebarHeader className="bg-(--seventh-color)/30 border-b border-(--quaternary-color)/10">
-          <>
-            <div className="flex items-center justify-start gap-2.5 w-full">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-(--primary-color)/15 text-(--primary-color) ring-1 ring-(--primary-color)/30">
-                <FaCompass className="h-4 w-4" />
-              </div>
-              <div className="flex flex-col truncate">
-                <span className="text-xs font-bold uppercase tracking-wider text-(--text-primary)">
-                  Navegação
-                </span>
-              </div>
+        <SidebarHeader className="bg-(--seventh-color)/30 border-b border-(--quaternary-color)/10 px-0">
+          <div className="flex items-center w-full px-4 gap-2.5">
+            <div
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-(--primary-color)/15 text-(--primary-color) ring-1 ring-(--primary-color)/30"
+              title={!isOpen ? "Navegação" : undefined}
+            >
+              <FaCompass className="h-4 w-4" />
             </div>
-
-          </>
+            <div
+              className={`flex flex-col truncate transition-all duration-300 ease-in-out ${
+                isOpen ? "opacity-100 max-w-[150px]" : "opacity-0 max-w-0 pointer-events-none"
+              }`}
+            >
+              <span className="text-xs font-bold uppercase tracking-wider text-(--text-primary) whitespace-nowrap">
+                Navegação
+              </span>
+            </div>
+          </div>
         </SidebarHeader>
 
         <SidebarContent>

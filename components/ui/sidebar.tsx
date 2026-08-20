@@ -85,9 +85,8 @@ export function Sidebar({
 }
 
 export function SidebarHeader({ className = '', children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  const { open } = useSidebar();
   return (
-    <div className={`flex flex-col gap-2 ${open ? 'p-3' : 'px-1.5 py-2.5'} border-b border-(--quaternary-color)/10 ${className}`} {...props}>
+    <div className={`flex flex-col gap-2 py-3 px-0 border-b border-(--quaternary-color)/10 ${className}`} {...props}>
       {children}
     </div>
   );
