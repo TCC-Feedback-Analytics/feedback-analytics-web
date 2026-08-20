@@ -36,7 +36,34 @@ export function dismissToast(toastId?: string | number) {
   notifyListeners();
 }
 
-export function toast(props: ToastInput | string): { id: string; dismiss: () => void } {
+export type ToastFunction = {
+  (props: ToastInput | string): { id: string; dismiss: () => void };
+  toasts: ToasterToast[];
+  toast: ToastFunction;
+  dismiss: typeof dismissToast;
+  success: (
+    message: React.ReactNode,
+    description?: React.ReactNode,
+    options?: { actionLabel?: string; onAction?: () => void; duration?: number }
+  ) => { id: string; dismiss: () => void };
+  error: (
+    message: React.ReactNode,
+    description?: React.ReactNode,
+    options?: { actionLabel?: string; onAction?: () => void; duration?: number }
+  ) => { id: string; dismiss: () => void };
+  warning: (
+    message: React.ReactNode,
+    description?: React.ReactNode,
+    options?: { actionLabel?: string; onAction?: () => void; duration?: number }
+  ) => { id: string; dismiss: () => void };
+  info: (
+    message: React.ReactNode,
+    description?: React.ReactNode,
+    options?: { actionLabel?: string; onAction?: () => void; duration?: number }
+  ) => { id: string; dismiss: () => void };
+};
+
+const toastFn = function (props: ToastInput | string): { id: string; dismiss: () => void } {
   const id = genId();
 
   const toastItem: ToasterToast = typeof props === 'string'
@@ -50,7 +77,9 @@ export function toast(props: ToastInput | string): { id: string; dismiss: () => 
     id,
     dismiss: () => dismissToast(id),
   };
-}
+} as ToastFunction;
+
+export const toast = toastFn;
 
 toast.dismiss = dismissToast;
 
@@ -110,8 +139,24 @@ toast.info = (
   });
 };
 
-export function useToast() {
-  const [toasts, setToasts] = useState<ToasterToast[]>(memoryToasts);
+Object.defineProperty(toast, 'toasts', {
+  get() {
+    return memoryToasts;
+  },
+  enumerable: true,
+  configurable: true,
+});
+
+Object.defineProperty(toast, 'toast', {
+  get() {
+    return toast;
+  },
+  enumerable: true,
+  configurable: true,
+});
+
+export function useToast(): ToastFunction {
+  const [, setToasts] = useState<ToasterToast[]>(memoryToasts);
 
   useEffect(() => {
     listeners.push(setToasts);
@@ -123,56 +168,7 @@ export function useToast() {
     };
   }, []);
 
-  const success = useCallback(
-    (
-      message: React.ReactNode,
-      description?: React.ReactNode,
-      options?: { actionLabel?: string; onAction?: () => void; duration?: number }
-    ) => toast.success(message, description, options),
-    []
-  );
-
-  const error = useCallback(
-    (
-      message: React.ReactNode,
-      description?: React.ReactNode,
-      options?: { actionLabel?: string; onAction?: () => void; duration?: number }
-    ) => toast.error(message, description, options),
-    []
-  );
-
-  const warning = useCallback(
-    (
-      message: React.ReactNode,
-      description?: React.ReactNode,
-      options?: { actionLabel?: string; onAction?: () => void; duration?: number }
-    ) => toast.warning(message, description, options),
-    []
-  );
-
-  const info = useCallback(
-    (
-      message: React.ReactNode,
-      description?: React.ReactNode,
-      options?: { actionLabel?: string; onAction?: () => void; duration?: number }
-    ) => toast.info(message, description, options),
-    []
-  );
-
-  const dismiss = useCallback((toastId?: string | number) => dismissToast(toastId), []);
-
-  return useMemo(
-    () => ({
-      toasts,
-      toast,
-      dismiss,
-      success,
-      error,
-      warning,
-      info,
-    }),
-    [toasts, dismiss, success, error, warning, info]
-  );
+  return toast;
 }
 
 export function bindToastDispatch(_dispatch: unknown) {

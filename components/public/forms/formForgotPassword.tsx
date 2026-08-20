@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Link, useActionData, useNavigation, useSubmit } from 'react-router-dom';
@@ -17,6 +17,7 @@ export default function FormForgotPassword() {
   const navigation = useNavigation();
   const actionData = useActionData() as ActionData | null;
   const toast = useToast();
+  const lastActionDataRef = useRef<ActionData | null>(null);
 
   const isSubmitting = navigation.state === 'submitting';
 
@@ -31,6 +32,9 @@ export default function FormForgotPassword() {
   // Exibe feedback via toast após a action retornar
   useEffect(() => {
     if (!actionData) return;
+    if (lastActionDataRef.current === actionData) return;
+
+    lastActionDataRef.current = actionData;
 
     // ok:true vem como { ok: true, message: string } — exibimos sucesso
     if ('ok' in actionData && actionData.ok === true) {

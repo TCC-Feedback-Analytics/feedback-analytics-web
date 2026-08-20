@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Link, useActionData, useNavigation, useSubmit } from 'react-router-dom';
@@ -17,6 +17,7 @@ export default function FormResetPassword() {
   const navigation = useNavigation();
   const actionData = useActionData() as ActionData | null;
   const toast = useToast();
+  const lastActionDataRef = useRef<ActionData | null>(null);
 
   const isSubmitting = navigation.state === 'submitting';
 
@@ -31,6 +32,10 @@ export default function FormResetPassword() {
   // Exibe erro via toast se a action retornar falha
   useEffect(() => {
     if (!actionData) return;
+    if (lastActionDataRef.current === actionData) return;
+
+    lastActionDataRef.current = actionData;
+
     if ('message' in actionData && typeof actionData.message === 'string') {
       toast.error('Erro ao redefinir senha', actionData.message);
     }
