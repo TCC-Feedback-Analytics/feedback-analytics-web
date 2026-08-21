@@ -136,8 +136,10 @@ export default function FeedbacksAll() {
     updateSearchParams({ rating, page: 1 });
   };
 
-  const handleItemChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setItemInput(e.target.value);
+  const handleItemChange = (item: string) => {
+    setItemInput(item);
+    setSuppressOverlay(true);
+    updateSearchParams({ item, page: 1 });
   };
 
   const handleCategoryFilter = (category: FeedbackCategory | undefined) => {
