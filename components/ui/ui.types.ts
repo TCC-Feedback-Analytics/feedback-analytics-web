@@ -35,7 +35,7 @@ export interface ToastProps extends React.HTMLAttributes<HTMLDivElement> {
   duration?: number;
 }
 
-export interface ToasterToast extends ToastProps {
+export interface ToasterToast extends Omit<ToastProps, 'id' | 'title'> {
   id: string | number;
   title?: React.ReactNode;
   message?: React.ReactNode;
