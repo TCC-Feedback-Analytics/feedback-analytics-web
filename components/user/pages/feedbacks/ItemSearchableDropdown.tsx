@@ -12,12 +12,7 @@ import {
 } from 'react-icons/fa6';
 import { useInsightsControls } from 'src/lib/context/insightsControls';
 import type { InsightsCatalogItemOption } from 'components/user/pages/feedbacksInsightsReport/ui.types';
-
-export interface ItemSearchableDropdownProps {
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-}
+import type { ItemSearchableDropdownProps } from './ui.types';
 
 function useOptionalInsightsControls(): { catalogItemOptions: InsightsCatalogItemOption[] } {
   try {

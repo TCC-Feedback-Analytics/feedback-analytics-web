@@ -1,11 +1,6 @@
 import {
   FaMagnifyingGlass,
   FaStar,
-  FaLayerGroup,
-  FaBuilding,
-  FaBox,
-  FaWrench,
-  FaUserGroup,
   FaListOl,
 } from 'react-icons/fa6';
 import { Input } from 'components/ui/input';
@@ -20,14 +15,6 @@ const RATING_OPTIONS: SelectOption<string>[] = [
   { value: '3', label: '3 estrelas', icon: <FaStar className="h-3.5 w-3.5 text-amber-400 fill-amber-400" /> },
   { value: '2', label: '2 estrelas', icon: <FaStar className="h-3.5 w-3.5 text-amber-400 fill-amber-400" /> },
   { value: '1', label: '1 estrela', icon: <FaStar className="h-3.5 w-3.5 text-amber-400 fill-amber-400" /> },
-];
-
-const CATEGORY_OPTIONS: SelectOption<string>[] = [
-  { value: '', label: 'Todas as categorias', icon: <FaLayerGroup className="h-3.5 w-3.5 text-(--text-tertiary)" /> },
-  { value: 'COMPANY', label: 'Empresa', icon: <FaBuilding className="h-3.5 w-3.5 text-indigo-400" /> },
-  { value: 'PRODUCT', label: 'Produto', icon: <FaBox className="h-3.5 w-3.5 text-emerald-400" /> },
-  { value: 'SERVICE', label: 'Serviços', icon: <FaWrench className="h-3.5 w-3.5 text-amber-400" /> },
-  { value: 'DEPARTMENT', label: 'Departamentos', icon: <FaUserGroup className="h-3.5 w-3.5 text-pink-400" /> },
 ];
 
 const LIMIT_OPTIONS: SelectOption<number>[] = [

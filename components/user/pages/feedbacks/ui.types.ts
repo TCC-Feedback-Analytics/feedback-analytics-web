@@ -47,3 +47,13 @@ export interface FeedbackPaginationProps {
   pagination: FeedbackPagination;
   onPageChange: (page: number) => void;
 }
+
+/**
+ * Props do dropdown de filtro de escopo pesquisável.
+ * Usado em: components/user/pages/feedbacks/ItemSearchableDropdown.tsx.
+ */
+export interface ItemSearchableDropdownProps {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+}

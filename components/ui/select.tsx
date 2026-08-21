@@ -1,24 +1,13 @@
 import * as React from 'react';
 import { FaCheck, FaChevronDown, FaXmark } from 'react-icons/fa6';
+import type {
+  SelectOption,
+  SelectProps,
+  SelectNativeProps,
+  SelectTriggerProps,
+} from './ui.types';
 
-export interface SelectOption<T extends string | number = string | number> {
-  value: T;
-  label: string;
-  icon?: React.ReactNode;
-}
-
-export interface SelectProps<T extends string | number = string | number> {
-  options: SelectOption<T>[];
-  value?: T;
-  onChange: (value: T) => void;
-  placeholder?: string;
-  className?: string;
-  align?: 'left' | 'right';
-  error?: boolean;
-  disabled?: boolean;
-  startIcon?: React.ReactNode;
-  onClear?: () => void;
-}
+export type { SelectOption, SelectProps, SelectNativeProps, SelectTriggerProps };
 
 export function Select<T extends string | number = string | number>({
   options,
@@ -163,10 +152,7 @@ export function Select<T extends string | number = string | number>({
   );
 }
 
-export interface SelectNativeProps
-  extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  error?: boolean;
-}
+
 
 export const SelectNative = React.forwardRef<HTMLSelectElement, SelectNativeProps>(
   ({ className = '', children, error, ...props }, ref) => {
@@ -192,10 +178,7 @@ export const SelectNative = React.forwardRef<HTMLSelectElement, SelectNativeProp
 );
 SelectNative.displayName = 'SelectNative';
 
-export interface SelectTriggerProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  error?: boolean;
-}
+
 
 export const SelectTrigger = React.forwardRef<HTMLButtonElement, SelectTriggerProps>(
   ({ className = '', children, error, ...props }, ref) => {

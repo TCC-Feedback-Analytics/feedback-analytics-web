@@ -1,13 +1,6 @@
 import * as React from 'react';
 import { Spinner } from './spinner';
-
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
-  error?: boolean;
-  loading?: boolean;
-  startIcon?: React.ReactNode;
-  endIcon?: React.ReactNode;
-}
+import type { InputProps } from './ui.types';
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className = '', type, error, loading, startIcon, endIcon, ...props }, ref) => {

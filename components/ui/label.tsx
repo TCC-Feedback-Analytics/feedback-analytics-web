@@ -1,9 +1,5 @@
 import * as React from 'react';
-
-export interface LabelProps
-  extends React.LabelHTMLAttributes<HTMLLabelElement> {
-  variant?: 'default' | 'uppercase';
-}
+import type { LabelProps } from './ui.types';
 
 export const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
   ({ className = '', variant = 'default', children, ...props }, ref) => {

@@ -1,22 +1,11 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import type { ToasterToast, ToastVariant } from './ui.types';
+import { useState, useEffect } from 'react';
+import type { ToasterToast, ToastInput, ToastListener, ToastFunction } from './ui.types';
 
-type ToastInput = {
-  title?: React.ReactNode;
-  message?: React.ReactNode;
-  description?: React.ReactNode;
-  variant?: ToastVariant;
-  duration?: number;
-  actionLabel?: string;
-  onAction?: () => void;
-  action?: React.ReactNode;
-};
-
-type Listener = (toasts: ToasterToast[]) => void;
+export type { ToastFunction };
 
 let memoryToasts: ToasterToast[] = [];
 let count = 0;
-const listeners: Listener[] = [];
+const listeners: ToastListener[] = [];
 
 function genId(): string {
   count = (count + 1) % Number.MAX_SAFE_INTEGER;
@@ -36,32 +25,7 @@ export function dismissToast(toastId?: string | number) {
   notifyListeners();
 }
 
-export type ToastFunction = {
-  (props: ToastInput | string): { id: string; dismiss: () => void };
-  toasts: ToasterToast[];
-  toast: ToastFunction;
-  dismiss: typeof dismissToast;
-  success: (
-    message: React.ReactNode,
-    description?: React.ReactNode,
-    options?: { actionLabel?: string; onAction?: () => void; duration?: number }
-  ) => { id: string; dismiss: () => void };
-  error: (
-    message: React.ReactNode,
-    description?: React.ReactNode,
-    options?: { actionLabel?: string; onAction?: () => void; duration?: number }
-  ) => { id: string; dismiss: () => void };
-  warning: (
-    message: React.ReactNode,
-    description?: React.ReactNode,
-    options?: { actionLabel?: string; onAction?: () => void; duration?: number }
-  ) => { id: string; dismiss: () => void };
-  info: (
-    message: React.ReactNode,
-    description?: React.ReactNode,
-    options?: { actionLabel?: string; onAction?: () => void; duration?: number }
-  ) => { id: string; dismiss: () => void };
-};
+
 
 const toastFn = function (props: ToastInput | string): { id: string; dismiss: () => void } {
   const id = genId();
@@ -171,7 +135,7 @@ export function useToast(): ToastFunction {
   return toast;
 }
 
-export function bindToastDispatch(_dispatch: unknown) {
+export function bindToastDispatch() {
   // Mantido para retrocompatibilidade
   return () => {};
 }

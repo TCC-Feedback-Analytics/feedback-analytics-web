@@ -208,7 +208,7 @@ export default function FeedbacksAll() {
         )}
 
         {/* Loading overlay da lista de feedbacks */}
-        {loading && <FeedbacksAllLoadingOverlay />}
+        {loading && !suppressOverlay && <FeedbacksAllLoadingOverlay />}
       </div>
 
       {selectedFeedback && (

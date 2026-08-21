@@ -1,7 +1,5 @@
 import * as React from 'react';
-
-export interface CheckboxProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {}
+import type { CheckboxProps } from './ui.types';
 
 export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
   ({ className = '', ...props }, ref) => {
