@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   type RegisterFormValues,
@@ -462,6 +462,7 @@ export default function FormRegister() {
 
   const accountType = watch('accountType') ?? 'CPF';
   const actionData = useActionData() as ActionData | undefined;
+  const lastActionDataRef = useRef<ActionData | undefined>(undefined);
 
   useEffect(() => {
     if (!actionData) return;
@@ -469,6 +470,9 @@ export default function FormRegister() {
     if (actionData.ok) return;
 
     if (!actionData.error && !actionData.message) return;
+    if (lastActionDataRef.current === actionData) return;
+
+    lastActionDataRef.current = actionData;
 
     const { message, description } = getRegisterErrorMessage(actionData);
     toast.error(message, description);

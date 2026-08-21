@@ -74,7 +74,7 @@ describe('[Unidade] LayoutUser', () => {
     } as unknown as ReturnType<typeof useFetcher>);
 
     vi.mocked(useLocation).mockReturnValue({
-      pathname: '/user/dashboard',
+      pathname: '/user/home',
       search: '',
       hash: '',
       state: null,
@@ -99,6 +99,26 @@ describe('[Unidade] LayoutUser', () => {
 
     expect(screen.getByLabelText('Dashboard skeleton')).toBeInTheDocument();
     expect(screen.queryByTestId('outlet-content')).not.toBeInTheDocument();
+  });
+
+  it('mantém o conteúdo da rota quando a navegação é uma busca/filtro na própria rota atual', () => {
+    vi.mocked(useLocation).mockReturnValue({
+      pathname: '/user/feedbacks/all',
+      search: '',
+    } as ReturnType<typeof useLocation>);
+
+    vi.mocked(useNavigation).mockReturnValue({
+      state: 'loading',
+      location: {
+        pathname: '/user/feedbacks/all',
+        search: '?search=test',
+      },
+    } as ReturnType<typeof useNavigation>);
+
+    render(<LayoutUser />);
+
+    expect(screen.queryByLabelText('Feedbacks All skeleton')).not.toBeInTheDocument();
+    expect(screen.getByTestId('outlet-content')).toBeInTheDocument();
   });
 
   it('renderiza conteúdo da rota quando não está carregando dashboard', () => {

@@ -1,5 +1,5 @@
 import ErrorPage from 'components/globals/handling/errorPage';
-import { ToastProvider } from 'components/public/forms/messages/statusNotification';
+import { ToastProvider } from 'components/ui/toaster';
 import {
   createBrowserRouter,
   createRoutesFromElements,

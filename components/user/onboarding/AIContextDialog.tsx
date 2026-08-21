@@ -121,7 +121,7 @@ export default function AIContextDialog({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-(--primary-color)/30 bg-(--bg-secondary) p-6 sm:p-8 shadow-2xl transition-all duration-300"
+        className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar rounded-3xl border border-(--primary-color)/30 bg-(--bg-secondary) p-5 sm:p-7 shadow-2xl transition-all duration-300"
       >
         {/* Glow de fundo */}
         <div className="pointer-events-none absolute -left-24 -top-24 h-52 w-52 rounded-full bg-(--primary-color)/12 blur-3xl" />

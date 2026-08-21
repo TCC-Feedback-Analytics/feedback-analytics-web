@@ -1,97 +1,85 @@
+import {
+  FaMagnifyingGlass,
+  FaStar,
+  FaListOl,
+} from 'react-icons/fa6';
+import { Input } from 'components/ui/input';
+import { Select, type SelectOption } from 'components/ui/select';
+import ItemSearchableDropdown from './ItemSearchableDropdown';
 import type { FeedbackFiltersProps } from './ui.types';
+
+const RATING_OPTIONS: SelectOption<string>[] = [
+  { value: '', label: 'Todos os ratings', icon: <FaStar className="h-3.5 w-3.5 text-(--text-tertiary)" /> },
+  { value: '5', label: '5 estrelas', icon: <FaStar className="h-3.5 w-3.5 text-amber-400 fill-amber-400" /> },
+  { value: '4', label: '4 estrelas', icon: <FaStar className="h-3.5 w-3.5 text-amber-400 fill-amber-400" /> },
+  { value: '3', label: '3 estrelas', icon: <FaStar className="h-3.5 w-3.5 text-amber-400 fill-amber-400" /> },
+  { value: '2', label: '2 estrelas', icon: <FaStar className="h-3.5 w-3.5 text-amber-400 fill-amber-400" /> },
+  { value: '1', label: '1 estrela', icon: <FaStar className="h-3.5 w-3.5 text-amber-400 fill-amber-400" /> },
+];
+
+const LIMIT_OPTIONS: SelectOption<number>[] = [
+  { value: 5, label: '5' },
+  { value: 10, label: '10' },
+  { value: 20, label: '20' },
+  { value: 50, label: '50' },
+];
 
 export default function FeedbackFilters({
   filters,
   onSearchChange,
   onItemChange,
   onRatingFilter,
-  onCategoryFilter,
   onLimitChange,
 }: FeedbackFiltersProps) {
   return (
-    <div className="font-work-sans relative overflow-hidden rounded-2xl border border-(--quaternary-color)/10 bg-gradient-to-br from-(--bg-secondary) to-(--sixth-color) p-6 glass-card">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center">
-        {/* Busca */}
-        <div className="flex-1">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="🔍 Buscar por mensagem..."
-              value={filters.search}
-              onChange={onSearchChange}
-              className="w-full rounded-xl border border-(--quaternary-color)/14 bg-(--seventh-color) px-4 py-3 text-(--text-primary) outline-none placeholder:text-(--text-tertiary) focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/20"
-            />
-          </div>
+    <div className="font-work-sans relative z-30 overflow-visible rounded-2xl border border-(--quaternary-color)/10 bg-gradient-to-br from-(--bg-secondary) to-(--sixth-color) p-4 md:p-5 glass-card">
+      <div className="flex flex-wrap items-center gap-3">
+        {/* Busca por mensagem */}
+        <div className="w-full sm:w-auto min-w-[200px] flex-1 basis-56">
+          <Input
+            type="text"
+            placeholder="Buscar por mensagem..."
+            startIcon={<FaMagnifyingGlass size={13} />}
+            value={filters.search}
+            onChange={onSearchChange}
+          />
+        </div>
+
+        {/* Filtro por escopo / item / departamento (Dropdown com pesquisa) */}
+        <div className="w-full sm:w-auto sm:min-w-[190px]">
+          <ItemSearchableDropdown
+            value={filters.item || ''}
+            onChange={onItemChange}
+            placeholder="Escopo: Geral"
+          />
         </div>
 
         {/* Filtro por rating */}
-        <div className="flex items-center gap-2">
-          <select
-            value={filters.rating || ''}
-            onChange={(e) =>
-              onRatingFilter(
-                e.target.value ? parseInt(e.target.value) : undefined,
-              )
+        <div className="w-full sm:w-auto sm:min-w-[170px]">
+          <Select
+            options={RATING_OPTIONS}
+            value={filters.rating !== undefined ? String(filters.rating) : ''}
+            startIcon={<FaStar className="h-3.5 w-3.5 text-amber-400" />}
+            onClear={() => onRatingFilter(undefined)}
+            onChange={(val) =>
+              onRatingFilter(val ? parseInt(String(val)) : undefined)
             }
-            className="rounded-xl border border-(--quaternary-color)/14 bg-(--seventh-color) px-3 py-3 font-poppins text-(--text-primary) outline-none focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/20">
-            <option value="">Todos os ratings</option>
-            <option value="5">5 estrelas</option>
-            <option value="4">4 estrelas</option>
-            <option value="3">3 estrelas</option>
-            <option value="2">2 estrelas</option>
-            <option value="1">1 estrela</option>
-          </select>
-        </div>
-
-        {/* Filtro por categoria */}
-        <div className="flex items-center gap-2">
-          <select
-            value={filters.category || ''}
-            onChange={(e) =>
-              onCategoryFilter(
-                e.target.value
-                  ? (e.target.value as
-                    | 'COMPANY'
-                    | 'PRODUCT'
-                    | 'SERVICE'
-                    | 'DEPARTMENT')
-                  : undefined,
-              )
-            }
-            className="rounded-xl border border-(--quaternary-color)/14 bg-(--seventh-color) px-3 py-3 font-poppins text-(--text-primary) outline-none focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/20">
-            <option value="">Todas as categorias</option>
-            <option value="COMPANY">Empresa</option>
-            <option value="PRODUCT">Produto</option>
-            <option value="SERVICE">Serviços</option>
-            <option value="DEPARTMENT">Departamentos</option>
-          </select>
-        </div>
-
-        {/* Filtro por item */}
-        <div className="flex-1 min-w-[220px]">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Filtrar por item (ex: Bola de couro)"
-              value={filters.item || ''}
-              onChange={onItemChange}
-              className="w-full rounded-xl border border-(--quaternary-color)/14 bg-(--seventh-color) px-4 py-3 text-(--text-primary) outline-none placeholder:text-(--text-tertiary) focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/20"
-            />
-          </div>
+            placeholder="Todos os ratings"
+          />
         </div>
 
         {/* Itens por página */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-[var(--text-tertiary)]">Por página:</span>
-          <select
-            value={filters.limit}
-            onChange={(e) => onLimitChange(parseInt(e.target.value))}
-            className="rounded-xl border border-(--quaternary-color)/14 bg-(--seventh-color) px-3 py-3 font-poppins text-(--text-primary) outline-none focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/20">
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
+        <div className="flex items-center gap-2 sm:ml-auto">
+          <span className="text-xs sm:text-sm text-[var(--text-tertiary)] shrink-0">Por página:</span>
+          <div className="w-20">
+            <Select
+              options={LIMIT_OPTIONS}
+              value={filters.limit}
+              align="right"
+              startIcon={<FaListOl className="h-3 w-3 text-(--text-tertiary)" />}
+              onChange={(val) => onLimitChange(Number(val))}
+            />
+          </div>
         </div>
       </div>
     </div>

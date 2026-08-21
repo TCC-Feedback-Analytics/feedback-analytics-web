@@ -61,19 +61,19 @@ function MenuItemView({
     if (!hasChildren) {
       const isActive = isMatch(item.to, currentPathname);
       return (
-        <SidebarMenuItem className="flex justify-center">
+        <SidebarMenuItem className="flex justify-center w-full">
           <NavLink
             to={item.to || '#'}
             title={item.label}
             data-tour={item.tourAttr}
             aria-current={isActive ? 'page' : undefined}
-            className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-150 active:scale-95 outline-none ${
+            className={`flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-150 active:scale-95 outline-none ${
               isActive
                 ? 'text-(--primary-color) font-bold'
                 : 'text-(--text-tertiary) hover:text-(--text-primary)'
             }`}
           >
-            {Icon && <Icon className={`h-5 w-5 ${isActive ? 'text-(--primary-color)' : 'text-(--text-tertiary)'}`} />}
+            {Icon && <Icon className={`h-4.5 w-4.5 ${isActive ? 'text-(--primary-color)' : 'text-(--text-tertiary)'}`} />}
           </NavLink>
         </SidebarMenuItem>
       );
@@ -82,31 +82,31 @@ function MenuItemView({
     const subLeaves = extractSubLeaves(item.children!);
 
     return (
-      <SidebarMenuItem className="flex flex-col items-center w-full">
+      <SidebarMenuItem className="flex flex-col items-center w-full max-w-full overflow-hidden">
         <button
           type="button"
           onClick={() => setIsOpen((prev) => !prev)}
           title={`${item.label} (${isOpen ? 'Recolher' : 'Expandir subitens'})`}
           data-tour={item.tourAttr}
-          className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-150 active:scale-95 outline-none ${
+          className={`flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-150 active:scale-95 outline-none ${
             isSectionActive
               ? 'bg-(--primary-color)/15 text-(--primary-color) font-bold'
               : 'text-(--text-tertiary) hover:bg-(--seventh-color)/60 hover:text-(--text-primary)'
           }`}
         >
-          {Icon && <Icon className={`h-5 w-5 ${isSectionActive ? 'text-(--primary-color)' : 'text-(--text-tertiary)'}`} />}
+          {Icon && <Icon className={`h-4.5 w-4.5 ${isSectionActive ? 'text-(--primary-color)' : 'text-(--text-tertiary)'}`} />}
         </button>
 
         {/* Animação fluida de abertura do submenu colapsado com linha lateral conectora perfeitamente posicionada */}
         <div
-          className={`grid w-full transition-all duration-300 ease-in-out ${
+          className={`grid w-full max-w-full transition-all duration-300 ease-in-out ${
             isOpen ? 'grid-rows-[1fr] opacity-100 my-1' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
           }`}
         >
-          <div className="overflow-hidden w-full flex justify-center">
-            <div className="relative flex flex-col items-center space-y-1.5 py-1.5 w-full">
+          <div className="overflow-hidden w-full max-w-full flex justify-center">
+            <div className="relative flex flex-col items-center space-y-1.5 py-1.5 w-full max-w-full">
               {/* Linha vertical conectora de submenu à esquerda dos sub-ícones sem vazar da largura de 64px */}
-              <div className="absolute left-0 top-1 bottom-1 w-0.5 rounded-full bg-linear-to-b from-(--primary-color) to-(--primary-color)/40" />
+              <div className="absolute left-1 top-1 bottom-1 w-0.5 rounded-full bg-linear-to-b from-(--primary-color) to-(--primary-color)/40" />
 
               {subLeaves.map((sub) => {
                 const SubIcon = sub.icon;
@@ -118,13 +118,13 @@ function MenuItemView({
                     title={sub.label}
                     data-tour={sub.tourAttr}
                     aria-current={isSubActive ? 'page' : undefined}
-                    className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-150 active:scale-95 outline-none ${
+                    className={`relative z-10 flex h-7 w-7 items-center justify-center rounded-lg transition-all duration-150 active:scale-95 outline-none ${
                       isSubActive
                         ? 'text-(--primary-color) font-bold'
                         : 'text-(--text-tertiary) hover:text-(--text-primary)'
                     }`}
                   >
-                    {SubIcon && <SubIcon className={`h-4 w-4 ${isSubActive ? 'text-(--primary-color)' : 'text-(--text-tertiary)'}`} />}
+                    {SubIcon && <SubIcon className={`h-3.5 w-3.5 ${isSubActive ? 'text-(--primary-color)' : 'text-(--text-tertiary)'}`} />}
                   </NavLink>
                 );
               })}

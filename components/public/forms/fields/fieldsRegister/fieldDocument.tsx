@@ -1,8 +1,9 @@
-import type { RegisterFieldDocumentProps } from '../ui.types';
 import { useEffect, useState } from 'react';
-
+import { Input } from 'components/ui/input';
+import { Label } from 'components/ui/label';
 import { digitsOnly } from 'src/lib/utils/digitsOnly';
 import { formatDocumentInput } from 'src/lib/utils/formatDocumentInput';
+import type { RegisterFieldDocumentProps } from '../ui.types';
 
 export default function FieldDocument({
   id,
@@ -20,17 +21,19 @@ export default function FieldDocument({
 
   return (
     <div className="space-y-1 relative">
-      <label
+      <Label
         htmlFor={name}
-        className="flex items-center gap-2 pl-2 text-sm text-(--text-secondary) font-work-sans">
+        className="flex items-center gap-2 pl-2 text-sm text-(--text-secondary) font-work-sans font-normal"
+      >
         <span>{label}</span>
-      </label>
-      <input
+      </Label>
+      <Input
         id={id}
         name={name}
         inputMode="numeric"
+        error={!!error}
         aria-invalid={error ? true : undefined}
-        className="h-12 w-full rounded-lg border border-(--quaternary-color)/18 bg-(--seventh-color) px-4 font-poppins text-(--text-primary) outline-none transition-colors hover:border-(--quaternary-color)/30 focus:border-(--primary-color)"
+        className="font-poppins"
         {...register}
         value={display}
         onChange={(e) => {
@@ -43,7 +46,8 @@ export default function FieldDocument({
       {error && (
         <span
           role="alert"
-          className="font-work-sans absolute -right-1 -bottom-5 text-(--negative)/70 text-sm font-medium">
+          className="font-work-sans absolute -right-1 -bottom-5 text-(--negative)/70 text-sm font-medium"
+        >
           {error}
         </span>
       )}

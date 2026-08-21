@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import {
@@ -215,6 +215,8 @@ export default function FormLogin() {
   const actionData = useActionData() as ActionData | undefined;
   const toast = useToast();
   const navigation = useNavigation();
+  const lastActionDataRef = useRef<ActionData | undefined>(undefined);
+
   // O loading do botão precisa cobrir TODO o fluxo de login: a autenticação (action
   // /login) E o carregamento da rota de destino (loaders do dashboard) até o redirect
   // concluir. Antes a condição só cobria a fase 'submitting' e o botão voltava a
@@ -242,7 +244,9 @@ export default function FormLogin() {
 
   useEffect(() => {
     if (!actionData?.error && !actionData?.message) return;
+    if (lastActionDataRef.current === actionData) return;
 
+    lastActionDataRef.current = actionData;
     const { message, description } = getLoginErrorMessage(actionData);
     toast.error(message, description);
   }, [actionData, toast]);

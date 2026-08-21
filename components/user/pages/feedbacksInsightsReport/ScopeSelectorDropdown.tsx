@@ -50,7 +50,7 @@ export function ScopeSelectorDropdown({
         onClick={() => setOpen((prev) => !prev)}
         aria-expanded={open}
         aria-haspopup="listbox"
-        className="inline-flex h-9 items-center gap-2 rounded-lg border border-(--quaternary-color)/16 bg-(--bg-secondary) px-3 py-1.5 text-xs font-medium text-(--text-primary) shadow-sm backdrop-blur-md transition-all hover:border-(--quaternary-color)/30 hover:bg-(--seventh-color) focus:outline-none focus:ring-2 focus:ring-(--primary-color)/40"
+        className="inline-flex h-9 items-center gap-2 rounded-lg border border-(--quaternary-color)/18 bg-(--bg-secondary) px-3 py-1.5 text-xs font-medium text-(--text-primary) shadow-sm backdrop-blur-md transition-all duration-200 hover:border-(--quaternary-color)/35 hover:bg-(--seventh-color) focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/20 focus:outline-none"
       >
         <span
           className="flex h-5 w-5 items-center justify-center rounded-md text-xs shrink-0"
@@ -63,8 +63,8 @@ export function ScopeSelectorDropdown({
           <span>{selectedConfig.label}</span>
         </span>
         <FaChevronDown
-          className={`h-3 w-3 text-(--text-tertiary) transition-transform duration-200 ${
-            open ? 'rotate-180' : 'rotate-0'
+          className={`h-3.5 w-3.5 shrink-0 text-(--text-tertiary) transition-transform duration-200 ${
+            open ? 'rotate-180 text-(--primary-color)' : 'rotate-0'
           }`}
         />
       </button>
