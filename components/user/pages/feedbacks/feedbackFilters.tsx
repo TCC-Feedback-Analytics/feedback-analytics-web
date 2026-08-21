@@ -1,26 +1,36 @@
-import { FaMagnifyingGlass } from 'react-icons/fa6';
+import {
+  FaMagnifyingGlass,
+  FaStar,
+  FaLayerGroup,
+  FaBuilding,
+  FaBox,
+  FaWrench,
+  FaUserGroup,
+  FaListOl,
+} from 'react-icons/fa6';
 import { Input } from 'components/ui/input';
-import { Select } from 'components/ui/select';
+import { Select, type SelectOption } from 'components/ui/select';
+import ItemSearchableDropdown from './ItemSearchableDropdown';
 import type { FeedbackFiltersProps } from './ui.types';
 
-const RATING_OPTIONS = [
-  { value: '', label: 'Todos os ratings' },
-  { value: '5', label: '5 estrelas' },
-  { value: '4', label: '4 estrelas' },
-  { value: '3', label: '3 estrelas' },
-  { value: '2', label: '2 estrelas' },
-  { value: '1', label: '1 estrela' },
+const RATING_OPTIONS: SelectOption<string>[] = [
+  { value: '', label: 'Todos os ratings', icon: <FaStar className="h-3.5 w-3.5 text-(--text-tertiary)" /> },
+  { value: '5', label: '5 estrelas', icon: <FaStar className="h-3.5 w-3.5 text-amber-400 fill-amber-400" /> },
+  { value: '4', label: '4 estrelas', icon: <FaStar className="h-3.5 w-3.5 text-amber-400 fill-amber-400" /> },
+  { value: '3', label: '3 estrelas', icon: <FaStar className="h-3.5 w-3.5 text-amber-400 fill-amber-400" /> },
+  { value: '2', label: '2 estrelas', icon: <FaStar className="h-3.5 w-3.5 text-amber-400 fill-amber-400" /> },
+  { value: '1', label: '1 estrela', icon: <FaStar className="h-3.5 w-3.5 text-amber-400 fill-amber-400" /> },
 ];
 
-const CATEGORY_OPTIONS = [
-  { value: '', label: 'Todas as categorias' },
-  { value: 'COMPANY', label: 'Empresa' },
-  { value: 'PRODUCT', label: 'Produto' },
-  { value: 'SERVICE', label: 'Serviços' },
-  { value: 'DEPARTMENT', label: 'Departamentos' },
+const CATEGORY_OPTIONS: SelectOption<string>[] = [
+  { value: '', label: 'Todas as categorias', icon: <FaLayerGroup className="h-3.5 w-3.5 text-(--text-tertiary)" /> },
+  { value: 'COMPANY', label: 'Empresa', icon: <FaBuilding className="h-3.5 w-3.5 text-indigo-400" /> },
+  { value: 'PRODUCT', label: 'Produto', icon: <FaBox className="h-3.5 w-3.5 text-emerald-400" /> },
+  { value: 'SERVICE', label: 'Serviços', icon: <FaWrench className="h-3.5 w-3.5 text-amber-400" /> },
+  { value: 'DEPARTMENT', label: 'Departamentos', icon: <FaUserGroup className="h-3.5 w-3.5 text-pink-400" /> },
 ];
 
-const LIMIT_OPTIONS = [
+const LIMIT_OPTIONS: SelectOption<number>[] = [
   { value: 5, label: '5' },
   { value: 10, label: '10' },
   { value: 20, label: '20' },
@@ -32,14 +42,13 @@ export default function FeedbackFilters({
   onSearchChange,
   onItemChange,
   onRatingFilter,
-  onCategoryFilter,
   onLimitChange,
 }: FeedbackFiltersProps) {
   return (
     <div className="font-work-sans relative z-30 overflow-visible rounded-2xl border border-(--quaternary-color)/10 bg-gradient-to-br from-(--bg-secondary) to-(--sixth-color) p-4 md:p-5 glass-card">
       <div className="flex flex-wrap items-center gap-3">
         {/* Busca por mensagem */}
-        <div className="min-w-[200px] flex-1 basis-56">
+        <div className="w-full sm:w-auto min-w-[200px] flex-1 basis-56">
           <Input
             type="text"
             placeholder="Buscar por mensagem..."
@@ -49,45 +58,26 @@ export default function FeedbackFilters({
           />
         </div>
 
-        {/* Filtro por item */}
-        <div className="min-w-[200px] flex-1 basis-56">
-          <Input
-            type="text"
-            placeholder="Filtrar por item (ex: Bola de couro)"
+        {/* Filtro por escopo / item / departamento (Dropdown com pesquisa) */}
+        <div className="w-full sm:w-auto sm:min-w-[190px]">
+          <ItemSearchableDropdown
             value={filters.item || ''}
             onChange={onItemChange}
+            placeholder="Escopo: Geral"
           />
         </div>
 
         {/* Filtro por rating */}
-        <div className="w-full sm:w-auto sm:min-w-[160px]">
+        <div className="w-full sm:w-auto sm:min-w-[170px]">
           <Select
             options={RATING_OPTIONS}
             value={filters.rating !== undefined ? String(filters.rating) : ''}
+            startIcon={<FaStar className="h-3.5 w-3.5 text-amber-400" />}
+            onClear={() => onRatingFilter(undefined)}
             onChange={(val) =>
               onRatingFilter(val ? parseInt(String(val)) : undefined)
             }
             placeholder="Todos os ratings"
-          />
-        </div>
-
-        {/* Filtro por categoria */}
-        <div className="w-full sm:w-auto sm:min-w-[180px]">
-          <Select
-            options={CATEGORY_OPTIONS}
-            value={filters.category || ''}
-            onChange={(val) =>
-              onCategoryFilter(
-                val
-                  ? (String(val) as
-                    | 'COMPANY'
-                    | 'PRODUCT'
-                    | 'SERVICE'
-                    | 'DEPARTMENT')
-                  : undefined,
-              )
-            }
-            placeholder="Todas as categorias"
           />
         </div>
 
@@ -99,6 +89,7 @@ export default function FeedbackFilters({
               options={LIMIT_OPTIONS}
               value={filters.limit}
               align="right"
+              startIcon={<FaListOl className="h-3 w-3 text-(--text-tertiary)" />}
               onChange={(val) => onLimitChange(Number(val))}
             />
           </div>

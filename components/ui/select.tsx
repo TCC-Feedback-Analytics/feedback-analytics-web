@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { FaCheck, FaChevronDown } from 'react-icons/fa6';
+import { FaCheck, FaChevronDown, FaXmark } from 'react-icons/fa6';
 
 export interface SelectOption<T extends string | number = string | number> {
   value: T;
   label: string;
+  icon?: React.ReactNode;
 }
 
 export interface SelectProps<T extends string | number = string | number> {
@@ -15,6 +16,8 @@ export interface SelectProps<T extends string | number = string | number> {
   align?: 'left' | 'right';
   error?: boolean;
   disabled?: boolean;
+  startIcon?: React.ReactNode;
+  onClear?: () => void;
 }
 
 export function Select<T extends string | number = string | number>({
@@ -26,11 +29,16 @@ export function Select<T extends string | number = string | number>({
   align = 'left',
   error = false,
   disabled = false,
+  startIcon,
+  onClear,
 }: SelectProps<T>) {
   const [open, setOpen] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   const selectedOption = options.find((opt) => opt.value === value);
+  const activeIcon = selectedOption?.icon ?? startIcon;
+  const isValueNonEmpty = value !== undefined && value !== '' && value !== null;
+  const isDefaultOptionSelected = !isValueNonEmpty || selectedOption?.value === '';
 
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -56,6 +64,15 @@ export function Select<T extends string | number = string | number>({
     };
   }, [open]);
 
+  const handleClearClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onClear) {
+      onClear();
+    } else {
+      onChange('' as T);
+    }
+  };
+
   const alignmentClasses =
     align === 'right' ? 'right-0 left-auto origin-top-right' : 'left-0 origin-top-left';
 
@@ -67,20 +84,42 @@ export function Select<T extends string | number = string | number>({
         onClick={() => setOpen((prev) => !prev)}
         aria-expanded={open}
         aria-haspopup="listbox"
-        className={`flex h-12 w-full items-center justify-between gap-3.5 rounded-xl border bg-(--seventh-color) px-4 font-poppins text-sm text-(--text-primary) shadow-xs transition-all duration-200 outline-hidden focus:outline-hidden focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`flex h-12 w-full items-center justify-between gap-3.5 rounded-xl border bg-(--seventh-color) px-4 font-poppins text-sm shadow-xs transition-all duration-200 outline-hidden focus:outline-hidden focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 ${
           error
             ? 'border-(--negative) focus:border-(--negative) focus:ring-2 focus:ring-(--negative)/20'
             : 'border-(--quaternary-color)/18 hover:border-(--quaternary-color)/35 focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/20'
         }`}
       >
-        <span className={`truncate pr-1 ${!selectedOption ? 'text-(--text-tertiary)' : ''}`}>
-          {selectedOption ? selectedOption.label : placeholder}
-        </span>
-        <FaChevronDown
-          className={`h-3.5 w-3.5 shrink-0 text-(--text-tertiary) transition-transform duration-200 ${
-            open ? 'rotate-180 text-(--primary-color)' : 'rotate-0'
-          }`}
-        />
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          {activeIcon && (
+            <span className={`shrink-0 transition-colors ${!isDefaultOptionSelected ? 'text-(--primary-color)' : 'text-(--text-tertiary)'}`}>
+              {activeIcon}
+            </span>
+          )}
+          <span className="truncate text-(--text-primary) font-medium">
+            {selectedOption ? selectedOption.label : placeholder}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1 shrink-0">
+          {isValueNonEmpty && onClear && (
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={handleClearClick}
+              onKeyDown={(e) => e.key === 'Enter' && handleClearClick(e as unknown as React.MouseEvent)}
+              className="rounded-full p-1 text-(--text-tertiary) hover:bg-(--quaternary-color)/15 hover:text-(--text-primary) transition-colors"
+              title="Limpar seleção"
+            >
+              <FaXmark className="h-3 w-3" />
+            </span>
+          )}
+          <FaChevronDown
+            className={`h-3.5 w-3.5 shrink-0 text-(--text-tertiary) transition-transform duration-200 ${
+              open ? 'rotate-180 text-(--primary-color)' : 'rotate-0'
+            }`}
+          />
+        </div>
       </button>
 
       {open && (
@@ -107,7 +146,12 @@ export function Select<T extends string | number = string | number>({
                       : 'text-(--text-secondary) hover:bg-(--seventh-color)/60 hover:text-(--text-primary)'
                   }`}
                 >
-                  <span className="truncate">{option.label}</span>
+                  <div className="flex items-center gap-2 min-w-0">
+                    {option.icon && (
+                      <span className="shrink-0">{option.icon}</span>
+                    )}
+                    <span className="truncate">{option.label}</span>
+                  </div>
                   {isSelected && <FaCheck className="h-3.5 w-3.5 text-(--primary-color) shrink-0 ml-2" />}
                 </button>
               );

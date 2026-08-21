@@ -33,10 +33,12 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       return inputElement;
     }
 
+    const isValueNonEmpty = Boolean(props.value);
+
     return (
       <div className="relative w-full">
         {startIcon && (
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-(--text-tertiary) z-10 flex items-center justify-center">
+          <span className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center transition-colors ${isValueNonEmpty ? 'text-(--primary-color)' : 'text-(--text-tertiary)'}`}>
             {startIcon}
           </span>
         )}
