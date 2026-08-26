@@ -16,6 +16,7 @@ import {
   FaCommentDots,
   FaBoxesStacked,
   FaBuilding,
+  FaBrain,
 } from 'react-icons/fa6';
 
 export const menuData: MenuItem[] = [
@@ -73,6 +74,11 @@ export const menuData: MenuItem[] = [
         label: "Dados da empresa",
         to: "/user/edit/collecting-data-enterprise",
         icon: FaBuilding,
+      },
+      {
+        label: "Configuração de IA",
+        to: "/user/edit/ia-settings",
+        icon: FaBrain,
       },
     ],
   },
