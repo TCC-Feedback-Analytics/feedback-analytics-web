@@ -41,6 +41,10 @@ import { LoaderQrCodeServices } from "./loaders/loaderQrCodeServices";
 import { LoaderQrCodeDepartments } from "./loaders/loaderQrCodeDepartments";
 import { LoaderFeedbackGeneral } from "./loaders/loaderFeedbackGeneral";
 import { LoaderCatalogItem } from "./loaders/loaderCatalogItem";
+import EditIaSettings from "pages/user/edit/editIaSettings";
+import { ActionIaSettings } from "./actions/actionIaSettings";
+import { LoaderIaSettings } from "./loaders/loaderIaSettings";
+
 
 export function RouteUser() {
   return (
@@ -113,6 +117,13 @@ export function RouteUser() {
         element={<EditCompanyData />}
         action={ActionCollectingData}
       />
+      <Route
+        path="edit/ia-settings"
+        loader={LoaderIaSettings}
+        element={<EditIaSettings />}
+        action={ActionIaSettings}
+      />
+
       <Route
         path="edit/types-feedback"
         element={<EditTypeFeedbacks />}

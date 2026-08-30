@@ -19,3 +19,7 @@ export const INTENT_FEEDBACK_SETTINGS_SAVE_DEPARTMENTS_CATALOG =
 
 export const INTENT_FEEDBACK_RUN_IA = 'run_feedback_ia' as const;
 export const INTENT_FEEDBACK_ANALYZE_RAW = 'analyze_raw_feedbacks' as const;
+
+export const INTENT_SAVE_IA_CONFIG = 'save_ia_config' as const;
+export const INTENT_DELETE_IA_CONFIG = 'delete_ia_config' as const;
+
