@@ -20,6 +20,10 @@ export function getIaErrorMessage(errorCode: string | null | undefined): string 
     return 'Há poucos feedbacks neste contexto para uma análise relevante. É necessário no mínimo 10 feedbacks.';
   }
 
+  if (code === 'ia_config_required') {
+    return 'Configure sua chave OpenRouter em Editar > Configuração de IA antes de iniciar uma análise.';
+  }
+
   if (IA_SERVICE_UNAVAILABLE_CODES.has(code)) {
     return 'O serviço de análise por IA está indisponível ou demorou demais para responder. Tente novamente em alguns instantes.';
   }
