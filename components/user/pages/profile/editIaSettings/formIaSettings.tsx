@@ -82,7 +82,7 @@ export default function FormIaSettings() {
       } else {
         toast.success(
           'Chave de IA removida!',
-          'Sua empresa voltou a usar a configuração de IA global.',
+          'As análises ficarão indisponíveis até uma nova chave OpenRouter ser configurada.',
         );
       }
     } else if (fetcher.data.ok === false) {
@@ -112,7 +112,11 @@ export default function FormIaSettings() {
   };
 
   const handleDelete = () => {
-    if (window.confirm('Tem certeza de que deseja remover a chave OpenRouter da sua empresa?')) {
+    if (
+      window.confirm(
+        'Tem certeza de que deseja remover a chave OpenRouter? As análises ficarão indisponíveis até uma nova chave ser configurada.',
+      )
+    ) {
       const formData = new FormData();
       formData.set('intent', INTENT_DELETE_IA_CONFIG);
       fetcher.submit(formData, { method: 'post' });
@@ -140,14 +144,14 @@ export default function FormIaSettings() {
               ) : (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-3 py-1 text-xs font-semibold text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/30">
                   <FaCircleExclamation className="text-[11px]" />
-                  Sem chave (Fallback global)
+                  Configuração obrigatória
                 </span>
               )}
             </div>
             <p className="mt-1 text-xs leading-relaxed text-(--text-secondary)">
               {iaConfig.hasKey
                 ? `Modelo ativo: ${iaConfig.model || 'openrouter/auto'} • Chave final: sk-or-…${iaConfig.keyHint || '****'}`
-                : 'Configure uma chave própria do OpenRouter (BYO-key) para processar as análises de feedback.'}
+                : 'Configure uma chave OpenRouter para habilitar as análises de feedback da empresa.'}
             </p>
           </div>
         </div>
