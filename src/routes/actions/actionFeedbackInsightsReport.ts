@@ -103,6 +103,14 @@ export async function ActionFeedbackInsightsReport({
       };
     }
 
+    if (typedError.code === 'ia_config_required') {
+      return {
+        errorCode: 'ia_config_required',
+        error:
+          'Configure sua chave OpenRouter em Editar > Configuração de IA antes de iniciar uma análise.',
+      };
+    }
+
     if (isIaServiceUnavailable(typedError)) {
       return {
         errorCode: 'ia_service_unavailable',
