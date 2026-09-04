@@ -1,7 +1,5 @@
 import { StrictMode, useState } from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { transferableAbortController } from 'node:util';
-import { URLSearchParams as NodeURLSearchParams } from 'node:url';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMemoryRouter, RouterProvider, type ActionFunctionArgs, Link, Outlet } from 'react-router-dom';
 import { InsightsControlsProvider, useInsightsControlsState } from 'src/lib/context/insightsControls';
@@ -41,14 +39,10 @@ function Harness() {
 const routers: ReturnType<typeof createMemoryRouter>[] = [];
 beforeEach(() => {
   vi.resetAllMocks();
-  // O Request nativo do Node exige AbortController/URLSearchParams do mesmo realm.
-  vi.stubGlobal('AbortController', transferableAbortController().constructor);
-  vi.stubGlobal('URLSearchParams', NodeURLSearchParams);
 });
 afterEach(() => {
   cleanup();
   routers.splice(0).forEach(router => router.dispose());
-  vi.unstubAllGlobals();
 });
 
 describe('fluxo integrado com React Router real (IA simulada)', () => {

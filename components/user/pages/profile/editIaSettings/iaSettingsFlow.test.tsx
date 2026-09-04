@@ -1,7 +1,5 @@
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { transferableAbortController } from 'node:util';
-import { URLSearchParams as NodeURLSearchParams } from 'node:url';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { ActionIaSettings } from 'src/routes/actions/actionIaSettings';
@@ -23,9 +21,6 @@ vi.mock('components/public/forms/messages/useToast', () => ({ useToast: () => to
 let stored: IaConfigResponse;
 beforeEach(() => {
   vi.resetAllMocks();
-  // Request é nativo do Node no jsdom; usar AbortController do mesmo realm.
-  vi.stubGlobal('AbortController', transferableAbortController().constructor);
-  vi.stubGlobal('URLSearchParams', NodeURLSearchParams);
   stored = { hasKey: true, provider: 'openrouter', model: 'openrouter/auto', keyHint: '1234' };
   vi.mocked(ServiceGetIaConfig).mockImplementation(async () => ({ ...stored }));
   vi.mocked(ServiceGetIaModels).mockImplementation(async () => ({
@@ -49,7 +44,7 @@ beforeEach(() => {
     return { ...stored };
   });
 });
-afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 function showPage() {
   const router = createMemoryRouter([{
