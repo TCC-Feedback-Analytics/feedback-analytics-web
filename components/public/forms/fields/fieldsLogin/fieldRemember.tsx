@@ -1,3 +1,5 @@
+import { Checkbox } from 'components/ui/checkbox';
+import { Label } from 'components/ui/label';
 import type { FieldFormProps } from '../ui.types';
 
 export default function FieldRemember({
@@ -8,18 +10,17 @@ export default function FieldRemember({
 }: FieldFormProps) {
   return (
     <div className="flex items-center space-x-2">
-      <input
+      <Checkbox
         id={id}
         name={name}
-        type="checkbox"
-          className="h-4 w-4 cursor-pointer rounded border border-(--quaternary-color)/18 bg-(--seventh-color) text-(--primary-color) transition-colors duration-200 hover:border-(--quaternary-color)/30 focus:ring-(--primary-color)"
         {...register}
       />
-      <label
+      <Label
         htmlFor={id}
-        className="text-sm text-(--text-secondary) cursor-pointer">
+        className="text-sm font-normal text-(--text-secondary) cursor-pointer"
+      >
         {label}
-      </label>
+      </Label>
     </div>
   );
 }

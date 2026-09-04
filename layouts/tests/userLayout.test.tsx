@@ -6,6 +6,8 @@ const mocks = vi.hoisted(() => ({
   useLoaderData: vi.fn(),
   useFetcher: vi.fn(),
   useNavigation: vi.fn(),
+  useLocation: vi.fn(),
+  useNavigate: vi.fn(),
 }));
 
 vi.mock('react-router-dom', async () => {
@@ -14,9 +16,18 @@ vi.mock('react-router-dom', async () => {
   return {
     ...actual,
     useLoaderData: mocks.useLoaderData,
+    useRouteLoaderData: mocks.useLoaderData,
     useFetcher: mocks.useFetcher,
     useNavigation: mocks.useNavigation,
+    useLocation: mocks.useLocation,
+    useNavigate: mocks.useNavigate,
     Outlet: () => <div data-testid="outlet-content">Outlet content</div>,
+    Link: ({ children, to, className }: { children: React.ReactNode; to: string; className?: string }) => (
+      <a href={to} className={className}>{children}</a>
+    ),
+    NavLink: ({ children, to, className }: { children: React.ReactNode; to: string; className?: string }) => (
+      <a href={to} className={className}>{children}</a>
+    ),
   };
 });
 
@@ -28,6 +39,14 @@ vi.mock('components/user/layout/Sidebar', () => ({
   default: () => <aside data-testid="layout-sidebar">Sidebar</aside>,
 }));
 
+vi.mock('components/user/layout/MobileBottomNav', () => ({
+  default: () => <nav data-testid="mobile-bottom-nav">MobileBottomNav</nav>,
+}));
+
+vi.mock('components/user/layout/MobileMenuDrawer', () => ({
+  default: () => <div data-testid="mobile-menu-drawer">MobileMenuDrawer</div>,
+}));
+
 vi.mock('components/user/shared/SectionTabs', () => ({
   default: () => <nav data-testid="section-tabs">SectionTabs</nav>,
 }));
@@ -37,7 +56,7 @@ vi.mock('components/user/layout/InsightsActionBar', () => ({
 }));
 
 import LayoutUser from '../user';
-import { useFetcher, useLoaderData, useNavigation } from 'react-router-dom';
+import { useFetcher, useLoaderData, useNavigation, useLocation } from 'react-router-dom';
 
 describe('[Unidade] LayoutUser', () => {
   beforeEach(() => {
@@ -51,7 +70,16 @@ describe('[Unidade] LayoutUser', () => {
     vi.mocked(useFetcher).mockReturnValue({
       state: 'idle',
       submit: vi.fn(),
+      Form: (props: React.FormHTMLAttributes<HTMLFormElement>) => <form {...props} />,
     } as unknown as ReturnType<typeof useFetcher>);
+
+    vi.mocked(useLocation).mockReturnValue({
+      pathname: '/user/home',
+      search: '',
+      hash: '',
+      state: null,
+      key: 'default',
+    } as unknown as ReturnType<typeof useLocation>);
   });
 
   afterEach(() => {
@@ -71,6 +99,26 @@ describe('[Unidade] LayoutUser', () => {
 
     expect(screen.getByLabelText('Dashboard skeleton')).toBeInTheDocument();
     expect(screen.queryByTestId('outlet-content')).not.toBeInTheDocument();
+  });
+
+  it('mantém o conteúdo da rota quando a navegação é uma busca/filtro na própria rota atual', () => {
+    vi.mocked(useLocation).mockReturnValue({
+      pathname: '/user/feedbacks/all',
+      search: '',
+    } as ReturnType<typeof useLocation>);
+
+    vi.mocked(useNavigation).mockReturnValue({
+      state: 'loading',
+      location: {
+        pathname: '/user/feedbacks/all',
+        search: '?search=test',
+      },
+    } as ReturnType<typeof useNavigation>);
+
+    render(<LayoutUser />);
+
+    expect(screen.queryByLabelText('Feedbacks All skeleton')).not.toBeInTheDocument();
+    expect(screen.getByTestId('outlet-content')).toBeInTheDocument();
   });
 
   it('renderiza conteúdo da rota quando não está carregando dashboard', () => {

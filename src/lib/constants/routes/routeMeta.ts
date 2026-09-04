@@ -89,6 +89,11 @@ const ROUTE_META: Record<string, RouteMeta> = {
     description: 'Contexto do seu negócio usado pela IA para analisar os feedbacks.',
     breadcrumb: [{ label: SECTION_CONFIG }, { label: 'Dados da empresa' }],
   },
+  '/user/edit/ia-settings': {
+    title: 'Configuração de IA',
+    description: 'Gerencie a chave OpenRouter e o modelo de Inteligência Artificial da sua empresa.',
+    breadcrumb: [{ label: SECTION_CONFIG }, { label: 'Configuração de IA' }],
+  },
   '/user/edit/feedback-products': {
     title: 'Catálogo de Produtos',
     description: 'Liste os produtos e abra cada um para configurar perguntas e QR Code.',

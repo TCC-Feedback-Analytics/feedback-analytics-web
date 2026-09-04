@@ -195,3 +195,38 @@ input[type="password"]::-webkit-password-toggle-button {
 input[type="password"]::-moz-password-toggle {
   display: none !important;
 }
+
+/* Scrollbars customizadas finas e discretas */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--seventh-color);
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--tertiary-color);
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--seventh-color) transparent;
+}
+
+/* Ocultar barra de rolagem mantendo a funcionalidade de scroll */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+

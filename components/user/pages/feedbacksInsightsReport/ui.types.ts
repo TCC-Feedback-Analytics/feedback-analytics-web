@@ -36,13 +36,34 @@ export interface InsightsHeaderControlsProps {
 }
 
 /**
- * Props do seletor radial de escopos.
+ * Props do seletor radial/dropdown de escopos.
  * Usado em: components/user/pages/feedbacksInsightsReport/ScopeSelectorRadial.tsx.
  */
 export interface ScopeSelectorRadialProps {
   options: InsightScopeOption[];
   selected: InsightScopeOption;
   onChange: (scope: InsightScopeOption) => void;
+}
+
+/**
+ * Props do seletor dropdown de escopos.
+ * Usado em: components/user/pages/feedbacksInsightsReport/ScopeSelectorDropdown.tsx.
+ */
+export interface ScopeSelectorDropdownProps {
+  options: InsightScopeOption[];
+  selected: InsightScopeOption;
+  onChange: (scope: InsightScopeOption) => void;
+}
+
+/**
+ * Props do seletor dropdown de itens do catálogo.
+ * Usado em: components/user/pages/feedbacksInsightsReport/CatalogItemDropdown.tsx.
+ */
+export interface CatalogItemDropdownProps {
+  scope: InsightScopeOption;
+  items: InsightsCatalogItemOption[];
+  selectedId: string;
+  onChange: (id: string) => void;
 }
 
 /**
@@ -121,3 +142,27 @@ export interface InsightsReportEmptyStateProps {
   refreshing: boolean;
   onRefresh: () => void;
 }
+
+/**
+ * Props do modal de geração de insights em lote.
+ * Usado em: components/user/pages/feedbacksInsightsReport/GenerateInsightsDialog.tsx.
+ */
+export interface GenerateInsightsDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+/**
+ * Props do sino de notificação de feedbacks pendentes.
+ * Usado em: components/user/pages/feedbacksInsightsReport/NotificationBellDropdown.tsx.
+ */
+export interface NotificationBellDropdownProps {
+  pendingCount: number;
+  totalFeedbacks: number;
+  scope: InsightScopeOption;
+  catalogItemId: string;
+  catalogItemOptions: Array<{ id: string; name: string; kind: string }>;
+  onOpenGenerateDialog: () => void;
+}
+
+

@@ -91,8 +91,8 @@ export default function FeedbackCard({ feedback, onClick }: FeedbackCardProps) {
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}>
       {/* Header com rating e data */}
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center gap-3">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-3">
           <div
             className={`font-poppins px-3 py-1 rounded-full text-sm font-medium border ${getRatingColor(
               feedback.rating,
@@ -109,14 +109,14 @@ export default function FeedbackCard({ feedback, onClick }: FeedbackCardProps) {
       </div>
 
       {/* Mensagem do feedback */}
-      <div className="mb-6">
+      <div className="mb-5">
         <p className="text-[var(--text-primary)] leading-relaxed">
           {feedback.message}
         </p>
       </div>
 
       {questionAnswers.length > 0 && (
-        <div className="mb-5 flex flex-wrap gap-2">
+        <div className="mb-4 flex flex-wrap gap-2">
           {questionAnswers.slice(0, 3).map((answer, index) => (
             <span
               key={`${feedback.id}-question-answer-${answer.question_id}`}
@@ -130,16 +130,12 @@ export default function FeedbackCard({ feedback, onClick }: FeedbackCardProps) {
       )}
 
       {/* Informações adicionais */}
-      <div className="flex justify-between items-center text-sm">
-        <div className="flex items-center gap-4 text-[var(--text-tertiary)]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm border-t border-(--quaternary-color)/10 pt-4">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs sm:text-sm text-[var(--text-tertiary)]">
           <span>
             <strong className="text-[var(--text-secondary)]">Canal:</strong>{' '}
             {channelDisplayName}
           </span>
-          {/* <span>
-            <strong className="text-[var(--text-secondary)]">Tipo:</strong>{' '}
-            {feedback.collection_points?.type || 'N/A'}
-          </span> */}
           <span>
             <strong className="text-[var(--text-secondary)]">Categoria:</strong>{' '}
             {itemKindLabel}
@@ -151,12 +147,12 @@ export default function FeedbackCard({ feedback, onClick }: FeedbackCardProps) {
         </div>
 
         {feedback.tracked_devices?.customer && (
-          <div className="text-right">
-            <div className="font-medium text-[var(--text-primary)]">
+          <div className="text-left sm:text-right shrink-0">
+            <div className="font-medium text-xs sm:text-sm text-[var(--text-primary)]">
               {feedback.tracked_devices.customer.name || 'Cliente anônimo'}
             </div>
             {feedback.tracked_devices.customer.email && (
-              <div className="text-[var(--text-tertiary)] text-xs">
+              <div className="text-[var(--text-tertiary)] text-[11px] sm:text-xs">
                 {feedback.tracked_devices.customer.email}
               </div>
             )}

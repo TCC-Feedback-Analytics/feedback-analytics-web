@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Outlet, useFetcher, useLoaderData, useNavigation } from 'react-router-dom';
+import { Outlet, useFetcher, useLoaderData, useLocation, useNavigation } from 'react-router-dom';
 import Header from 'components/user/layout/Header';
 import {
   InsightsControlsProvider,
@@ -7,6 +7,9 @@ import {
 } from 'src/lib/context/insightsControls';
 import type { InsightsControlsInitialData } from 'src/lib/context/insightsControls.types';
 import Sidebar from 'components/user/layout/Sidebar';
+import MobileBottomNav from 'components/user/layout/MobileBottomNav';
+import MobileMenuDrawer from 'components/user/layout/MobileMenuDrawer';
+import { SidebarProvider } from 'components/ui/sidebar';
 import SectionTabs from 'components/user/shared/SectionTabs';
 import InsightsActionBar from 'components/user/layout/InsightsActionBar';
 import DashboardSkeleton from 'components/user/pages/dashboard/DashboardSkeleton';
@@ -29,6 +32,30 @@ import type { CollectingDataEnterprise, EnterpriseContext } from 'lib/interfaces
 import type { InsightScopeOption, InsightsCatalogItemOption } from 'components/user/pages/feedbacksInsightsReport/ui.types';
 import { INTENT_LOGOUT, INTENT_FEEDBACK_ANALYZE_RAW, INTENT_FEEDBACK_RUN_IA } from 'src/lib/constants/routes/intents';
 import { useToast } from 'components/public/forms/messages/useToast';
+import { OnboardingProvider, useOnboarding } from 'src/lib/context/onboardingContext';
+import AIContextDialog from 'components/user/onboarding/AIContextDialog';
+import UserInteractiveTour from 'components/user/onboarding/UserInteractiveTour';
+import { useIaOperation } from 'src/lib/hooks/useIaOperation';
+
+function UserOnboardingManager() {
+  const { hasCompletedAIContext } = useOnboarding();
+  const [mandatoryOpen, setMandatoryOpen] = useState(!hasCompletedAIContext);
+
+  useEffect(() => {
+    setMandatoryOpen(!hasCompletedAIContext);
+  }, [hasCompletedAIContext]);
+
+  return (
+    <>
+      <AIContextDialog
+        open={mandatoryOpen}
+        onOpenChange={setMandatoryOpen}
+        isMandatory={true}
+      />
+      <UserInteractiveTour />
+    </>
+  );
+}
 
 function buildInsightsInitialData(collecting: CollectingDataEnterprise | null): InsightsControlsInitialData {
   const availableScopes: InsightScopeOption[] = ['COMPANY'];
@@ -73,8 +100,6 @@ function buildInsightsInitialData(collecting: CollectingDataEnterprise | null): 
 
 export default function User() {
   const logoutFetcher = useFetcher();
-  const analyzeRawFetcher = useFetcher();
-  const insightsFetcher = useFetcher();
   const navigation = useNavigation();
   const toast = useToast();
   const { enterprise, collecting } = useLoaderData() as {
@@ -93,11 +118,6 @@ export default function User() {
     insightsState.setCatalogItemOptions(updated.catalogItemOptions);
     insightsState.setCanAnalyze(updated.canAnalyze);
 
-    // Reconcilia a seleção atual com as novas opções: após editar o catálogo, o
-    // escopo (tipo desativado) ou o item (removido/renomeado de kind) pode ter
-    // sumido. Sem isto, a seleção aponta para algo inexistente e o escopo volta
-    // vazio — ou trava o gestor num escopo que nem aparece mais no seletor.
-    // Espelha a lógica de handleScopeChange (InsightsControlsBar).
     if (!updated.availableScopes.includes(insightsState.scope)) {
       insightsState.setScope('COMPANY');
       insightsState.setCatalogItemId('');
@@ -116,15 +136,33 @@ export default function User() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collecting]);
 
-  const shouldRevalidateRawRef = useRef(false);
-  const shouldRevalidateInsightsRef = useRef(false);
+  const rawOperation = useIaOperation({
+    kind: 'analyze_raw',
+    enterpriseId: enterprise.id,
+    onSuccess: ({ analyzedCount = 0 }) => toast.success(
+      analyzedCount > 0 ? 'Feedbacks analisados!' : 'Nenhum feedback novo',
+      analyzedCount > 0 ? `${analyzedCount} feedback(s) processado(s) com sucesso.` : 'Os feedbacks deste escopo já estavam analisados.',
+    ),
+    onError: (message) => toast.error('Erro na análise', message),
+  });
+  const insightsOperation = useIaOperation({
+    kind: 'regenerate_insights',
+    enterpriseId: enterprise.id,
+    onSuccess: () => toast.success('Insights atualizados!', 'Relatório atualizado com os novos insights da IA'),
+    onError: (message) => toast.error('Erro na geração de insights', message),
+  });
+  const submitRaw = rawOperation.submit;
+  const submitInsights = insightsOperation.submit;
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [isHoverActivator, setIsHoverActivator] = useState(false);
   const closeTimerRef = useRef<number | null>(null);
+  const location = useLocation();
   const isSigningOut = logoutFetcher.state !== 'idle';
   const isRouteLoading = navigation.state === 'loading';
   const pendingPathname = navigation.location?.pathname ?? '';
+  const isNavigatingToNewPage = isRouteLoading && pendingPathname !== location.pathname;
 
   const analyzeRaw = useCallback(() => {
     if (!insightsState.canAnalyze) {
@@ -141,12 +179,11 @@ export default function User() {
     if (insightsState.catalogItemId) {
       form.set('catalog_item_id', insightsState.catalogItemId);
     }
-    shouldRevalidateRawRef.current = true;
-    toast.success('Analisando feedbacks...', 'Isso pode levar alguns momentos');
-    analyzeRawFetcher.submit(form, { method: 'post', action: '/user/insights/reports' });
-  }, [insightsState.canAnalyze, insightsState.scope, insightsState.catalogItemId, analyzeRawFetcher, toast]);
+    toast.success('Enfileirando análise...', 'Você pode continuar navegando enquanto a IA processa.');
+    submitRaw(form);
+  }, [insightsState.canAnalyze, insightsState.scope, insightsState.catalogItemId, submitRaw, toast]);
 
-  const regenerateInsights = useCallback(() => {
+  const regenerateInsights = useCallback((options?: { analyzePending?: boolean; force?: boolean }) => {
     if (!insightsState.canAnalyze) {
       toast.warning('Configuração necessária', 'Preencha as informações da empresa para liberar a análise.');
       return;
@@ -157,63 +194,18 @@ export default function User() {
     }
     const form = new FormData();
     form.set('intent', INTENT_FEEDBACK_RUN_IA);
+    form.set('analyze_pending', String(options?.analyzePending === true));
+    form.set('force', String(options?.force === true));
     form.set('scope_type', insightsState.scope);
     if (insightsState.catalogItemId) {
       form.set('catalog_item_id', insightsState.catalogItemId);
     }
-    shouldRevalidateInsightsRef.current = true;
-    toast.success('Gerando análise...', 'Isso pode levar alguns momentos');
-    insightsFetcher.submit(form, { method: 'post', action: '/user/insights/reports' });
-  }, [insightsState.canAnalyze, insightsState.scope, insightsState.catalogItemId, insightsFetcher, toast]);
-
-  useEffect(() => {
-    if (analyzeRawFetcher.state !== 'idle' || !shouldRevalidateRawRef.current) return;
-    shouldRevalidateRawRef.current = false;
-    const data = analyzeRawFetcher.data as
-      | { ok?: boolean; error?: string; analyzedCount?: number }
-      | undefined;
-    if (data?.ok) {
-      const count = data.analyzedCount ?? 0;
-      if (count > 0) {
-        toast.success(
-          'Feedbacks analisados!',
-          `${count} feedback(s) processado(s) com sucesso.`,
-        );
-      } else {
-        toast.success(
-          'Nenhum feedback novo',
-          'Os feedbacks deste escopo já estavam analisados.',
-        );
-      }
-    } else if (data?.error) {
-      toast.error('Erro na análise', data.error);
-    }
-  }, [analyzeRawFetcher.state, analyzeRawFetcher.data, toast]);
-
-  useEffect(() => {
-    if (insightsFetcher.state !== 'idle' || !shouldRevalidateInsightsRef.current) return;
-    shouldRevalidateInsightsRef.current = false;
-    const data = insightsFetcher.data as
-      | { ok?: boolean; error?: string; reportGenerated?: boolean }
-      | undefined;
-    if (data?.ok) {
-      // Só comemora se um relatório foi DE FATO gerado para o escopo. Caso
-      // contrário, evita o "falso sucesso" e orienta o gestor.
-      if (data.reportGenerated === false) {
-        toast.warning(
-          'Nenhum relatório gerado',
-          'Não há feedbacks com comentários analisados suficientes neste escopo para a IA gerar um relatório. Use "Analisar feedbacks" e tente novamente.',
-        );
-      } else {
-        toast.success('Insights atualizados!', 'Relatório atualizado com os novos insights da IA');
-      }
-    } else if (data?.error) {
-      toast.error('Erro na análise', data.error);
-    }
-  }, [insightsFetcher.state, insightsFetcher.data, toast]);
+    toast.success('Enfileirando relatório...', 'O processamento continuará em segundo plano.');
+    submitInsights(form);
+  }, [insightsState.canAnalyze, insightsState.scope, insightsState.catalogItemId, submitInsights, toast]);
 
   const pendingContent = (() => {
-    if (!isRouteLoading) {
+    if (!isNavigatingToNewPage) {
       return <Outlet />;
     }
 
@@ -268,63 +260,103 @@ export default function User() {
     }, 120);
   };
 
+  const insightsRunning = insightsOperation.status === 'running';
+  const isAnalyzingRaw = rawOperation.status === 'running' || (insightsRunning && insightsOperation.job?.phase === 'analyzing');
+  const isRegeneratingInsights = insightsRunning && insightsOperation.job?.phase !== 'analyzing';
+  const latestOperation = rawOperation.startedAt > insightsOperation.startedAt ? rawOperation : insightsOperation;
+
   return (
-    <InsightsControlsProvider
-      value={{
-        ...insightsState,
-        analyzeRaw,
-        regenerateInsights,
-        isAnalyzingRaw: analyzeRawFetcher.state !== 'idle',
-        isRegeneratingInsights: insightsFetcher.state !== 'idle',
-      }}
-    >
-      <div className="private-user-theme min-h-screen bg-(--bg-primary) text-(--text-primary)">
-        <header className="sticky top-0 z-50 h-16 border-b border-(--quaternary-color)/10 bg-linear-to-r from-(--bg-secondary) to-(--sixth-color)">
-          <Header
-            isSidebarOpen={isSidebarOpen}
-            onToggleSidebar={() => setIsSidebarOpen((v) => !v)}
-            enterprise={enterprise}
-            onSignOut={handleSignOut}
-            isSigningOut={isSigningOut}
-          />
-        </header>
+    <OnboardingProvider collecting={collecting}>
+      <InsightsControlsProvider
+        value={{
+          ...insightsState,
+          analyzeRaw,
+          regenerateInsights,
+          isAnalyzingRaw,
+          isRegeneratingInsights,
+          rawProgress: insightsRunning && insightsOperation.job?.phase === 'analyzing' ? insightsOperation.progress : rawOperation.progress,
+          insightsProgress: insightsOperation.progress,
+          rawStatus: rawOperation.status,
+          insightsStatus: insightsOperation.status,
+          rawError: rawOperation.error,
+          insightsError: insightsOperation.error,
+          activeJob: insightsRunning ? insightsOperation.job : rawOperation.status === 'running' ? rawOperation.job : null,
+          pollingWarning: (insightsRunning && insightsOperation.connectionError) || (rawOperation.status === 'running' && rawOperation.connectionError),
+          operationStatus: latestOperation.status,
+          operationError: latestOperation.error,
+          operationScope: latestOperation.job,
+        }}
+      >
+        <SidebarProvider open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+          <div className="private-user-theme min-h-screen w-full max-w-full overflow-x-hidden bg-(--bg-primary) text-(--text-primary)">
+            <header className="fixed top-0 left-0 right-0 z-50 h-16 w-full max-w-full border-b border-(--quaternary-color)/10 bg-linear-to-r from-(--bg-secondary) to-(--sixth-color) backdrop-blur-md">
+              <Header
+                isSidebarOpen={isSidebarOpen}
+                onToggleSidebar={() => setIsSidebarOpen((v) => !v)}
+                enterprise={enterprise}
+                onSignOut={handleSignOut}
+                isSigningOut={isSigningOut}
+              />
+            </header>
 
-        <div className="relative bg-(--bg-primary)">
-          {/* Ativador de borda: invoca a sidebar ao aproximar o cursor da esquerda. */}
-          <div
-            className="fixed left-0 top-16 z-30 h-[calc(100vh-64px)] w-2"
-            onMouseEnter={() => {
-              cancelClose();
-              setIsSidebarOpen(true);
-              setIsHoverActivator(true);
-            }}
-            onMouseLeave={() => {
-              setIsHoverActivator(false);
-              scheduleClose();
-            }}
-          />
+            <div className="relative w-full max-w-full overflow-x-hidden bg-(--bg-primary) pt-16">
+              {/* Ativador de borda desktop */}
+              <div
+                className="hidden md:block fixed left-0 top-16 z-30 h-[calc(100vh-64px)] w-2"
+                onMouseEnter={() => {
+                  cancelClose();
+                  setIsSidebarOpen(true);
+                  setIsHoverActivator(true);
+                }}
+                onMouseLeave={() => {
+                  setIsHoverActivator(false);
+                  scheduleClose();
+                }}
+              />
 
-          <main className="min-w-0">
-            <div className="bg-(--bg-primary) p-4 md:p-5">
-              <InsightsActionBar />
-              <SectionTabs className="mb-5" />
-              {pendingContent}
+              <main className={`w-full max-w-full min-w-0 pb-24 md:pb-5 transition-all duration-300 ${
+                isSidebarOpen ? 'md:pl-64' : 'md:pl-16'
+              }`}>
+                <div className="w-full max-w-full min-w-0 bg-(--bg-primary) p-4 md:p-5">
+                  <InsightsActionBar />
+                  <SectionTabs className="mb-5" />
+                  {pendingContent}
+                </div>
+              </main>
             </div>
-          </main>
-        </div>
 
-        <Sidebar
-          isOpen={isSidebarOpen}
-          onOpen={() => {
-            cancelClose();
-            setIsSidebarOpen(true);
-          }}
-          onClose={() => {
-            scheduleClose();
-          }}
-          pendingPathname={pendingPathname}
-        />
-      </div>
-    </InsightsControlsProvider>
+            {/* Desktop Sidebar (shadcn UI pattern) */}
+            <Sidebar
+              isOpen={isSidebarOpen}
+              onOpen={() => {
+                cancelClose();
+                setIsSidebarOpen(true);
+              }}
+              onClose={() => {
+                scheduleClose();
+              }}
+              pendingPathname={pendingPathname}
+            />
+
+            {/* Mobile Bottom Navigation (Apenas no Mobile) */}
+            <MobileBottomNav
+              onOpenDrawer={() => setIsMobileDrawerOpen(true)}
+              pendingPathname={pendingPathname}
+            />
+
+            {/* Mobile Bottom Sheet Drawer */}
+            <MobileMenuDrawer
+              isOpen={isMobileDrawerOpen}
+              onClose={() => setIsMobileDrawerOpen(false)}
+              pendingPathname={pendingPathname}
+              enterprise={enterprise}
+              onSignOut={handleSignOut}
+            />
+
+            <UserOnboardingManager />
+          </div>
+        </SidebarProvider>
+      </InsightsControlsProvider>
+    </OnboardingProvider>
   );
 }

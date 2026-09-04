@@ -47,7 +47,7 @@ export default function FeedbackDetailsModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60" />
       <div
-        className="relative max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-(--quaternary-color)/10 bg-gradient-to-br from-(--bg-secondary) to-(--sixth-color) p-6 glass-card"
+        className="relative max-h-[85vh] w-full max-w-3xl overflow-y-auto custom-scrollbar rounded-2xl border border-(--quaternary-color)/10 bg-gradient-to-br from-(--bg-secondary) to-(--sixth-color) p-5 sm:p-6 glass-card"
         onClick={(e) => e.stopPropagation()}>
         <div className="mb-4 flex items-start justify-between">
           <h2 className="font-montserrat text-lg font-semibold text-(--text-primary)">Detalhes do Feedback</h2>

@@ -8,5 +8,6 @@ export type FeedbackInsightsReportActionData = {
   errorCode?:
     | 'insufficient_feedbacks_for_analysis'
     | 'collecting_data_required_for_analysis'
+    | 'ia_config_required'
     | 'item_selection_required';
 };

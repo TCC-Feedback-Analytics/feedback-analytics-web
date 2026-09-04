@@ -22,12 +22,13 @@ export interface FeedbackCardProps {
 export interface FeedbackFiltersProps {
   filters: FeedbackFilters;
   onSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  onItemChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onItemChange: (item: string) => void;
   onRatingFilter: (rating: number | undefined) => void;
-  onCategoryFilter: (
+  onCategoryFilter?: (
     category: 'COMPANY' | 'PRODUCT' | 'SERVICE' | 'DEPARTMENT' | undefined,
   ) => void;
   onLimitChange: (limit: number) => void;
+  isSearching?: boolean;
 }
 
 /**
@@ -45,4 +46,14 @@ export interface FeedbackHeaderProps {
 export interface FeedbackPaginationProps {
   pagination: FeedbackPagination;
   onPageChange: (page: number) => void;
+}
+
+/**
+ * Props do dropdown de filtro de escopo pesquisável.
+ * Usado em: components/user/pages/feedbacks/ItemSearchableDropdown.tsx.
+ */
+export interface ItemSearchableDropdownProps {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
 }

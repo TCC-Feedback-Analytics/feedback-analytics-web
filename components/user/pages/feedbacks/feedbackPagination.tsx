@@ -5,8 +5,8 @@ export default function FeedbackPagination({
   onPageChange,
 }: FeedbackPaginationProps) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-(--quaternary-color)/10 bg-gradient-to-br from-(--bg-secondary) to-(--sixth-color) p-6 glass-card">
-      <div className="flex justify-between items-center">
+    <div className="relative overflow-hidden rounded-2xl border border-(--quaternary-color)/10 bg-gradient-to-br from-(--bg-secondary) to-(--sixth-color) p-4 sm:p-5 md:p-6 glass-card">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="font-work-sans text-sm text-[var(--text-tertiary)]">
           Mostrando {(pagination.currentPage - 1) * pagination.itemsPerPage + 1}{' '}
           a{' '}
