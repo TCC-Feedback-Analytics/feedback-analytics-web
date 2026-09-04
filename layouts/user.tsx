@@ -35,8 +35,7 @@ import { useToast } from 'components/public/forms/messages/useToast';
 import { OnboardingProvider, useOnboarding } from 'src/lib/context/onboardingContext';
 import AIContextDialog from 'components/user/onboarding/AIContextDialog';
 import UserInteractiveTour from 'components/user/onboarding/UserInteractiveTour';
-import { useAnalysisJobPolling } from 'src/lib/hooks/useAnalysisJobPolling';
-import { getIaErrorMessage } from 'src/lib/utils/iaErrorMapper';
+import { useIaOperation } from 'src/lib/hooks/useIaOperation';
 
 function UserOnboardingManager() {
   const { hasCompletedAIContext } = useOnboarding();
@@ -101,8 +100,6 @@ function buildInsightsInitialData(collecting: CollectingDataEnterprise | null): 
 
 export default function User() {
   const logoutFetcher = useFetcher();
-  const analyzeRawFetcher = useFetcher();
-  const insightsFetcher = useFetcher();
   const navigation = useNavigation();
   const toast = useToast();
   const { enterprise, collecting } = useLoaderData() as {
@@ -139,8 +136,23 @@ export default function User() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collecting]);
 
-  const shouldRevalidateRawRef = useRef(false);
-  const shouldRevalidateInsightsRef = useRef(false);
+  const rawOperation = useIaOperation({
+    kind: 'analyze_raw',
+    enterpriseId: enterprise.id,
+    onSuccess: ({ analyzedCount = 0 }) => toast.success(
+      analyzedCount > 0 ? 'Feedbacks analisados!' : 'Nenhum feedback novo',
+      analyzedCount > 0 ? `${analyzedCount} feedback(s) processado(s) com sucesso.` : 'Os feedbacks deste escopo já estavam analisados.',
+    ),
+    onError: (message) => toast.error('Erro na análise', message),
+  });
+  const insightsOperation = useIaOperation({
+    kind: 'regenerate_insights',
+    enterpriseId: enterprise.id,
+    onSuccess: () => toast.success('Insights atualizados!', 'Relatório atualizado com os novos insights da IA'),
+    onError: (message) => toast.error('Erro na geração de insights', message),
+  });
+  const submitRaw = rawOperation.submit;
+  const submitInsights = insightsOperation.submit;
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
@@ -167,12 +179,11 @@ export default function User() {
     if (insightsState.catalogItemId) {
       form.set('catalog_item_id', insightsState.catalogItemId);
     }
-    shouldRevalidateRawRef.current = true;
-    toast.success('Analisando feedbacks...', 'Isso pode levar alguns momentos');
-    analyzeRawFetcher.submit(form, { method: 'post', action: '/user/insights/reports' });
-  }, [insightsState.canAnalyze, insightsState.scope, insightsState.catalogItemId, analyzeRawFetcher, toast]);
+    toast.success('Enfileirando análise...', 'Você pode continuar navegando enquanto a IA processa.');
+    submitRaw(form);
+  }, [insightsState.canAnalyze, insightsState.scope, insightsState.catalogItemId, submitRaw, toast]);
 
-  const regenerateInsights = useCallback(() => {
+  const regenerateInsights = useCallback((options?: { analyzePending?: boolean; force?: boolean }) => {
     if (!insightsState.canAnalyze) {
       toast.warning('Configuração necessária', 'Preencha as informações da empresa para liberar a análise.');
       return;
@@ -183,103 +194,15 @@ export default function User() {
     }
     const form = new FormData();
     form.set('intent', INTENT_FEEDBACK_RUN_IA);
+    form.set('analyze_pending', String(options?.analyzePending === true));
+    form.set('force', String(options?.force === true));
     form.set('scope_type', insightsState.scope);
     if (insightsState.catalogItemId) {
       form.set('catalog_item_id', insightsState.catalogItemId);
     }
-    shouldRevalidateInsightsRef.current = true;
-    toast.success('Gerando análise...', 'Isso pode levar alguns momentos');
-    insightsFetcher.submit(form, { method: 'post', action: '/user/insights/reports' });
-  }, [insightsState.canAnalyze, insightsState.scope, insightsState.catalogItemId, insightsFetcher, toast]);
-
-  const [activeRawJobId, setActiveRawJobId] = useState<string | null>(null);
-  const [activeInsightsJobId, setActiveInsightsJobId] = useState<string | null>(null);
-
-  const rawJobPolling = useAnalysisJobPolling({
-    jobId: activeRawJobId,
-    onCompleted: (job) => {
-      setActiveRawJobId(null);
-      if (job.total > 0) {
-        toast.success(
-          'Feedbacks analisados!',
-          `${job.done} feedback(s) processado(s) com sucesso.`,
-        );
-      } else {
-        toast.success(
-          'Nenhum feedback novo',
-          'Os feedbacks deste escopo já estavam analisados.',
-        );
-      }
-    },
-    onFailed: (errorCode) => {
-      setActiveRawJobId(null);
-      toast.error('Erro na análise', getIaErrorMessage(errorCode));
-    },
-  });
-
-  const insightsJobPolling = useAnalysisJobPolling({
-    jobId: activeInsightsJobId,
-    onCompleted: () => {
-      setActiveInsightsJobId(null);
-      toast.success('Insights atualizados!', 'Relatório atualizado com os novos insights da IA');
-    },
-    onFailed: (errorCode) => {
-      setActiveInsightsJobId(null);
-      toast.error('Erro na análise', getIaErrorMessage(errorCode));
-    },
-  });
-
-  useEffect(() => {
-    if (analyzeRawFetcher.state !== 'idle' || !shouldRevalidateRawRef.current) return;
-    shouldRevalidateRawRef.current = false;
-    const data = analyzeRawFetcher.data as
-      | { ok?: boolean; jobId?: string; error?: string; analyzedCount?: number }
-      | undefined;
-    if (data?.ok) {
-      if (data.jobId) {
-        setActiveRawJobId(data.jobId);
-      } else {
-        const count = data.analyzedCount ?? 0;
-        if (count > 0) {
-          toast.success(
-            'Feedbacks analisados!',
-            `${count} feedback(s) processado(s) com sucesso.`,
-          );
-        } else {
-          toast.success(
-            'Nenhum feedback novo',
-            'Os feedbacks deste escopo já estavam analisados.',
-          );
-        }
-      }
-    } else if (data?.error) {
-      toast.error('Erro na análise', data.error);
-    }
-  }, [analyzeRawFetcher.state, analyzeRawFetcher.data, toast]);
-
-  useEffect(() => {
-    if (insightsFetcher.state !== 'idle' || !shouldRevalidateInsightsRef.current) return;
-    shouldRevalidateInsightsRef.current = false;
-    const data = insightsFetcher.data as
-      | { ok?: boolean; jobId?: string; error?: string; reportGenerated?: boolean }
-      | undefined;
-    if (data?.ok) {
-      if (data.jobId) {
-        setActiveInsightsJobId(data.jobId);
-      } else {
-        if (data.reportGenerated === false) {
-          toast.warning(
-            'Nenhum relatório gerado',
-            'Não há feedbacks com comentários analisados suficientes neste escopo para a IA gerar um relatório. Use "Analisar feedbacks" e tente novamente.',
-          );
-        } else {
-          toast.success('Insights atualizados!', 'Relatório atualizado com os novos insights da IA');
-        }
-      }
-    } else if (data?.error) {
-      toast.error('Erro na análise', data.error);
-    }
-  }, [insightsFetcher.state, insightsFetcher.data, toast]);
+    toast.success('Enfileirando relatório...', 'O processamento continuará em segundo plano.');
+    submitInsights(form);
+  }, [insightsState.canAnalyze, insightsState.scope, insightsState.catalogItemId, submitInsights, toast]);
 
   const pendingContent = (() => {
     if (!isNavigatingToNewPage) {
@@ -337,15 +260,10 @@ export default function User() {
     }, 120);
   };
 
-  const isAnalyzingRaw = analyzeRawFetcher.state !== 'idle' || activeRawJobId !== null;
-  const isRegeneratingInsights = insightsFetcher.state !== 'idle' || activeInsightsJobId !== null;
-
-  const rawProgress = activeRawJobId
-    ? { done: rawJobPolling.done, total: rawJobPolling.total }
-    : null;
-  const insightsProgress = activeInsightsJobId
-    ? { done: insightsJobPolling.done, total: insightsJobPolling.total }
-    : null;
+  const insightsRunning = insightsOperation.status === 'running';
+  const isAnalyzingRaw = rawOperation.status === 'running' || (insightsRunning && insightsOperation.job?.phase === 'analyzing');
+  const isRegeneratingInsights = insightsRunning && insightsOperation.job?.phase !== 'analyzing';
+  const latestOperation = rawOperation.startedAt > insightsOperation.startedAt ? rawOperation : insightsOperation;
 
   return (
     <OnboardingProvider collecting={collecting}>
@@ -356,8 +274,17 @@ export default function User() {
           regenerateInsights,
           isAnalyzingRaw,
           isRegeneratingInsights,
-          rawProgress,
-          insightsProgress,
+          rawProgress: insightsRunning && insightsOperation.job?.phase === 'analyzing' ? insightsOperation.progress : rawOperation.progress,
+          insightsProgress: insightsOperation.progress,
+          rawStatus: rawOperation.status,
+          insightsStatus: insightsOperation.status,
+          rawError: rawOperation.error,
+          insightsError: insightsOperation.error,
+          activeJob: insightsRunning ? insightsOperation.job : rawOperation.status === 'running' ? rawOperation.job : null,
+          pollingWarning: (insightsRunning && insightsOperation.connectionError) || (rawOperation.status === 'running' && rawOperation.connectionError),
+          operationStatus: latestOperation.status,
+          operationError: latestOperation.error,
+          operationScope: latestOperation.job,
         }}
       >
         <SidebarProvider open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>

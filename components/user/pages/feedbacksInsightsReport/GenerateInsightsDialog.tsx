@@ -1,4 +1,3 @@
-import { useEffect, useState, useRef } from "react";
 import {
   FaWandMagicSparkles,
   FaChartLine,
@@ -61,53 +60,36 @@ export default function GenerateInsightsDialog({
     isRegeneratingInsights,
     rawProgress,
     insightsProgress,
+    rawStatus,
+    insightsStatus,
+    rawError,
+    insightsError,
+    activeJob,
+    pollingWarning,
+    operationStatus,
+    operationError,
+    operationScope,
   } = useInsightsControls();
 
   const { pendingCount, totalFeedbacks, totalAnalyzed, latestAnalysisAt, loading } =
     useScopedPendingCount(open);
   const { report } = useScopedInsightsReport();
 
-  const [autoStage, setAutoStage] = useState<"IDLE" | "ANALYZING" | "GENERATING" | "COMPLETED">("IDLE");
-  const wasAnalyzingRef = useRef(false);
-  const wasRegeneratingRef = useRef(false);
-
-  // Monitora a transição de estado da IA para encadear a 2ª etapa no fluxo automático
-  useEffect(() => {
-    if (autoStage === "ANALYZING") {
-      if (isAnalyzingRaw) {
-        wasAnalyzingRef.current = true;
-      } else if (wasAnalyzingRef.current) {
-        wasAnalyzingRef.current = false;
-        // Análise bruta finalizada -> Inicia a geração de insights
-        setAutoStage("GENERATING");
-        regenerateInsights();
-      }
-    } else if (autoStage === "GENERATING") {
-      if (isRegeneratingInsights) {
-        wasRegeneratingRef.current = true;
-      } else if (wasRegeneratingRef.current) {
-        wasRegeneratingRef.current = false;
-        // Geração concluída
-        setAutoStage("COMPLETED");
-      }
-    }
-  }, [autoStage, isAnalyzingRaw, isRegeneratingInsights, regenerateInsights]);
-
-  // Reseta o estado do fluxo ao abrir/fechar o dialog
-  useEffect(() => {
-    if (!open) {
-      setAutoStage("IDLE");
-      wasAnalyzingRef.current = false;
-      wasRegeneratingRef.current = false;
-    }
-  }, [open]);
+  // O backend encadeia as etapas; este componente apenas acompanha o job.
+  const isProcessing = isAnalyzingRaw || isRegeneratingInsights || rawStatus === "running" || insightsStatus === "running";
+  const operationMatchesScope = !operationScope || operationScope.scopeType === scope && (operationScope.catalogItemId ?? "") === catalogItemId;
+  const lastStatus = operationStatus ?? (insightsStatus !== 'idle' ? insightsStatus : rawStatus);
+  const autoStage = isProcessing ? (isAnalyzingRaw ? "ANALYZING" : "GENERATING")
+    : !operationMatchesScope ? "IDLE" : lastStatus === "failed" ? "FAILED"
+    : lastStatus === "succeeded" ? "COMPLETED" : "IDLE";
+  const flowError = operationStatus ? operationError : insightsError || rawError;
+  const sameScope = !activeJob || activeJob.scopeType === scope && (activeJob.catalogItemId ?? "") === catalogItemId;
 
   if (!open) return null;
 
-  const scopeInfo = getScopeInfo(scope, catalogItemId, catalogItemOptions);
+  const scopeInfo = getScopeInfo(activeJob?.scopeType ?? scope, activeJob?.catalogItemId ?? catalogItemId, catalogItemOptions);
   const ScopeIcon = scopeInfo.icon;
   const missingItem = scope !== "COMPANY" && !catalogItemId;
-  const isProcessing = isAnalyzingRaw || isRegeneratingInsights;
   const belowMinimum = totalFeedbacks < MIN_FEEDBACKS_TO_ANALYZE;
   const nothingNewToAnalyze = pendingCount === 0;
 
@@ -122,28 +104,19 @@ export default function GenerateInsightsDialog({
     !Number.isNaN(analysisTime) &&
     reportTime >= analysisTime;
 
-  const generateDisabled = baseDisabled || !hasAnalysis || insightsUpToDate;
+  // Um clique explícito pode refazer um relatório já atualizado. Isso permite
+  // aplicar uma nova versão do prompt/sintetizador sem criar feedback artificial.
+  const generateDisabled = baseDisabled || !hasAnalysis;
 
   // Botão unificado habilitado se houver algo para analisar OU gerar
   const unifiedDisabled = baseDisabled || (analyzeDisabled && generateDisabled);
 
   const handleStartUnifiedFlow = () => {
     if (unifiedDisabled) return;
-
-    if (!analyzeDisabled) {
-      setAutoStage("ANALYZING");
-      analyzeRaw();
-    } else if (!generateDisabled) {
-      setAutoStage("GENERATING");
-      regenerateInsights();
-    }
+    // Uma submissão durável para analisar pendentes + produzir relatório.
+    regenerateInsights({ analyzePending: true, ...(insightsUpToDate ? { force: true } : {}) });
   };
-
-  const handleBackdropClick = () => {
-    if (!isProcessing && autoStage === "IDLE") {
-      onOpenChange(false);
-    }
-  };
+  const handleBackdropClick = () => onOpenChange(false);
 
   return (
     <div
@@ -178,7 +151,6 @@ export default function GenerateInsightsDialog({
           <button
             type="button"
             onClick={() => onOpenChange(false)}
-            disabled={isProcessing}
             aria-label="Fechar"
             className="rounded-xl p-2 text-(--text-tertiary) hover:bg-(--seventh-color) hover:text-(--text-primary) transition-colors disabled:opacity-40"
           >
@@ -208,6 +180,14 @@ export default function GenerateInsightsDialog({
           </div>
         </div>
 
+        {isProcessing && (
+          <div role="status" className="relative z-10 mb-4 text-xs text-(--text-secondary)">
+            {pollingWarning ? "Sem conexão para consultar o progresso. Tentando reconectar; o job continua no servidor."
+              : activeJob?.status === "waiting_budget" ? "Aguardando a cota da IA. A retomada será automática."
+              : "Processando em segundo plano. Você pode fechar esta janela e continuar navegando."}
+          </div>
+        )}
+
         {/* Alerta de Item Não Selecionado */}
         {missingItem && (
           <div className="relative z-10 mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300 flex items-center gap-2">
@@ -221,19 +201,19 @@ export default function GenerateInsightsDialog({
           <div className="rounded-xl border border-(--quaternary-color)/12 bg-(--seventh-color)/40 p-3 text-center">
             <span className="text-[11px] text-(--text-tertiary) block font-medium">Novos Feedbacks</span>
             <span className="font-montserrat text-lg font-bold text-(--text-primary)">
-              {pendingCount}
+              {sameScope ? pendingCount : "—"}
             </span>
           </div>
           <div className="rounded-xl border border-(--quaternary-color)/12 bg-(--seventh-color)/40 p-3 text-center">
             <span className="text-[11px] text-(--text-tertiary) block font-medium">Já Analisados</span>
             <span className="font-montserrat text-lg font-bold text-(--text-primary)">
-              {totalAnalyzed}
+              {sameScope ? totalAnalyzed : "—"}
             </span>
           </div>
           <div className="rounded-xl border border-(--quaternary-color)/12 bg-(--seventh-color)/40 p-3 text-center">
             <span className="text-[11px] text-(--text-tertiary) block font-medium">Total no Escopo</span>
             <span className="font-montserrat text-lg font-bold text-(--text-primary)">
-              {totalFeedbacks}
+              {sameScope ? totalFeedbacks : "—"}
             </span>
           </div>
         </div>
@@ -322,11 +302,17 @@ export default function GenerateInsightsDialog({
         </div>
 
         {/* Feedback de Conclusão */}
+        {autoStage === "FAILED" && (
+          <div role="alert" className="relative z-10 mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">
+            <p className="font-semibold">Processamento interrompido</p>
+            <p className="mt-1">{flowError}</p>
+          </div>
+        )}
         {autoStage === "COMPLETED" && (
           <div className="relative z-10 mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-300 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <FaCheck className="text-base shrink-0" />
-              <span>Análise e geração de insights concluídas com sucesso!</span>
+              <span>Processamento de IA concluído com sucesso!</span>
             </div>
             <button
               type="button"
@@ -343,7 +329,7 @@ export default function GenerateInsightsDialog({
           <button
             type="button"
             onClick={handleStartUnifiedFlow}
-            disabled={unifiedDisabled || autoStage === "COMPLETED"}
+            disabled={unifiedDisabled}
             className="btn-primary font-poppins w-full flex items-center justify-center gap-2 py-3 text-xs font-semibold shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isProcessing ? (
@@ -351,7 +337,7 @@ export default function GenerateInsightsDialog({
                 <FaSpinner className="animate-spin text-sm" />
                 <span>Processando IA...</span>
               </>
-            ) : autoStage === "COMPLETED" ? (
+            ) : autoStage === "COMPLETED" && unifiedDisabled ? (
               <>
                 <FaCheck className="text-sm" />
                 <span>Processamento Concluído</span>
@@ -379,9 +365,9 @@ export default function GenerateInsightsDialog({
             <span className="text-(--quaternary-color)/40 text-xs">•</span>
             <button
               type="button"
-              onClick={regenerateInsights}
+              onClick={() => regenerateInsights(insightsUpToDate ? { force: true } : undefined)}
               disabled={generateDisabled}
-              title={!hasAnalysis ? "Sem análises prévias" : insightsUpToDate ? "Relatório atualizado" : undefined}
+              title={!hasAnalysis ? "Sem análises prévias" : insightsUpToDate ? "Gerar novamente usando as análises atuais" : undefined}
               className="text-xs font-medium text-(--text-secondary) hover:text-(--text-primary) hover:underline disabled:opacity-40 disabled:no-underline disabled:cursor-not-allowed transition-colors"
             >
               Apenas Gerar Relatório
