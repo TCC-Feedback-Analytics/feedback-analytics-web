@@ -1,7 +1,9 @@
 import { ServiceGetIaConfig, type IaConfigResponse } from 'src/services/serviceIaConfig';
+import { iaConfigError } from 'src/lib/utils/iaConfigErrors';
 
 export interface LoaderIaSettingsResult {
-  iaConfig: IaConfigResponse;
+  iaConfig: IaConfigResponse | null;
+  error?: string;
 }
 
 export async function LoaderIaSettings(): Promise<LoaderIaSettingsResult> {
@@ -9,14 +11,10 @@ export async function LoaderIaSettings(): Promise<LoaderIaSettingsResult> {
     const iaConfig = await ServiceGetIaConfig();
     return { iaConfig };
   } catch (error) {
-    console.error('LoaderIaSettings: falha ao carregar configuração de IA', error);
+    // Falha de leitura não significa que a empresa está sem chave.
     return {
-      iaConfig: {
-        hasKey: false,
-        provider: null,
-        model: null,
-        keyHint: null,
-      },
+      iaConfig: null,
+      error: iaConfigError(error, 'Não foi possível carregar a configuração de IA. Tente novamente.').message,
     };
   }
 }
