@@ -1,6 +1,25 @@
 import '@testing-library/jest-dom';
 
+import { URLSearchParams as NodeURLSearchParams } from 'node:url';
+import { transferableAbortController } from 'node:util';
 import { vi } from 'vitest';
+
+// O jsdom fornece URLSearchParams/AbortController de outro realm, enquanto o
+// Request usado pelo React Router vem do Node (Undici). O Node valida a origem
+// dessas instancias e rejeita submissions quando as implementacoes sao
+// misturadas. Mantenha as Web APIs usadas na criacao do Request no mesmo realm
+// durante toda a execucao de cada arquivo de teste.
+Object.defineProperty(globalThis, 'URLSearchParams', {
+  configurable: true,
+  writable: true,
+  value: NodeURLSearchParams,
+});
+
+Object.defineProperty(globalThis, 'AbortController', {
+  configurable: true,
+  writable: true,
+  value: transferableAbortController().constructor,
+});
 
 vi.mock('react-router-dom', () => ({
   useRouteLoaderData: vi.fn(),

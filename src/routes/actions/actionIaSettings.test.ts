@@ -3,16 +3,19 @@ import { ActionIaSettings } from './actionIaSettings';
 import {
   ServiceUpdateIaConfig,
   ServiceDeleteIaConfig,
+  ServiceUpdateIaModel,
 } from 'src/services/serviceIaConfig';
 import type { ActionFunctionArgs } from 'react-router-dom';
 
 vi.mock('src/services/serviceIaConfig', () => ({
   ServiceUpdateIaConfig: vi.fn(),
   ServiceDeleteIaConfig: vi.fn(),
+  ServiceUpdateIaModel: vi.fn(),
 }));
 
 const mockUpdateIaConfig = vi.mocked(ServiceUpdateIaConfig);
 const mockDeleteIaConfig = vi.mocked(ServiceDeleteIaConfig);
+const mockUpdateIaModel = vi.mocked(ServiceUpdateIaModel);
 
 function createArgs(body: Record<string, string | undefined>): ActionFunctionArgs {
   const formData = new URLSearchParams();
@@ -41,6 +44,7 @@ describe('[Unit] ActionIaSettings', () => {
   beforeEach(() => {
     mockUpdateIaConfig.mockReset();
     mockDeleteIaConfig.mockReset();
+    mockUpdateIaModel.mockReset();
   });
 
   describe('save_ia_config', () => {
@@ -198,6 +202,58 @@ describe('[Unit] ActionIaSettings', () => {
         error: 'invalid_intent',
         message: 'Ação inválida.',
       });
+    });
+  });
+
+  describe('update_ia_model', () => {
+    it('envia somente o modelo, sem depender de chave ou provedor no formulário', async () => {
+      const config = { hasKey: true, provider: 'openrouter', model: 'vendor/model', keyHint: '1234' };
+      mockUpdateIaModel.mockResolvedValue(config);
+      const result = await ActionIaSettings(createArgs({ intent: 'update_ia_model', model: ' vendor/model ' }));
+      expect(mockUpdateIaModel).toHaveBeenCalledWith('vendor/model');
+      expect(mockUpdateIaConfig).not.toHaveBeenCalled();
+      expect(result).toEqual({ ok: true, iaConfig: config, operation: 'model' });
+    });
+
+    it('não encaminha campos extras para o PATCH', async () => {
+      await ActionIaSettings(createArgs({
+        intent: 'update_ia_model', model: 'vendor/model', apiKey: 'do-not-send', provider: 'other', enterpriseId: 'other',
+      }));
+      expect(mockUpdateIaModel).toHaveBeenCalledExactlyOnceWith('vendor/model');
+      expect(mockUpdateIaConfig).not.toHaveBeenCalled();
+    });
+
+    it.each([undefined, '', '   ', 'x'.repeat(121)])('rejeita modelo inválido %s antes da chamada HTTP', async (model) => {
+      const result = await ActionIaSettings(createArgs({ intent: 'update_ia_model', model }));
+      expect(result).toMatchObject({ ok: false, error: 'invalid_payload' });
+      expect(mockUpdateIaModel).not.toHaveBeenCalled();
+    });
+  });
+
+  describe.each(['save_ia_config', 'update_ia_model'])('%s — erros do catálogo', (intent) => {
+    it.each([
+      ['ia_config_invalid_key', 'Chave inválida'],
+      ['ia_model_unavailable', 'Este modelo não está disponível'],
+      ['ia_models_unavailable', 'Não foi possível consultar os modelos'],
+      ['ia_models_forbidden', 'O OpenRouter bloqueou'],
+      ['ia_config_changed', 'A configuração foi alterada'],
+      ['ia_config_required', 'É necessário configurar uma chave'],
+      ['enterprise_not_found', 'Empresa não encontrada'],
+    ])('explica %s sem apresentar mensagem bruta do servidor', async (code, message) => {
+      const service = intent === 'save_ia_config' ? mockUpdateIaConfig : mockUpdateIaModel;
+      service.mockRejectedValue({ code, message: 'sensitive-upstream-message' });
+      const result = await ActionIaSettings(createArgs({ intent, model: 'vendor/model', apiKey: 'test-key' }));
+      expect(result).toMatchObject({ ok: false, error: code });
+      expect(result.message).toContain(message);
+      expect(result.message).not.toContain('sensitive');
+    });
+
+    it('diferencia sessão expirada de chave OpenRouter inválida', async () => {
+      const service = intent === 'save_ia_config' ? mockUpdateIaConfig : mockUpdateIaModel;
+      service.mockRejectedValue({ status: 401 });
+      const result = await ActionIaSettings(createArgs({ intent, model: 'vendor/model', apiKey: 'test-key' }));
+      expect(result).toMatchObject({ ok: false, error: 'unauthorized' });
+      expect(result.message).toContain('Sua sessão expirou');
     });
   });
 });

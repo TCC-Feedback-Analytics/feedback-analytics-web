@@ -8,6 +8,7 @@ import {
   INTENT_FEEDBACK_RUN_IA,
 } from 'src/lib/constants/routes/intents';
 import { ACTION_ERROR_INVALID_INTENT } from 'src/lib/constants/routes/errors';
+import { IA_RESPONSE_ERROR_MESSAGES, getIaErrorMessage } from 'src/lib/utils/iaErrorMapper';
 import type { IaAnalyzeScopeType } from 'lib/interfaces/contracts/ia-analyze/scope.contract';
 
 type HttpActionError = Error & {
@@ -73,19 +74,18 @@ export async function ActionFeedbackInsightsReport({
   try {
     if (intent === INTENT_FEEDBACK_ANALYZE_RAW) {
       const result = await ServiceRunRawFeedbackAnalysis({ scope_type, catalog_item_id });
-      if ('jobId' in result) {
-        return { ok: true, jobId: result.jobId, jobType: 'analyze_raw' };
-      }
-      return { ok: true, analyzedCount: result.analyzedCount };
+      return { ok: true, jobId: result.jobId, jobType: 'analyze_raw' };
     }
 
-    const result = await ServiceRunFeedbackIAAnalysis({ scope_type, catalog_item_id });
-    if ('jobId' in result) {
-      return { ok: true, jobId: result.jobId, jobType: 'regenerate_insights' };
-    }
-    return { ok: true, reportGenerated: result.reportGenerated };
+    const result = await ServiceRunFeedbackIAAnalysis({ scope_type, catalog_item_id,
+      analyze_pending: form.get('analyze_pending') === 'true',
+      force: form.get('force') === 'true' });
+    return { ok: true, jobId: result.jobId, jobType: 'regenerate_insights' };
   } catch (error) {
     const typedError = error as HttpActionError;
+    if (typedError.code && Object.hasOwn(IA_RESPONSE_ERROR_MESSAGES, typedError.code)) {
+      return { errorCode: typedError.code, error: getIaErrorMessage(typedError.code) };
+    }
 
     if (typedError.code === 'insufficient_feedbacks_for_analysis') {
       return {
@@ -100,6 +100,14 @@ export async function ActionFeedbackInsightsReport({
         errorCode: 'collecting_data_required_for_analysis',
         error:
           'Para analisar os feedbacks, preencha as informações da empresa em Editar > Configuração de Coleta de Dados.',
+      };
+    }
+
+    if (typedError.code === 'ia_config_required') {
+      return {
+        errorCode: 'ia_config_required',
+        error:
+          'Configure sua chave OpenRouter em Editar > Configuração de IA antes de iniciar uma análise.',
       };
     }
 

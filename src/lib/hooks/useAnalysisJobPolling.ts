@@ -21,6 +21,7 @@ export function useAnalysisJobPolling({
 }: UseAnalysisJobPollingOptions) {
   const [job, setJob] = useState<IaAnalysisJob | null>(null);
   const [isPolling, setIsPolling] = useState(false);
+  const [connectionError, setConnectionError] = useState(false);
 
   const onCompletedRef = useRef(onCompleted);
   onCompletedRef.current = onCompleted;
@@ -37,6 +38,8 @@ export function useAnalysisJobPolling({
 
     let isMounted = true;
     let timerId: number | null = null;
+    let failures = 0;
+    setConnectionError(false);
 
     const poll = async () => {
       setIsPolling(true);
@@ -45,6 +48,8 @@ export function useAnalysisJobPolling({
         if (!isMounted) return;
 
         setJob(jobData);
+        failures = 0;
+        setConnectionError(false);
 
         if (jobData.status === 'completed') {
           setIsPolling(false);
@@ -60,10 +65,18 @@ export function useAnalysisJobPolling({
 
         // queued, running, waiting_budget -> agenda próxima chamada
         timerId = window.setTimeout(poll, pollIntervalMs);
-      } catch {
+      } catch (error) {
         if (!isMounted) return;
-        setIsPolling(false);
-        onFailedRef.current?.('unexpected_error');
+        const status = (error as { status?: number })?.status;
+        if (status === 401 || status === 403 || status === 404) {
+          setIsPolling(false);
+          onFailedRef.current?.('ia_job_not_found');
+          return;
+        }
+        // Uma falha de consulta não cancela nem perde o trabalho no servidor.
+        failures += 1;
+        setConnectionError(true);
+        timerId = window.setTimeout(poll, Math.min(30_000, pollIntervalMs * 2 ** Math.min(failures, 4)));
       }
     };
 
@@ -84,5 +97,6 @@ export function useAnalysisJobPolling({
     total: job?.total ?? 0,
     errorCode: job?.errorCode ?? null,
     isPolling,
+    connectionError,
   };
 }
