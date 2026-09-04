@@ -139,6 +139,7 @@ export interface IaAnalysisJob {
   done: number;
   errorCode: string | null;
   updatedAt: string | null;
+  phase?: 'analyzing' | 'generating' | 'synthesizing';
 }
 
 export type FeedbackIaAsyncResponse = {
@@ -150,17 +151,17 @@ export type FeedbackIaRawRunResult = IaAnalyzeRawRunResponse;
 export type FeedbackIaRawRunOptions = IaAnalyzeRawRunRequest;
 
 export type FeedbackIaRegenerateInsightsResult = IaAnalyzeRegenerateInsightsResponse;
-export type FeedbackIaRegenerateInsightsOptions = IaAnalyzeRegenerateInsightsRequest;
+export type FeedbackIaRegenerateInsightsOptions = IaAnalyzeRegenerateInsightsRequest & { analyze_pending?: boolean };
 
 export function ServiceRunRawFeedbackAnalysis(options?: FeedbackIaRawRunOptions) {
-  return postJson<FeedbackIaRawRunResult | FeedbackIaAsyncResponse>(
+  return postJson<FeedbackIaAsyncResponse>(
     '/api/protected/ia-analyze/analyze-raw',
     options ?? {},
   );
 }
 
 export function ServiceRunFeedbackIAAnalysis(options?: FeedbackIaRegenerateInsightsOptions) {
-  return postJson<FeedbackIaRegenerateInsightsResult | FeedbackIaAsyncResponse>(
+  return postJson<FeedbackIaAsyncResponse>(
     '/api/protected/ia-analyze/regenerate-insights',
     options ?? {},
   );
@@ -168,5 +169,9 @@ export function ServiceRunFeedbackIAAnalysis(options?: FeedbackIaRegenerateInsig
 
 export function ServiceGetAnalysisJob(jobId: string) {
   return getJson<IaAnalysisJob>(`/api/protected/ia-analyze/jobs/${jobId}`);
+}
+
+export function ServiceGetActiveAnalysisJobs() {
+  return getJson<{ jobs: IaAnalysisJob[] }>('/api/protected/ia-analyze/jobs');
 }
 
