@@ -62,9 +62,11 @@ export interface SelectOption<T extends string | number = string | number> {
   value: T;
   label: string;
   icon?: React.ReactNode;
+  disabled?: boolean;
 }
 
 export interface SelectProps<T extends string | number = string | number> {
+  id?: string;
   options: SelectOption<T>[];
   value?: T;
   onChange: (value: T) => void;
@@ -75,6 +77,12 @@ export interface SelectProps<T extends string | number = string | number> {
   disabled?: boolean;
   startIcon?: React.ReactNode;
   onClear?: () => void;
+  searchable?: boolean;
+  searchLabel?: string;
+  searchPlaceholder?: string;
+  emptyMessage?: string;
+  noResultsMessage?: string;
+  'aria-describedby'?: string;
 }
 
 export interface SelectNativeProps extends React.SelectHTMLAttributes<HTMLSelectElement> {

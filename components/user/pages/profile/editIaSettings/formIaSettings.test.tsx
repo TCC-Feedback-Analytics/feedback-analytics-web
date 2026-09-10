@@ -73,6 +73,28 @@ async function ready() {
   await waitFor(() => expect(screen.queryByText('Carregando modelos compatíveis...')).not.toBeInTheDocument());
 }
 
+function modelCombobox() {
+  return screen.getByRole('combobox', { name: 'Modelo de IA' });
+}
+
+function openModelDropdown() {
+  const combobox = modelCombobox();
+  if (combobox.getAttribute('aria-expanded') !== 'true') fireEvent.click(combobox);
+  return screen.getByRole('dialog', { name: 'Opções de seleção' });
+}
+
+function modelSearch() {
+  return within(openModelDropdown()).getByRole('searchbox', { name: 'Buscar modelo' });
+}
+
+function selectModel(modelId: string) {
+  const escapedModelId = modelId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const option = within(openModelDropdown()).getByRole('option', {
+    name: new RegExp(`\\(${escapedModelId}\\)`),
+  });
+  fireEvent.click(option);
+}
+
 describe('FormIaSettings — cadastro e remoção da chave', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -223,16 +245,17 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
   it('usa opções da API, busca por nome/ID e não oferece a lista fixa ou modelo livre', async () => {
     render(<FormIaSettings />);
     await ready();
+    openModelDropdown();
     expect(screen.getByRole('option', { name: 'Modelo Alpha (vendor/model-a)' })).toBeInTheDocument();
     expect(screen.queryByText('Outro (personalizado)')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Identificador do Modelo no OpenRouter')).not.toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText('Buscar modelo'), { target: { value: 'ALPHA' } });
+    fireEvent.change(modelSearch(), { target: { value: 'ALPHA' } });
     expect(screen.queryByRole('option', { name: /Modelo Beta/ })).not.toBeInTheDocument();
     expect(screen.getByRole('option', { name: /Roteamento automático/ })).toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText('Buscar modelo'), { target: { value: 'vendor/model-b' } });
+    fireEvent.change(modelSearch(), { target: { value: 'vendor/model-b' } });
     expect(screen.getByRole('option', { name: /Modelo Beta/ })).toBeInTheDocument();
     expect(screen.queryByRole('option', { name: /Modelo Alpha/ })).not.toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText('Buscar modelo'), { target: { value: 'missing-model' } });
+    fireEvent.change(modelSearch(), { target: { value: 'missing-model' } });
     expect(screen.getByText(/Nenhum modelo encontrado para esta busca/)).toBeInTheDocument();
     expect(screen.getByRole('combobox')).toHaveValue('openrouter/auto');
   });
@@ -242,7 +265,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
     const { rerender } = render(<FormIaSettings />);
     await ready();
     expect(screen.getByRole('button', { name: 'Salvar modelo' })).toBeDisabled();
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'vendor/model-a' } });
+    selectModel('vendor/model-a');
     expect(screen.getByText(/Contexto: 128.000 tokens/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Salvar modelo' }));
     const form = fetcher.submit.mock.calls[0][0] as FormData;
@@ -262,7 +285,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
     vi.mocked(useLoaderData).mockReturnValue({ iaConfig: savedConfig });
     const { rerender } = render(<FormIaSettings />);
     await ready();
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'vendor/model-b' } });
+    selectModel('vendor/model-b');
     fireEvent.click(screen.getByRole('button', { name: 'Salvar modelo' }));
     fetcher.data = { ok: false, error: 'ia_models_unavailable', message: 'Tente novamente.' };
     vi.mocked(useLoaderData).mockReturnValue({ iaConfig: { ...savedConfig } });
@@ -277,7 +300,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
     vi.mocked(useLoaderData).mockReturnValue({ iaConfig: savedConfig });
     const { rerender } = render(<FormIaSettings />);
     await ready();
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'vendor/model-b' } });
+    selectModel('vendor/model-b');
     fetcher.state = state;
     rerender(<FormIaSettings />);
     expect(screen.getByRole('combobox')).toBeDisabled();
@@ -292,10 +315,11 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
     render(<FormIaSettings />);
     await ready();
     expect(screen.getByRole('combobox')).toHaveValue('vendor/retired');
+    openModelDropdown();
     expect(screen.getByRole('option', { name: /vendor\/retired — modelo atual indisponível/ })).toBeDisabled();
     expect(screen.getByText(/O modelo atual não está disponível neste catálogo/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Salvar modelo' })).toBeDisabled();
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'vendor/model-a' } });
+    selectModel('vendor/model-a');
     expect(screen.getByRole('button', { name: 'Salvar modelo' })).toBeEnabled();
     expect(fetcher.submit).not.toHaveBeenCalled();
   });
@@ -305,6 +329,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
     render(<FormIaSettings />);
     await ready();
     expect(screen.getByRole('combobox')).toHaveValue('');
+    openModelDropdown();
     expect(screen.queryByRole('option', { name: /Roteamento automático/ })).not.toBeInTheDocument();
     fireEvent.change(screen.getByLabelText(/Chave da API OpenRouter/), { target: { value: 'test-key' } });
     expect(screen.getByRole('button', { name: 'Salvar Configuração de IA' })).toBeDisabled();
@@ -326,7 +351,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
     render(<FormIaSettings />);
     await ready();
     expect(screen.getByText(/O catálogo pode estar desatualizado/)).toBeInTheDocument();
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'vendor/model-a' } });
+    selectModel('vendor/model-a');
     expect(screen.getByRole('button', { name: 'Salvar modelo' })).toBeEnabled();
   });
 
@@ -366,11 +391,12 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
   it('atualização de catálogo que remove a escolha não troca a seleção silenciosamente', async () => {
     render(<FormIaSettings />);
     await ready();
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'vendor/model-a' } });
+    selectModel('vendor/model-a');
     vi.mocked(ServiceGetIaModels).mockResolvedValueOnce({ ...catalogFor(emptyConfig), models: [dynamicModels[0]] });
     fireEvent.click(screen.getByRole('button', { name: 'Atualizar modelos' }));
     await ready();
     expect(screen.getByRole('combobox')).toHaveValue('vendor/model-a');
+    openModelDropdown();
     expect(screen.getByRole('option', { name: 'vendor/model-a — indisponível' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Salvar Configuração de IA' })).toBeDisabled();
   });
@@ -404,7 +430,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
     vi.mocked(useLoaderData).mockReturnValue({ iaConfig: savedConfig });
     const { rerender } = render(<FormIaSettings />);
     await ready();
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'vendor/model-b' } });
+    selectModel('vendor/model-b');
     fetcher.data = { ok: false, error: 'ia_config_changed', message: 'Recarregue.' };
     rerender(<FormIaSettings />);
     expect(screen.getByRole('button', { name: 'Salvar modelo' })).toBeDisabled();
@@ -417,15 +443,16 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
       vi.mocked(ServiceGetIaModels).mockResolvedValue({ ...catalogFor(savedConfig), models: [...dynamicModels, ...freeModels] });
     });
 
-    it('inicia desmarcado abaixo da busca e não faz chamadas ao filtrar', async () => {
+    it('inicia desmarcado e filtra as opções sem fazer novas chamadas', async () => {
       render(<FormIaSettings />);
       await ready();
       const checkbox = screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' });
       expect(checkbox).not.toBeChecked();
-      expect(screen.getByLabelText('Buscar modelo').compareDocumentPosition(checkbox) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(modelSearch()).toBeInTheDocument();
       expect(screen.getByRole('option', { name: 'Modelo Alpha (vendor/model-a)' })).toBeInTheDocument();
       fireEvent.click(checkbox);
       expect(checkbox).toBeChecked();
+      openModelDropdown();
       expect(screen.queryByRole('option', { name: 'Modelo Alpha (vendor/model-a)' })).not.toBeInTheDocument();
       expect(screen.queryByRole('option', { name: 'Modelo Beta (vendor/model-b)' })).not.toBeInTheDocument();
       expect(screen.getByRole('option', { name: 'Modelo Alpha grátis (vendor/model-a:free) — Gratuito' })).toBeEnabled();
@@ -437,13 +464,13 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
     it('combina a caixinha com a busca por texto sem substituir o texto digitado', async () => {
       render(<FormIaSettings />);
       await ready();
-      fireEvent.change(screen.getByLabelText('Buscar modelo'), { target: { value: 'ALPHA' } });
+      fireEvent.change(modelSearch(), { target: { value: 'ALPHA' } });
       fireEvent.click(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' }));
-      expect(screen.getByLabelText('Buscar modelo')).toHaveValue('ALPHA');
+      expect(modelSearch()).toHaveValue('ALPHA');
       expect(screen.getByRole('option', { name: /Modelo Alpha grátis/ })).toBeInTheDocument();
       expect(screen.queryByRole('option', { name: /Modelo Beta grátis/ })).not.toBeInTheDocument();
       expect(screen.queryByRole('option', { name: 'Modelo Alpha (vendor/model-a)' })).not.toBeInTheDocument();
-      fireEvent.change(screen.getByLabelText('Buscar modelo'), { target: { value: 'vendor/model-b' } });
+      fireEvent.change(modelSearch(), { target: { value: 'vendor/model-b' } });
       expect(screen.getByRole('option', { name: /Modelo Beta grátis/ })).toBeInTheDocument();
       expect(screen.queryByRole('option', { name: /Modelo Alpha grátis/ })).not.toBeInTheDocument();
     });
@@ -453,6 +480,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
       await ready();
       fireEvent.click(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' }));
       expect(screen.getByRole('combobox')).toHaveValue('openrouter/auto');
+      openModelDropdown();
       expect(screen.getByRole('option', { name: /Roteamento automático.*fora do filtro de gratuitos/ })).toBeDisabled();
       expect(screen.getByText(/A seleção atual não é uma opção gratuita/)).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Salvar modelo' })).toBeDisabled();
@@ -462,7 +490,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
     it('bloqueia salvar uma escolha paga pendente até escolher uma gratuita ou desmarcar', async () => {
       render(<FormIaSettings />);
       await ready();
-      fireEvent.change(screen.getByRole('combobox'), { target: { value: 'vendor/model-a' } });
+      selectModel('vendor/model-a');
       expect(screen.getByRole('button', { name: 'Salvar modelo' })).toBeEnabled();
       fireEvent.click(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' }));
       expect(screen.getByRole('combobox')).toHaveValue('vendor/model-a');
@@ -477,11 +505,11 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
     it('restaura opções ao desmarcar sem perder texto nem modelo escolhido', async () => {
       render(<FormIaSettings />);
       await ready();
-      fireEvent.change(screen.getByLabelText('Buscar modelo'), { target: { value: 'Alpha' } });
+      fireEvent.change(modelSearch(), { target: { value: 'Alpha' } });
       fireEvent.click(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' }));
-      fireEvent.change(screen.getByRole('combobox'), { target: { value: 'vendor/model-a:free' } });
+      selectModel('vendor/model-a:free');
       fireEvent.click(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' }));
-      expect(screen.getByLabelText('Buscar modelo')).toHaveValue('Alpha');
+      expect(modelSearch()).toHaveValue('Alpha');
       expect(screen.getByRole('combobox')).toHaveValue('vendor/model-a:free');
       expect(screen.getByRole('option', { name: 'Modelo Alpha (vendor/model-a)' })).toBeEnabled();
       expect(screen.queryByRole('option', { name: /Modelo Beta/ })).not.toBeInTheDocument();
@@ -491,7 +519,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
       render(<FormIaSettings />);
       await ready();
       fireEvent.click(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' }));
-      fireEvent.change(screen.getByRole('combobox'), { target: { value: 'vendor/model-a:free' } });
+      selectModel('vendor/model-a:free');
       expect(screen.queryByText(/A seleção atual não é uma opção gratuita/)).not.toBeInTheDocument();
       fireEvent.click(screen.getByRole('button', { name: 'Salvar modelo' }));
       expect(Object.fromEntries(fetcher.submit.mock.calls[0][0] as FormData))
@@ -503,7 +531,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
       render(<FormIaSettings />);
       await ready();
       fireEvent.click(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' }));
-      fireEvent.change(screen.getByLabelText('Buscar modelo'), { target: { value: 'inexistente' } });
+      fireEvent.change(modelSearch(), { target: { value: 'inexistente' } });
       expect(screen.getByText(/Nenhum modelo gratuito encontrado com os filtros atuais/)).toBeInTheDocument();
       expect(screen.getByRole('combobox')).toHaveValue('openrouter/auto');
       expect(screen.getByRole('button', { name: 'Salvar modelo' })).toBeDisabled();
@@ -529,7 +557,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
       fireEvent.click(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' }));
       expect(screen.getByRole('combobox')).toHaveValue('openrouter/auto');
       expect(screen.getByRole('button', { name: 'Salvar Configuração de IA' })).toBeDisabled();
-      fireEvent.change(screen.getByRole('combobox'), { target: { value: 'vendor/model-b:free' } });
+      selectModel('vendor/model-b:free');
       fireEvent.click(screen.getByRole('button', { name: 'Salvar Configuração de IA' }));
       expect(Object.fromEntries(fetcher.submit.mock.calls[0][0] as FormData)).toEqual({
         intent: 'save_ia_config', provider: 'openrouter', model: 'vendor/model-b:free', apiKey: 'test-key',
@@ -543,7 +571,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
       render(<FormIaSettings />);
       await ready();
       fireEvent.click(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' }));
-      fireEvent.change(screen.getByLabelText('Buscar modelo'), { target: { value: 'Beta' } });
+      fireEvent.change(modelSearch(), { target: { value: 'Beta' } });
       expect(screen.getByRole('combobox')).toHaveValue('vendor/model-a:free');
       expect(screen.getByRole('option', { name: /Modelo Alpha grátis/ })).toBeEnabled();
       expect(screen.getByRole('option', { name: /Modelo Beta grátis/ })).toBeEnabled();

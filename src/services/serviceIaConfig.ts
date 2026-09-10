@@ -9,7 +9,7 @@ export interface IaConfigResponse {
 
 export interface UpdateIaConfigPayload {
   provider: 'openrouter' | string;
-  model?: string;
+  model: string;
   apiKey: string;
 }
 
