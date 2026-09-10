@@ -35,18 +35,38 @@ function hasValidQuestionLength(text: string) {
   return text.length >= MIN_QUESTION_LENGTH && text.length <= MAX_QUESTION_LENGTH;
 }
 
+function completeSubquestionsForApi(
+  subquestions: NonNullable<CompanyFeedbackQuestionInput['subquestions']> = [],
+) {
+  return Array.from({ length: 3 }, (_, index) => {
+    const current = subquestions[index];
+
+    return {
+      subquestion_order: (index + 1) as 1 | 2 | 3,
+      subquestion_text: current?.subquestion_text ?? '',
+      is_active: current?.is_active === true,
+    };
+  });
+}
+
 function completeCompanyQuestionsForApi(
   questions: CompanyFeedbackQuestionInput[],
 ): CompanyFeedbackQuestionInput[] {
   return Array.from({ length: 3 }, (_, index) => {
     const current = questions[index];
-    if (current) return { ...current, question_order: (index + 1) as 1 | 2 | 3 };
+    if (current) {
+      return {
+        ...current,
+        question_order: (index + 1) as 1 | 2 | 3,
+        subquestions: completeSubquestionsForApi(current.subquestions),
+      };
+    }
 
     return {
       question_order: (index + 1) as 1 | 2 | 3,
       question_text: INACTIVE_QUESTION_PLACEHOLDERS[index],
       is_active: false,
-      subquestions: [],
+      subquestions: completeSubquestionsForApi(),
     };
   });
 }

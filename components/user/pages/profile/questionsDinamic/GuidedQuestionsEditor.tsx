@@ -12,6 +12,8 @@ import type { QuestionsEditorHiddenField } from './ui.types';
 
 const MAX_LENGTH = 150;
 const MIN_LENGTH = 20;
+const TOTAL_QUESTIONS = 3;
+const TOTAL_SUBQUESTIONS = 3;
 
 function hasValidLength(value: string) {
   return value.trim().length >= MIN_LENGTH && value.trim().length <= MAX_LENGTH;
@@ -24,6 +26,29 @@ function createEmptyQuestion(order: number): CompanyFeedbackQuestionInput {
     is_active: true,
     subquestions: [],
   };
+}
+
+function padCatalogQuestionsForApi(
+  questions: CompanyFeedbackQuestionInput[],
+): CompanyFeedbackQuestionInput[] {
+  return Array.from({ length: TOTAL_QUESTIONS }, (_, questionIndex) => {
+    const question = questions[questionIndex];
+
+    return {
+      question_order: (questionIndex + 1) as 1 | 2 | 3,
+      question_text: question?.question_text.trim() ?? '',
+      is_active: question?.question_text.trim().length > 0,
+      subquestions: Array.from({ length: TOTAL_SUBQUESTIONS }, (_, subIndex) => {
+        const subquestion = question?.subquestions?.[subIndex];
+
+        return {
+          subquestion_order: (subIndex + 1) as 1 | 2 | 3,
+          subquestion_text: subquestion?.subquestion_text.trim() ?? '',
+          is_active: subquestion?.subquestion_text.trim().length > 0,
+        };
+      }),
+    };
+  });
 }
 
 function normalizeQuestions(
@@ -124,6 +149,23 @@ export default function GuidedQuestionsEditor({
     }));
   };
 
+  const removeSubquestion = (questionIndex: number, subIndex: number) => {
+    setQuestions((current) => current.map((question, index) => {
+      if (index !== questionIndex) return question;
+
+      return {
+        ...question,
+        subquestions: (question.subquestions ?? [])
+          .filter((_, index) => index !== subIndex)
+          .map((subquestion, index) => ({
+            ...subquestion,
+            subquestion_order: (index + 1) as 1 | 2 | 3,
+          })),
+      };
+    }));
+    setError(null);
+  };
+
   const setSelectedQuestionCount = (count: number) => {
     setQuestionCount(count);
     setQuestions((current) => {
@@ -164,13 +206,27 @@ export default function GuidedQuestionsEditor({
   };
 
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
-    if (!questions.slice(0, questionCount).every((question) => hasValidLength(question.question_text))) {
+    const selectedQuestions = questions.slice(0, questionCount);
+
+    if (!selectedQuestions.every((question) => hasValidLength(question.question_text))) {
       event.preventDefault();
       setError(`Complete as ${questionCount} perguntas principais antes de salvar.`);
       return;
     }
+
+    if (selectedQuestions.some((question) =>
+      (question.subquestions ?? []).some((subquestion) => {
+        const text = subquestion.subquestion_text.trim();
+        return text.length > 0 && !hasValidLength(text);
+      }),
+    )) {
+      event.preventDefault();
+      setError(`Cada subpergunta deve ter entre ${MIN_LENGTH} e ${MAX_LENGTH} caracteres.`);
+      return;
+    }
+
     if (payloadRef.current) {
-      payloadRef.current.value = JSON.stringify(questions.slice(0, questionCount).map((question, index) => ({
+      const normalizedQuestions = selectedQuestions.map((question, index) => ({
         question_order: index + 1,
         question_text: question.question_text.trim(),
         is_active: true,
@@ -179,7 +235,13 @@ export default function GuidedQuestionsEditor({
           subquestion_text: subquestion.subquestion_text.trim(),
           is_active: subquestion.subquestion_text.trim().length > 0,
         })),
-      })));
+      }));
+
+      payloadRef.current.value = JSON.stringify(
+        scopeType === 'COMPANY'
+          ? normalizedQuestions
+          : padCatalogQuestionsForApi(normalizedQuestions),
+      );
     }
   };
 
@@ -238,7 +300,7 @@ export default function GuidedQuestionsEditor({
                   {(currentQuestion.subquestions ?? []).length < 3 && <button type="button" onClick={() => addSubquestion(step - 1)} className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-(--primary-color)/25 px-3 py-2 text-xs font-semibold text-(--primary-color) transition hover:bg-(--primary-color)/10"><FaPlus aria-hidden /> Adicionar</button>}
                 </div>
                 <div className="space-y-3">
-                  {(currentQuestion.subquestions ?? []).map((subquestion, subIndex) => <div key={`${step}-${subIndex}`} className="flex items-start gap-2"><span className="mt-2.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-(--primary-color)/10 text-[11px] font-bold text-(--primary-color)">{subIndex + 1}</span><input value={subquestion.subquestion_text} onChange={(event) => updateSubquestion(step - 1, subIndex, event.target.value)} maxLength={MAX_LENGTH} placeholder="Ex.: O que poderíamos melhorar?" className="h-10 w-full rounded-xl border border-(--quaternary-color)/16 bg-(--seventh-color) px-3 text-sm text-(--text-primary) outline-none transition focus:border-(--primary-color)" /></div>)}
+                  {(currentQuestion.subquestions ?? []).map((subquestion, subIndex) => <div key={`${step}-${subIndex}`} className="flex items-start gap-2"><span className="mt-2.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-(--primary-color)/10 text-[11px] font-bold text-(--primary-color)">{subIndex + 1}</span><input value={subquestion.subquestion_text} onChange={(event) => updateSubquestion(step - 1, subIndex, event.target.value)} maxLength={MAX_LENGTH} placeholder="Ex.: O que poderíamos melhorar?" className="h-10 w-full rounded-xl border border-(--quaternary-color)/16 bg-(--seventh-color) px-3 text-sm text-(--text-primary) outline-none transition focus:border-(--primary-color)" /><button type="button" onClick={() => removeSubquestion(step - 1, subIndex)} aria-label={`Remover subpergunta ${step}.${subIndex + 1}`} className="mt-0.5 flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg text-(--text-tertiary) transition hover:bg-(--negative)/10 hover:text-(--negative) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--negative)"><FaTrashCan aria-hidden /></button></div>)}
                 </div>
               </div>
               {error && <p role="alert" className="rounded-xl border border-(--negative)/30 bg-(--negative)/10 px-3 py-2 text-sm text-(--negative)">{error}</p>}
