@@ -1,17 +1,5 @@
-import CardSimple from 'components/user/shared/cards/cardSimple';
-import PageHeader from 'components/user/shared/PageHeader';
-import FormCollectingDataEnterprise from 'components/user/pages/profile/editCollectingData/formCollectingDataEnterprise';
+import { Navigate } from 'react-router-dom';
 
 export default function EditCompanyData() {
-  return (
-    <div className="font-work-sans space-y-6 pb-8">
-      <PageHeader />
-
-      <CardSimple>
-        <div className="w-full">
-          <FormCollectingDataEnterprise />
-        </div>
-      </CardSimple>
-    </div>
-  );
+  return <Navigate to="/user/profile#dados-da-empresa" replace />;
 }

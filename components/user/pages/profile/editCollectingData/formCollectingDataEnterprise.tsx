@@ -1,11 +1,10 @@
 import type { CollectingDataEnterprise } from "lib/interfaces/entities/enterprise.entity";
 import type { ActionData } from "lib/interfaces/contracts/action-data.contract";
 import { useEffect, useState, useCallback, type ChangeEvent } from "react";
-import { Link, useFetcher, useRouteLoaderData } from "react-router-dom";
+import { useFetcher, useRouteLoaderData } from "react-router-dom";
 import { useToast } from "components/public/forms/messages/useToast";
 import { useDirtyTracker } from "src/lib/hooks/useDirtyTracker";
 import FieldUsesCompanyProducts from "./fields/fieldUsesCompanyProducts";
-import { FaWandMagicSparkles, FaUser, FaArrowRight } from "react-icons/fa6";
 
 export default function FormCollectingDataEnterprise() {
   const { collecting } = useRouteLoaderData("user") as {
@@ -51,40 +50,11 @@ export default function FormCollectingDataEnterprise() {
   );
 
   return (
-    <div className="relative w-full space-y-6">
-      {/* Banner Informativo sobre Contexto de IA no Perfil */}
-      <div className="rounded-2xl border border-(--primary-color)/25 bg-gradient-to-r from-(--sixth-color) to-(--seventh-color) p-5 shadow-sm">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-3.5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--primary-color)/15 text-(--primary-color) ring-1 ring-(--primary-color)/30">
-              <FaWandMagicSparkles className="text-lg" />
-            </div>
-            <div>
-              <h3 className="font-montserrat text-sm font-bold text-(--text-primary)">
-                Contexto de Inteligência Artificial
-              </h3>
-              <p className="mt-1 text-xs text-(--text-secondary) max-w-xl leading-relaxed">
-                As 3 etapas do contexto de IA (Resumo do Negócio, Objetivo da Empresa e Objetivo Analítico) foram movidas para a página de **Perfil**. Você pode visualizá-las e editá-las a qualquer momento por lá via Dialog.
-              </p>
-            </div>
-          </div>
-
-          <Link
-            to="/user/profile"
-            className="btn-primary font-poppins shrink-0 inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold shadow-sm transition-transform hover:scale-[1.02]"
-          >
-            <FaUser className="text-[11px]" />
-            <span>Ir para o Perfil</span>
-            <FaArrowRight className="text-[10px]" />
-          </Link>
-        </div>
-      </div>
-
-      {/* Formulário de Escopo Operacional da Empresa */}
+    <div className="relative w-full">
       <fetcher.Form
         method="post"
         action="/user/edit/collecting-data-enterprise"
-        className="space-y-6"
+        className="space-y-5"
       >
         <FieldUsesCompanyProducts
           usesCompanyProducts={scopeValues.uses_company_products}
