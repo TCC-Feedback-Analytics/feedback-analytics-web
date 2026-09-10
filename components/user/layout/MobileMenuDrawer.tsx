@@ -5,7 +5,6 @@ import {
   FaCompass,
   FaArrowRightFromBracket,
   FaUserGear,
-  FaBuilding,
   FaChartPie,
   FaInbox,
   FaChartLine,
@@ -18,6 +17,7 @@ import {
   FaSliders,
   FaComments,
   FaWandMagicSparkles,
+  FaBrain,
 } from 'react-icons/fa6';
 import { isMatch } from 'src/lib/utils/navMatch';
 import type { MobileMenuDrawerProps } from './ui.types';
@@ -233,11 +233,10 @@ export default function MobileMenuDrawer({
               <span>Configuração da Coleta</span>
             </div>
 
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <NavLink
                 to="/user/edit/feedback-general"
                 onClick={onClose}
-                data-tour="tour-feedback-general"
                 className={`flex flex-col items-center justify-center gap-1.5 rounded-2xl border p-3 text-center transition-all duration-150 active:scale-95 ${
                   isMatch('/user/edit/feedback-general', pathname)
                     ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--primary-color) font-bold'
@@ -251,7 +250,6 @@ export default function MobileMenuDrawer({
               <NavLink
                 to="/user/edit/types-feedback"
                 onClick={onClose}
-                data-tour="tour-catalog"
                 className={`flex flex-col items-center justify-center gap-1.5 rounded-2xl border p-3 text-center transition-all duration-150 active:scale-95 ${
                   isMatch('/user/edit/types-feedback', pathname)
                     ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--primary-color) font-bold'
@@ -263,18 +261,19 @@ export default function MobileMenuDrawer({
               </NavLink>
 
               <NavLink
-                to="/user/edit/collecting-data-enterprise"
+                to="/user/edit/ia-settings"
                 onClick={onClose}
-                data-tour="ai-context-steps"
-                className={`flex flex-col items-center justify-center gap-1.5 rounded-2xl border p-3 text-center transition-all duration-150 active:scale-95 ${
-                  isMatch('/user/edit/collecting-data-enterprise', pathname)
+                data-tour="mobile-nav-ia-settings"
+                className={`col-span-2 flex items-center justify-center gap-2 rounded-2xl border p-3 text-center transition-all duration-150 active:scale-95 ${
+                  isMatch('/user/edit/ia-settings', pathname)
                     ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--primary-color) font-bold'
                     : 'border-(--quaternary-color)/12 bg-(--seventh-color)/40 text-(--text-secondary) hover:bg-(--seventh-color)'
                 }`}
               >
-                <FaBuilding className="h-5 w-5 text-indigo-400" />
-                <span className="text-xs font-bold truncate w-full">Empresa</span>
+                <FaBrain className="h-5 w-5 text-violet-400" />
+                <span className="text-xs font-bold">Configuração de IA</span>
               </NavLink>
+
             </div>
           </div>
         </div>
@@ -284,6 +283,7 @@ export default function MobileMenuDrawer({
           <NavLink
             to="/user/profile"
             onClick={onClose}
+            data-tour="mobile-nav-profile"
             className="flex items-center justify-center gap-2 rounded-2xl border border-(--quaternary-color)/15 bg-(--seventh-color)/50 p-2.5 text-xs font-bold text-(--text-primary) hover:bg-(--seventh-color) active:scale-95 transition-all"
           >
             <FaUserGear className="h-4 w-4 text-(--primary-color)" />

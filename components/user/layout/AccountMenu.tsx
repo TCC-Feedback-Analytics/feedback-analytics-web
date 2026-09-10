@@ -65,6 +65,7 @@ export default function AccountMenu({ enterprise, onSignOut, isSigningOut = fals
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
+        data-tour="account-menu-trigger"
         aria-haspopup="menu"
         aria-expanded={open}
         className="flex items-center gap-2 rounded-md border border-(--quaternary-color)/14 bg-(--seventh-color) px-2 py-1.5 text-sm text-(--text-primary) transition-colors hover:border-(--quaternary-color)/22 hover:bg-(--bg-tertiary)">

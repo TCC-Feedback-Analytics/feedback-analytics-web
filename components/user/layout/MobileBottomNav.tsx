@@ -20,13 +20,13 @@ export default function MobileBottomNav({
       label: 'Visão geral',
       to: '/user/dashboard',
       icon: FaChartPie,
-      tourAttr: 'nav-dashboard',
+      tourAttr: 'mobile-nav-dashboard',
     },
     {
       label: 'Insights',
       to: '/user/insights/reports',
       icon: FaWandMagicSparkles,
-      tourAttr: 'nav-insights',
+      tourAttr: 'mobile-nav-insights',
     },
     {
       isCentralButton: true,
@@ -35,13 +35,13 @@ export default function MobileBottomNav({
       label: 'Feedback',
       to: '/user/edit/feedback-general',
       icon: FaCommentDots,
-      tourAttr: 'tour-feedback-general',
+      tourAttr: 'mobile-nav-feedback',
     },
     {
       label: 'Catálogo',
       to: '/user/edit/types-feedback',
       icon: FaBoxesStacked,
-      tourAttr: 'tour-catalog',
+      tourAttr: 'mobile-nav-catalog',
     },
   ];
 
@@ -58,6 +58,7 @@ export default function MobileBottomNav({
                 <button
                   type="button"
                   onClick={onOpenDrawer}
+                  data-tour="mobile-nav-menu"
                   aria-label="Abrir menu de navegação completo"
                   title="Abrir menu completo"
                   className="group relative -top-6 flex h-13 w-13 items-center justify-center rounded-full bg-linear-to-tr from-(--primary-color) to-cyan-400 text-white shadow-[0_4px_20px_rgba(62,217,227,0.45)] ring-4 ring-(--bg-secondary) transition-all duration-200 hover:scale-110 active:scale-90"

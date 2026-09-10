@@ -29,6 +29,7 @@ import EditProfileSkeleton from 'components/user/pages/edit/EditProfileSkeleton'
 import EditCollectingDataSkeleton from 'components/user/pages/edit/EditCollectingDataSkeleton';
 import EditFeedbackSettingsSkeleton from 'components/user/pages/edit/EditFeedbackSettingsSkeleton';
 import type { CollectingDataEnterprise, EnterpriseContext } from 'lib/interfaces/entities/enterprise.entity';
+import type { IaConfigResponse } from 'src/services/serviceIaConfig';
 import type { InsightScopeOption, InsightsCatalogItemOption } from 'components/user/pages/feedbacksInsightsReport/ui.types';
 import { INTENT_LOGOUT, INTENT_FEEDBACK_ANALYZE_RAW, INTENT_FEEDBACK_RUN_IA } from 'src/lib/constants/routes/intents';
 import { useToast } from 'components/public/forms/messages/useToast';
@@ -37,13 +38,19 @@ import AIContextDialog from 'components/user/onboarding/AIContextDialog';
 import UserInteractiveTour from 'components/user/onboarding/UserInteractiveTour';
 import { useIaOperation } from 'src/lib/hooks/useIaOperation';
 
-function UserOnboardingManager() {
-  const { hasCompletedAIContext } = useOnboarding();
-  const [mandatoryOpen, setMandatoryOpen] = useState(!hasCompletedAIContext);
+function UserOnboardingManager({
+  onOpenMobileDrawer,
+  onCloseMobileDrawer,
+}: {
+  onOpenMobileDrawer: () => void;
+  onCloseMobileDrawer: () => void;
+}) {
+  const { hasCompletedAISetup } = useOnboarding();
+  const [mandatoryOpen, setMandatoryOpen] = useState(!hasCompletedAISetup);
 
   useEffect(() => {
-    setMandatoryOpen(!hasCompletedAIContext);
-  }, [hasCompletedAIContext]);
+    setMandatoryOpen(!hasCompletedAISetup);
+  }, [hasCompletedAISetup]);
 
   return (
     <>
@@ -52,7 +59,10 @@ function UserOnboardingManager() {
         onOpenChange={setMandatoryOpen}
         isMandatory={true}
       />
-      <UserInteractiveTour />
+      <UserInteractiveTour
+        onOpenMobileDrawer={onOpenMobileDrawer}
+        onCloseMobileDrawer={onCloseMobileDrawer}
+      />
     </>
   );
 }
@@ -102,9 +112,10 @@ export default function User() {
   const logoutFetcher = useFetcher();
   const navigation = useNavigation();
   const toast = useToast();
-  const { enterprise, collecting } = useLoaderData() as {
+  const { enterprise, collecting, iaConfig } = useLoaderData() as {
     enterprise: EnterpriseContext;
     collecting: CollectingDataEnterprise | null;
+    iaConfig: IaConfigResponse | null;
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -266,7 +277,7 @@ export default function User() {
   const latestOperation = rawOperation.startedAt > insightsOperation.startedAt ? rawOperation : insightsOperation;
 
   return (
-    <OnboardingProvider collecting={collecting}>
+    <OnboardingProvider collecting={collecting} iaConfig={iaConfig}>
       <InsightsControlsProvider
         value={{
           ...insightsState,
@@ -353,7 +364,10 @@ export default function User() {
               onSignOut={handleSignOut}
             />
 
-            <UserOnboardingManager />
+            <UserOnboardingManager
+              onOpenMobileDrawer={() => setIsMobileDrawerOpen(true)}
+              onCloseMobileDrawer={() => setIsMobileDrawerOpen(false)}
+            />
           </div>
         </SidebarProvider>
       </InsightsControlsProvider>

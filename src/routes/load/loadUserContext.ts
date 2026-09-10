@@ -9,12 +9,14 @@ import type {
   CollectingDataEnterprise,
   EnterpriseContext,
 } from 'lib/interfaces/entities/enterprise.entity';
+import { ServiceGetIaConfig, type IaConfigResponse } from 'src/services/serviceIaConfig';
 
 export async function loadUserContextData() {
-  const [auth, enterprisePayload] = (await Promise.all([
+  const [auth, enterprisePayload, iaConfig] = (await Promise.all([
     ServiceGetUser(),
     ServiceGetEnterprise().catch(() => null),
-  ])) as [AuthUser, ApiEnterpriseResponse | null];
+    ServiceGetIaConfig().catch(() => null),
+  ])) as [AuthUser, ApiEnterpriseResponse | null, IaConfigResponse | null];
 
   const user = auth.user;
   const collecting = enterprisePayload
@@ -45,5 +47,6 @@ export async function loadUserContextData() {
     user,
     enterprise,
     collecting,
+    iaConfig,
   };
 }
