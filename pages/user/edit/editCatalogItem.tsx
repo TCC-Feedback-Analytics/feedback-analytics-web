@@ -27,11 +27,11 @@ import { useToast } from "components/public/forms/messages/useToast";
 import PageHeader from "components/user/shared/PageHeader";
 import CardSimple from "components/user/shared/cards/cardSimple";
 import HelpHint from "components/user/shared/HelpHint";
-import QuestionsEditor from "components/user/pages/profile/questionsDinamic/questionsEditor";
-import SectionQrHeader from "components/user/pages/qrcodeEnterprise/SectionQrHeader";
+import GuidedQuestionsEditor from "components/user/pages/profile/questionsDinamic/GuidedQuestionsEditor";
 import SectionQrInstructions from "components/user/pages/qrcodeEnterprise/SectionQrInstructions";
 import SectionQrCodeDisplay from "components/user/pages/qrcodeEnterprise/SectionQrCodeDisplay";
 import SectionQrUsageTips from "components/user/pages/qrcodeEnterprise/SectionQrUsageTips";
+import { FaCircleCheck, FaCirclePause, FaPlay } from "react-icons/fa6";
 
 /**
  * Tela de configuração de UM item do catálogo (produto/serviço/departamento).
@@ -350,33 +350,33 @@ function CatalogItemConfig() {
             <HelpHint topic="starsOnly" className="ml-0.5" />
           </p>
         </div>
-        <QuestionsEditor
+        <GuidedQuestionsEditor
           initialQuestions={initialQuestions}
-          allowVariableQuestionCount
-          requireAllThree={false}
+          hasSavedQuestions={initialQuestions.length > 0}
           action={detailPath}
           intent={INTENT_QR_SAVE_FEEDBACK_QUESTIONS}
           payloadFieldName="questions"
           extraHiddenFields={[{ name: "catalog_item_id", value: itemId }]}
-          submitLabel="Salvar perguntas do item"
-          successTitle="Perguntas salvas!"
-          successMessage="Perguntas do item atualizadas."
           scopeType={config.kind}
           catalogItemId={itemId}
+          minQuestions={0}
           idPrefix={`preview-${itemId}`}
         />
       </section>
 
       {/* QR Code do item */}
-      <SectionQrHeader
-        enterpriseName={item.name}
-        qrActive={qrActive}
-        qrLoading={qrLoading}
-        qrError={null}
-        onToggleQr={handleToggleQr}
-        title={`QR Code do ${config.singular}`}
-        subjectLabel="Item:"
-      />
+      <section className="rounded-2xl border border-(--quaternary-color)/12 bg-(--bg-secondary) p-5 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="font-montserrat text-xl font-bold text-(--text-primary)">QR Code do {config.singular}</h2>
+            <p className="mt-1 text-sm text-(--text-secondary)">Disponibilidade da coleta para este item.</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${qrActive ? "text-emerald-300" : "text-(--text-tertiary)"}`}>{qrActive ? <FaCircleCheck aria-hidden /> : <FaCirclePause aria-hidden />} {qrLoading ? "Atualizando…" : qrActive ? "Recebendo respostas" : "Pausado"}</span>
+            <button type="button" onClick={handleToggleQr} disabled={qrLoading} className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3.5 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${qrActive ? "border border-rose-500/30 bg-rose-500/10 text-rose-200 hover:bg-rose-500/15" : "bg-(--primary-color) text-white hover:bg-(--secondary-color)"}`}>{qrActive ? <FaCirclePause aria-hidden /> : <FaPlay aria-hidden />} {qrLoading ? "Atualizando…" : qrActive ? "Pausar coleta" : "Ativar coleta"}</button>
+          </div>
+        </div>
+      </section>
 
       <SectionQrInstructions />
 

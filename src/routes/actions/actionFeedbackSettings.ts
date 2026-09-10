@@ -25,8 +25,30 @@ type FeedbackSettingsIntent =
 const MIN_QUESTION_LENGTH = 20;
 const MAX_QUESTION_LENGTH = 150;
 
+const INACTIVE_QUESTION_PLACEHOLDERS = [
+  'Como foi sua experiência geral com a empresa?',
+  'O que você achou da qualidade do produto ou serviço?',
+  'Como você avalia o valor recebido em relação ao que foi pago?',
+] as const;
+
 function hasValidQuestionLength(text: string) {
   return text.length >= MIN_QUESTION_LENGTH && text.length <= MAX_QUESTION_LENGTH;
+}
+
+function completeCompanyQuestionsForApi(
+  questions: CompanyFeedbackQuestionInput[],
+): CompanyFeedbackQuestionInput[] {
+  return Array.from({ length: 3 }, (_, index) => {
+    const current = questions[index];
+    if (current) return { ...current, question_order: (index + 1) as 1 | 2 | 3 };
+
+    return {
+      question_order: (index + 1) as 1 | 2 | 3,
+      question_text: INACTIVE_QUESTION_PLACEHOLDERS[index],
+      is_active: false,
+      subquestions: [],
+    };
+  });
 }
 
 function getErrorMessage(err: unknown) {
@@ -114,7 +136,7 @@ function parseCompanyFeedbackQuestionsField(
   try {
     const parsed = JSON.parse(text) as unknown;
 
-    if (!Array.isArray(parsed) || parsed.length !== 3) {
+    if (!Array.isArray(parsed) || parsed.length < 1 || parsed.length > 3) {
       return null;
     }
 
@@ -271,7 +293,7 @@ export async function ActionFeedbackSettings({ request }: ActionFunctionArgs) {
       }
 
       const collecting = await ServiceUpdateCollectingDataEnterprise({
-        company_feedback_questions: questions,
+        company_feedback_questions: completeCompanyQuestionsForApi(questions),
       });
 
       return {

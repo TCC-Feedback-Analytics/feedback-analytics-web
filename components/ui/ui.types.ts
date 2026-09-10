@@ -133,4 +133,26 @@ export type ToastFunction = {
   ) => { id: string; dismiss: () => void };
 };
 
+export interface DialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  children: React.ReactNode;
+}
 
+export interface DialogChildrenProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export interface DialogContextValue {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export interface SwitchProps {
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+  'aria-label': string;
+  disabled?: boolean;
+  className?: string;
+}

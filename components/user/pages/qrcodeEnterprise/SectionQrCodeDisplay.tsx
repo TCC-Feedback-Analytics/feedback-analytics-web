@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import CardSimple from 'components/user/shared/cards/cardSimple';
 import HelpHint from 'components/user/shared/HelpHint';
-import { FaCopy, FaDownload, FaShare } from 'react-icons/fa';
+import { FaCopy, FaDownload, FaLock, FaShare } from 'react-icons/fa';
 import type { SectionQrCodeDisplayProps } from './ui.types';
 
 const SectionQrCodeDisplay = memo(function SectionQrCodeDisplay({
@@ -16,7 +16,7 @@ const SectionQrCodeDisplay = memo(function SectionQrCodeDisplay({
 }: SectionQrCodeDisplayProps) {
   return (
     <CardSimple>
-      <div className="flex flex-col items-center space-y-8">
+      <div className="flex w-full flex-col items-center space-y-8">
         {qrActive ? (
           <>
             <div className="relative">
@@ -69,17 +69,15 @@ const SectionQrCodeDisplay = memo(function SectionQrCodeDisplay({
             </div>
           </>
         ) : (
-          <div className="w-full rounded-2xl border border-(--quaternary-color)/14 bg-gradient-to-br from-(--bg-secondary) to-(--sixth-color) p-8 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-(--quaternary-color)/14 bg-(--bg-tertiary)">
-              <span className="text-2xl">🔒</span>
+          <div className="flex min-h-[280px] w-full flex-col items-center justify-center rounded-2xl border border-(--quaternary-color)/14 bg-gradient-to-br from-(--bg-secondary) to-(--sixth-color) p-8 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-(--quaternary-color)/14 bg-(--bg-tertiary) text-(--text-secondary)">
+              <FaLock className="text-xl" aria-hidden />
             </div>
             <h3 className="mb-2 text-xl font-semibold text-(--text-primary)">
               QR Code inativo no momento
             </h3>
             <p className="mx-auto max-w-md text-sm leading-relaxed text-(--text-tertiary)">
-              Para exibir e compartilhar seu QR Code de feedback, primeiro ative-o
-              no botão do topo da página. Assim que ativado, o QR Code aparecerá
-              aqui pronto para download e compartilhamento com seus clientes.
+              Ative a coleta para exibir e compartilhar o QR Code com seus clientes.
             </p>
           </div>
         )}
