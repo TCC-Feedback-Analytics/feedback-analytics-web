@@ -10,6 +10,7 @@ import { isMatch } from 'src/lib/utils/navMatch';
 import type { MobileBottomNavProps } from './ui.types';
 
 export default function MobileBottomNav({
+  isDrawerOpen,
   onOpenDrawer,
   pendingPathname = '',
 }: MobileBottomNavProps) {
@@ -60,6 +61,9 @@ export default function MobileBottomNav({
                   onClick={onOpenDrawer}
                   data-tour="mobile-nav-menu"
                   aria-label="Abrir menu de navegação completo"
+                  aria-expanded={isDrawerOpen}
+                  aria-controls="mobile-navigation-drawer"
+                  aria-haspopup="dialog"
                   title="Abrir menu completo"
                   className="group relative -top-6 flex h-13 w-13 items-center justify-center rounded-full bg-linear-to-tr from-(--primary-color) to-cyan-400 text-white shadow-[0_4px_20px_rgba(62,217,227,0.45)] ring-4 ring-(--bg-secondary) transition-all duration-200 hover:scale-110 active:scale-90"
                 >

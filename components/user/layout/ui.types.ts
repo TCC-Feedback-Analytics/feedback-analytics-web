@@ -58,6 +58,7 @@ export interface AccountMenuProps {
  * Usado em: components/user/layout/MobileBottomNav.tsx.
  */
 export interface MobileBottomNavProps {
+  isDrawerOpen: boolean;
   onOpenDrawer: () => void;
   pendingPathname?: string;
 }

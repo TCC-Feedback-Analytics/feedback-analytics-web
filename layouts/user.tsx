@@ -351,6 +351,7 @@ export default function User() {
 
             {/* Mobile Bottom Navigation (Apenas no Mobile) */}
             <MobileBottomNav
+              isDrawerOpen={isMobileDrawerOpen}
               onOpenDrawer={() => setIsMobileDrawerOpen(true)}
               pendingPathname={pendingPathname}
             />

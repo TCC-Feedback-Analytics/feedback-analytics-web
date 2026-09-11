@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   FaXmark,
@@ -60,8 +61,14 @@ export default function MobileMenuDrawer({
 
   if (!rendered) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end md:hidden">
+  return createPortal(
+    <div
+      id="mobile-navigation-drawer"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="mobile-navigation-drawer-title"
+      className="fixed inset-0 z-[60] flex flex-col justify-end md:hidden"
+    >
       {/* Overlay Backdrop com Animação de Opacidade */}
       <div
         className={`fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300 ease-in-out ${
@@ -87,7 +94,7 @@ export default function MobileMenuDrawer({
               <FaCompass className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-(--text-primary)">
+              <h2 id="mobile-navigation-drawer-title" className="text-base font-bold text-(--text-primary)">
                 Mapa de Navegação
               </h2>
               <p className="text-xs text-(--text-tertiary) truncate max-w-52.5">
@@ -305,6 +312,7 @@ export default function MobileMenuDrawer({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
