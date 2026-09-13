@@ -100,6 +100,20 @@ describe('[Unit] ActionIaSettings', () => {
       });
     });
 
+    it.each([undefined, '', '   ', 'x'.repeat(121)])('rejeita modelo obrigatório inválido %s', async (model) => {
+      const result = await ActionIaSettings(
+        createArgs({
+          intent: 'save_ia_config',
+          provider: 'openrouter',
+          model,
+          apiKey: 'sk-or-v1-valid-key-123456789',
+        }),
+      );
+
+      expect(result).toMatchObject({ ok: false, error: 'invalid_payload' });
+      expect(mockUpdateIaConfig).not.toHaveBeenCalled();
+    });
+
     it('trata erro ia_config_invalid_key devolvido pelo backend', async () => {
       const error = new Error('ia_config_invalid_key') as Error & { code?: string };
       error.code = 'ia_config_invalid_key';

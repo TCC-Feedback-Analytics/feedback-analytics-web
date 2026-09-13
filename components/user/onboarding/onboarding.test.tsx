@@ -5,6 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import { OnboardingProvider, useOnboarding } from "src/lib/context/onboardingContext";
 import AIContextDialog from "./AIContextDialog";
 import UserInteractiveTour from "./UserInteractiveTour";
+import { INTERACTIVE_STEPS } from "./ui.types";
 import type { CollectingDataEnterprise } from "lib/interfaces/entities/enterprise.entity";
 
 vi.mock("react-router-dom", async (importOriginal) => {
@@ -23,12 +24,22 @@ vi.mock("react-router-dom", async (importOriginal) => {
   };
 });
 
+vi.mock("src/hooks/useIaModels", () => ({
+  useIaModels: () => ({
+    catalog: { models: [], source: "public", fetchedAt: "", stale: false, currentModel: null, currentModelAvailable: null },
+    loading: false,
+    error: undefined,
+    reload: vi.fn(),
+  }),
+}));
+
 function TestConsumer() {
-  const { isTourActive, currentTourStep, hasCompletedAIContext, startTour, skipTour } =
+  const { isTourActive, currentTourStep, hasCompletedAIContext, hasCompletedAISetup, startTour, skipTour } =
     useOnboarding();
   return (
     <div>
       <span data-testid="context-completed">{String(hasCompletedAIContext)}</span>
+      <span data-testid="ai-setup-completed">{String(hasCompletedAISetup)}</span>
       <span data-testid="tour-active">{String(isTourActive)}</span>
       <span data-testid="tour-step">{currentTourStep}</span>
       <button onClick={startTour}>Start Tour</button>
@@ -82,6 +93,25 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     expect(screen.getByTestId("context-completed")).toHaveTextContent("true");
   });
 
+  it("mantém a configuração inicial aberta até uma LLM estar configurada", () => {
+    const collecting = {
+      business_summary: "Resumo da empresa",
+      company_objective: "Foco no atendimento",
+      analytics_goal: "Descobrir causa de reclamações",
+    } as CollectingDataEnterprise;
+
+    render(
+      <MemoryRouter>
+        <OnboardingProvider collecting={collecting}>
+          <TestConsumer />
+        </OnboardingProvider>
+      </MemoryRouter>
+    );
+
+    expect(screen.getByTestId("context-completed")).toHaveTextContent("true");
+    expect(screen.getByTestId("ai-setup-completed")).toHaveTextContent("false");
+  });
+
   it("renderiza o AIContextDialog em modo obrigatório quando ativado", () => {
     render(
       <MemoryRouter>
@@ -92,12 +122,12 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     );
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("Contexto para Inteligência Artificial")).toBeInTheDocument();
+    expect(screen.getByText("Contexto e configuração de IA")).toBeInTheDocument();
     expect(screen.getByText("Obrigatório")).toBeInTheDocument();
     expect(screen.queryByLabelText("Fechar")).not.toBeInTheDocument();
   });
 
-  it("permite navegar pelos passos do AIContextDialog (1 -> 2 -> 3)", () => {
+  it("permite navegar pelos passos do AIContextDialog (1 -> 2 -> 3 -> 4)", () => {
     render(
       <MemoryRouter>
         <OnboardingProvider collecting={null}>
@@ -110,6 +140,29 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
 
     fireEvent.click(screen.getByText("Próximo Passo"));
     expect(screen.getByText("2. Objetivo da Empresa")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Próximo Passo"));
+    expect(screen.getByText("3. Objetivo Analítico")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Próximo Passo"));
+    expect(screen.getByText("Configure a LLM da empresa")).toBeInTheDocument();
+  });
+
+  it("mapeia o guia móvel para a barra inferior e o menu central", () => {
+    expect(INTERACTIVE_STEPS.slice(0, 4).map((step) => step.mobileSelector)).toEqual([
+      '[data-tour="mobile-nav-dashboard"]',
+      '[data-tour="mobile-nav-insights"]',
+      '[data-tour="mobile-nav-feedback"]',
+      '[data-tour="mobile-nav-catalog"]',
+    ]);
+    expect(INTERACTIVE_STEPS[4]).toMatchObject({
+      mobileSelector: '[data-tour="mobile-nav-ia-settings"]',
+      openMobileDrawer: true,
+    });
+    expect(INTERACTIVE_STEPS[5]).toMatchObject({
+      mobileSelector: '[data-tour="mobile-nav-profile"]',
+      openMobileDrawer: true,
+    });
   });
 
   it("permite navegar pelos passos do Tour Interativo Spotlight e pular a introdução", () => {
@@ -121,7 +174,10 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
 
     render(
       <MemoryRouter initialEntries={["/user/dashboard"]}>
-        <OnboardingProvider collecting={completeCollecting}>
+        <OnboardingProvider
+          collecting={completeCollecting}
+          iaConfig={{ hasKey: true, provider: "openrouter", model: "openrouter/auto", keyHint: "1234" }}
+        >
           <UserInteractiveTour />
         </OnboardingProvider>
       </MemoryRouter>
@@ -138,9 +194,21 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     fireEvent.click(screen.getByText("Próximo"));
     expect(screen.getByText("Feedback Geral")).toBeInTheDocument();
 
+    fireEvent.click(screen.getByText("Próximo"));
+    expect(screen.getByText("Catálogo da Empresa")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Próximo"));
+    expect(screen.getByText("Configuração de IA")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Próximo"));
+    expect(screen.getByText("Acesse seu Perfil")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Próximo"));
+    expect(screen.getByText("Dados e configurações da empresa")).toBeInTheDocument();
+
     // Pular tour
     fireEvent.click(screen.getByText("Pular"));
-    expect(screen.queryByText("Feedback Geral")).not.toBeInTheDocument();
+    expect(screen.queryByText("Dados e configurações da empresa")).not.toBeInTheDocument();
     expect(localStorage.getItem("feedback_onboarding_tour_seen")).toBe("true");
   });
 });

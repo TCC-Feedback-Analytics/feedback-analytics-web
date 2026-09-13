@@ -62,7 +62,8 @@ describe('IA — formulário, action e revalidação real do router (serviços s
     const router = showPage();
     try {
       await waitFor(() => expect(screen.getByRole('combobox')).toBeEnabled());
-      await user.selectOptions(screen.getByRole('combobox'), 'vendor/model');
+      await user.click(screen.getByRole('combobox', { name: 'Modelo de IA' }));
+      await user.click(await screen.findByRole('option', { name: 'Modelo de teste (vendor/model)' }));
       await user.click(screen.getByRole('button', { name: 'Salvar modelo' }));
       await waitFor(() => expect(screen.getByText(/Modelo ativo: vendor\/model/)).toBeInTheDocument());
       await waitFor(() => expect(screen.getByRole('combobox')).toBeEnabled());
@@ -95,7 +96,8 @@ describe('IA — formulário, action e revalidação real do router (serviços s
     const router = showPage();
     try {
       await waitFor(() => expect(screen.getByRole('combobox')).toBeEnabled());
-      await user.selectOptions(screen.getByRole('combobox'), 'vendor/model');
+      await user.click(screen.getByRole('combobox', { name: 'Modelo de IA' }));
+      await user.click(await screen.findByRole('option', { name: 'Modelo de teste (vendor/model)' }));
       await user.click(screen.getByRole('button', { name: 'Salvar modelo' }));
       await waitFor(() => expect(toast.error).toHaveBeenCalledTimes(1));
       await waitFor(() => expect(screen.getByRole('button', { name: 'Salvar modelo' })).toBeEnabled());

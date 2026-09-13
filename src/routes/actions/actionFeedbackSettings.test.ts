@@ -123,7 +123,14 @@ describe('[Integração] ActionFeedbackSettings', () => {
       collecting: expect.any(Object),
     });
     expect(mockUpdateCollectingDataEnterprise).toHaveBeenCalledWith({
-      company_feedback_questions: companyQuestions,
+      company_feedback_questions: companyQuestions.map((question) => ({
+        ...question,
+        subquestions: [
+          ...(question.subquestions ?? []),
+          { subquestion_order: 2, subquestion_text: '', is_active: false },
+          { subquestion_order: 3, subquestion_text: '', is_active: false },
+        ],
+      })),
     });
   });
 

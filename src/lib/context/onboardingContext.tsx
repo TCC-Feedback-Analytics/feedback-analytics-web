@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { CollectingDataEnterprise } from "lib/interfaces/entities/enterprise.entity";
+import type { IaConfigResponse } from "src/services/serviceIaConfig";
 import { TOUR_STEPS_COUNT, type OnboardingContextValue } from "./onboardingContext.types";
 
 const STORAGE_KEY = "feedback_onboarding_tour_seen";
@@ -18,9 +19,10 @@ export function useOnboarding() {
 interface OnboardingProviderProps {
   children: ReactNode;
   collecting: CollectingDataEnterprise | null;
+  iaConfig?: IaConfigResponse | null;
 }
 
-export function OnboardingProvider({ children, collecting }: OnboardingProviderProps) {
+export function OnboardingProvider({ children, collecting, iaConfig = null }: OnboardingProviderProps) {
   const enterpriseId = collecting?.enterprise_id ?? "";
   const storageKey = enterpriseId ? `feedback_onboarding_tour_seen_${enterpriseId}` : STORAGE_KEY;
 
@@ -30,6 +32,7 @@ export function OnboardingProvider({ children, collecting }: OnboardingProviderP
       String(collecting.company_objective ?? "").trim().length > 0 &&
       String(collecting.analytics_goal ?? "").trim().length > 0,
   );
+  const hasCompletedAISetup = hasCompletedAIContext && Boolean(iaConfig?.hasKey && iaConfig.model);
 
   const [isTourDismissed, setIsTourDismissed] = useState<boolean>(() => {
     try {
@@ -42,17 +45,17 @@ export function OnboardingProvider({ children, collecting }: OnboardingProviderP
   const [isTourActive, setIsTourActive] = useState<boolean>(false);
   const [currentTourStep, setCurrentTourStep] = useState<number>(0);
 
-  // Inicia o tour automaticamente quando o contexto inicial de IA for concluído (se a conta criada ainda não viu o tour)
+  // Inicia o tour somente após contexto e LLM estarem configurados.
   useEffect(() => {
     try {
       const seen = localStorage.getItem(storageKey) === "true";
-      if (!seen && hasCompletedAIContext) {
+      if (!seen && hasCompletedAISetup) {
         setIsTourActive(true);
       }
     } catch {
       // Ignora falhas de localStorage se restrito
     }
-  }, [hasCompletedAIContext, storageKey]);
+  }, [hasCompletedAISetup, storageKey]);
 
   const startTour = () => {
     setCurrentTourStep(0);
@@ -95,6 +98,7 @@ export function OnboardingProvider({ children, collecting }: OnboardingProviderP
         isTourActive,
         currentTourStep,
         hasCompletedAIContext,
+        hasCompletedAISetup,
         isTourDismissed,
         startTour,
         skipTour,

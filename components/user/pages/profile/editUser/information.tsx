@@ -18,11 +18,12 @@ export default function Information({
   const safePhone = defaultPhone || '';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
+      <p className="text-sm text-(--text-secondary)">
+        Escolha <span className="font-semibold text-(--text-primary)">Editar</span> no campo que deseja atualizar.
+      </p>
 
-      {/* Grid de campos editáveis */}
       <div className="grid gap-4 md:grid-cols-2">
-        {/* Nome completo */}
         <EditableFieldFixed
           label="Nome completo"
           value={safeName}
@@ -38,7 +39,6 @@ export default function Information({
           className="md:col-span-1"
         />
 
-        {/* Email */}
         <EditableFieldFixed
           label="Email"
           value={safeEmail}
@@ -55,7 +55,6 @@ export default function Information({
         />
       </div>
 
-      {/* Telefone (largura completa devido ao processo especial) */}
       <PhoneEditableField
         currentPhone={safePhone}
         className="w-full"
