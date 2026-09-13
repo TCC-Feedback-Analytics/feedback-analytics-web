@@ -7,11 +7,26 @@ import { CATALOG_KINDS } from 'src/lib/constants/catalog';
 import { useToast } from 'components/public/forms/messages/useToast';
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from 'components/ui/dialog';
 import { Input } from 'components/ui/input';
-import { FaBoxOpen, FaChevronRight, FaFloppyDisk, FaPlus, FaTrashCan, FaXmark } from 'react-icons/fa6';
-import type { CatalogItemsListProps } from './ui.types';
+import { Select, type SelectOption } from 'components/ui/select';
+import { FaBoxOpen, FaChevronRight, FaFloppyDisk, FaMagnifyingGlass, FaPlus, FaQrcode, FaTrashCan, FaXmark } from 'react-icons/fa6';
+import type { CatalogItemsListProps, CatalogQrStatusFilter } from './ui.types';
+
+const QR_STATUS_OPTIONS: SelectOption<CatalogQrStatusFilter>[] = [
+  { value: 'ALL', label: 'Todos os QR Codes' },
+  { value: 'ACTIVE', label: 'QR Code ativo' },
+  { value: 'INACTIVE', label: 'QR Code inativo' },
+];
 
 function toCatalogInput(item: CatalogItem): CatalogItemInput {
   return { id: item.id, name: item.name, description: item.description ?? null, sort_order: item.sort_order, status: item.status ?? 'ACTIVE' };
+}
+
+function normalizeSearchTerm(value: string) {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase()
+    .trim();
 }
 
 export default function CatalogItemsList({ kindSlug }: CatalogItemsListProps) {
@@ -23,10 +38,28 @@ export default function CatalogItemsList({ kindSlug }: CatalogItemsListProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newName, setNewName] = useState('');
   const [newDescription, setNewDescription] = useState('');
+  const [search, setSearch] = useState('');
+  const [qrStatus, setQrStatus] = useState<CatalogQrStatusFilter>('ALL');
 
   const items = useMemo(() => (collecting?.[config.itemsKey] ?? []) as CatalogItem[], [collecting, config.itemsKey]);
   const activeById = useMemo(() => new Map((qrData?.items ?? []).map((entry) => [entry.catalog_item_id, entry.active])), [qrData]);
+  const filteredItems = useMemo(() => {
+    const normalizedSearch = normalizeSearchTerm(search);
+
+    return items.filter((item) => {
+      const matchesSearch = !normalizedSearch || [item.name, item.description]
+        .filter((value): value is string => Boolean(value))
+        .some((value) => normalizeSearchTerm(value).includes(normalizedSearch));
+      const isQrActive = item.id ? activeById.get(item.id) === true : false;
+      const matchesQrStatus = qrStatus === 'ALL'
+        || (qrStatus === 'ACTIVE' && isQrActive)
+        || (qrStatus === 'INACTIVE' && !isQrActive);
+
+      return matchesSearch && matchesQrStatus;
+    });
+  }, [activeById, items, qrStatus, search]);
   const busy = fetcher.state !== 'idle';
+  const hasActiveFilters = Boolean(search.trim()) || qrStatus !== 'ALL';
 
   useEffect(() => {
     const data = fetcher.data;
@@ -63,19 +96,69 @@ export default function CatalogItemsList({ kindSlug }: CatalogItemsListProps) {
 
   return (
     <div className="font-work-sans relative space-y-5">
-      <div className="flex flex-col gap-4 rounded-2xl border border-(--quaternary-color)/12 bg-(--bg-secondary) p-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-(--primary-color)/12 text-(--primary-color)"><FaBoxOpen aria-hidden /></div>
-          <div><h2 className="font-montserrat text-lg font-semibold text-(--text-primary)">{config.plural}</h2><p className="mt-1 text-sm text-(--text-secondary)">{items.length} {items.length === 1 ? 'item cadastrado' : 'itens cadastrados'}</p></div>
+      <div className="rounded-2xl border border-(--quaternary-color)/12 bg-(--bg-secondary) p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-(--primary-color)/12 text-(--primary-color)"><FaBoxOpen aria-hidden /></div>
+            <h2 className="font-montserrat text-lg font-semibold text-(--text-primary)">{config.plural}</h2>
+          </div>
+          <button type="button" onClick={() => setDialogOpen(true)} className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-(--primary-color) px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-(--secondary-color)"><FaPlus aria-hidden /> Cadastrar {config.singular}</button>
         </div>
-        <button type="button" onClick={() => setDialogOpen(true)} className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-(--primary-color) px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-(--secondary-color)"><FaPlus aria-hidden /> Cadastrar {config.singular}</button>
-      </div>
+
+        {items.length > 0 && (
+          <div className="mt-5 border-t border-(--quaternary-color)/12 pt-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+              <div className="min-w-0 flex-1">
+                <label htmlFor="catalog-item-search" className="mb-2 block text-sm font-semibold text-(--text-primary)">Buscar {config.plural.toLowerCase()}</label>
+                <Input
+                  id="catalog-item-search"
+                  type="search"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder={`Nome ou descrição do ${config.singular}`}
+                  startIcon={<FaMagnifyingGlass aria-hidden />}
+                />
+              </div>
+              <div className="w-full sm:w-52" role="group" aria-label="Filtrar por status do QR Code">
+                <span className="mb-2 block text-sm font-semibold text-(--text-primary)">Status do QR Code</span>
+                <Select
+                  options={QR_STATUS_OPTIONS}
+                  value={qrStatus}
+                  onChange={setQrStatus}
+                  startIcon={<FaQrcode aria-hidden />}
+                />
+              </div>
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={() => { setSearch(''); setQrStatus('ALL'); }}
+                  className="inline-flex h-12 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold text-(--text-secondary) transition hover:bg-(--seventh-color) hover:text-(--text-primary)"
+                >
+                  <FaXmark aria-hidden /> Limpar filtros
+                </button>
+              )}
+            </div>
+            <p className="mt-3 text-sm text-(--text-secondary)" aria-live="polite">
+              {filteredItems.length === items.length
+                ? `${items.length} ${items.length === 1 ? 'item encontrado' : 'itens encontrados'}`
+                : `${filteredItems.length} de ${items.length} ${items.length === 1 ? 'item encontrado' : 'itens encontrados'}`}
+            </p>
+          </div>
+        )}
+        </div>
 
       {items.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-(--quaternary-color)/18 bg-(--bg-secondary)/50 px-5 py-12 text-center"><FaBoxOpen className="mx-auto mb-3 text-2xl text-(--text-tertiary)" aria-hidden /><p className="font-semibold text-(--text-primary)">Nenhum {config.singular} cadastrado</p><p className="mt-1 text-sm text-(--text-secondary)">Comece adicionando o primeiro item.</p><button type="button" onClick={() => setDialogOpen(true)} className="mt-5 inline-flex cursor-pointer items-center gap-2 rounded-xl border border-(--primary-color)/30 px-4 py-2.5 text-sm font-semibold text-(--primary-color) transition hover:bg-(--primary-color)/10"><FaPlus aria-hidden /> Cadastrar {config.singular}</button></div>
+      ) : filteredItems.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-(--quaternary-color)/18 bg-(--bg-secondary)/50 px-5 py-12 text-center">
+          <FaMagnifyingGlass className="mx-auto mb-3 text-2xl text-(--text-tertiary)" aria-hidden />
+          <p className="font-semibold text-(--text-primary)">Nenhum {config.singular} encontrado</p>
+          <p className="mt-1 text-sm text-(--text-secondary)">Ajuste os filtros para visualizar outros itens.</p>
+          <button type="button" onClick={() => { setSearch(''); setQrStatus('ALL'); }} className="mt-5 inline-flex cursor-pointer items-center gap-2 rounded-xl border border-(--primary-color)/30 px-4 py-2.5 text-sm font-semibold text-(--primary-color) transition hover:bg-(--primary-color)/10"><FaXmark aria-hidden /> Limpar filtros</button>
+        </div>
       ) : (
         <ul className="space-y-3">
-          {items.map((item) => {
+          {filteredItems.map((item) => {
             const isActive = item.id ? activeById.get(item.id) === true : false;
             const detailPath = `/user/edit/feedback/${config.slug}/${item.id}`;
             return (
