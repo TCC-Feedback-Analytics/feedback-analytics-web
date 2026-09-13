@@ -17,13 +17,15 @@ export function Dialog({
 }
 
 export function DialogTrigger({ children }: {
-  children: React.ReactElement;
+  children: React.ReactElement<{
+    onClick?: React.MouseEventHandler;
+  }>;
 }) {
   const context = React.useContext(DialogContext);
   if (!context) return children;
 
   return React.cloneElement(children, {
-    onClick: (event: React.MouseEvent) => {
+    onClick: (event) => {
       children.props.onClick?.(event);
       context.onOpenChange(true);
     },

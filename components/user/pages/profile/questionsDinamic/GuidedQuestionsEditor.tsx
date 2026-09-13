@@ -37,14 +37,14 @@ function padCatalogQuestionsForApi(
     return {
       question_order: (questionIndex + 1) as 1 | 2 | 3,
       question_text: question?.question_text.trim() ?? '',
-      is_active: question?.question_text.trim().length > 0,
+      is_active: (question?.question_text.trim().length ?? 0) > 0,
       subquestions: Array.from({ length: TOTAL_SUBQUESTIONS }, (_, subIndex) => {
         const subquestion = question?.subquestions?.[subIndex];
 
         return {
           subquestion_order: (subIndex + 1) as 1 | 2 | 3,
           subquestion_text: subquestion?.subquestion_text.trim() ?? '',
-          is_active: subquestion?.subquestion_text.trim().length > 0,
+          is_active: (subquestion?.subquestion_text.trim().length ?? 0) > 0,
         };
       }),
     };
@@ -54,7 +54,7 @@ function padCatalogQuestionsForApi(
 function normalizeQuestions(
   initialQuestions: CompanyFeedbackQuestionInput[],
   hasSavedQuestions: boolean,
-) {
+): CompanyFeedbackQuestionInput[] {
   const source = hasSavedQuestions
     ? initialQuestions.filter((question) => question.question_text.trim().length > 0)
     : initialQuestions;
@@ -99,7 +99,7 @@ export default function GuidedQuestionsEditor({
   const savedQuestionCount = Math.max(1, Math.min(3, initialQuestions.filter((question) => question.question_text.trim().length > 0).length || 1));
   const [step, setStep] = useState(hasSavedQuestions ? 1 : 0);
   const [questionCount, setQuestionCount] = useState(() => hasSavedQuestions ? savedQuestionCount : minQuestions === 0 ? 0 : 3);
-  const [questions, setQuestions] = useState(normalizedInitialQuestions);
+  const [questions, setQuestions] = useState<CompanyFeedbackQuestionInput[]>(normalizedInitialQuestions);
   const [error, setError] = useState<string | null>(null);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const fetcher = useFetcher();
@@ -226,12 +226,12 @@ export default function GuidedQuestionsEditor({
     }
 
     if (payloadRef.current) {
-      const normalizedQuestions = selectedQuestions.map((question, index) => ({
-        question_order: index + 1,
+      const normalizedQuestions: CompanyFeedbackQuestionInput[] = selectedQuestions.map((question, index) => ({
+        question_order: (index + 1) as 1 | 2 | 3,
         question_text: question.question_text.trim(),
         is_active: true,
         subquestions: (question.subquestions ?? []).map((subquestion, subIndex) => ({
-          subquestion_order: subIndex + 1,
+          subquestion_order: (subIndex + 1) as 1 | 2 | 3,
           subquestion_text: subquestion.subquestion_text.trim(),
           is_active: subquestion.subquestion_text.trim().length > 0,
         })),
