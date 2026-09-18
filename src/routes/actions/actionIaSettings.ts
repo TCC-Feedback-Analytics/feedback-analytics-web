@@ -52,10 +52,18 @@ export async function ActionIaSettings({ request }: ActionFunctionArgs): Promise
       };
     }
 
+    if (!model || model.length > 120) {
+      return {
+        ok: false,
+        error: 'invalid_payload',
+        message: 'Selecione um modelo de IA válido.',
+      };
+    }
+
     try {
       const iaConfig = await ServiceUpdateIaConfig({
         provider,
-        model: model || undefined,
+        model,
         apiKey,
       });
 

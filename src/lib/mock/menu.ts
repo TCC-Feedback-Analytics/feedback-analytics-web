@@ -15,7 +15,6 @@ import {
   FaSliders,
   FaCommentDots,
   FaBoxesStacked,
-  FaBuilding,
   FaBrain,
 } from 'react-icons/fa6';
 
@@ -56,7 +55,7 @@ export const menuData: MenuItem[] = [
   {
     label: "Configuração da coleta",
     icon: FaSliders,
-    tourAttr: "ai-context-steps",
+    tourAttr: "nav-collecting",
     children: [
       {
         label: "Feedback geral",
@@ -69,11 +68,6 @@ export const menuData: MenuItem[] = [
         to: "/user/edit/types-feedback",
         icon: FaBoxesStacked,
         tourAttr: "tour-catalog",
-      },
-      {
-        label: "Dados da empresa",
-        to: "/user/edit/collecting-data-enterprise",
-        icon: FaBuilding,
       },
       {
         label: "Configuração de IA",

@@ -4,7 +4,7 @@ import type {
 } from "lib/interfaces/entities/enterprise.entity";
 import { useRouteLoaderData } from "react-router-dom";
 import { INTENT_FEEDBACK_SETTINGS_SAVE_COMPANY_QUESTIONS } from "src/lib/constants/routes/intents";
-import QuestionsEditor from "components/user/pages/profile/questionsDinamic/questionsEditor";
+import GuidedQuestionsEditor from "components/user/pages/profile/questionsDinamic/GuidedQuestionsEditor";
 
 const TOTAL_QUESTIONS = 3;
 const TOTAL_SUBQUESTIONS = 3;
@@ -40,6 +40,7 @@ function normalizeCompanyFeedbackQuestions(
   items: CollectingDataEnterprise["company_feedback_questions"] | undefined,
 ): CompanyFeedbackQuestionInput[] {
   const byOrder = new Map<number, CompanyFeedbackQuestionInput>();
+  const hasSavedQuestions = (items ?? []).length > 0;
 
   (items ?? []).forEach((item) => {
     const order = Number(item.question_order);
@@ -89,11 +90,11 @@ function normalizeCompanyFeedbackQuestions(
     return {
       question_order: questionOrder,
       question_text:
-        current?.question_text ??
-        DEFAULT_COMPANY_QUESTIONS[index]?.question_text ??
+        (current?.is_active === false ? "" : current?.question_text) ??
+        (hasSavedQuestions ? "" : DEFAULT_COMPANY_QUESTIONS[index]?.question_text) ??
         "",
-      is_active: current?.is_active ?? true,
-      subquestions: current?.subquestions ?? [
+      is_active: current?.is_active === false ? false : current?.is_active ?? true,
+      subquestions: current?.is_active === false ? [] : current?.subquestions ?? [
         createEmptySubquestion(1),
         createEmptySubquestion(2),
         createEmptySubquestion(3),
@@ -117,16 +118,14 @@ export default function QuestionDinamicEnterprise() {
   );
 
   return (
-    <QuestionsEditor
+    <GuidedQuestionsEditor
       initialQuestions={initialQuestions}
-      allowVariableQuestionCount={false}
-      requireAllThree
+      hasSavedQuestions={(collecting?.company_feedback_questions ?? []).some(
+        (question) => question.is_active !== false && question.question_text.trim().length > 0,
+      )}
       action="/user/edit/feedback-general"
       intent={INTENT_FEEDBACK_SETTINGS_SAVE_COMPANY_QUESTIONS}
       payloadFieldName="company_feedback_questions"
-      submitLabel="Salvar Perguntas da Empresa"
-      successTitle="Configurações salvas!"
-      successMessage="Perguntas da empresa atualizadas com sucesso."
       scopeType="COMPANY"
       idPrefix="preview-company"
     />

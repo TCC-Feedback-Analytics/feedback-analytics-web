@@ -7,36 +7,94 @@ import {
   FaChevronRight,
   FaXmark,
 } from "react-icons/fa6";
-import { INTERACTIVE_STEPS, type ElementRect } from "./ui.types";
+import { INTERACTIVE_STEPS, type ElementRect, type UserInteractiveTourProps } from "./ui.types";
 
-export default function UserInteractiveTour() {
+export default function UserInteractiveTour({
+  onOpenMobileDrawer,
+  onCloseMobileDrawer,
+}: UserInteractiveTourProps) {
   const { isTourActive, currentTourStep, nextTourStep, prevTourStep, skipTour, goToStep } =
     useOnboarding();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [rect, setRect] = useState<ElementRect | null>(null);
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== "undefined" && window.matchMedia?.("(max-width: 767px)").matches,
+  );
   const stepData = INTERACTIVE_STEPS[currentTourStep] || INTERACTIVE_STEPS[0];
+  const targetSelector = isMobile && stepData.mobileSelector ? stepData.mobileSelector : stepData.selector;
+  const description = isMobile ? stepData.mobileDescription ?? stepData.description : stepData.description;
   const IconComponent = stepData.icon;
   const isLast = currentTourStep === TOUR_STEPS_COUNT - 1;
+  // Os estilos-base de botão têm alturas diferentes; esta medida compartilhada
+  // garante consistência visual entre voltar, avançar e concluir o guia.
+  const navigationButtonStyle = { width: "6rem", height: "50px", flex: "0 0 6rem" };
 
-  // Garante troca automática de rota e rolagem até o elemento alvo
+  useEffect(() => {
+    const media = window.matchMedia?.("(max-width: 767px)");
+    if (!media) return;
+
+    const syncViewport = () => setIsMobile(media.matches);
+    syncViewport();
+    media.addEventListener("change", syncViewport);
+    return () => media.removeEventListener("change", syncViewport);
+  }, []);
+
+  useEffect(() => {
+    if (!isTourActive || !isMobile || !stepData.openMobileDrawer) {
+      onCloseMobileDrawer?.();
+      return;
+    }
+
+    onOpenMobileDrawer?.();
+  }, [isTourActive, isMobile, stepData.openMobileDrawer, onOpenMobileDrawer, onCloseMobileDrawer]);
+
+  // Aguarda a tela de destino montar antes de posicionar o destaque e a rolagem.
   useEffect(() => {
     if (!isTourActive) return;
+
     if (location.pathname !== stepData.route) {
       navigate(stepData.route);
+      return;
     }
-    const el = document.querySelector(stepData.selector);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }
-  }, [isTourActive, currentTourStep, stepData.route, stepData.selector, location.pathname, navigate]);
+
+    let attempts = 0;
+    let frameId: number | undefined;
+
+    const revealTarget = () => {
+      const el = document.querySelector(targetSelector);
+      if (el) {
+        // A etapa deve chegar pronta para leitura: a rolagem é feita pelo tour,
+        // sem exigir que a pessoa procure manualmente o destaque.
+        el.scrollIntoView({ behavior: "auto", block: "center", inline: "nearest" });
+        return;
+      }
+
+      attempts += 1;
+      if (attempts < 30) {
+        frameId = window.requestAnimationFrame(revealTarget);
+      }
+    };
+
+    const delay = isMobile && stepData.openMobileDrawer ? 340 : 0;
+    const timerId = window.setTimeout(() => {
+      frameId = window.requestAnimationFrame(revealTarget);
+    }, delay);
+
+    return () => {
+      window.clearTimeout(timerId);
+      if (frameId !== undefined) {
+        window.cancelAnimationFrame(frameId);
+      }
+    };
+  }, [isTourActive, currentTourStep, stepData.route, stepData.openMobileDrawer, targetSelector, isMobile, location.pathname, navigate]);
 
   // Função para recalcular as dimensões e posição do elemento destacado (spotlight)
   const updateSpotlight = useCallback(() => {
     if (!isTourActive) return;
 
-    const el = document.querySelector(stepData.selector);
+    const el = document.querySelector(targetSelector);
     if (el) {
       const bounds = el.getBoundingClientRect();
       setRect({
@@ -48,7 +106,7 @@ export default function UserInteractiveTour() {
     } else {
       setRect(null); // Fallback centralizado se elemento não for encontrado no DOM
     }
-  }, [isTourActive, stepData.selector]);
+  }, [isTourActive, targetSelector]);
 
   useEffect(() => {
     updateSpotlight();
@@ -78,18 +136,23 @@ export default function UserInteractiveTour() {
       };
     }
 
-    const popoverWidth = 360;
+    const popoverWidth = Math.min(360, window.innerWidth - 32);
+    const popoverHeight = 220;
     const padding = 16;
-    const isBelowScreenMid = rect.top > window.innerHeight / 2;
+    const offset = 12;
+    const spaceBelow = window.innerHeight - (rect.top + rect.height) - padding;
+    const spaceAbove = rect.top - padding;
+    const showBelow = spaceBelow >= popoverHeight || spaceBelow >= spaceAbove;
+    const maxTop = Math.max(padding, window.innerHeight - popoverHeight - padding);
 
-    let top = isBelowScreenMid ? rect.top - 200 : rect.top + rect.height + 12;
+    let top = showBelow ? rect.top + rect.height + offset : rect.top - popoverHeight - offset;
     let left = Math.max(padding, rect.left + rect.width / 2 - popoverWidth / 2);
 
     if (left + popoverWidth > window.innerWidth - padding) {
       left = window.innerWidth - popoverWidth - padding;
     }
 
-    if (top < padding) top = padding;
+    top = Math.min(Math.max(padding, top), maxTop);
 
     return {
       position: "fixed",
@@ -151,7 +214,7 @@ export default function UserInteractiveTour() {
       {/* Balão Simplificado, Direto e Intuitivo */}
       <div
         style={popoverStyle}
-        className="pointer-events-auto z-50 w-[calc(100vw-32px)] max-w-[360px] rounded-2xl border border-(--primary-color)/30 bg-(--bg-secondary) p-4 shadow-xl backdrop-blur-md transition-all duration-200"
+        className="pointer-events-auto z-50 max-h-[calc(100dvh-32px)] w-[calc(100vw-32px)] max-w-[360px] overflow-y-auto rounded-2xl border border-(--primary-color)/30 bg-(--bg-secondary) p-4 shadow-xl backdrop-blur-md transition-all duration-200"
       >
         {/* Topo do Balão */}
         <div className="flex items-center justify-between border-b border-(--quaternary-color)/10 pb-2.5">
@@ -178,7 +241,7 @@ export default function UserInteractiveTour() {
         {/* Descrição Concisa (1 linha de orientação direta) */}
         <div className="py-3">
           <p className="font-inter text-xs leading-relaxed text-(--text-secondary)">
-            {stepData.description}
+            {description}
           </p>
         </div>
 
@@ -207,7 +270,8 @@ export default function UserInteractiveTour() {
               type="button"
               onClick={prevTourStep}
               disabled={currentTourStep === 0}
-              className="btn-ghost font-poppins flex items-center gap-1 px-2.5 py-1 text-xs font-medium disabled:opacity-30 disabled:cursor-not-allowed"
+              style={navigationButtonStyle}
+              className="btn-ghost font-poppins flex items-center justify-center gap-1 px-3 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-30"
             >
               <FaChevronLeft className="text-[9px]" />
               Anterior
@@ -216,7 +280,8 @@ export default function UserInteractiveTour() {
             <button
               type="button"
               onClick={handleActionClick}
-              className="btn-primary font-poppins flex items-center gap-1 px-3.5 py-1 text-xs font-semibold shadow-xs"
+              style={navigationButtonStyle}
+              className="btn-primary font-poppins flex items-center justify-center gap-1 px-3 text-xs font-semibold shadow-xs"
             >
               <span>{isLast ? "Entendi" : "Próximo"}</span>
               {!isLast && <FaChevronRight className="text-[9px]" />}

@@ -9,12 +9,12 @@ interface CatalogState {
   error?: string;
 }
 
-export function useIaModels(config: IaConfigResponse | null) {
+export function useIaModels(config: IaConfigResponse | null, enabled = true) {
   const [revision, setRevision] = useState(0);
   const [state, setState] = useState<CatalogState | null>(null);
 
   useEffect(() => {
-    if (!config) return;
+    if (!config || !enabled) return;
     const controller = new AbortController();
     ServiceGetIaModels(controller.signal).then((catalog) => {
       if (!controller.signal.aborted) setState({ config, revision, catalog });
@@ -24,14 +24,14 @@ export function useIaModels(config: IaConfigResponse | null) {
       }
     });
     return () => controller.abort();
-  }, [config, revision]);
+  }, [config, enabled, revision]);
 
   // Uma resposta do catálogo anterior nunca habilita o formulário de outra config.
   const current = state?.config === config && state?.revision === revision ? state : null;
   return {
     catalog: current?.catalog,
     error: current?.error,
-    loading: Boolean(config && !current),
+    loading: Boolean(enabled && config && !current),
     reload: () => setRevision((value) => value + 1),
   };
 }
