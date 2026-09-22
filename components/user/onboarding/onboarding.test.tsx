@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import "@testing-library/jest-dom";
 import { MemoryRouter } from "react-router-dom";
@@ -7,6 +7,13 @@ import AIContextDialog from "./AIContextDialog";
 import UserInteractiveTour from "./UserInteractiveTour";
 import { INTERACTIVE_STEPS } from "./ui.types";
 import type { CollectingDataEnterprise } from "lib/interfaces/entities/enterprise.entity";
+
+const systemGuide = vi.hoisted(() => ({ get: vi.fn(), update: vi.fn() }));
+
+vi.mock("src/services/serviceSystemGuide", () => ({
+  ServiceGetSystemGuide: systemGuide.get,
+  ServiceUpdateSystemGuide: systemGuide.update,
+}));
 
 vi.mock("react-router-dom", async (importOriginal) => {
   const actual = await importOriginal<typeof import("react-router-dom")>();
@@ -50,7 +57,11 @@ function TestConsumer() {
 
 describe("[Unidade] Componentes e Contexto de Onboarding", () => {
   beforeEach(() => {
-    localStorage.clear();
+    // Os testes que não exercitam o tour não precisam avançar a leitura assíncrona.
+    systemGuide.get.mockReset().mockImplementation(() => new Promise(() => {}));
+    systemGuide.update.mockReset().mockImplementation(async ({ version, status }) => ({
+      tourKey: "system-guide", version, status, finishedAt: "2026-01-01T00:00:00.000Z",
+    }));
   });
 
   afterEach(() => {
@@ -66,7 +77,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
 
     render(
       <MemoryRouter>
-        <OnboardingProvider collecting={collecting}>
+        <OnboardingProvider collecting={collecting} sessionKey="user-1">
           <TestConsumer />
         </OnboardingProvider>
       </MemoryRouter>
@@ -84,7 +95,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
 
     render(
       <MemoryRouter>
-        <OnboardingProvider collecting={collecting}>
+        <OnboardingProvider collecting={collecting} sessionKey="user-1">
           <TestConsumer />
         </OnboardingProvider>
       </MemoryRouter>
@@ -102,7 +113,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
 
     render(
       <MemoryRouter>
-        <OnboardingProvider collecting={collecting}>
+        <OnboardingProvider collecting={collecting} sessionKey="user-1">
           <TestConsumer />
         </OnboardingProvider>
       </MemoryRouter>
@@ -115,7 +126,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
   it("renderiza o AIContextDialog em modo obrigatório quando ativado", () => {
     render(
       <MemoryRouter>
-        <OnboardingProvider collecting={null}>
+        <OnboardingProvider collecting={null} sessionKey="user-1">
           <AIContextDialog open={true} onOpenChange={() => {}} isMandatory={true} />
         </OnboardingProvider>
       </MemoryRouter>
@@ -130,7 +141,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
   it("permite navegar pelos passos do AIContextDialog (1 -> 2 -> 3 -> 4)", () => {
     render(
       <MemoryRouter>
-        <OnboardingProvider collecting={null}>
+        <OnboardingProvider collecting={null} sessionKey="user-1">
           <AIContextDialog open={true} onOpenChange={() => {}} isMandatory={false} />
         </OnboardingProvider>
       </MemoryRouter>
@@ -165,7 +176,10 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     });
   });
 
-  it("permite navegar pelos passos do Tour Interativo Spotlight e pular a introdução", () => {
+  it("permite navegar pelos passos do Tour Interativo Spotlight e pular a introdução", async () => {
+    systemGuide.get.mockResolvedValue({
+      tourKey: "system-guide", version: 1, status: "pending", finishedAt: null,
+    });
     const completeCollecting = {
       business_summary: "Resumo",
       company_objective: "Objetivo",
@@ -177,14 +191,15 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
         <OnboardingProvider
           collecting={completeCollecting}
           iaConfig={{ hasKey: true, provider: "openrouter", model: "openrouter/auto", keyHint: "1234" }}
+          sessionKey="user-1"
         >
           <UserInteractiveTour />
         </OnboardingProvider>
       </MemoryRouter>
     );
 
-    // Tour começa ativo para novos acessos no passo 1
-    expect(screen.getByText("Dashboard de Resultados")).toBeInTheDocument();
+    // Tour começa apenas após a confirmação de pending pelo servidor.
+    expect(await screen.findByText("Dashboard de Resultados")).toBeInTheDocument();
 
     // Avançar para o passo 2
     fireEvent.click(screen.getByText("Próximo"));
@@ -208,7 +223,38 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
 
     // Pular tour
     fireEvent.click(screen.getByText("Pular"));
-    expect(screen.queryByText("Dados e configurações da empresa")).not.toBeInTheDocument();
-    expect(localStorage.getItem("feedback_onboarding_tour_seen")).toBe("true");
+    await waitFor(() => expect(screen.queryByText("Dados e configurações da empresa")).not.toBeInTheDocument());
+    expect(systemGuide.update).toHaveBeenCalledWith({ version: 1, status: "skipped" });
+  });
+
+  it("mantém o guia aberto e permite nova tentativa quando o salvamento falha", async () => {
+    systemGuide.get.mockResolvedValue({
+      tourKey: "system-guide", version: 1, status: "pending", finishedAt: null,
+    });
+    systemGuide.update.mockRejectedValueOnce(new Error("offline"));
+    const completeCollecting = {
+      business_summary: "Resumo", company_objective: "Objetivo", analytics_goal: "Analítico",
+    } as CollectingDataEnterprise;
+
+    render(
+      <MemoryRouter initialEntries={["/user/dashboard"]}>
+        <OnboardingProvider
+          collecting={completeCollecting}
+          iaConfig={{ hasKey: true, provider: "openrouter", model: "openrouter/auto", keyHint: "1234" }}
+          sessionKey="user-1"
+        >
+          <UserInteractiveTour />
+        </OnboardingProvider>
+      </MemoryRouter>,
+    );
+
+    await screen.findByText("Dashboard de Resultados");
+    fireEvent.click(screen.getByText("Pular"));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Não foi possível salvar o guia");
+    expect(screen.getByText("Dashboard de Resultados")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Pular"));
+    await waitFor(() => expect(screen.queryByText("Dashboard de Resultados")).not.toBeInTheDocument());
+    expect(systemGuide.update).toHaveBeenLastCalledWith({ version: 1, status: "skipped" });
   });
 });

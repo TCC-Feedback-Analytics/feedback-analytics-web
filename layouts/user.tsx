@@ -112,7 +112,8 @@ export default function User() {
   const logoutFetcher = useFetcher();
   const navigation = useNavigation();
   const toast = useToast();
-  const { enterprise, collecting, iaConfig } = useLoaderData() as {
+  const { user, enterprise, collecting, iaConfig } = useLoaderData() as {
+    user: { id: string };
     enterprise: EnterpriseContext;
     collecting: CollectingDataEnterprise | null;
     iaConfig: IaConfigResponse | null;
@@ -277,7 +278,7 @@ export default function User() {
   const latestOperation = rawOperation.startedAt > insightsOperation.startedAt ? rawOperation : insightsOperation;
 
   return (
-    <OnboardingProvider collecting={collecting} iaConfig={iaConfig}>
+    <OnboardingProvider collecting={collecting} iaConfig={iaConfig} sessionKey={user.id}>
       <InsightsControlsProvider
         value={{
           ...insightsState,
