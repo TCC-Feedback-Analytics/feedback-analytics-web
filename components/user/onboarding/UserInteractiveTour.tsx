@@ -13,7 +13,7 @@ export default function UserInteractiveTour({
   onOpenMobileDrawer,
   onCloseMobileDrawer,
 }: UserInteractiveTourProps) {
-  const { isTourActive, currentTourStep, nextTourStep, prevTourStep, skipTour, goToStep } =
+  const { isTourActive, currentTourStep, isTourSaving, tourSaveError, nextTourStep, prevTourStep, skipTour, goToStep } =
     useOnboarding();
   const navigate = useNavigate();
   const location = useLocation();
@@ -229,7 +229,8 @@ export default function UserInteractiveTour({
 
           <button
             type="button"
-            onClick={skipTour}
+            onClick={() => void skipTour()}
+            disabled={isTourSaving}
             className="flex items-center gap-1 rounded-lg p-1 text-xs text-(--text-tertiary) hover:bg-(--seventh-color) hover:text-(--text-primary) transition-colors"
             title="Pular introdução"
           >
@@ -243,6 +244,11 @@ export default function UserInteractiveTour({
           <p className="font-inter text-xs leading-relaxed text-(--text-secondary)">
             {description}
           </p>
+          {tourSaveError && (
+            <p role="alert" className="mt-2 text-xs font-medium text-red-600">
+              {tourSaveError}
+            </p>
+          )}
         </div>
 
         {/* Rodapé Compacto */}
@@ -280,10 +286,11 @@ export default function UserInteractiveTour({
             <button
               type="button"
               onClick={handleActionClick}
+              disabled={isTourSaving}
               style={navigationButtonStyle}
               className="btn-primary font-poppins flex items-center justify-center gap-1 px-3 text-xs font-semibold shadow-xs"
             >
-              <span>{isLast ? "Entendi" : "Próximo"}</span>
+              <span>{isTourSaving ? "Salvando..." : isLast ? "Entendi" : "Próximo"}</span>
               {!isLast && <FaChevronRight className="text-[9px]" />}
             </button>
           </div>
