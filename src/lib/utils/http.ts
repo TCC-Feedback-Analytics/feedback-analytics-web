@@ -9,7 +9,7 @@ type HttpError = Error & {
 };
 
 const WEB_VERCEL_PROJECT_SLUG = 'feedback-analytics-web';
-const API_VERCEL_PROJECT_SLUG = 'feedback-analytics-api';
+const API_VERCEL_PROJECT_SLUG = 'feedback-analytics-api-gateway';
 
 function extractVercelProjectSuffix(hostname: string, projectSlug: string): string | null {
   const normalizedHostname = String(hostname ?? '').trim().toLowerCase();
