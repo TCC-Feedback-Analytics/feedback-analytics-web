@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   useNavigation: vi.fn(),
   useLocation: vi.fn(),
   useNavigate: vi.fn(),
+  getSystemGuide: vi.fn(),
 }));
 
 vi.mock('react-router-dom', async () => {
@@ -55,17 +56,24 @@ vi.mock('components/user/layout/InsightsActionBar', () => ({
   default: () => <div data-testid="insights-action-bar">InsightsActionBar</div>,
 }));
 
+vi.mock('src/services/serviceSystemGuide', () => ({
+  ServiceGetSystemGuide: mocks.getSystemGuide,
+  ServiceUpdateSystemGuide: vi.fn(),
+}));
+
 import LayoutUser from '../user';
 import { useFetcher, useLoaderData, useNavigation, useLocation } from 'react-router-dom';
 
 describe('[Unidade] LayoutUser', () => {
   beforeEach(() => {
     vi.mocked(useLoaderData).mockReturnValue({
+      user: { id: 'user-test' },
       enterprise: {
         full_name: 'Empresa Teste',
       },
       collecting: null,
     } as ReturnType<typeof useLoaderData>);
+    mocks.getSystemGuide.mockImplementation(() => new Promise(() => {}));
 
     vi.mocked(useFetcher).mockReturnValue({
       state: 'idle',

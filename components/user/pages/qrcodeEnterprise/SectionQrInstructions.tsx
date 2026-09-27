@@ -4,7 +4,7 @@ import CardSimple from 'components/user/shared/cards/cardSimple';
 const SectionQrInstructions = memo(function SectionQrInstructions() {
   return (
     <CardSimple>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-6 md:grid-cols-3">
         <div className="text-center">
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-(--tertiary-color)/15">
             <span className="text-lg font-bold text-(--quinary-color)">1</span>

@@ -11,7 +11,6 @@ import type { PhoneEditableFieldProps } from './ui.types';
 
 export default function PhoneEditableField({ currentPhone, className = '' }: PhoneEditableFieldProps) {
   const [mode, setMode] = useState<'view' | 'edit' | 'verify'>('view');
-  const [isHovered, setIsHovered] = useState(false);
   const [pendingPhone, setPendingPhone] = useState('');
   const [submitStage, setSubmitStage] = useState<'start' | 'verify' | null>(null);
   const [actionDataAtSubmit, setActionDataAtSubmit] = useState<ActionData | undefined>(undefined);
@@ -98,20 +97,17 @@ export default function PhoneEditableField({ currentPhone, className = '' }: Pho
   // Modo de visualização
   if (mode === 'view') {
     return (
-      <div
-        className={`group relative bg-(--bg-secondary)/30 border border-(--quaternary-color)/20 rounded-lg p-4 hover:border-(--primary-color)/30 hover:bg-(--primary-color)/5 transition-all cursor-pointer ${className}`}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+      <button
+        type="button"
+        aria-label="Editar telefone"
+        className={`group relative w-full rounded-lg border border-(--quaternary-color)/20 bg-(--bg-secondary)/30 p-4 text-left transition-all hover:border-(--primary-color)/30 hover:bg-(--primary-color)/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color) ${className}`}
         onClick={handleEdit}
       >
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-sm font-medium text-(--text-secondary)">Telefone</span>
-              <span
-                className={`text-lg transition-all duration-200 ${isHovered ? 'opacity-100 scale-110' : 'opacity-60 scale-100'
-                  }`}
-              >
+              <span className="text-lg opacity-70 transition-transform group-hover:scale-110">
                 <FaPhone aria-hidden="true" className="text-(--primary-color)" />
               </span>
             </div>
@@ -123,15 +119,12 @@ export default function PhoneEditableField({ currentPhone, className = '' }: Pho
             </p>
           </div>
 
-          <div className={`ml-3 transition-all duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="bg-(--primary-color) text-white rounded-full w-8 h-8 flex items-center justify-center text-sm shadow-lg">
+          <span className="ml-3 inline-flex items-center gap-1.5 rounded-lg bg-(--primary-color)/12 px-2.5 py-1.5 text-xs font-semibold text-(--primary-color) transition group-hover:bg-(--primary-color) group-hover:text-white">
               <FaPenToSquare aria-hidden="true" />
-            </div>
-          </div>
+              <span>Editar</span>
+          </span>
         </div>
-
-        <div className={`absolute inset-0 bg-(--primary-color)/5 rounded-lg transition-opacity duration-200 pointer-events-none ${isHovered ? 'opacity-100' : 'opacity-0'}`} />
-      </div>
+      </button>
     );
   }
 
