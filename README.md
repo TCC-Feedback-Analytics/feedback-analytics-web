@@ -25,7 +25,7 @@ npm test                # unitários (Vitest); use `npm run test -- run` para si
 npm run lint
 ```
 
-> Em previews/produção na Vercel, `VITE_API_BASE_URL` fica **vazia**: a base da API é derivada pelo hostname (o slug `feedback-analytics-web` vira `feedback-analytics-api` no mesmo `.vercel.app`).
+> Em produção na Vercel, configure `VITE_API_BASE_URL` com a URL pública do API Gateway. O frontend não deriva o endereço da API a partir do hostname.
 
 > Os casos de uso (UC-01…UC-12), antes cobertos por e2e Playwright, agora têm um **runbook de teste manual** na documentação central: `feedback-analytics/docs/guias/testes/manuais-web.md`.
 

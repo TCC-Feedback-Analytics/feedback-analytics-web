@@ -181,14 +181,14 @@ Se o e-mail de confirmação não chegou, o usuário pode reenviar via `ActionRe
 
 ## Resolução da URL da API
 
-O utilitário `http.ts` resolve automaticamente qual URL da API usar:
+O utilitário `http.ts` usa a URL da API configurada para o ambiente:
 
 | Ambiente | Comportamento |
 |---|---|
-| **Local / variável explícita** | Usa `VITE_API_BASE_URL` do `.env` |
-| **Vercel Preview** | Deriva a URL da API a partir do hostname do frontend (ex: `feedback-analytics-web-abc123.vercel.app` → `feedback-analytics-api-abc123.vercel.app`) |
+| **Local** | Usa `VITE_API_BASE_URL` do `.env` |
+| **Vercel (produção ou preview)** | Usa `VITE_API_BASE_URL` configurada no ambiente do projeto web |
 
-Isso garante que cada deploy de preview do frontend aponte automaticamente para o deploy de preview correspondente da API, sem configuração manual.
+Cada ambiente da Vercel deve informar explicitamente a URL da API correspondente.
 
 ---
 
