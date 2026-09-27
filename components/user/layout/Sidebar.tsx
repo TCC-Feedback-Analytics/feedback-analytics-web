@@ -33,7 +33,7 @@ export default function Sidebar({
             </div>
             <div
               className={`flex flex-col truncate transition-all duration-300 ease-in-out ${
-                isOpen ? "opacity-100 max-w-[150px]" : "opacity-0 max-w-0 pointer-events-none"
+                isOpen ? "opacity-100 max-w-37.5" : "opacity-0 max-w-0 pointer-events-none"
               }`}
             >
               <span className="text-xs font-bold uppercase tracking-wider text-(--text-primary) whitespace-nowrap">

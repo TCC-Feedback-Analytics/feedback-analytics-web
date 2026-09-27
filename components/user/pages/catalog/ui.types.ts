@@ -7,3 +7,6 @@ import type { CatalogKindSlug } from "src/lib/constants/catalog";
 export interface CatalogItemsListProps {
   kindSlug: CatalogKindSlug;
 }
+
+/** Estado do filtro de disponibilidade do QR Code na listagem do catálogo. */
+export type CatalogQrStatusFilter = 'ALL' | 'ACTIVE' | 'INACTIVE';

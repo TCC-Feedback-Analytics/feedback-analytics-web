@@ -62,9 +62,11 @@ export interface SelectOption<T extends string | number = string | number> {
   value: T;
   label: string;
   icon?: React.ReactNode;
+  disabled?: boolean;
 }
 
 export interface SelectProps<T extends string | number = string | number> {
+  id?: string;
   options: SelectOption<T>[];
   value?: T;
   onChange: (value: T) => void;
@@ -75,6 +77,12 @@ export interface SelectProps<T extends string | number = string | number> {
   disabled?: boolean;
   startIcon?: React.ReactNode;
   onClear?: () => void;
+  searchable?: boolean;
+  searchLabel?: string;
+  searchPlaceholder?: string;
+  emptyMessage?: string;
+  noResultsMessage?: string;
+  'aria-describedby'?: string;
 }
 
 export interface SelectNativeProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
@@ -133,4 +141,26 @@ export type ToastFunction = {
   ) => { id: string; dismiss: () => void };
 };
 
+export interface DialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  children: React.ReactNode;
+}
 
+export interface DialogChildrenProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export interface DialogContextValue {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export interface SwitchProps {
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+  'aria-label': string;
+  disabled?: boolean;
+  className?: string;
+}

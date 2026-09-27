@@ -92,6 +92,8 @@ describe('[Unidade] Profile Page', () => {
 
     expect(screen.getByTestId('page-header')).toBeInTheDocument();
     expect(screen.getByTestId('profile-info')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Dados pessoais e acesso' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Dados e configurações da empresa' })).toBeInTheDocument();
   });
 
   it('deve renderizar o cabeçalho de página (PageHeader)', () => {
@@ -152,7 +154,7 @@ describe('[Unidade] Profile Page', () => {
     );
 
     const mainDiv = container.firstChild as HTMLElement;
-    expect(mainDiv).toHaveClass('font-work-sans', 'space-y-6');
+    expect(mainDiv).toHaveClass('font-work-sans', 'space-y-8', 'pb-8');
   });
 
   it('deve chamar useRouteLoaderData com a chave correta', () => {
