@@ -185,7 +185,10 @@ export async function ServiceResendConfirmation(
     const rawBody = await res.text();
 
     if (res.ok) {
-      const fallbackSuccess = { message: 'E-mail de confirmação reenviado com sucesso.' };
+      const fallbackSuccess = {
+        message:
+          'Se existir uma conta pendente para este e-mail, enviaremos uma nova confirmação.',
+      };
       const parsed = parseErrorPayload(rawBody, {
         error: 'ok',
         message: fallbackSuccess.message,
