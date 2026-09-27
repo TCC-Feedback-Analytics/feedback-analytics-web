@@ -317,6 +317,16 @@ export default function FormLogin() {
           'Entrar'
         )}
       </button>
+
+      <p className="text-center font-work-sans text-sm text-(--text-tertiary)">
+        Não recebeu o e-mail de confirmação?{' '}
+        <Link
+          to="/resend-confirmation"
+          className="font-medium text-(--secondary-color) transition-opacity hover:opacity-80"
+        >
+          Reenviar confirmação
+        </Link>
+      </p>
     </form>
   );
 }

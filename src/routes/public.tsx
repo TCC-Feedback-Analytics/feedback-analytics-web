@@ -16,6 +16,8 @@ import ForgotPassword from 'pages/public/forgotPassword';
 import { ActionForgotPassword } from './actions/actionForgotPassword';
 import ResetPassword from 'pages/public/resetPassword';
 import { ActionResetPassword } from './actions/actionResetPassword';
+import ResendConfirmation from 'pages/public/resendConfirmation';
+import { ActionResendConfirmation } from './actions/actionResendConfirmation';
 
 export function RoutePublic() {
   return (
@@ -41,6 +43,11 @@ export function RoutePublic() {
         path="forgot-password"
         element={<ForgotPassword />}
         action={ActionForgotPassword}
+      />
+      <Route
+        path="resend-confirmation"
+        element={<ResendConfirmation />}
+        action={ActionResendConfirmation}
       />
       <Route 
         path="auth/reset-password"
