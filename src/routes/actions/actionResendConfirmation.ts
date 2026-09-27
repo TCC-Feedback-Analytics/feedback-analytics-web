@@ -1,14 +1,17 @@
-import { ServiceResendConfirmation } from "src/services/serviceAuth";
+import { type ActionFunctionArgs } from 'react-router-dom';
+import { ServiceResendConfirmation } from 'src/services/serviceAuth';
 
-export async function actionResendConfirmation({ request }: { request: Request }) {
+export async function ActionResendConfirmation({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const email = formData.get('email');
-  if (!email || typeof email !== 'string') {
+  const email = String(formData.get('email') ?? '');
+
+  if (!email) {
     return {
       ok: false,
-      message: 'E-mail inválido.'
+      error: 'invalid_payload',
+      message: 'Informe um e-mail válido.',
     };
   }
 
-  return await ServiceResendConfirmation(email);
+  return ServiceResendConfirmation(email);
 }
