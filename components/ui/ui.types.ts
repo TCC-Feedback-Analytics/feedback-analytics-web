@@ -72,6 +72,7 @@ export interface SelectProps<T extends string | number = string | number> {
   onChange: (value: T) => void;
   placeholder?: string;
   className?: string;
+  dropdownClassName?: string;
   align?: 'left' | 'right';
   error?: boolean;
   disabled?: boolean;

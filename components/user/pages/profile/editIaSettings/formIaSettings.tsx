@@ -293,7 +293,7 @@ export default function FormIaSettings() {
               noResultsMessage={onlyFreeModels
                 ? 'Nenhum modelo gratuito encontrado com os filtros atuais. Altere a busca ou desmarque o filtro.'
                 : 'Nenhum modelo encontrado para esta busca. A seleção atual foi mantida.'}
-              className="[&_[role=dialog]]:border-(--primary-color)/25 [&_[role=dialog]]:shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
+              dropdownClassName="border-(--primary-color)/25 shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
             />
             <div id="modelStatus" role="status" className="space-y-2 text-xs text-(--text-secondary)">
               {loading && <p>Carregando modelos compatíveis...</p>}
