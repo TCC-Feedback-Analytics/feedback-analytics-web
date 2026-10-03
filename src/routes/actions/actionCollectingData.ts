@@ -148,10 +148,6 @@ function buildCatalogProductsFromLegacyProducts(products: string[]): CatalogItem
 export async function ActionCollectingData({ request }: ActionFunctionArgs) {
   const form = await request.formData();
 
-  const company_objective = String(form.get('company_objective') ?? '');
-  const analytics_goal = String(form.get('analytics_goal') ?? '');
-  const business_summary = String(form.get('business_summary') ?? '');
-
   const uses_company_products = parseBooleanFormValue(form.get('uses_company_products'));
   const uses_company_services = parseBooleanFormValue(form.get('uses_company_services'));
   const uses_company_departments = parseBooleanFormValue(form.get('uses_company_departments'));
@@ -163,11 +159,16 @@ export async function ActionCollectingData({ request }: ActionFunctionArgs) {
     form.get('company_feedback_questions'),
   );
 
-  const payload: Record<string, unknown> = {
-    company_objective: company_objective || null,
-    analytics_goal: analytics_goal || null,
-    business_summary: business_summary || null,
-  };
+  const payload: Record<string, unknown> = {};
+
+  // Trata campo ausente como atualização parcial, sem apagar dados existentes.
+  // Um campo enviado explicitamente vazio continua permitindo limpar seu valor.
+  for (const field of ['company_objective', 'analytics_goal', 'business_summary'] as const) {
+    if (form.has(field)) {
+      const value = String(form.get(field) ?? '').trim();
+      payload[field] = value || null;
+    }
+  }
 
   if (uses_company_products !== undefined) payload.uses_company_products = uses_company_products;
   if (uses_company_services !== undefined) payload.uses_company_services = uses_company_services;
