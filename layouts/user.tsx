@@ -169,6 +169,8 @@ export default function User() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [isHoverActivator, setIsHoverActivator] = useState(false);
+  const openMobileDrawer = useCallback(() => setIsMobileDrawerOpen(true), []);
+  const closeMobileDrawer = useCallback(() => setIsMobileDrawerOpen(false), []);
   const closeTimerRef = useRef<number | null>(null);
   const location = useLocation();
   const isSigningOut = logoutFetcher.state !== 'idle';
@@ -353,22 +355,22 @@ export default function User() {
             {/* Mobile Bottom Navigation (Apenas no Mobile) */}
             <MobileBottomNav
               isDrawerOpen={isMobileDrawerOpen}
-              onOpenDrawer={() => setIsMobileDrawerOpen(true)}
+              onOpenDrawer={openMobileDrawer}
               pendingPathname={pendingPathname}
             />
 
             {/* Mobile Bottom Sheet Drawer */}
             <MobileMenuDrawer
               isOpen={isMobileDrawerOpen}
-              onClose={() => setIsMobileDrawerOpen(false)}
+              onClose={closeMobileDrawer}
               pendingPathname={pendingPathname}
               enterprise={enterprise}
               onSignOut={handleSignOut}
             />
 
             <UserOnboardingManager
-              onOpenMobileDrawer={() => setIsMobileDrawerOpen(true)}
-              onCloseMobileDrawer={() => setIsMobileDrawerOpen(false)}
+              onOpenMobileDrawer={openMobileDrawer}
+              onCloseMobileDrawer={closeMobileDrawer}
             />
           </div>
         </SidebarProvider>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useFetcher, useRouteLoaderData } from "react-router-dom";
 import type { CollectingDataEnterprise } from "lib/interfaces/entities/enterprise.entity";
 import type { ActionData } from "lib/interfaces/contracts/action-data.contract";
@@ -7,7 +7,7 @@ import type { IaConfigResponse } from "src/services/serviceIaConfig";
 import { INTENT_SAVE_IA_CONFIG, INTENT_UPDATE_IA_MODEL } from "src/lib/constants/routes/intents";
 import { useIaModels } from "src/hooks/useIaModels";
 import { useToast } from "components/public/forms/messages/useToast";
-import { SelectNative } from "components/ui/select";
+import { Select, type SelectOption } from "components/ui/select";
 import HelpHint from "components/user/shared/HelpHint";
 import {
   FaWandMagicSparkles,
@@ -86,6 +86,7 @@ export default function AIContextDialog({
   const [selectedModelId, setSelectedModelId] = useState("");
   const [step, setStep] = useState(0);
   const [saveContextAfterLlm, setSaveContextAfterLlm] = useState(false);
+  const dialogContentRef = useRef<HTMLDivElement>(null);
   const lastCollectingResult = useRef<ActionData | undefined>(undefined);
   const lastIaResult = useRef<IaSettingsActionResult | undefined>(undefined);
   const { catalog, loading: isLoadingModels, error: modelsError, reload: reloadModels } = useIaModels(
@@ -93,8 +94,27 @@ export default function AIContextDialog({
     open && step === LLM_STEP_INDEX && Boolean(iaConfig),
   );
 
+  useLayoutEffect(() => {
+    if (open && dialogContentRef.current) {
+      dialogContentRef.current.scrollTop = 0;
+    }
+  }, [open, step]);
+
   const isSaving = collectingFetcher.state !== "idle" || iaFetcher.state !== "idle";
   const models = catalog?.models ?? [];
+  const modelOptions: SelectOption<string>[] = [
+    ...(iaConfig?.model && !models.some((model) => model.id === iaConfig.model)
+      ? [{
+          value: iaConfig.model,
+          label: `${iaConfig.model} — modelo atual indisponível`,
+          disabled: true,
+        }]
+      : []),
+    ...models.map((model) => ({
+      value: model.id,
+      label: `${model.isAutomatic ? "Roteamento automático" : model.name} (${model.id})`,
+    })),
+  ];
   const selectedModel = selectedModelId || iaConfig?.model || "";
   const selectedModelIsAvailable = models.some((model) => model.id === selectedModel);
   const isLlmConfigured = Boolean(iaConfig?.hasKey && iaConfig.model);
@@ -216,12 +236,13 @@ export default function AIContextDialog({
       role="dialog"
       aria-modal="true"
       aria-labelledby="ai-context-dialog-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-md transition-opacity duration-300"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden bg-black/70 p-4 backdrop-blur-md transition-opacity duration-300"
       onClick={handleBackdropClick}
     >
       <div
+        ref={dialogContentRef}
         onClick={(event) => event.stopPropagation()}
-        className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-(--primary-color)/30 bg-(--bg-secondary) p-5 shadow-2xl transition-all duration-300 sm:p-7"
+        className="relative max-h-[90vh] w-full min-w-0 max-w-2xl overflow-x-hidden overflow-y-auto custom-scrollbar rounded-3xl border border-(--primary-color)/30 bg-(--bg-secondary) p-5 shadow-2xl transition-all duration-300 sm:p-7"
       >
         <div className="pointer-events-none absolute -left-24 -top-24 h-52 w-52 rounded-full bg-(--primary-color)/12 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 -right-24 h-52 w-52 rounded-full bg-(--secondary-color)/12 blur-3xl" />
@@ -420,23 +441,21 @@ export default function AIContextDialog({
 
                   <div className="space-y-2">
                     <label htmlFor="onboarding-model" className="block text-sm font-medium text-(--text-primary)">Modelo LLM</label>
-                    <SelectNative
+                    <Select
                       id="onboarding-model"
                       value={selectedModel}
-                      onChange={(event) => setSelectedModelId(event.target.value)}
+                      onChange={setSelectedModelId}
+                      options={modelOptions}
+                      placeholder={isLoadingModels ? "Carregando modelos..." : "Selecione um modelo"}
                       disabled={isLoadingModels || models.length === 0 || isSaving}
                       aria-describedby="onboarding-model-status"
-                    >
-                      <option value="" disabled>{isLoadingModels ? "Carregando modelos..." : "Selecione um modelo"}</option>
-                      {iaConfig.model && !selectedModelIsAvailable && (
-                        <option value={iaConfig.model}>{iaConfig.model} — modelo atual</option>
-                      )}
-                      {models.map((model) => (
-                        <option key={model.id} value={model.id}>
-                          {model.isAutomatic ? "Roteamento automático" : model.name} ({model.id})
-                        </option>
-                      ))}
-                    </SelectNative>
+                      searchable
+                      searchLabel="Buscar modelo"
+                      searchPlaceholder="Busque pelo nome ou identificador"
+                      emptyMessage="Nenhum modelo encontrado."
+                      noResultsMessage="Nenhum modelo corresponde à busca."
+                      dropdownClassName="border-(--primary-color)/25 shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
+                    />
                     <div id="onboarding-model-status" role="status" className="space-y-1 text-xs text-(--text-tertiary)">
                       {isLoadingModels && <p>Carregando modelos compatíveis...</p>}
                       {modelsError && <p className="text-amber-400">{modelsError}</p>}

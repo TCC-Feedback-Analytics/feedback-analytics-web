@@ -8,10 +8,12 @@ export async function ActionResendConfirmation({ request }: ActionFunctionArgs) 
   if (!email) {
     return {
       ok: false,
+      status: 400,
       error: 'invalid_payload',
       message: 'Informe um e-mail válido.',
     };
   }
 
-  return ServiceResendConfirmation(email);
+  const result = await ServiceResendConfirmation(email);
+  return { ...result, submittedEmail: email };
 }

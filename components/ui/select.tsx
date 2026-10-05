@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import { FaCheck, FaChevronDown, FaMagnifyingGlass, FaXmark } from 'react-icons/fa6';
 import type {
   SelectOption,
@@ -16,6 +17,7 @@ export function Select<T extends string | number = string | number>({
   onChange,
   placeholder = 'Selecione...',
   className = '',
+  dropdownClassName = '',
   align = 'left',
   error = false,
   disabled = false,
@@ -30,7 +32,14 @@ export function Select<T extends string | number = string | number>({
 }: SelectProps<T>) {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState('');
+  const [dropdownPosition, setDropdownPosition] = React.useState<{
+    top: number;
+    left: number;
+    width: number;
+    maxHeight: number;
+  } | null>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
   const listboxId = React.useId();
   const controlId = id ?? listboxId;
 
@@ -46,9 +55,38 @@ export function Select<T extends string | number = string | number>({
   const visibleOptions = options.filter((option) => option.value === value || matchingOptions.includes(option));
   const hasNoSearchResults = Boolean(normalizedSearch && matchingOptions.length === 0);
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
+    function updateDropdownPosition() {
+      const trigger = containerRef.current?.querySelector<HTMLElement>('[role="combobox"]');
+      if (!trigger) return;
+
+      const bounds = trigger.getBoundingClientRect();
+      const viewportPadding = 8;
+      const gap = 6;
+      const availableWidth = Math.max(0, window.innerWidth - viewportPadding * 2);
+      const width = Math.min(bounds.width, availableWidth);
+      const anchorLeft = align === 'right' ? bounds.right - width : bounds.left;
+      const left = Math.min(
+        Math.max(anchorLeft, viewportPadding),
+        window.innerWidth - width - viewportPadding,
+      );
+      const spaceBelow = Math.max(0, window.innerHeight - bounds.bottom - viewportPadding - gap);
+      const spaceAbove = Math.max(0, bounds.top - viewportPadding - gap);
+      const opensAbove = spaceBelow < 280 && spaceAbove > spaceBelow;
+      const maxHeight = Math.max(96, Math.min(320, opensAbove ? spaceAbove : spaceBelow));
+      const top = opensAbove
+        ? Math.max(viewportPadding, bounds.top - gap - maxHeight)
+        : bounds.bottom + gap;
+
+      setDropdownPosition({ top, left, width, maxHeight });
+    }
+
     function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (
+        !containerRef.current?.contains(target) &&
+        !dropdownRef.current?.contains(target)
+      ) {
         setOpen(false);
       }
     }
@@ -60,15 +98,20 @@ export function Select<T extends string | number = string | number>({
     }
 
     if (open) {
+      updateDropdownPosition();
       document.addEventListener('mousedown', handleClickOutside);
       document.addEventListener('keydown', handleKeyDown);
+      document.addEventListener('scroll', updateDropdownPosition, true);
+      window.addEventListener('resize', updateDropdownPosition);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('scroll', updateDropdownPosition, true);
+      window.removeEventListener('resize', updateDropdownPosition);
     };
-  }, [open]);
+  }, [open, align]);
 
   const handleClearClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -78,9 +121,6 @@ export function Select<T extends string | number = string | number>({
       onChange('' as T);
     }
   };
-
-  const alignmentClasses =
-    align === 'right' ? 'right-0 left-auto origin-top-right' : 'left-0 origin-top-left';
 
   return (
     <div ref={containerRef} className={`relative w-full ${className}`}>
@@ -133,11 +173,19 @@ export function Select<T extends string | number = string | number>({
         </div>
       </button>
 
-      {open && (
+      {open && dropdownPosition && createPortal(
         <div
+          ref={dropdownRef}
           role="dialog"
           aria-label="Opções de seleção"
-          className={`absolute top-full z-50 mt-1.5 min-w-full w-full overflow-hidden rounded-xl border border-(--quaternary-color)/16 bg-(--bg-secondary)/95 p-2 shadow-2xl backdrop-blur-md animate-in fade-in-50 zoom-in-95 ${alignmentClasses}`}
+          style={{
+            position: 'fixed',
+            top: dropdownPosition.top,
+            left: dropdownPosition.left,
+            width: dropdownPosition.width,
+            maxHeight: dropdownPosition.maxHeight,
+          }}
+          className={`z-[100] overflow-hidden rounded-xl border border-(--quaternary-color)/16 bg-(--bg-secondary)/95 p-2 shadow-2xl backdrop-blur-md animate-in fade-in-50 zoom-in-95 ${dropdownClassName}`}
         >
           {searchable && (
             <div className="relative mb-2">
@@ -154,7 +202,12 @@ export function Select<T extends string | number = string | number>({
               />
             </div>
           )}
-          <div id={`${listboxId}-options`} role="listbox" className="max-h-60 space-y-0.5 overflow-y-auto custom-scrollbar">
+          <div
+            id={`${listboxId}-options`}
+            role="listbox"
+            style={{ maxHeight: Math.max(80, dropdownPosition.maxHeight - (searchable ? 68 : 16)) }}
+            className="space-y-0.5 overflow-y-auto custom-scrollbar"
+          >
             {hasNoSearchResults && (
               <p className="px-3 py-2 text-center text-sm text-(--text-tertiary)">
                 {noResultsMessage ?? emptyMessage}
@@ -194,7 +247,8 @@ export function Select<T extends string | number = string | number>({
               <p className="px-3 py-4 text-center text-sm text-(--text-tertiary)">{emptyMessage}</p>
             )}
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

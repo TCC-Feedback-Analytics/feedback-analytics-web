@@ -1,31 +1,64 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import type { RegisterEmailPendingNoticeProps } from './ui.types';
 import { useToast } from 'components/public/forms/messages/useToast';
 import { ServiceResendConfirmation } from 'src/services/serviceAuth';
+import {
+  formatResendCountdown,
+  useResendConfirmationCooldown,
+} from 'src/hooks/useResendConfirmationCooldown';
+
+const GENERIC_SUCCESS_MESSAGE =
+  'Se existir uma conta pendente para este e-mail, enviaremos uma nova confirmação.';
 
 export default function RegisterEmailPendingNotice({
   email,
 }: RegisterEmailPendingNoticeProps) {
   const toast = useToast();
   const [isResending, setIsResending] = useState(false);
+  const isResendingRef = useRef(false);
+  const { remainingSeconds, startCooldown } =
+    useResendConfirmationCooldown();
 
   const handleResend = useCallback(async () => {
+    if (isResendingRef.current || remainingSeconds > 0) return;
+
     if (!email) {
       toast.error('E-mail não encontrado', 'Não foi possível identificar o e-mail para reenvio.');
       return;
     }
 
+    isResendingRef.current = true;
     setIsResending(true);
-    const result = await ServiceResendConfirmation(email);
-    setIsResending(false);
+    try {
+      const result = await ServiceResendConfirmation(email);
 
-    if (result.ok) {
-      toast.success('E-mail reenviado!', result.message || 'Verifique sua caixa de entrada.');
-    } else {
-      toast.error('Falha no reenvio', result.message || 'Tente novamente em instantes.');
+      if (result.ok) {
+        startCooldown(result.retryAfterSeconds);
+        toast.success(
+          'Solicitação recebida',
+          result.message || GENERIC_SUCCESS_MESSAGE,
+        );
+      } else {
+        if (result.error === 'rate_limited') {
+          startCooldown(result.retryAfterSeconds);
+        }
+
+        const title =
+          result.error === 'rate_limited'
+            ? 'Muitas tentativas'
+            : result.error === 'network_error'
+              ? 'Falha de conexão'
+              : result.status >= 500
+                ? 'Serviço indisponível'
+                : 'Falha no reenvio';
+        toast.error(title, result.message || 'Tente novamente em instantes.');
+      }
+    } finally {
+      isResendingRef.current = false;
+      setIsResending(false);
     }
-  }, [email, toast]);
+  }, [email, remainingSeconds, startCooldown, toast]);
 
   return (
     <section
@@ -88,11 +121,24 @@ export default function RegisterEmailPendingNotice({
         <button
           type="button"
           onClick={handleResend}
-          disabled={isResending}
+          disabled={isResending || remainingSeconds > 0}
+          aria-busy={isResending}
           className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-(--primary-color)/40 bg-(--primary-color)/8 px-5 font-poppins text-sm font-semibold text-(--primary-color) transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isResending ? 'Reenviando...' : 'Reenviar e-mail de confirmação'}
+          {isResending
+            ? 'Reenviando...'
+            : remainingSeconds > 0
+              ? `Solicitar novamente em ${formatResendCountdown(remainingSeconds)}`
+              : 'Reenviar e-mail de confirmação'}
         </button>
+        {remainingSeconds > 0 ? (
+          <p
+            aria-live="polite"
+            className="text-center font-work-sans text-xs text-(--text-tertiary)"
+          >
+            Aguarde {formatResendCountdown(remainingSeconds)} para fazer outra solicitação.
+          </p>
+        ) : null}
 
         {/* Linha divisória com texto */}
         <div className="flex items-center gap-2">

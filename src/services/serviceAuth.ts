@@ -9,6 +9,22 @@ type ServiceErrorPayload = {
   issues?: unknown;
 };
 
+export type ResendConfirmationResult =
+  | {
+      ok: true;
+      status: number;
+      message: string;
+      retryAfterSeconds?: number;
+    }
+  | {
+      ok: false;
+      status: number;
+      error: string;
+      message: string;
+      issues?: unknown;
+      retryAfterSeconds?: number;
+    };
+
 function isObject(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value);
 }
@@ -41,6 +57,38 @@ function parseErrorPayload(
   } catch {
     return fallback;
   }
+}
+
+function parsePositiveSeconds(value: unknown): number | undefined {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
+    return undefined;
+  }
+
+  return value;
+}
+
+function getResendRetryAfterSeconds(
+  rawBody: string,
+  retryAfterHeader: string | null,
+): number | undefined {
+  if (rawBody) {
+    try {
+      const parsed: unknown = JSON.parse(rawBody);
+      if (isObject(parsed)) {
+        const bodySeconds = parsePositiveSeconds(parsed.retryAfterSeconds);
+        if (bodySeconds !== undefined) return bodySeconds;
+      }
+    } catch {
+      // O cabeçalho ainda pode fornecer o tempo quando o corpo não é JSON.
+    }
+  }
+
+  if (retryAfterHeader === null || retryAfterHeader.trim() === '') {
+    return undefined;
+  }
+
+  const headerSeconds = Number(retryAfterHeader);
+  return parsePositiveSeconds(headerSeconds);
 }
 
 function getLoginFallbackByStatus(status: number): ServiceErrorPayload {
@@ -171,10 +219,7 @@ export async function ServiceLogout(): Promise<boolean> {
 
 export async function ServiceResendConfirmation(
   email: string,
-): Promise<
-  | { ok: true; message: string }
-  | { ok: false; error: string; message: string; issues?: unknown }
-> {
+): Promise<ResendConfirmationResult> {
   try {
     const res = await requestApi('/api/public/auth/resend-confirmation', {
       method: 'POST',
@@ -196,7 +241,12 @@ export async function ServiceResendConfirmation(
 
       return {
         ok: true,
+        status: res.status,
         message: parsed.message || fallbackSuccess.message,
+        retryAfterSeconds: getResendRetryAfterSeconds(
+          rawBody,
+          res.headers.get('Retry-After'),
+        ),
       };
     }
 
@@ -205,13 +255,19 @@ export async function ServiceResendConfirmation(
 
     return {
       ok: false,
+      status: res.status,
       error: parsed.error,
       message: parsed.message,
       issues: parsed.issues,
+      retryAfterSeconds: getResendRetryAfterSeconds(
+        rawBody,
+        res.headers.get('Retry-After'),
+      ),
     };
   } catch {
     return {
       ok: false,
+      status: 0,
       error: 'network_error',
       message: 'Não foi possível conectar ao serviço de reenvio. Verifique sua conexão.',
     };
