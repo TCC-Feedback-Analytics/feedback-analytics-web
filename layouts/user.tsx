@@ -45,12 +45,12 @@ function UserOnboardingManager({
   onOpenMobileDrawer: () => void;
   onCloseMobileDrawer: () => void;
 }) {
-  const { hasCompletedAISetup } = useOnboarding();
-  const [mandatoryOpen, setMandatoryOpen] = useState(!hasCompletedAISetup);
+  const { hasCompletedAIContext } = useOnboarding();
+  const [mandatoryOpen, setMandatoryOpen] = useState(!hasCompletedAIContext);
 
   useEffect(() => {
-    setMandatoryOpen(!hasCompletedAISetup);
-  }, [hasCompletedAISetup]);
+    setMandatoryOpen(!hasCompletedAIContext);
+  }, [hasCompletedAIContext]);
 
   return (
     <>

@@ -26,7 +26,7 @@ import type { AIContextDialogProps } from "./ui.types";
 const CONTEXT_STEPS = [
   {
     key: "business_summary",
-    tab: "1. Resumo do Negócio",
+    tab: "2. Resumo do Negócio",
     title: "Resumo do Negócio",
     hint: "Descreva o que sua empresa faz e para quem. É o contexto primário que a IA usa em todas as análises.",
     aiImpact: "Com base neste texto, a IA compreende sua área de atuação e ajusta o tom dos diagnósticos aos seus produtos e serviços.",
@@ -35,7 +35,7 @@ const CONTEXT_STEPS = [
   },
   {
     key: "company_objective",
-    tab: "2. Objetivo da Empresa",
+    tab: "3. Objetivo da Empresa",
     title: "Objetivo da Empresa",
     hint: "Seu foco estratégico atual. A IA priorizará pontos alinhados a esta meta.",
     aiImpact: "A IA prioriza a filtragem dos pontos fortes e fracos alinhados aos seus objetivos estratégicos.",
@@ -44,7 +44,7 @@ const CONTEXT_STEPS = [
   },
   {
     key: "analytics_goal",
-    tab: "3. Objetivo Analítico",
+    tab: "4. Objetivo Analítico",
     title: "Objetivo Analítico",
     hint: "O que você deseja descobrir investigando os feedbacks recebidos.",
     aiImpact: "Direciona as perguntas e padrões específicos que a inteligência artificial buscará identificar nas avaliações.",
@@ -53,7 +53,7 @@ const CONTEXT_STEPS = [
   },
 ] as const;
 
-const LLM_STEP_INDEX = CONTEXT_STEPS.length;
+const IA_STEP_INDEX = 0;
 const TOTAL_STEPS = CONTEXT_STEPS.length + 1;
 const EMPTY_IA_CONFIG: IaConfigResponse = {
   hasKey: false,
@@ -84,14 +84,14 @@ export default function AIContextDialog({
   const [apiKey, setApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState("");
-  const [step, setStep] = useState(0);
-  const [saveContextAfterLlm, setSaveContextAfterLlm] = useState(false);
+  const [step, setStep] = useState(IA_STEP_INDEX);
   const dialogContentRef = useRef<HTMLDivElement>(null);
   const lastCollectingResult = useRef<ActionData | undefined>(undefined);
   const lastIaResult = useRef<IaSettingsActionResult | undefined>(undefined);
+  const isIaStep = step === IA_STEP_INDEX;
   const { catalog, loading: isLoadingModels, error: modelsError, reload: reloadModels } = useIaModels(
     iaConfig ?? EMPTY_IA_CONFIG,
-    open && step === LLM_STEP_INDEX && Boolean(iaConfig),
+    open && isIaStep && Boolean(iaConfig),
   );
 
   useLayoutEffect(() => {
@@ -120,6 +120,20 @@ export default function AIContextDialog({
   const isLlmConfigured = Boolean(iaConfig?.hasKey && iaConfig.model);
   const needsLlmUpdate = Boolean(
     iaConfig && (!isLlmConfigured || (selectedModelId && selectedModelId !== iaConfig.model)),
+  );
+
+  const hasCompleteContext =
+    values.business_summary.trim().length > 0 &&
+    values.company_objective.trim().length > 0 &&
+    values.analytics_goal.trim().length > 0;
+  const activeContextStep = step > IA_STEP_INDEX ? CONTEXT_STEPS[step - 1] : null;
+  const canAdvanceFromCurrentContextStep = Boolean(
+    isIaStep || (activeContextStep && values[activeContextStep.key].trim().length > 0),
+  );
+  const canConfigureLlm = Boolean(
+    iaConfig &&
+      (isLlmConfigured ||
+        (selectedModelIsAvailable && (iaConfig.hasKey || apiKey.trim().length > 0))),
   );
 
   useEffect(() => {
@@ -157,8 +171,8 @@ export default function AIContextDialog({
 
     if (data.ok) {
       toast.success(
-        "Configurações de IA salvas!",
-        "O contexto e a LLM foram configurados para suas análises.",
+        "Contexto salvo!",
+        "As informações da sua empresa foram salvas e o onboarding foi concluído.",
       );
       onOpenChange(false);
       return;
@@ -173,7 +187,6 @@ export default function AIContextDialog({
     lastIaResult.current = data;
 
     if (!data.ok || !data.iaConfig) {
-      setSaveContextAfterLlm(false);
       toast.error("Erro na configuração da LLM", data.message || "Tente novamente em instantes.");
       return;
     }
@@ -181,54 +194,71 @@ export default function AIContextDialog({
     setIaConfig(data.iaConfig);
     setApiKey("");
     setShowApiKey(false);
-
-    if (saveContextAfterLlm) {
-      setSaveContextAfterLlm(false);
-      submitContext();
-    }
-  }, [iaFetcher.data, saveContextAfterLlm, submitContext, toast]);
+    setSelectedModelId("");
+    setStep(IA_STEP_INDEX + 1);
+    toast.success("IA configurada!", "Agora complete o contexto da sua empresa.");
+  }, [iaFetcher.data, toast]);
 
   if (!open) return null;
 
   const isLast = step === TOTAL_STEPS - 1;
-  const hasCompleteContext =
-    values.business_summary.trim().length > 0 &&
-    values.company_objective.trim().length > 0 &&
-    values.analytics_goal.trim().length > 0;
-  const canConfigureLlm = Boolean(
-    iaConfig &&
-      (isLlmConfigured ||
-        (selectedModelIsAvailable && (iaConfig.hasKey || apiKey.trim().length > 0))),
-  );
-  const isFormValid = hasCompleteContext && canConfigureLlm;
-
   const handleBackdropClick = () => {
     if (!isMandatory) onOpenChange(false);
   };
 
+  const continueWithoutIa = () => {
+    if (!isSaving) setStep(IA_STEP_INDEX + 1);
+  };
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!isFormValid || !iaConfig || isSaving) return;
+    if (isSaving) return;
 
-    if (!needsLlmUpdate) {
+    if (isIaStep) {
+      if (isLlmConfigured && !selectedModelId) {
+        continueWithoutIa();
+        return;
+      }
+
+      if (!iaConfig || !canConfigureLlm) {
+        toast.error(
+          "Não foi possível configurar a IA agora",
+          "Você pode continuar sem IA e configurar depois no seu perfil.",
+        );
+        return;
+      }
+
+      if (!needsLlmUpdate) {
+        continueWithoutIa();
+        return;
+      }
+
+      const formData = new FormData();
+      formData.set(
+        "intent",
+        iaConfig.hasKey ? INTENT_UPDATE_IA_MODEL : INTENT_SAVE_IA_CONFIG,
+      );
+      formData.set("model", selectedModel);
+
+      if (!iaConfig.hasKey) {
+        formData.set("provider", "openrouter");
+        formData.set("apiKey", apiKey.trim());
+      }
+
+      iaFetcher.submit(formData, { method: "post", action: "/user/edit/ia-settings" });
+      return;
+    }
+
+    if (isLast) {
+      if (!hasCompleteContext) {
+        toast.error("Complete os campos obrigatórios", "Preencha os três campos do contexto da empresa.");
+        return;
+      }
       submitContext();
       return;
     }
 
-    const formData = new FormData();
-    formData.set(
-      "intent",
-      iaConfig.hasKey ? INTENT_UPDATE_IA_MODEL : INTENT_SAVE_IA_CONFIG,
-    );
-    formData.set("model", selectedModel);
-
-    if (!iaConfig.hasKey) {
-      formData.set("provider", "openrouter");
-      formData.set("apiKey", apiKey.trim());
-    }
-
-    setSaveContextAfterLlm(true);
-    iaFetcher.submit(formData, { method: "post", action: "/user/edit/ia-settings" });
+    setStep((current) => Math.min(TOTAL_STEPS - 1, current + 1));
   };
 
   return (
@@ -236,36 +266,36 @@ export default function AIContextDialog({
       role="dialog"
       aria-modal="true"
       aria-labelledby="ai-context-dialog-title"
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden bg-black/70 p-4 backdrop-blur-md transition-opacity duration-300"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-x-hidden overflow-y-auto bg-black/70 p-4 backdrop-blur-md transition-opacity duration-300 sm:p-6"
       onClick={handleBackdropClick}
     >
       <div
-        ref={dialogContentRef}
         onClick={(event) => event.stopPropagation()}
-        className="relative max-h-[90vh] w-full min-w-0 max-w-2xl overflow-x-hidden overflow-y-auto custom-scrollbar rounded-3xl border border-(--primary-color)/30 bg-(--bg-secondary) p-5 shadow-2xl transition-all duration-300 sm:p-7"
+        className="relative h-fit min-h-0 min-w-[min(100%,20rem)] w-full max-w-2xl max-h-[calc(100dvh-2rem)] overflow-hidden rounded-3xl border border-(--primary-color)/30 bg-(--bg-secondary) p-0 shadow-2xl transition-all duration-300 sm:max-h-[calc(100dvh-3rem)]"
       >
         <div className="pointer-events-none absolute -left-24 -top-24 h-52 w-52 rounded-full bg-(--primary-color)/12 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 -right-24 h-52 w-52 rounded-full bg-(--secondary-color)/12 blur-3xl" />
 
-        <div className="relative z-10 flex items-center justify-between border-b border-(--quaternary-color)/10 pb-4">
-          <div className="flex items-center gap-3">
+        <div ref={dialogContentRef} className="relative z-10 min-h-0 max-h-[calc(100dvh-2rem)] overflow-x-hidden overflow-y-auto p-4 sm:max-h-[calc(100dvh-3rem)] sm:p-7">
+        <div className="relative z-10 flex min-w-0 items-start justify-between gap-3 border-b border-(--quaternary-color)/10 pb-4">
+          <div className="flex min-w-0 flex-1 items-start gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--primary-color)/15 text-(--primary-color) ring-1 ring-(--primary-color)/30">
               <FaWandMagicSparkles className="text-lg" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 id="ai-context-dialog-title" className="font-montserrat text-lg font-bold text-(--text-primary)">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 id="ai-context-dialog-title" className="min-w-0 break-words font-montserrat text-lg font-bold text-(--text-primary)">
                   Contexto e configuração de IA
                 </h3>
                 {isMandatory && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-400">
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-400">
                     <FaShieldHalved className="text-[9px]" />
                     Obrigatório
                   </span>
                 )}
               </div>
-              <p className="text-xs text-(--text-tertiary)">
-                Passo {step + 1} de {TOTAL_STEPS} — Complete o contexto e escolha a LLM da empresa
+              <p className="break-words text-xs text-(--text-tertiary)">
+                Passo {step + 1} de {TOTAL_STEPS} — A IA é opcional; o contexto da empresa é obrigatório
               </p>
             </div>
           </div>
@@ -275,24 +305,48 @@ export default function AIContextDialog({
               type="button"
               onClick={() => onOpenChange(false)}
               aria-label="Fechar"
-              className="rounded-xl p-2 text-(--text-tertiary) transition-colors hover:bg-(--seventh-color) hover:text-(--text-primary)"
+              className="shrink-0 rounded-xl p-2 text-(--text-tertiary) transition-colors hover:bg-(--seventh-color) hover:text-(--text-primary)"
             >
               <FaXmark className="text-lg" />
             </button>
           )}
         </div>
 
-        <div className="relative z-10 my-5 grid gap-2 sm:grid-cols-2">
+        <div className="relative z-10 my-5 grid min-w-0 gap-2 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => setStep(IA_STEP_INDEX)}
+            className={`flex min-w-0 items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-all ${
+              isIaStep
+                ? "border-(--primary-color)/50 bg-(--primary-color)/12 ring-1 ring-(--primary-color)/30"
+                : "border-(--quaternary-color)/12 bg-(--seventh-color)/40 hover:border-(--primary-color)/25"
+            }`}
+          >
+            <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${
+              isIaStep
+                ? "bg-(--primary-color) text-(--bg-primary)"
+                : isLlmConfigured
+                  ? "bg-(--primary-color)/20 text-(--primary-color)"
+                  : "bg-(--seventh-color) text-(--text-tertiary)"
+            }`}>
+              {!isIaStep && isLlmConfigured ? <FaCheck className="text-[9px]" /> : "1"}
+            </span>
+            <span className={`min-w-0 break-words text-xs font-semibold ${isIaStep ? "text-(--text-primary)" : "text-(--text-secondary)"}`}>
+              1. Configuração de IA
+            </span>
+          </button>
+
           {CONTEXT_STEPS.map((stepItem, index) => {
+            const contextStep = index + 1;
             const filled = values[stepItem.key].trim().length > 0;
-            const active = index === step;
+            const active = contextStep === step;
 
             return (
               <button
                 key={stepItem.key}
                 type="button"
-                onClick={() => setStep(index)}
-                className={`flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-all ${
+                onClick={() => setStep(contextStep)}
+                className={`flex min-w-0 items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-all ${
                   active
                     ? "border-(--primary-color)/50 bg-(--primary-color)/12 ring-1 ring-(--primary-color)/30"
                     : "border-(--quaternary-color)/12 bg-(--seventh-color)/40 hover:border-(--primary-color)/25"
@@ -305,104 +359,39 @@ export default function AIContextDialog({
                       ? "bg-(--primary-color)/20 text-(--primary-color)"
                       : "bg-(--seventh-color) text-(--text-tertiary)"
                 }`}>
-                  {filled && !active ? <FaCheck className="text-[9px]" /> : index + 1}
+                  {filled && !active ? <FaCheck className="text-[9px]" /> : contextStep + 1}
                 </span>
-                <span className={`text-xs font-semibold ${active ? "text-(--text-primary)" : "text-(--text-secondary)"}`}>
+                <span className={`min-w-0 break-words text-xs font-semibold ${active ? "text-(--text-primary)" : "text-(--text-secondary)"}`}>
                   {stepItem.tab}
                 </span>
               </button>
             );
           })}
-
-          <button
-            type="button"
-            onClick={() => setStep(LLM_STEP_INDEX)}
-            className={`flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-all ${
-              step === LLM_STEP_INDEX
-                ? "border-(--primary-color)/50 bg-(--primary-color)/12 ring-1 ring-(--primary-color)/30"
-                : "border-(--quaternary-color)/12 bg-(--seventh-color)/40 hover:border-(--primary-color)/25"
-            }`}
-          >
-            <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${
-              step === LLM_STEP_INDEX
-                ? "bg-(--primary-color) text-(--bg-primary)"
-                : isLlmConfigured
-                  ? "bg-(--primary-color)/20 text-(--primary-color)"
-                  : "bg-(--seventh-color) text-(--text-tertiary)"
-            }`}>
-              {isLlmConfigured && step !== LLM_STEP_INDEX ? <FaCheck className="text-[9px]" /> : "4"}
-            </span>
-            <span className={`text-xs font-semibold ${step === LLM_STEP_INDEX ? "text-(--text-primary)" : "text-(--text-secondary)"}`}>
-              4. Modelo LLM
-            </span>
-          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="relative z-10 space-y-4" aria-busy={isSaving}>
-          {CONTEXT_STEPS.map((stepItem, index) => (
-            <div key={stepItem.key} className={index === step ? "block space-y-3" : "hidden"}>
-              <div>
-                <h4 className="flex items-center gap-1.5 font-montserrat text-base font-bold text-(--text-primary)">
-                  <span>{stepItem.title}</span>
-                  <HelpHint topic="aiContextFields" />
-                </h4>
-                <p className="mt-1 text-xs text-(--text-secondary)">{stepItem.hint}</p>
-              </div>
-
-              <div className="flex items-start gap-2.5 rounded-xl border border-(--primary-color)/20 bg-(--seventh-color)/40 p-3 text-xs text-(--text-secondary)">
-                <FaCircleInfo className="mt-0.5 shrink-0 text-(--primary-color)" />
-                <span>
-                  <strong className="text-(--text-primary)">Como a IA usará: </strong>
-                  {stepItem.aiImpact}
-                </span>
-              </div>
-
-              <div className="space-y-1.5">
-                <textarea
-                  id={stepItem.key}
-                  name={stepItem.key}
-                  value={values[stepItem.key]}
-                  onChange={(event) => setValue(stepItem.key, event.target.value)}
-                  rows={6}
-                  className="min-h-[170px] w-full resize-y rounded-2xl border border-(--primary-color)/20 bg-(--seventh-color) p-4 text-sm leading-relaxed text-(--text-primary) outline-none transition-all placeholder:text-(--text-tertiary) focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/20"
-                  placeholder={stepItem.placeholder}
-                />
-                <div className="flex items-center justify-between px-1 text-xs text-(--text-tertiary)">
-                  <span>
-                    {values[stepItem.key].trim().length === 0 ? (
-                      <span className="font-medium text-amber-400">Campo obrigatório</span>
-                    ) : (
-                      <span className="font-medium text-emerald-400">Pronto</span>
-                    )}
-                  </span>
-                  <span>{values[stepItem.key].length} caracteres</span>
-                </div>
-              </div>
-            </div>
-          ))}
-
-          {step === LLM_STEP_INDEX && (
+        <form onSubmit={handleSubmit} noValidate className="relative z-10 min-w-0 space-y-4" aria-busy={isSaving}>
+          {isIaStep && (
             <div className="space-y-4">
               <div>
-                <h4 className="flex items-center gap-1.5 font-montserrat text-base font-bold text-(--text-primary)">
-                  Configure a LLM da empresa
+                <h4 className="flex flex-wrap items-center gap-1.5 font-montserrat text-base font-bold text-(--text-primary)">
+                  Configure a IA agora <span className="text-xs font-normal text-(--text-tertiary)">(opcional)</span>
                   <HelpHint topic="aiContextFields" />
                 </h4>
-                <p className="mt-1 text-xs text-(--text-secondary)">
-                  Escolha o modelo que analisará os feedbacks. Uma chave OpenRouter e um modelo são necessários para concluir esta etapa.
+                <p className="mt-1 break-words text-xs text-(--text-secondary)">
+                  Você pode configurar sua chave e modelo agora ou fazer isso depois no seu perfil. Isso não impede a conclusão do onboarding.
                 </p>
               </div>
 
               {iaConfig ? (
                 <>
                   {iaConfig.hasKey ? (
-                    <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-3 text-xs text-(--text-secondary)">
-                      <strong className="text-emerald-400">Chave OpenRouter configurada.</strong> Escolha ou atualize o modelo LLM sem informar a chave novamente.
+                    <div className="min-w-0 break-words rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-3 text-xs text-(--text-secondary)">
+                      <strong className="text-emerald-400">Chave OpenRouter configurada.</strong> Escolha ou atualize o modelo sem informar a chave novamente.
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between gap-3">
-                        <label htmlFor="onboarding-api-key" className="flex items-center gap-2 text-sm font-medium text-(--text-primary)">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <label htmlFor="onboarding-api-key" className="flex min-w-0 items-center gap-2 text-sm font-medium text-(--text-primary)">
                           <FaKey className="text-xs text-(--primary-color)" />
                           Chave da API OpenRouter
                         </label>
@@ -410,7 +399,7 @@ export default function AIContextDialog({
                           href="https://openrouter.ai/keys"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs font-medium text-(--primary-color) hover:underline"
+                          className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-(--primary-color) hover:underline"
                         >
                           Obter chave
                           <FaArrowUpRightFromSquare className="text-[10px]" />
@@ -424,7 +413,7 @@ export default function AIContextDialog({
                           onChange={(event) => setApiKey(event.target.value)}
                           placeholder="sk-or-v1-..."
                           autoComplete="off"
-                          className="h-12 w-full rounded-xl border border-(--quaternary-color)/20 bg-(--seventh-color) px-4 pr-12 text-sm text-(--text-primary) outline-none transition-all placeholder:text-(--text-tertiary) focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/20"
+                          className="h-12 w-full min-w-0 rounded-xl border border-(--quaternary-color)/20 bg-(--seventh-color) px-4 pr-12 text-sm text-(--text-primary) outline-none transition-all placeholder:text-(--text-tertiary) focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/20"
                         />
                         <button
                           type="button"
@@ -456,10 +445,10 @@ export default function AIContextDialog({
                       noResultsMessage="Nenhum modelo corresponde à busca."
                       dropdownClassName="border-(--primary-color)/25 shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
                     />
-                    <div id="onboarding-model-status" role="status" className="space-y-1 text-xs text-(--text-tertiary)">
+                    <div id="onboarding-model-status" role="status" className="min-w-0 space-y-1 break-words text-xs text-(--text-tertiary)">
                       {isLoadingModels && <p>Carregando modelos compatíveis...</p>}
                       {modelsError && <p className="text-amber-400">{modelsError}</p>}
-                      {!isLoadingModels && catalog && models.length === 0 && <p className="text-amber-400">Nenhum modelo compatível está disponível. Atualize a lista ou confira a chave.</p>}
+                      {!isLoadingModels && catalog && models.length === 0 && <p className="text-amber-400">Nenhum modelo compatível está disponível. Você ainda pode continuar sem configurar a IA.</p>}
                       {selectedModel && selectedModelIsAvailable && <p className="text-emerald-400">Modelo selecionado e pronto para salvar.</p>}
                     </div>
                     <button type="button" onClick={reloadModels} disabled={isLoadingModels || isSaving} className="text-xs font-medium text-(--primary-color) hover:underline disabled:opacity-50">
@@ -468,49 +457,117 @@ export default function AIContextDialog({
                   </div>
                 </>
               ) : (
-                <div className="rounded-xl border border-amber-500/20 bg-amber-500/8 p-3 text-xs text-(--text-secondary)">
-                  <p>Não foi possível carregar a configuração atual da LLM.</p>
+                <div className="min-w-0 break-words rounded-xl border border-amber-500/20 bg-amber-500/8 p-3 text-xs text-(--text-secondary)">
+                  <p>Não foi possível carregar a configuração atual da IA. Você pode continuar sem configurar e retomar pelo perfil.</p>
                   <button type="button" onClick={() => window.location.reload()} className="mt-2 font-semibold text-(--primary-color) hover:underline">Tentar novamente</button>
                 </div>
               )}
             </div>
           )}
 
-          <div className="flex items-center justify-between border-t border-(--quaternary-color)/10 pt-4">
+          {CONTEXT_STEPS.map((stepItem, index) => {
+            const contextStep = index + 1;
+            return (
+              <div key={stepItem.key} className={contextStep === step ? "block space-y-3" : "hidden"}>
+                <div>
+                  <h4 className="flex flex-wrap items-center gap-1.5 font-montserrat text-base font-bold text-(--text-primary)">
+                    <span>{stepItem.title}</span>
+                    <HelpHint topic="aiContextFields" />
+                  </h4>
+                  <p className="mt-1 break-words text-xs text-(--text-secondary)">{stepItem.hint}</p>
+                </div>
+
+                <div className="flex min-w-0 items-start gap-2.5 rounded-xl border border-(--primary-color)/20 bg-(--seventh-color)/40 p-3 text-xs text-(--text-secondary)">
+                  <FaCircleInfo className="mt-0.5 shrink-0 text-(--primary-color)" />
+                  <span className="min-w-0 break-words">
+                    <strong className="text-(--text-primary)">Como a IA usará: </strong>
+                    {stepItem.aiImpact}
+                  </span>
+                </div>
+
+                <div className="space-y-1.5">
+                  <textarea
+                    id={stepItem.key}
+                    name={stepItem.key}
+                    value={values[stepItem.key]}
+                    onChange={(event) => setValue(stepItem.key, event.target.value)}
+                    rows={6}
+                    aria-required="true"
+                    className="min-h-[170px] w-full min-w-0 resize-none rounded-2xl border border-(--primary-color)/20 bg-(--seventh-color) p-4 text-sm leading-relaxed text-(--text-primary) outline-none transition-all placeholder:text-(--text-tertiary) focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/20"
+                    placeholder={stepItem.placeholder}
+                  />
+              <div className="flex min-w-0 items-center justify-between gap-3 px-1 text-xs text-(--text-tertiary)">
+                    <span>
+                      {values[stepItem.key].trim().length === 0 ? (
+                        <span className="font-medium text-amber-400">Campo obrigatório</span>
+                      ) : (
+                        <span className="font-medium text-emerald-400">Pronto</span>
+                      )}
+                    </span>
+                    <span>{values[stepItem.key].length} caracteres</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          <div className="flex min-w-0 flex-col items-stretch gap-3 border-t border-(--quaternary-color)/10 pt-4 sm:flex-row sm:items-center sm:justify-between">
             <button
               type="button"
-              onClick={() => setStep((current) => Math.max(0, current - 1))}
-              disabled={step === 0 || isSaving}
-              className="btn-ghost font-poppins flex items-center gap-1.5 px-4 py-2 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-30"
+              onClick={() => setStep((current) => Math.max(IA_STEP_INDEX, current - 1))}
+              disabled={step === IA_STEP_INDEX || isSaving}
+              className="btn-ghost font-poppins flex h-[50px] shrink-0 items-center justify-center gap-1 self-start px-3 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-30 sm:self-auto"
             >
               <FaChevronLeft className="text-[10px]" />
               Anterior
             </button>
 
-            {isLast ? (
+            {isIaStep ? (
+              <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
+                <button
+                  type="button"
+                  onClick={continueWithoutIa}
+                  disabled={isSaving}
+                  className="btn-ghost font-poppins h-[50px] w-full max-w-full whitespace-normal px-4 text-center text-xs font-semibold disabled:opacity-50 sm:w-auto"
+                >
+                  Continuar sem configurar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving || (!isLlmConfigured && !canConfigureLlm)}
+                  className="btn-primary font-poppins w-full max-w-full whitespace-normal px-6 py-2.5 text-center text-xs font-semibold shadow-md disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                >
+                  {isSaving ? "Salvando IA..." : isLlmConfigured && !selectedModelId ? "Continuar com configuração" : "Configurar agora"}
+                </button>
+              </div>
+            ) : isLast ? (
               <button
                 type="submit"
-                disabled={!isFormValid || isSaving}
-                className="btn-primary font-poppins px-7 py-2.5 text-xs font-semibold shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={!hasCompleteContext || isSaving}
+                className="btn-primary font-poppins w-full max-w-full whitespace-normal px-7 py-2.5 text-xs font-semibold shadow-md disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
               >
-                {isSaving ? "Salvando configurações..." : "Salvar e concluir"}
+                {isSaving ? "Salvando contexto..." : "Salvar e concluir"}
               </button>
             ) : (
               <button
                 type="button"
-                onClick={() => setStep((current) => Math.min(TOTAL_STEPS - 1, current + 1))}
-                disabled={isSaving}
-                className="btn-primary font-poppins flex items-center gap-1.5 px-6 py-2.5 text-xs font-semibold shadow-md disabled:opacity-50"
+                onClick={() => {
+                  if (!canAdvanceFromCurrentContextStep) return;
+                  setStep((current) => Math.min(TOTAL_STEPS - 1, current + 1));
+                }}
+                disabled={isSaving || !canAdvanceFromCurrentContextStep}
+                className="btn-primary font-poppins flex w-full max-w-full items-center justify-center gap-1.5 whitespace-normal px-6 py-2.5 text-xs font-semibold shadow-md disabled:opacity-50 sm:w-auto"
               >
                 <span>Próximo Passo</span>
               </button>
             )}
           </div>
         </form>
+        </div>
 
         {isSaving && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-3xl border border-(--quaternary-color)/12 bg-(--bg-primary)/40 backdrop-blur-[2px]">
-            <span className="animate-pulse text-sm font-semibold text-(--primary-color)">Salvando configurações de IA...</span>
+            <span className="animate-pulse text-sm font-semibold text-(--primary-color)">Salvando...</span>
           </div>
         )}
       </div>

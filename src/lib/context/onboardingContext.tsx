@@ -36,7 +36,9 @@ export function OnboardingProvider({ children, collecting, iaConfig = null, sess
       String(collecting.company_objective ?? "").trim().length > 0 &&
       String(collecting.analytics_goal ?? "").trim().length > 0,
   );
-  const hasCompletedAISetup = hasCompletedAIContext && Boolean(iaConfig?.hasKey && iaConfig.model);
+  const hasConfiguredAI = Boolean(iaConfig?.hasKey && iaConfig.model);
+  // Mantém o significado histórico: contexto completo e IA configurada.
+  const hasCompletedAISetup = hasCompletedAIContext && hasConfiguredAI;
 
   const [isTourActive, setIsTourActive] = useState<boolean>(false);
   const [currentTourStep, setCurrentTourStep] = useState<number>(0);
@@ -84,10 +86,10 @@ export function OnboardingProvider({ children, collecting, iaConfig = null, sess
 
   // Abre automaticamente somente depois da leitura bem-sucedida do estado remoto.
   useEffect(() => {
-    if (guideLoaded && guide?.status === "pending" && hasCompletedAISetup) {
+    if (guideLoaded && guide?.status === "pending" && hasCompletedAIContext) {
       setIsTourActive(true);
     }
-  }, [guide, guideLoaded, hasCompletedAISetup]);
+  }, [guide, guideLoaded, hasCompletedAIContext]);
 
   const startTour = () => {
     setCurrentTourStep(0);
@@ -152,6 +154,7 @@ export function OnboardingProvider({ children, collecting, iaConfig = null, sess
         currentTourStep,
         isTourSaving: sessionChanged ? false : isTourSaving,
         hasCompletedAIContext,
+        hasConfiguredAI,
         hasCompletedAISetup,
         isTourDismissed: !sessionChanged && guide ? guide.status !== "pending" : false,
         tourSaveError: sessionChanged ? null : tourSaveError,
