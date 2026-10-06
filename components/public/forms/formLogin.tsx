@@ -216,6 +216,7 @@ export default function FormLogin() {
   const toast = useToast();
   const navigation = useNavigation();
   const lastActionDataRef = useRef<ActionData | undefined>(undefined);
+  const showConfirmationHelp = actionData?.error === 'invalid_credentials';
 
   // O loading do botão precisa cobrir TODO o fluxo de login: a autenticação (action
   // /login) E o carregamento da rota de destino (loaders do dashboard) até o redirect
@@ -318,15 +319,22 @@ export default function FormLogin() {
         )}
       </button>
 
-      <p className="text-center font-work-sans text-sm text-(--text-tertiary)">
-        Não recebeu o e-mail de confirmação?{' '}
-        <Link
-          to="/resend-confirmation"
-          className="font-medium text-(--secondary-color) transition-opacity hover:opacity-80"
+      {showConfirmationHelp ? (
+        <p
+          role="status"
+          aria-live="polite"
+          className="text-center font-work-sans text-sm leading-relaxed text-(--text-tertiary)"
         >
-          Reenviar confirmação
-        </Link>
-      </p>
+          Se você acabou de se cadastrar e não recebeu o e-mail de confirmação,{' '}
+          <Link
+            to="/resend-confirmation"
+            className="font-medium text-(--secondary-color) transition-opacity hover:opacity-80"
+          >
+            solicite um novo envio
+          </Link>
+          .
+        </p>
+      ) : null}
     </form>
   );
 }
