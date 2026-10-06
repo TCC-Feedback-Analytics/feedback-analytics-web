@@ -19,10 +19,6 @@ export default function Information({
 
   return (
     <div className="space-y-5">
-      <p className="text-sm text-(--text-secondary)">
-        Escolha <span className="font-semibold text-(--text-primary)">Editar</span> no campo que deseja atualizar.
-      </p>
-
       <div className="grid gap-4 md:grid-cols-2">
         <EditableFieldFixed
           label="Nome completo"
@@ -32,7 +28,6 @@ export default function Information({
           icon={<FaUser aria-hidden="true" className="text-(--primary-color)" />}
           schema={nameSchema}
           intent={INTENT_PROFILE_UPDATE_FULL_NAME}
-          description="Nome que aparecerá em seu perfil público"
           hint="Use seu nome real para melhor identificação"
           successMessage="Nome atualizado!"
           errorMessage="Erro ao atualizar nome"
@@ -47,7 +42,6 @@ export default function Information({
           icon={<FaEnvelope aria-hidden="true" className="text-(--primary-color)" />}
           schema={emailUpdateSchema}
           intent={INTENT_PROFILE_UPDATE_EMAIL}
-          description="Usado para notificações e login"
           hint="Após alterar, confirme nos dois emails (antigo e novo)"
           successMessage="Email atualizado!"
           errorMessage="Erro ao atualizar email"
