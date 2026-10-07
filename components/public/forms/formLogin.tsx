@@ -12,6 +12,15 @@ import { FaEnvelope, FaLock, FaSpinner } from 'react-icons/fa6';
 import FieldPassword from './fields/fieldsLogin/fieldPassword';
 import FieldRemember from './fields/fieldsLogin/fieldRemember';
 import { useToast } from 'components/public/forms/messages/useToast';
+import {
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from 'components/ui/dialog';
 import type { ActionData } from 'lib/interfaces/contracts/action-data.contract';
 import {
   loginSchema,
@@ -217,6 +226,7 @@ export default function FormLogin() {
   const navigation = useNavigation();
   const lastActionDataRef = useRef<ActionData | undefined>(undefined);
   const showConfirmationHelp = actionData?.error === 'invalid_credentials';
+  const [isLoginHelpOpen, setIsLoginHelpOpen] = useState(false);
 
   // O loading do botão precisa cobrir TODO o fluxo de login: a autenticação (action
   // /login) E o carregamento da rota de destino (loaders do dashboard) até o redirect
@@ -231,6 +241,12 @@ export default function FormLogin() {
   useEffect(() => {
     if (navigation.state === 'idle') setIsSubmitting(false);
   }, [navigation.state]);
+
+  useEffect(() => {
+    if (showConfirmationHelp) {
+      setIsLoginHelpOpen(true);
+    }
+  }, [showConfirmationHelp]);
 
   const {
     register,
@@ -290,18 +306,13 @@ export default function FormLogin() {
         />
       </div>
 
-      <div className="flex items-center justify-between text-(--secondary-color)">
+      <div className="flex items-center text-(--secondary-color)">
         <FieldRemember
           id="remember"
           name="remember"
           label="Lembrar de mim"
           register={register('remember')}
         />
-        <Link
-          to="/forgot-password"
-          className="text-sm text-(--secondary-color) transition-opacity duration-200 hover:opacity-80 font-work-sans">
-          Esqueceu a senha ?
-        </Link>
       </div>
 
       <button
@@ -319,22 +330,75 @@ export default function FormLogin() {
         )}
       </button>
 
-      {showConfirmationHelp ? (
-        <p
-          role="status"
-          aria-live="polite"
-          className="text-center font-work-sans text-sm leading-relaxed text-(--text-tertiary)"
-        >
-          Se você acabou de se cadastrar e não recebeu o e-mail de confirmação,{' '}
-          <Link
-            to="/resend-confirmation"
-            className="font-medium text-(--secondary-color) transition-opacity hover:opacity-80"
-          >
-            solicite um novo envio
-          </Link>
-          .
-        </p>
-      ) : null}
+      <div className="-mt-3">
+        <Dialog open={isLoginHelpOpen} onOpenChange={setIsLoginHelpOpen}>
+          <DialogTrigger>
+            <button
+              type="button"
+              className="w-full cursor-pointer text-center font-work-sans text-sm font-medium text-(--secondary-color) transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color) focus-visible:ring-offset-2 focus-visible:ring-offset-(--bg-primary)"
+            >
+              Problemas para entrar?
+            </button>
+          </DialogTrigger>
+
+          <DialogContent className="max-w-xl">
+            <DialogHeader>
+              <DialogTitle>Problemas para entrar?</DialogTitle>
+              <DialogDescription>
+                Escolha uma opção para recuperar o acesso à sua conta.
+              </DialogDescription>
+            </DialogHeader>
+
+            <DialogBody className="space-y-4">
+              {showConfirmationHelp ? (
+                <p
+                  role="status"
+                  aria-live="polite"
+                  className="rounded-xl border border-(--primary-color)/25 bg-(--primary-color)/8 p-4 text-sm leading-relaxed text-(--text-secondary)"
+                >
+                  Se você acabou de se cadastrar e não recebeu o e-mail de confirmação,
+                  solicite um novo envio.
+                </p>
+              ) : null}
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Link
+                  to="/forgot-password"
+                  className="group flex min-h-32 flex-col gap-3 rounded-xl border border-(--quaternary-color)/18 bg-(--seventh-color)/45 p-4 transition-colors hover:border-(--primary-color)/45 hover:bg-(--seventh-color)"
+                >
+                  <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-(--primary-color)/12 text-(--primary-color)">
+                    <FaLock aria-hidden="true" />
+                  </span>
+                  <span>
+                    <span className="block font-poppins text-sm font-semibold text-(--text-primary)">
+                      Redefinir senha
+                    </span>
+                    <span className="mt-1 block font-work-sans text-xs leading-relaxed text-(--text-tertiary)">
+                      Receba instruções para criar uma nova senha.
+                    </span>
+                  </span>
+                </Link>
+                <Link
+                  to="/resend-confirmation"
+                  className="group flex min-h-32 flex-col gap-3 rounded-xl border border-(--primary-color)/35 bg-(--primary-color)/8 p-4 transition-colors hover:border-(--primary-color)/60 hover:bg-(--primary-color)/14"
+                >
+                  <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-(--primary-color)/15 text-(--secondary-color)">
+                    <FaEnvelope aria-hidden="true" />
+                  </span>
+                  <span>
+                    <span className="block font-poppins text-sm font-semibold text-(--text-primary)">
+                      Reenviar e-mail de confirmação
+                    </span>
+                    <span className="mt-1 block font-work-sans text-xs leading-relaxed text-(--text-tertiary)">
+                      Solicite um novo envio do e-mail de confirmação.
+                    </span>
+                  </span>
+                </Link>
+              </div>
+            </DialogBody>
+          </DialogContent>
+        </Dialog>
+      </div>
     </form>
   );
 }
