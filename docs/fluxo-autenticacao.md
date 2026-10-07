@@ -99,13 +99,13 @@ redirect       retorna payload de erro para a tela
 
 | Cenário | Mensagem exibida |
 |---|---|
-| Credenciais inválidas | "E-mail ou senha incorretos.". Após a tentativa rejeitada, a UI oferece genericamente solicitar um novo e-mail de confirmação. |
-| Conta não confirmada (e-mail pendente) | **Mesma** mensagem e mesma orientação genérica de credenciais inválidas — por segurança (RNE-014, proteção contra enumeração de usuários) a UI não revela que a conta existe ou está pendente. |
+| Credenciais inválidas | "E-mail ou senha incorretos.". O dialog de ajuda é aberto automaticamente após a tentativa rejeitada. |
+| Conta não confirmada (e-mail pendente) | **Mesma** mensagem e mesmas opções genéricas de ajuda — por segurança (RNE-014, proteção contra enumeração de usuários) a UI não revela que a conta existe ou está pendente. |
 | Rate limit (429) | "Muitas tentativas de login. Aguarde e tente novamente." |
 | Servidor indisponível (5xx) | "Serviço de login temporariamente indisponível." |
 | Sem conexão | "Não foi possível conectar ao servidor. Verifique sua conexão." |
 
-> O link de reenvio só aparece depois de uma tentativa de login rejeitada e não inclui o e-mail na URL. A orientação usa linguagem condicional e a tela de reenvio mantém uma resposta genérica, sem confirmar se a conta existe ou se está pendente.
+> A opção fixa **"Problemas para entrar?"** abre um dialog com **"Redefinir senha"** e **"Reenviar e-mail de confirmação"**. Após uma tentativa de login rejeitada, o dialog abre automaticamente e destaca a orientação de confirmação. Nenhuma opção inclui o e-mail na URL, e a tela de reenvio mantém uma resposta genérica, sem confirmar se a conta existe ou se está pendente.
 
 ---
 
