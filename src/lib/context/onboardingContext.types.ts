@@ -3,6 +3,7 @@ export interface OnboardingContextValue {
   isTourSaving: boolean;
   currentTourStep: number;
   hasCompletedAIContext: boolean;
+  hasConfiguredAI: boolean;
   hasCompletedAISetup: boolean;
   isTourDismissed: boolean;
   tourSaveError: string | null;

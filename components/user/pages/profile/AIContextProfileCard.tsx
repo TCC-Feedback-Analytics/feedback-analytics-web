@@ -48,9 +48,6 @@ export default function AIContextProfileCard() {
                 </span>
               )}
             </div>
-            <p className="mt-0.5 text-xs text-(--text-tertiary)">
-              Contexto estratégico e modelo que orientam as análises e diagnósticos da IA.
-            </p>
           </div>
         </div>
 

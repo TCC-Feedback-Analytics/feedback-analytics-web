@@ -104,7 +104,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     expect(screen.getByTestId("context-completed")).toHaveTextContent("true");
   });
 
-  it("mantém a configuração inicial aberta até uma LLM estar configurada", () => {
+  it("mantém hasCompletedAISetup falso quando a IA ainda não foi configurada", () => {
     const collecting = {
       business_summary: "Resumo da empresa",
       company_objective: "Foco no atendimento",
@@ -138,7 +138,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     expect(screen.queryByLabelText("Fechar")).not.toBeInTheDocument();
   });
 
-  it("permite navegar pelos passos do AIContextDialog (1 -> 2 -> 3 -> 4)", () => {
+  it("apresenta IA primeiro e permite continuar sem configurá-la", () => {
     render(
       <MemoryRouter>
         <OnboardingProvider collecting={null} sessionKey="user-1">
@@ -147,16 +147,23 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText("1. Resumo do Negócio")).toBeInTheDocument();
+    expect(screen.getByText("1. Configuração de IA")).toBeInTheDocument();
+    expect(screen.getByRole("dialog").querySelector("form")).toHaveAttribute("novalidate");
 
-    fireEvent.click(screen.getByText("Próximo Passo"));
-    expect(screen.getByText("2. Objetivo da Empresa")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Continuar sem configurar"));
+    expect(screen.getByText("Resumo do Negócio")).toBeInTheDocument();
+    const nextButton = screen.getByRole("button", { name: "Próximo Passo" });
+    expect(nextButton).toBeDisabled();
 
-    fireEvent.click(screen.getByText("Próximo Passo"));
-    expect(screen.getByText("3. Objetivo Analítico")).toBeInTheDocument();
+    fireEvent.change(screen.getByPlaceholderText(/Rede de clínicas odontológicas/), { target: { value: "Resumo da empresa" } });
+    expect(nextButton).toBeEnabled();
+    fireEvent.click(nextButton);
+    expect(screen.getByText("Objetivo da Empresa")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Próximo Passo" })).toBeDisabled();
 
-    fireEvent.click(screen.getByText("Próximo Passo"));
-    expect(screen.getByText("Configure a LLM da empresa")).toBeInTheDocument();
+    fireEvent.change(screen.getByPlaceholderText(/Oferecer a melhor experiência/), { target: { value: "Objetivo da empresa" } });
+    fireEvent.click(screen.getByRole("button", { name: "Próximo Passo" }));
+    expect(screen.getByText("Objetivo Analítico")).toBeInTheDocument();
   });
 
   it("mapeia o guia móvel para a barra inferior e o menu central", () => {
@@ -188,11 +195,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
 
     render(
       <MemoryRouter initialEntries={["/user/dashboard"]}>
-        <OnboardingProvider
-          collecting={completeCollecting}
-          iaConfig={{ hasKey: true, provider: "openrouter", model: "openrouter/auto", keyHint: "1234" }}
-          sessionKey="user-1"
-        >
+        <OnboardingProvider collecting={completeCollecting} sessionKey="user-1">
           <UserInteractiveTour />
         </OnboardingProvider>
       </MemoryRouter>

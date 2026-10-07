@@ -57,14 +57,13 @@ export default function CompanyProfileSection({
         className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
       >
         <div className="flex items-start gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--primary-color)/12 text-(--primary-color)" aria-hidden>
-            <FaBuilding />
-          </span>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-(--primary-color)">Empresa</p>
-            <h2 id="dados-da-empresa-titulo" className="mt-1 font-montserrat text-xl font-bold text-(--text-primary)">Dados e configurações da empresa</h2>
-            <p className="mt-1 max-w-2xl text-sm leading-relaxed text-(--text-secondary)">Mantenha o cadastro, o escopo de coleta e o contexto que orienta suas análises no mesmo lugar.</p>
-          </div>
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--primary-color)/12 text-(--primary-color)" aria-hidden>
+              <FaBuilding />
+            </span>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-(--primary-color)">Empresa</p>
+              <h2 id="dados-da-empresa-titulo" className="mt-1 font-montserrat text-xl font-bold text-(--text-primary)">Dados e configurações da empresa</h2>
+            </div>
         </div>
         <a href="#dados-pessoais" className="text-sm font-semibold text-(--primary-color) transition hover:text-(--secondary-color)">Ver dados pessoais</a>
       </div>
@@ -93,7 +92,6 @@ export default function CompanyProfileSection({
               </span>
               <div>
                 <h3 className="font-montserrat text-base font-bold text-(--text-primary)">Escopos da operação</h3>
-                <p className="mt-1 text-sm leading-relaxed text-(--text-secondary)">Defina quais frentes da empresa podem receber feedback.</p>
               </div>
             </div>
             {children}
