@@ -62,30 +62,44 @@ const EMPTY_IA_CONFIG: IaConfigResponse = {
   keyHint: null,
 };
 
+const getContextValues = (collecting: CollectingDataEnterprise | null | undefined) => ({
+  business_summary: collecting?.business_summary ?? "",
+  company_objective: collecting?.company_objective ?? "",
+  analytics_goal: collecting?.analytics_goal ?? "",
+});
+
+const areContextValuesEqual = (
+  first: ReturnType<typeof getContextValues>,
+  second: ReturnType<typeof getContextValues>,
+) => (
+  first.business_summary === second.business_summary &&
+  first.company_objective === second.company_objective &&
+  first.analytics_goal === second.analytics_goal
+);
+
 export default function AIContextDialog({
   open,
   onOpenChange,
   isMandatory = false,
 }: AIContextDialogProps) {
   const routeData = useRouteLoaderData("user") as {
+    user?: { id?: string | null };
     collecting: CollectingDataEnterprise | null;
     iaConfig?: IaConfigResponse | null;
   } | undefined;
   const collecting = routeData?.collecting ?? null;
+  const sessionKey = routeData?.user?.id ?? null;
   const collectingFetcher = useFetcher<ActionData>();
   const iaFetcher = useFetcher<IaSettingsActionResult>();
   const toast = useToast();
-  const [values, setValues] = useState<Record<(typeof CONTEXT_STEPS)[number]["key"], string>>(() => ({
-    business_summary: collecting?.business_summary ?? "",
-    company_objective: collecting?.company_objective ?? "",
-    analytics_goal: collecting?.analytics_goal ?? "",
-  }));
+  const [values, setValues] = useState(() => getContextValues(collecting));
   const [iaConfig, setIaConfig] = useState<IaConfigResponse | null>(routeData?.iaConfig ?? null);
   const [apiKey, setApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState("");
   const [step, setStep] = useState(IA_STEP_INDEX);
   const dialogContentRef = useRef<HTMLDivElement>(null);
+  const serverValuesRef = useRef(getContextValues(collecting));
   const lastCollectingResult = useRef<ActionData | undefined>(undefined);
   const lastIaResult = useRef<IaSettingsActionResult | undefined>(undefined);
   const isIaStep = step === IA_STEP_INDEX;
@@ -99,6 +113,23 @@ export default function AIContextDialog({
       dialogContentRef.current.scrollTop = 0;
     }
   }, [open, step]);
+
+  // O layout permanece montado durante a troca de sessão. Limpar aqui evita
+  // que outro usuário veja, ainda que por um render, a etapa ou a chave da
+  // sessão anterior.
+  useLayoutEffect(() => {
+    const nextValues = getContextValues(collecting);
+    serverValuesRef.current = nextValues;
+    setValues(nextValues);
+    setIaConfig(routeData?.iaConfig ?? null);
+    setApiKey("");
+    setShowApiKey(false);
+    setSelectedModelId("");
+    setStep(IA_STEP_INDEX);
+    lastCollectingResult.current = collectingFetcher.data;
+    lastIaResult.current = iaFetcher.data;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionKey]);
 
   const isSaving = collectingFetcher.state !== "idle" || iaFetcher.state !== "idle";
   const models = catalog?.models ?? [];
@@ -137,13 +168,17 @@ export default function AIContextDialog({
   );
 
   useEffect(() => {
-    if (collecting) {
-      setValues({
-        business_summary: collecting.business_summary ?? "",
-        company_objective: collecting.company_objective ?? "",
-        analytics_goal: collecting.analytics_goal ?? "",
-      });
-    }
+    const nextServerValues = getContextValues(collecting);
+
+    setValues((currentValues) => {
+      const hasUnsavedChanges = !areContextValuesEqual(currentValues, serverValuesRef.current);
+      serverValuesRef.current = nextServerValues;
+
+      // Revalidações causadas por outras ações (como salvar a IA) podem trazer
+      // o snapshot antigo do servidor. Nesse caso, a edição local é a fonte
+      // correta até que o usuário salve o contexto.
+      return hasUnsavedChanges ? currentValues : nextServerValues;
+    });
   }, [collecting]);
 
   useEffect(() => {

@@ -7,8 +7,14 @@ import AIContextDialog from "./AIContextDialog";
 import UserInteractiveTour from "./UserInteractiveTour";
 import { INTERACTIVE_STEPS } from "./ui.types";
 import type { CollectingDataEnterprise } from "lib/interfaces/entities/enterprise.entity";
+import type { IaConfigResponse } from "src/services/serviceIaConfig";
 
 const systemGuide = vi.hoisted(() => ({ get: vi.fn(), update: vi.fn() }));
+const routeData = vi.hoisted(() => ({
+  collecting: null as CollectingDataEnterprise | null,
+  iaConfig: null as IaConfigResponse | null,
+  user: { id: "user-1" },
+}));
 
 vi.mock("src/services/serviceSystemGuide", () => ({
   ServiceGetSystemGuide: systemGuide.get,
@@ -19,9 +25,7 @@ vi.mock("react-router-dom", async (importOriginal) => {
   const actual = await importOriginal<typeof import("react-router-dom")>();
   return {
     ...actual,
-    useRouteLoaderData: () => ({
-      collecting: null,
-    }),
+    useRouteLoaderData: () => routeData,
     useFetcher: () => ({
       state: "idle",
       data: undefined,
@@ -62,6 +66,9 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     systemGuide.update.mockReset().mockImplementation(async ({ version, status }) => ({
       tourKey: "system-guide", version, status, finishedAt: "2026-01-01T00:00:00.000Z",
     }));
+    routeData.collecting = null;
+    routeData.iaConfig = null;
+    routeData.user = { id: "user-1" };
   });
 
   afterEach(() => {
@@ -164,6 +171,100 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     fireEvent.change(screen.getByPlaceholderText(/Oferecer a melhor experiência/), { target: { value: "Objetivo da empresa" } });
     fireEvent.click(screen.getByRole("button", { name: "Próximo Passo" }));
     expect(screen.getByText("Objetivo Analítico")).toBeInTheDocument();
+  });
+
+  it("preserva edições locais quando uma revalidação traz o contexto antigo do servidor", () => {
+    routeData.collecting = {
+      business_summary: "Resumo antigo",
+      company_objective: "Objetivo antigo",
+      analytics_goal: "Análise antiga",
+    } as CollectingDataEnterprise;
+    routeData.iaConfig = {
+      hasKey: true,
+      provider: "openrouter",
+      model: "openrouter/auto",
+      keyHint: "1234",
+    };
+
+    const { rerender } = render(
+      <MemoryRouter>
+        <AIContextDialog open={true} onOpenChange={() => {}} />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByText("Continuar sem configurar"));
+    const summary = screen.getByPlaceholderText(/Rede de clínicas odontológicas/);
+    fireEvent.change(summary, { target: { value: "Resumo editado e ainda não salvo" } });
+    fireEvent.click(screen.getByRole("button", { name: "Próximo Passo" }));
+    fireEvent.click(screen.getByRole("button", { name: "Anterior" }));
+
+    routeData.collecting = {
+      business_summary: "Resumo antigo",
+      company_objective: "Objetivo antigo",
+      analytics_goal: "Análise antiga",
+    } as CollectingDataEnterprise;
+    rerender(
+      <MemoryRouter>
+        <AIContextDialog open={true} onOpenChange={() => {}} />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByPlaceholderText(/Rede de clínicas odontológicas/)).toHaveValue(
+      "Resumo editado e ainda não salvo",
+    );
+  });
+
+  it("reinicia etapa, contexto e chave quando a sessão do usuário muda", () => {
+    routeData.collecting = {
+      business_summary: "Empresa A",
+      company_objective: "Objetivo A",
+      analytics_goal: "Análise A",
+    } as CollectingDataEnterprise;
+    routeData.iaConfig = {
+      hasKey: false,
+      provider: "openrouter",
+      model: null,
+      keyHint: null,
+    };
+
+    const { rerender } = render(
+      <MemoryRouter>
+        <AIContextDialog open={true} onOpenChange={() => {}} />
+      </MemoryRouter>,
+    );
+
+    fireEvent.change(screen.getByLabelText("Chave da API OpenRouter"), {
+      target: { value: "sk-chave-da-empresa-a" },
+    });
+    fireEvent.click(screen.getByText("Continuar sem configurar"));
+    fireEvent.change(screen.getByPlaceholderText(/Rede de clínicas odontológicas/), {
+      target: { value: "Edição da empresa A" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Próximo Passo" }));
+    expect(screen.getByText(/Passo 3 de 4/)).toBeInTheDocument();
+
+    routeData.user = { id: "user-2" };
+    routeData.collecting = {
+      business_summary: "Empresa B",
+      company_objective: "Objetivo B",
+      analytics_goal: "Análise B",
+    } as CollectingDataEnterprise;
+    routeData.iaConfig = {
+      hasKey: false,
+      provider: "openrouter",
+      model: null,
+      keyHint: null,
+    };
+    rerender(
+      <MemoryRouter>
+        <AIContextDialog open={true} onOpenChange={() => {}} />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText(/Passo 1 de 4/)).toBeInTheDocument();
+    expect(screen.getByLabelText("Chave da API OpenRouter")).toHaveValue("");
+    fireEvent.click(screen.getByText("Continuar sem configurar"));
+    expect(screen.getByPlaceholderText(/Rede de clínicas odontológicas/)).toHaveValue("Empresa B");
   });
 
   it("mapeia o guia móvel para a barra inferior e o menu central", () => {
