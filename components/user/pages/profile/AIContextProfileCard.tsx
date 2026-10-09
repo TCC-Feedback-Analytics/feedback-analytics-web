@@ -3,18 +3,12 @@ import { useRouteLoaderData } from "react-router-dom";
 import type { CollectingDataEnterprise } from "lib/interfaces/entities/enterprise.entity";
 import type { IaConfigResponse } from "src/services/serviceIaConfig";
 import AIContextDialog from "components/user/onboarding/AIContextDialog";
-import CompanyQuestionSuggestions from "components/user/pages/profile/questionsDinamic/CompanyQuestionSuggestions";
-import { normalizeCompanyFeedbackQuestions } from "components/user/pages/profile/questionsDinamic/companyQuestionUtils";
-import type { EnterpriseContext } from "lib/interfaces/entities/enterprise.entity";
-import type { AuthUser } from "lib/interfaces/entities/auth-user.entity";
 import { FaWandMagicSparkles, FaPen, FaCircleCheck, FaTriangleExclamation, FaKey } from "react-icons/fa6";
 
 export default function AIContextProfileCard() {
-  const { collecting, iaConfig, enterprise, user } = (useRouteLoaderData("user") as {
+  const { collecting, iaConfig } = (useRouteLoaderData("user") as {
     collecting: CollectingDataEnterprise | null;
     iaConfig?: IaConfigResponse | null;
-    enterprise: EnterpriseContext;
-    user: AuthUser["user"];
   }) || { collecting: null, iaConfig: null };
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -115,17 +109,6 @@ export default function AIContextProfileCard() {
         isMandatory={false}
         closeOnlyAfterSave
       />
-
-      <div className="mt-6">
-        <CompanyQuestionSuggestions
-          currentQuestions={normalizeCompanyFeedbackQuestions(collecting?.company_feedback_questions)}
-          collecting={collecting}
-          iaConfig={iaConfig}
-          userId={user?.id}
-          enterpriseId={enterprise?.id}
-          compact
-        />
-      </div>
     </div>
   );
 }

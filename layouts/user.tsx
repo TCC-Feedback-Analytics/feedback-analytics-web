@@ -37,7 +37,6 @@ import { OnboardingProvider, useOnboarding } from 'src/lib/context/onboardingCon
 import AIContextDialog from 'components/user/onboarding/AIContextDialog';
 import UserInteractiveTour from 'components/user/onboarding/UserInteractiveTour';
 import { useIaOperation } from 'src/lib/hooks/useIaOperation';
-import { clearCompanyQuestionSuggestionsSession } from 'src/lib/hooks/useCompanyQuestionSuggestions';
 
 function UserOnboardingManager({
   onOpenMobileDrawer,
@@ -252,8 +251,6 @@ export default function User() {
 
   function handleSignOut() {
     if (isSigningOut) return;
-
-    clearCompanyQuestionSuggestionsSession(user.id, enterprise.id);
 
     logoutFetcher.submit(
       { intent: INTENT_LOGOUT },
