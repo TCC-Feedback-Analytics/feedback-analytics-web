@@ -1,5 +1,7 @@
 import type { CompanyFeedbackQuestionInput } from "lib/interfaces/entities/enterprise.entity";
 import type { QrcodeScopeType } from "lib/interfaces/contracts/qrcode/scope.contract";
+import type { CollectingDataEnterprise } from "lib/interfaces/entities/enterprise.entity";
+import type { IaConfigResponse } from "src/services/serviceIaConfig";
 
 /** Campo oculto extra enviado junto do formulário do editor (ex.: catalog_item_id). */
 export interface QuestionsEditorHiddenField {
@@ -33,4 +35,18 @@ export interface QuestionsEditorProps {
   catalogItemId?: string | null;
   /** Prefixo estável para ids sintéticos da prévia. */
   idPrefix: string;
+}
+
+export interface CompanyQuestionSuggestionsProps {
+  currentQuestions: CompanyFeedbackQuestionInput[];
+  collecting: CollectingDataEnterprise | null;
+  iaConfig: IaConfigResponse | null | undefined;
+  userId?: string | null;
+  enterpriseId?: string | null;
+  compact?: boolean;
+}
+
+export interface CompanyQuestionSuggestionDraft {
+  question_order: 1 | 2 | 3;
+  question_text: string;
 }

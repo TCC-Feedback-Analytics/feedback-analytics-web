@@ -26,7 +26,7 @@ import type { AIContextDialogProps } from "./ui.types";
 const CONTEXT_STEPS = [
   {
     key: "business_summary",
-    tab: "2. Resumo do Negócio",
+    tab: "Resumo do Negócio",
     title: "Resumo do Negócio",
     hint: "Descreva o que sua empresa faz e para quem. É o contexto primário que a IA usa em todas as análises.",
     aiImpact: "Com base neste texto, a IA compreende sua área de atuação e ajusta o tom dos diagnósticos aos seus produtos e serviços.",
@@ -35,7 +35,7 @@ const CONTEXT_STEPS = [
   },
   {
     key: "company_objective",
-    tab: "3. Objetivo da Empresa",
+    tab: "Objetivo da Empresa",
     title: "Objetivo da Empresa",
     hint: "Seu foco estratégico atual. A IA priorizará pontos alinhados a esta meta.",
     aiImpact: "A IA prioriza a filtragem dos pontos fortes e fracos alinhados aos seus objetivos estratégicos.",
@@ -44,7 +44,7 @@ const CONTEXT_STEPS = [
   },
   {
     key: "analytics_goal",
-    tab: "4. Objetivo Analítico",
+    tab: "Objetivo Analítico",
     title: "Objetivo Analítico",
     hint: "O que você deseja descobrir investigando os feedbacks recebidos.",
     aiImpact: "Direciona as perguntas e padrões específicos que a inteligência artificial buscará identificar nas avaliações.",
@@ -53,7 +53,7 @@ const CONTEXT_STEPS = [
   },
 ] as const;
 
-const IA_STEP_INDEX = 0;
+const LLM_STEP_INDEX = CONTEXT_STEPS.length;
 const TOTAL_STEPS = CONTEXT_STEPS.length + 1;
 const EMPTY_IA_CONFIG: IaConfigResponse = {
   hasKey: false,
@@ -81,6 +81,7 @@ export default function AIContextDialog({
   open,
   onOpenChange,
   isMandatory = false,
+  closeOnlyAfterSave = false,
 }: AIContextDialogProps) {
   const routeData = useRouteLoaderData("user") as {
     user?: { id?: string | null };
@@ -97,12 +98,15 @@ export default function AIContextDialog({
   const [apiKey, setApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState("");
-  const [step, setStep] = useState(IA_STEP_INDEX);
+  const [step, setStep] = useState(0);
   const dialogContentRef = useRef<HTMLDivElement>(null);
   const serverValuesRef = useRef(getContextValues(collecting));
   const lastCollectingResult = useRef<ActionData | undefined>(undefined);
   const lastIaResult = useRef<IaSettingsActionResult | undefined>(undefined);
-  const isIaStep = step === IA_STEP_INDEX;
+  const contextSubmitPendingRef = useRef(false);
+  const iaSubmitPendingRef = useRef(false);
+  const allowCloseRef = useRef(false);
+  const isIaStep = step === LLM_STEP_INDEX;
   const { catalog, loading: isLoadingModels, error: modelsError, reload: reloadModels } = useIaModels(
     iaConfig ?? EMPTY_IA_CONFIG,
     open && isIaStep && Boolean(iaConfig),
@@ -125,7 +129,10 @@ export default function AIContextDialog({
     setApiKey("");
     setShowApiKey(false);
     setSelectedModelId("");
-    setStep(IA_STEP_INDEX);
+    setStep(0);
+    contextSubmitPendingRef.current = false;
+    iaSubmitPendingRef.current = false;
+    allowCloseRef.current = false;
     lastCollectingResult.current = collectingFetcher.data;
     lastIaResult.current = iaFetcher.data;
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -157,9 +164,9 @@ export default function AIContextDialog({
     values.business_summary.trim().length > 0 &&
     values.company_objective.trim().length > 0 &&
     values.analytics_goal.trim().length > 0;
-  const activeContextStep = step > IA_STEP_INDEX ? CONTEXT_STEPS[step - 1] : null;
+  const activeContextStep = isIaStep ? null : CONTEXT_STEPS[step];
   const canAdvanceFromCurrentContextStep = Boolean(
-    isIaStep || (activeContextStep && values[activeContextStep.key].trim().length > 0),
+    !isIaStep && activeContextStep && values[activeContextStep.key].trim().length > 0,
   );
   const canConfigureLlm = Boolean(
     iaConfig &&
@@ -189,6 +196,7 @@ export default function AIContextDialog({
     setValues((previous) => ({ ...previous, [key]: value }));
 
   const submitContext = useCallback(() => {
+    contextSubmitPendingRef.current = true;
     const formData = new FormData();
     formData.set("business_summary", values.business_summary);
     formData.set("company_objective", values.company_objective);
@@ -199,27 +207,48 @@ export default function AIContextDialog({
     });
   }, [collectingFetcher, values]);
 
+  const requestClose = useCallback(() => {
+    if (closeOnlyAfterSave && !allowCloseRef.current) return;
+
+    allowCloseRef.current = false;
+    onOpenChange(false);
+  }, [closeOnlyAfterSave, onOpenChange]);
+
   useEffect(() => {
     const data = collectingFetcher.data;
     if (!data || lastCollectingResult.current === data) return;
     lastCollectingResult.current = data;
+
+    const wasExplicitlySubmitted = contextSubmitPendingRef.current;
+    contextSubmitPendingRef.current = false;
 
     if (data.ok) {
       toast.success(
         "Contexto salvo!",
         "As informações da sua empresa foram salvas e o onboarding foi concluído.",
       );
-      onOpenChange(false);
+      if (wasExplicitlySubmitted) {
+        allowCloseRef.current = true;
+        requestClose();
+      }
       return;
     }
 
     toast.error("Erro ao salvar informações", data.message || "Tente novamente em instantes.");
-  }, [collectingFetcher.data, onOpenChange, toast]);
+  }, [collectingFetcher.data, requestClose, toast]);
 
   useEffect(() => {
     const data = iaFetcher.data;
     if (!data || lastIaResult.current === data) return;
     lastIaResult.current = data;
+
+    const wasExplicitlySubmitted = iaSubmitPendingRef.current;
+    iaSubmitPendingRef.current = false;
+
+    // Uma revalidação pode conservar o último resultado do fetcher. Ele não
+    // deve navegar o dialog por conta própria; somente a ação atual do usuário
+    // em "Configurar agora" pode avançar para o contexto.
+    if (!wasExplicitlySubmitted) return;
 
     if (!data.ok || !data.iaConfig) {
       toast.error("Erro na configuração da LLM", data.message || "Tente novamente em instantes.");
@@ -230,19 +259,14 @@ export default function AIContextDialog({
     setApiKey("");
     setShowApiKey(false);
     setSelectedModelId("");
-    setStep(IA_STEP_INDEX + 1);
     toast.success("IA configurada!", "Agora complete o contexto da sua empresa.");
-  }, [iaFetcher.data, toast]);
+    submitContext();
+  }, [iaFetcher.data, submitContext, toast]);
 
   if (!open) return null;
 
-  const isLast = step === TOTAL_STEPS - 1;
   const handleBackdropClick = () => {
-    if (!isMandatory) onOpenChange(false);
-  };
-
-  const continueWithoutIa = () => {
-    if (!isSaving) setStep(IA_STEP_INDEX + 1);
+    if (!isMandatory && !closeOnlyAfterSave) requestClose();
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -250,21 +274,13 @@ export default function AIContextDialog({
     if (isSaving) return;
 
     if (isIaStep) {
-      if (isLlmConfigured && !selectedModelId) {
-        continueWithoutIa();
+      if (!hasCompleteContext) {
+        toast.error("Complete os campos obrigatórios", "Preencha os três campos do contexto da empresa.");
         return;
       }
 
-      if (!iaConfig || !canConfigureLlm) {
-        toast.error(
-          "Não foi possível configurar a IA agora",
-          "Você pode continuar sem IA e configurar depois no seu perfil.",
-        );
-        return;
-      }
-
-      if (!needsLlmUpdate) {
-        continueWithoutIa();
+      if (!iaConfig || !canConfigureLlm || !needsLlmUpdate) {
+        submitContext();
         return;
       }
 
@@ -280,20 +296,12 @@ export default function AIContextDialog({
         formData.set("apiKey", apiKey.trim());
       }
 
+      iaSubmitPendingRef.current = true;
       iaFetcher.submit(formData, { method: "post", action: "/user/edit/ia-settings" });
       return;
     }
 
-    if (isLast) {
-      if (!hasCompleteContext) {
-        toast.error("Complete os campos obrigatórios", "Preencha os três campos do contexto da empresa.");
-        return;
-      }
-      submitContext();
-      return;
-    }
-
-    setStep((current) => Math.min(TOTAL_STEPS - 1, current + 1));
+    setStep((current) => Math.min(LLM_STEP_INDEX, current + 1));
   };
 
   return (
@@ -335,10 +343,10 @@ export default function AIContextDialog({
             </div>
           </div>
 
-          {!isMandatory && (
+          {!isMandatory && !closeOnlyAfterSave && (
             <button
               type="button"
-              onClick={() => onOpenChange(false)}
+              onClick={requestClose}
               aria-label="Fechar"
               className="shrink-0 rounded-xl p-2 text-(--text-tertiary) transition-colors hover:bg-(--seventh-color) hover:text-(--text-primary)"
             >
@@ -348,31 +356,8 @@ export default function AIContextDialog({
         </div>
 
         <div className="relative z-10 my-5 grid min-w-0 gap-2 sm:grid-cols-2">
-          <button
-            type="button"
-            onClick={() => setStep(IA_STEP_INDEX)}
-            className={`flex min-w-0 items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-all ${
-              isIaStep
-                ? "border-(--primary-color)/50 bg-(--primary-color)/12 ring-1 ring-(--primary-color)/30"
-                : "border-(--quaternary-color)/12 bg-(--seventh-color)/40 hover:border-(--primary-color)/25"
-            }`}
-          >
-            <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${
-              isIaStep
-                ? "bg-(--primary-color) text-(--bg-primary)"
-                : isLlmConfigured
-                  ? "bg-(--primary-color)/20 text-(--primary-color)"
-                  : "bg-(--seventh-color) text-(--text-tertiary)"
-            }`}>
-              {!isIaStep && isLlmConfigured ? <FaCheck className="text-[9px]" /> : "1"}
-            </span>
-            <span className={`min-w-0 break-words text-xs font-semibold ${isIaStep ? "text-(--text-primary)" : "text-(--text-secondary)"}`}>
-              1. Configuração de IA
-            </span>
-          </button>
-
           {CONTEXT_STEPS.map((stepItem, index) => {
-            const contextStep = index + 1;
+            const contextStep = index;
             const filled = values[stepItem.key].trim().length > 0;
             const active = contextStep === step;
 
@@ -381,6 +366,7 @@ export default function AIContextDialog({
                 key={stepItem.key}
                 type="button"
                 onClick={() => setStep(contextStep)}
+                aria-label={`${contextStep + 1}. ${stepItem.tab}`}
                 className={`flex min-w-0 items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-all ${
                   active
                     ? "border-(--primary-color)/50 bg-(--primary-color)/12 ring-1 ring-(--primary-color)/30"
@@ -402,6 +388,30 @@ export default function AIContextDialog({
               </button>
             );
           })}
+
+          <button
+            type="button"
+            onClick={() => setStep(LLM_STEP_INDEX)}
+            aria-label="4. Modelo LLM"
+            className={`flex min-w-0 items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-all ${
+              isIaStep
+                ? "border-(--primary-color)/50 bg-(--primary-color)/12 ring-1 ring-(--primary-color)/30"
+                : "border-(--quaternary-color)/12 bg-(--seventh-color)/40 hover:border-(--primary-color)/25"
+            }`}
+          >
+            <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${
+              isIaStep
+                ? "bg-(--primary-color) text-(--bg-primary)"
+                : isLlmConfigured
+                  ? "bg-(--primary-color)/20 text-(--primary-color)"
+                  : "bg-(--seventh-color) text-(--text-tertiary)"
+            }`}>
+              {!isIaStep && isLlmConfigured ? <FaCheck className="text-[9px]" /> : "4"}
+            </span>
+            <span className={`min-w-0 break-words text-xs font-semibold ${isIaStep ? "text-(--text-primary)" : "text-(--text-secondary)"}`}>
+              Modelo LLM
+            </span>
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} noValidate className="relative z-10 min-w-0 space-y-4" aria-busy={isSaving}>
@@ -409,11 +419,11 @@ export default function AIContextDialog({
             <div className="space-y-4">
               <div>
                 <h4 className="flex flex-wrap items-center gap-1.5 font-montserrat text-base font-bold text-(--text-primary)">
-                  Configure a IA agora <span className="text-xs font-normal text-(--text-tertiary)">(opcional)</span>
+                  Configure a IA da empresa <span className="text-xs font-normal text-(--text-tertiary)">(opcional)</span>
                   <HelpHint topic="aiContextFields" />
                 </h4>
                 <p className="mt-1 break-words text-xs text-(--text-secondary)">
-                  Você pode configurar sua chave e modelo agora ou fazer isso depois no seu perfil. Isso não impede a conclusão do onboarding.
+                  Escolha a chave e o modelo que serão usados nas análises. Você também pode salvar o contexto e configurar a IA depois no seu perfil.
                 </p>
               </div>
 
@@ -501,7 +511,7 @@ export default function AIContextDialog({
           )}
 
           {CONTEXT_STEPS.map((stepItem, index) => {
-            const contextStep = index + 1;
+            const contextStep = index;
             return (
               <div key={stepItem.key} className={contextStep === step ? "block space-y-3" : "hidden"}>
                 <div>
@@ -549,8 +559,8 @@ export default function AIContextDialog({
           <div className="flex min-w-0 flex-col items-stretch gap-3 border-t border-(--quaternary-color)/10 pt-4 sm:flex-row sm:items-center sm:justify-between">
             <button
               type="button"
-              onClick={() => setStep((current) => Math.max(IA_STEP_INDEX, current - 1))}
-              disabled={step === IA_STEP_INDEX || isSaving}
+              onClick={() => setStep((current) => Math.max(0, current - 1))}
+              disabled={step === 0 || isSaving}
               className="btn-ghost font-poppins flex h-[50px] shrink-0 items-center justify-center gap-1 self-start px-3 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-30 sm:self-auto"
             >
               <FaChevronLeft className="text-[10px]" />
@@ -561,34 +571,34 @@ export default function AIContextDialog({
               <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
                 <button
                   type="button"
-                  onClick={continueWithoutIa}
-                  disabled={isSaving}
+                  onClick={submitContext}
+                  disabled={!hasCompleteContext || isSaving}
                   className="btn-ghost font-poppins h-[50px] w-full max-w-full whitespace-normal px-4 text-center text-xs font-semibold disabled:opacity-50 sm:w-auto"
                 >
-                  Continuar sem configurar
+                  Salvar sem configurar IA
                 </button>
                 <button
                   type="submit"
-                  disabled={isSaving || (!isLlmConfigured && !canConfigureLlm)}
+                  disabled={
+                    !hasCompleteContext ||
+                    isSaving ||
+                    Boolean(iaConfig && needsLlmUpdate && !canConfigureLlm)
+                  }
                   className="btn-primary font-poppins w-full max-w-full whitespace-normal px-6 py-2.5 text-center text-xs font-semibold shadow-md disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                 >
-                  {isSaving ? "Salvando IA..." : isLlmConfigured && !selectedModelId ? "Continuar com configuração" : "Configurar agora"}
+                  {isSaving
+                    ? "Salvando..."
+                    : iaConfig && needsLlmUpdate
+                      ? "Configurar IA e salvar"
+                      : "Salvar e concluir"}
                 </button>
               </div>
-            ) : isLast ? (
-              <button
-                type="submit"
-                disabled={!hasCompleteContext || isSaving}
-                className="btn-primary font-poppins w-full max-w-full whitespace-normal px-7 py-2.5 text-xs font-semibold shadow-md disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-              >
-                {isSaving ? "Salvando contexto..." : "Salvar e concluir"}
-              </button>
             ) : (
               <button
                 type="button"
                 onClick={() => {
                   if (!canAdvanceFromCurrentContextStep) return;
-                  setStep((current) => Math.min(TOTAL_STEPS - 1, current + 1));
+                  setStep((current) => Math.min(LLM_STEP_INDEX, current + 1));
                 }}
                 disabled={isSaving || !canAdvanceFromCurrentContextStep}
                 className="btn-primary font-poppins flex w-full max-w-full items-center justify-center gap-1.5 whitespace-normal px-6 py-2.5 text-xs font-semibold shadow-md disabled:opacity-50 sm:w-auto"
