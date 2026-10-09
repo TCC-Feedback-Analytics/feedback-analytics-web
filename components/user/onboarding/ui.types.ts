@@ -13,6 +13,8 @@ export interface AIContextDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isMandatory?: boolean;
+  /** Na edição do perfil, o fechamento só acontece após salvar o contexto. */
+  closeOnlyAfterSave?: boolean;
 }
 
 export interface UserInteractiveTourProps {

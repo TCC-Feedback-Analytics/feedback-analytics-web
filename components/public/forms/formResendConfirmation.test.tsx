@@ -52,7 +52,9 @@ describe('reenvio de confirmação', () => {
     const user = userEvent.setup();
     vi.mocked(ServiceResendConfirmation).mockResolvedValue({
       ok: true,
+      status: 200,
       message: genericMessage,
+      retryAfterSeconds: 3600,
     });
     const router = showForm();
 
@@ -62,6 +64,9 @@ describe('reenvio de confirmação', () => {
 
       await waitFor(() => {
         expect(screen.getByRole('status')).toHaveTextContent(genericMessage);
+        expect(screen.getByRole('status')).toHaveTextContent(
+          'Solicitação registrada para: pendente@empresa.com',
+        );
       });
       expect(ServiceResendConfirmation).toHaveBeenCalledExactlyOnceWith(
         'pendente@empresa.com',
@@ -74,6 +79,17 @@ describe('reenvio de confirmação', () => {
         'href',
         '/login',
       );
+      await waitFor(() => {
+        expect(
+          screen.getByRole('button', { name: 'Solicitar novamente em 01:00:00' }),
+        ).toBeDisabled();
+      });
+
+      await user.clear(screen.getByLabelText('E-mail'));
+      await user.type(screen.getByLabelText('E-mail'), 'outro@empresa.com');
+      expect(
+        screen.getByRole('button', { name: 'Solicitar novamente em 01:00:00' }),
+      ).toBeDisabled();
     } finally {
       router.dispose();
     }
@@ -83,8 +99,10 @@ describe('reenvio de confirmação', () => {
     const user = userEvent.setup();
     vi.mocked(ServiceResendConfirmation).mockResolvedValue({
       ok: false,
+      status: 429,
       error: 'rate_limited',
       message: 'Muitas solicitações. Aguarde e tente novamente.',
+      retryAfterSeconds: 120,
     });
     const router = showForm();
 
@@ -98,8 +116,38 @@ describe('reenvio de confirmação', () => {
           'Muitas solicitações. Aguarde e tente novamente.',
         );
       });
-      expect(screen.getByRole('button', { name: 'Reenviar confirmação' })).toBeEnabled();
+      await waitFor(() => {
+        expect(
+          screen.getByRole('button', { name: 'Solicitar novamente em 02:00' }),
+        ).toBeDisabled();
+      });
       expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    } finally {
+      router.dispose();
+    }
+  });
+
+  it('não inventa uma espera em falha 503', async () => {
+    const user = userEvent.setup();
+    vi.mocked(ServiceResendConfirmation).mockResolvedValue({
+      ok: false,
+      status: 503,
+      error: 'service_unavailable',
+      message: 'Não foi possível processar a solicitação. Tente novamente mais tarde.',
+    });
+    const router = showForm();
+
+    try {
+      await user.type(screen.getByLabelText('E-mail'), 'pessoa@empresa.com');
+      await user.click(screen.getByRole('button', { name: 'Reenviar confirmação' }));
+
+      await waitFor(() => {
+        expect(toast.error).toHaveBeenCalledWith(
+          'Serviço indisponível',
+          'Não foi possível processar a solicitação. Tente novamente mais tarde.',
+        );
+      });
+      expect(screen.getByRole('button', { name: 'Reenviar confirmação' })).toBeEnabled();
     } finally {
       router.dispose();
     }

@@ -36,7 +36,6 @@ export default function Profile() {
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-(--primary-color)">Sua conta</p>
                 <h2 id="dados-pessoais-titulo" className="mt-1 font-montserrat text-xl font-bold text-(--text-primary)">Dados pessoais e acesso</h2>
-                <p className="mt-1 text-sm leading-relaxed text-(--text-secondary)">Edite cada informação individualmente. As alterações são salvas sem interromper o restante do perfil.</p>
               </div>
             </div>
             <a href="#dados-da-empresa" className="text-sm font-semibold text-(--primary-color) transition hover:text-(--secondary-color)">Ver dados da empresa</a>

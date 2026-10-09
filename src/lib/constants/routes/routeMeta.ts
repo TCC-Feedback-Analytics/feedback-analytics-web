@@ -35,7 +35,6 @@ const ROUTE_META: Record<string, RouteMeta> = {
   },
   '/user/profile': {
     title: 'Perfil',
-    description: 'Seus dados pessoais e as informações da empresa.',
     breadcrumb: [{ label: 'Perfil' }],
   },
 

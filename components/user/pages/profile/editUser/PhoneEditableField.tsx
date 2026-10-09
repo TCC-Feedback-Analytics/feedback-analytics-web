@@ -114,9 +114,6 @@ export default function PhoneEditableField({ currentPhone, className = '' }: Pho
             <p className="text-(--text-primary) font-medium mb-1">
               {safeCurrentPhone || 'Não informado'}
             </p>
-            <p className="text-xs text-(--text-tertiary)">
-              Usado para notificações e recuperação de conta
-            </p>
           </div>
 
           <span className="ml-3 inline-flex items-center gap-1.5 rounded-lg bg-(--primary-color)/12 px-2.5 py-1.5 text-xs font-semibold text-(--primary-color) transition group-hover:bg-(--primary-color) group-hover:text-white">

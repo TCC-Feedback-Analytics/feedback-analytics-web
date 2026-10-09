@@ -1,17 +1,26 @@
 import Card from 'components/public/shared/card';
 import SVGLock from 'components/svg/lock';
 import { useEffect } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function AuthSuccess() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
+  // O Better Auth redireciona para o callbackURL com ?error=<código> quando o
+  // link de verificação falha (TOKEN_EXPIRED, INVALID_TOKEN, USER_NOT_FOUND...).
+  const verificationError = params.get('error');
 
   useEffect(() => {
+    if (verificationError) return;
     const next = params.get('next') ?? '/user/dashboard';
     const id = setTimeout(() => navigate(next), 1500);
     return () => clearTimeout(id);
-  }, [params, navigate]);
+  }, [params, navigate, verificationError]);
+
+  if (verificationError) {
+    return <Navigate to="/auth/link-expired" replace />;
+  }
+
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-(--bg-primary) p-4">
       <div className="w-full max-w-2xl">

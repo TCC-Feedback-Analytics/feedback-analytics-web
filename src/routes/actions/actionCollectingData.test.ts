@@ -94,7 +94,7 @@ describe('[Integração] ActionCollectingData', () => {
     });
   });
 
-  it('remove produtos quando uses_company_products está desmarcado', async () => {
+  it('remove produtos sem apagar o contexto quando os campos de IA não são enviados', async () => {
     mockUpdateCollectingDataEnterprise.mockResolvedValue({
       id: 'collecting-id',
       enterprise_id: 'enterprise-id',
@@ -119,9 +119,6 @@ describe('[Integração] ActionCollectingData', () => {
     );
 
     expect(mockUpdateCollectingDataEnterprise).toHaveBeenCalledWith({
-      company_objective: null,
-      analytics_goal: null,
-      business_summary: null,
       main_products_or_services: null,
       uses_company_products: false,
       uses_company_services: false,
@@ -165,9 +162,6 @@ describe('[Integração] ActionCollectingData', () => {
     );
 
     expect(mockUpdateCollectingDataEnterprise).toHaveBeenCalledWith({
-      company_objective: null,
-      analytics_goal: null,
-      business_summary: null,
       main_products_or_services: ['Produto JSON'],
       uses_company_products: true,
       uses_company_services: false,
@@ -227,9 +221,6 @@ describe('[Integração] ActionCollectingData', () => {
     );
 
     expect(mockUpdateCollectingDataEnterprise).toHaveBeenCalledWith({
-      company_objective: null,
-      analytics_goal: null,
-      business_summary: null,
       main_products_or_services: null,
       uses_company_products: false,
       uses_company_services: false,
@@ -359,9 +350,6 @@ describe('[Integração] ActionCollectingData', () => {
     );
 
     expect(mockUpdateCollectingDataEnterprise).toHaveBeenCalledWith({
-      company_objective: null,
-      analytics_goal: null,
-      business_summary: null,
       main_products_or_services: null,
       uses_company_products: false,
       uses_company_services: false,

@@ -1,6 +1,10 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '@testing-library/jest-dom';
+import type {
+  MobileBottomNavProps,
+  MobileMenuDrawerProps,
+} from 'components/user/layout/ui.types';
 
 const mocks = vi.hoisted(() => ({
   useLoaderData: vi.fn(),
@@ -41,11 +45,21 @@ vi.mock('components/user/layout/Sidebar', () => ({
 }));
 
 vi.mock('components/user/layout/MobileBottomNav', () => ({
-  default: () => <nav data-testid="mobile-bottom-nav">MobileBottomNav</nav>,
+  default: ({ isDrawerOpen, onOpenDrawer }: MobileBottomNavProps) => (
+    <nav data-testid="mobile-bottom-nav">
+      <button type="button" aria-expanded={isDrawerOpen} onClick={onOpenDrawer}>
+        Abrir menu móvel
+      </button>
+    </nav>
+  ),
 }));
 
 vi.mock('components/user/layout/MobileMenuDrawer', () => ({
-  default: () => <div data-testid="mobile-menu-drawer">MobileMenuDrawer</div>,
+  default: ({ isOpen }: MobileMenuDrawerProps) => (
+    <div data-testid="mobile-menu-drawer" data-open={String(isOpen)}>
+      MobileMenuDrawer
+    </div>
+  ),
 }));
 
 vi.mock('components/user/shared/SectionTabs', () => ({
@@ -145,6 +159,31 @@ describe('[Unidade] LayoutUser', () => {
 
     expect(screen.queryByLabelText('Dashboard skeleton')).not.toBeInTheDocument();
     expect(screen.getByTestId('outlet-content')).toBeInTheDocument();
+  });
+
+  it('mantém o menu inferior aberto após o layout renderizar novamente', () => {
+    vi.mocked(useNavigation).mockReturnValue({
+      state: 'idle',
+      location: undefined,
+      formMethod: undefined,
+      formAction: undefined,
+      formEncType: undefined,
+      formData: undefined,
+      json: undefined,
+      text: undefined,
+    } as ReturnType<typeof useNavigation>);
+
+    render(<LayoutUser />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir menu móvel' }));
+
+    expect(screen.getByTestId('mobile-menu-drawer')).toHaveAttribute(
+      'data-open',
+      'true',
+    );
+    expect(
+      screen.getByRole('button', { name: 'Abrir menu móvel' }),
+    ).toHaveAttribute('aria-expanded', 'true');
   });
 
   it.each([

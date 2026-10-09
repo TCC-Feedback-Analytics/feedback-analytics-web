@@ -1,7 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, useNavigation, useRouteLoaderData } from 'react-router-dom';
 import Profile from '../user/profile';
+
+const mockFetcherState = vi.hoisted(() => ({
+  data: undefined as unknown,
+  submit: vi.fn(),
+}));
 
 vi.mock('react-router-dom', async (importActual) => {
   const actual = await importActual<typeof import('react-router-dom')>();
@@ -12,9 +17,9 @@ vi.mock('react-router-dom', async (importActual) => {
     useRouteLoaderData: vi.fn(),
     useFetcher: () => ({
       state: 'idle',
-      data: undefined,
+      data: mockFetcherState.data,
       Form: (props: React.FormHTMLAttributes<HTMLFormElement>) => <form {...props} />,
-      submit: vi.fn(),
+      submit: mockFetcherState.submit,
     }),
   };
 });
@@ -69,6 +74,7 @@ describe('[Unidade] Profile Page', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockFetcherState.data = undefined;
     mockUseNavigation.mockReturnValue({
       state: 'idle',
       location: undefined,
@@ -106,6 +112,86 @@ describe('[Unidade] Profile Page', () => {
     );
 
     expect(screen.getByTestId('page-header')).toBeInTheDocument();
+  });
+
+  it('mantém o dialog aberto ao clicar em Editar contexto e LLM', () => {
+    mockUseRouteLoaderData.mockReturnValue(mockData);
+
+    render(
+      <MemoryRouter>
+        <Profile />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Editar contexto e LLM' }));
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByText('Contexto e configuração de IA')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Fechar')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('dialog'));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('avança da etapa 3 para a etapa 4 sem fechar o dialog', () => {
+    mockUseRouteLoaderData.mockReturnValue({
+      ...mockData,
+      collecting: {
+        ...mockData.collecting,
+        business_summary: '',
+        company_objective: '',
+        analytics_goal: '',
+      },
+    });
+
+    render(
+      <MemoryRouter>
+        <Profile />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Editar contexto e LLM' }));
+
+    fireEvent.change(screen.getByPlaceholderText(/Rede de clínicas odontológicas/), {
+      target: { value: 'Resumo da empresa' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Próximo Passo' }));
+
+    fireEvent.change(screen.getByPlaceholderText(/Oferecer a melhor experiência/), {
+      target: { value: 'Objetivo da empresa' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Próximo Passo' }));
+
+    fireEvent.change(screen.getByPlaceholderText(/Identificar os principais motivos/), {
+      target: { value: 'Objetivo analítico da empresa' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Próximo Passo' }));
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '4. Modelo LLM' })).toBeInTheDocument();
+    expect(screen.getByText(/Passo 4 de 4/)).toBeInTheDocument();
+    expect(mockFetcherState.submit).not.toHaveBeenCalled();
+  });
+
+  it('não fecha o dialog quando uma revalidação entrega uma resposta antiga do fetcher', () => {
+    mockUseRouteLoaderData.mockReturnValue(mockData);
+
+    const view = render(
+      <MemoryRouter>
+        <Profile />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Editar contexto e LLM' }));
+
+    mockFetcherState.data = { ok: true };
+    view.rerender(
+      <MemoryRouter>
+        <Profile />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 
   it('deve passar os dados corretos para o componente Info', () => {

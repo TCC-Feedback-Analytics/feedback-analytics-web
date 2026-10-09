@@ -37,6 +37,7 @@ import { OnboardingProvider, useOnboarding } from 'src/lib/context/onboardingCon
 import AIContextDialog from 'components/user/onboarding/AIContextDialog';
 import UserInteractiveTour from 'components/user/onboarding/UserInteractiveTour';
 import { useIaOperation } from 'src/lib/hooks/useIaOperation';
+import { clearCompanyQuestionSuggestionsSession } from 'src/lib/hooks/useCompanyQuestionSuggestions';
 
 function UserOnboardingManager({
   onOpenMobileDrawer,
@@ -45,12 +46,12 @@ function UserOnboardingManager({
   onOpenMobileDrawer: () => void;
   onCloseMobileDrawer: () => void;
 }) {
-  const { hasCompletedAISetup } = useOnboarding();
-  const [mandatoryOpen, setMandatoryOpen] = useState(!hasCompletedAISetup);
+  const { hasCompletedAIContext } = useOnboarding();
+  const [mandatoryOpen, setMandatoryOpen] = useState(!hasCompletedAIContext);
 
   useEffect(() => {
-    setMandatoryOpen(!hasCompletedAISetup);
-  }, [hasCompletedAISetup]);
+    setMandatoryOpen(!hasCompletedAIContext);
+  }, [hasCompletedAIContext]);
 
   return (
     <>
@@ -169,6 +170,8 @@ export default function User() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [isHoverActivator, setIsHoverActivator] = useState(false);
+  const openMobileDrawer = useCallback(() => setIsMobileDrawerOpen(true), []);
+  const closeMobileDrawer = useCallback(() => setIsMobileDrawerOpen(false), []);
   const closeTimerRef = useRef<number | null>(null);
   const location = useLocation();
   const isSigningOut = logoutFetcher.state !== 'idle';
@@ -249,6 +252,8 @@ export default function User() {
 
   function handleSignOut() {
     if (isSigningOut) return;
+
+    clearCompanyQuestionSuggestionsSession(user.id, enterprise.id);
 
     logoutFetcher.submit(
       { intent: INTENT_LOGOUT },
@@ -353,22 +358,22 @@ export default function User() {
             {/* Mobile Bottom Navigation (Apenas no Mobile) */}
             <MobileBottomNav
               isDrawerOpen={isMobileDrawerOpen}
-              onOpenDrawer={() => setIsMobileDrawerOpen(true)}
+              onOpenDrawer={openMobileDrawer}
               pendingPathname={pendingPathname}
             />
 
             {/* Mobile Bottom Sheet Drawer */}
             <MobileMenuDrawer
               isOpen={isMobileDrawerOpen}
-              onClose={() => setIsMobileDrawerOpen(false)}
+              onClose={closeMobileDrawer}
               pendingPathname={pendingPathname}
               enterprise={enterprise}
               onSignOut={handleSignOut}
             />
 
             <UserOnboardingManager
-              onOpenMobileDrawer={() => setIsMobileDrawerOpen(true)}
-              onCloseMobileDrawer={() => setIsMobileDrawerOpen(false)}
+              onOpenMobileDrawer={openMobileDrawer}
+              onCloseMobileDrawer={closeMobileDrawer}
             />
           </div>
         </SidebarProvider>
