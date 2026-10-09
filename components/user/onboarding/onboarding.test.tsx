@@ -145,7 +145,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     expect(screen.queryByLabelText("Fechar")).not.toBeInTheDocument();
   });
 
-  it("apresenta IA primeiro e permite continuar sem configurá-la", () => {
+  it("apresenta o contexto primeiro e permite avançar até a etapa da LLM", () => {
     render(
       <MemoryRouter>
         <OnboardingProvider collecting={null} sessionKey="user-1">
@@ -154,23 +154,27 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText("1. Configuração de IA")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "1. Resumo do Negócio" })).toBeInTheDocument();
     expect(screen.getByRole("dialog").querySelector("form")).toHaveAttribute("novalidate");
 
-    fireEvent.click(screen.getByText("Continuar sem configurar"));
-    expect(screen.getByText("Resumo do Negócio")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Resumo do Negócio/ })).toBeInTheDocument();
     const nextButton = screen.getByRole("button", { name: "Próximo Passo" });
     expect(nextButton).toBeDisabled();
 
     fireEvent.change(screen.getByPlaceholderText(/Rede de clínicas odontológicas/), { target: { value: "Resumo da empresa" } });
     expect(nextButton).toBeEnabled();
     fireEvent.click(nextButton);
-    expect(screen.getByText("Objetivo da Empresa")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Objetivo da Empresa/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Próximo Passo" })).toBeDisabled();
 
     fireEvent.change(screen.getByPlaceholderText(/Oferecer a melhor experiência/), { target: { value: "Objetivo da empresa" } });
     fireEvent.click(screen.getByRole("button", { name: "Próximo Passo" }));
-    expect(screen.getByText("Objetivo Analítico")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Objetivo Analítico/ })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByPlaceholderText(/Identificar os principais motivos/), { target: { value: "Analisar os principais motivos das reclamações" } });
+    fireEvent.click(screen.getByRole("button", { name: "Próximo Passo" }));
+    expect(screen.getByRole("button", { name: "4. Modelo LLM" })).toBeInTheDocument();
+    expect(screen.getByText(/Passo 4 de 4/)).toBeInTheDocument();
   });
 
   it("preserva edições locais quando uma revalidação traz o contexto antigo do servidor", () => {
@@ -192,7 +196,6 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
       </MemoryRouter>,
     );
 
-    fireEvent.click(screen.getByText("Continuar sem configurar"));
     const summary = screen.getByPlaceholderText(/Rede de clínicas odontológicas/);
     fireEvent.change(summary, { target: { value: "Resumo editado e ainda não salvo" } });
     fireEvent.click(screen.getByRole("button", { name: "Próximo Passo" }));
@@ -233,15 +236,16 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
       </MemoryRouter>,
     );
 
+    fireEvent.click(screen.getByRole("button", { name: "4. Modelo LLM" }));
     fireEvent.change(screen.getByLabelText("Chave da API OpenRouter"), {
       target: { value: "sk-chave-da-empresa-a" },
     });
-    fireEvent.click(screen.getByText("Continuar sem configurar"));
+    fireEvent.click(screen.getByRole("button", { name: "1. Resumo do Negócio" }));
     fireEvent.change(screen.getByPlaceholderText(/Rede de clínicas odontológicas/), {
       target: { value: "Edição da empresa A" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Próximo Passo" }));
-    expect(screen.getByText(/Passo 3 de 4/)).toBeInTheDocument();
+    expect(screen.getByText(/Passo 2 de 4/)).toBeInTheDocument();
 
     routeData.user = { id: "user-2" };
     routeData.collecting = {
@@ -262,8 +266,10 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     );
 
     expect(screen.getByText(/Passo 1 de 4/)).toBeInTheDocument();
+    expect(screen.getByText(/Passo 1 de 4/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "4. Modelo LLM" }));
     expect(screen.getByLabelText("Chave da API OpenRouter")).toHaveValue("");
-    fireEvent.click(screen.getByText("Continuar sem configurar"));
+    fireEvent.click(screen.getByRole("button", { name: "1. Resumo do Negócio" }));
     expect(screen.getByPlaceholderText(/Rede de clínicas odontológicas/)).toHaveValue("Empresa B");
   });
 
