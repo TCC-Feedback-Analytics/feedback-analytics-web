@@ -423,7 +423,7 @@ export default function AIContextDialog({
                   <HelpHint topic="aiContextFields" />
                 </h4>
                 <p className="mt-1 break-words text-xs text-(--text-secondary)">
-                  Escolha a chave e o modelo que serão usados nas análises. Você também pode salvar o contexto e configurar a IA depois no seu perfil.
+                  Escolha a chave e o modelo que serão usados nas análises. Com a IA configurada, criamos automaticamente as 3 perguntas do seu feedback geral a partir do contexto da empresa. Você também pode salvar o contexto e configurar a IA depois no seu perfil.
                 </p>
               </div>
 
