@@ -7,6 +7,12 @@ export interface OnboardingContextValue {
   hasCompletedAISetup: boolean;
   isTourDismissed: boolean;
   tourSaveError: string | null;
+  /** A configuração inicial está em andamento (onboarding ou tela "Preparando sua conta"). */
+  isInitialSetupRunning: boolean;
+  setInitialSetupRunning: (running: boolean) => void;
+  /** O usuário saiu da configuração inicial para a Configuração de IA: o tour espera. */
+  isTourDeferred: boolean;
+  setTourDeferred: (deferred: boolean) => void;
   startTour: () => void;
   completeTour: () => Promise<void>;
   skipTour: () => Promise<void>;

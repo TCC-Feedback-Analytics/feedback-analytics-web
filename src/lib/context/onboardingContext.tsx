@@ -46,6 +46,8 @@ export function OnboardingProvider({ children, collecting, iaConfig = null, sess
   const [guideLoaded, setGuideLoaded] = useState(false);
   const [isTourSaving, setIsTourSaving] = useState(false);
   const [tourSaveError, setTourSaveError] = useState<string | null>(null);
+  const [isInitialSetupRunning, setInitialSetupRunning] = useState(false);
+  const [isTourDeferred, setTourDeferred] = useState(false);
   const requestEpoch = useRef(0);
   const currentSessionKey = useRef(sessionKey);
   const sessionChanged = currentSessionKey.current !== sessionKey;
@@ -68,6 +70,8 @@ export function OnboardingProvider({ children, collecting, iaConfig = null, sess
     setGuideLoaded(false);
     setIsTourSaving(false);
     setTourSaveError(null);
+    setInitialSetupRunning(false);
+    setTourDeferred(false);
 
     void ServiceGetSystemGuide(controller.signal)
       .then((response) => {
@@ -84,12 +88,13 @@ export function OnboardingProvider({ children, collecting, iaConfig = null, sess
     return () => controller.abort();
   }, [sessionKey]);
 
-  // Abre automaticamente somente depois da leitura bem-sucedida do estado remoto.
+  // Abre automaticamente somente depois da leitura bem-sucedida do estado remoto
+  // e depois da tela de configuração inicial, que leva o usuário ao dashboard.
   useEffect(() => {
-    if (guideLoaded && guide?.status === "pending" && hasCompletedAIContext) {
+    if (guideLoaded && guide?.status === "pending" && hasCompletedAIContext && !isInitialSetupRunning && !isTourDeferred) {
       setIsTourActive(true);
     }
-  }, [guide, guideLoaded, hasCompletedAIContext]);
+  }, [guide, guideLoaded, hasCompletedAIContext, isInitialSetupRunning, isTourDeferred]);
 
   const startTour = () => {
     setCurrentTourStep(0);
@@ -158,6 +163,10 @@ export function OnboardingProvider({ children, collecting, iaConfig = null, sess
         hasCompletedAISetup,
         isTourDismissed: !sessionChanged && guide ? guide.status !== "pending" : false,
         tourSaveError: sessionChanged ? null : tourSaveError,
+        isInitialSetupRunning: sessionChanged ? false : isInitialSetupRunning,
+        setInitialSetupRunning,
+        isTourDeferred: sessionChanged ? false : isTourDeferred,
+        setTourDeferred,
         startTour,
         completeTour,
         skipTour,
