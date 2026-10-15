@@ -36,9 +36,13 @@ vi.mock("react-router-dom", async (importOriginal) => {
   };
 });
 
+const iaModels = vi.hoisted(() => ({
+  models: [] as Array<{ id: string; name: string; isAutomatic: boolean; contextLength: number | null; maxCompletionTokens: number | null }>,
+}));
+
 vi.mock("src/hooks/useIaModels", () => ({
   useIaModels: () => ({
-    catalog: { models: [], source: "public", fetchedAt: "", stale: false, currentModel: null, currentModelAvailable: null },
+    catalog: { models: iaModels.models, source: "public", fetchedAt: "", stale: false, currentModel: null, currentModelAvailable: null },
     loading: false,
     error: undefined,
     reload: vi.fn(),
@@ -70,6 +74,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     routeData.collecting = null;
     routeData.iaConfig = null;
     routeData.user = { id: "user-1" };
+    iaModels.models = [];
   });
 
   afterEach(() => {
@@ -176,6 +181,59 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     fireEvent.click(screen.getByRole("button", { name: "Próximo Passo" }));
     expect(screen.getByRole("button", { name: "4. Modelo LLM" })).toBeInTheDocument();
     expect(screen.getByText(/Passo 4 de 4/)).toBeInTheDocument();
+  });
+
+  describe("escolha do modelo na etapa da LLM", () => {
+    const completeContext = {
+      business_summary: "Resumo",
+      company_objective: "Objetivo",
+      analytics_goal: "Analítico",
+    } as CollectingDataEnterprise;
+    const model = (id: string, name: string) => ({ id, name, isAutomatic: id === "openrouter/auto", contextLength: 128000, maxCompletionTokens: 8000 });
+
+    function openLlmStep(iaConfig: IaConfigResponse) {
+      routeData.collecting = completeContext;
+      routeData.iaConfig = iaConfig;
+      iaModels.models = [
+        model("openrouter/auto", "Auto Router"),
+        model("vendor/paid", "Modelo Pago"),
+        model("vendor/free:free", "Modelo Grátis"),
+      ];
+      render(
+        <MemoryRouter>
+          <OnboardingProvider collecting={completeContext} sessionKey="user-1">
+            <AIContextDialog open={true} onOpenChange={() => {}} isMandatory={false} />
+          </OnboardingProvider>
+        </MemoryRouter>
+      );
+      fireEvent.click(screen.getByRole("button", { name: "4. Modelo LLM" }));
+      openModels();
+    }
+
+    function openModels() {
+      const combobox = screen.getByRole("combobox", { name: "Modelo LLM" });
+      if (combobox.getAttribute("aria-expanded") !== "true") fireEvent.click(combobox);
+    }
+
+    it("mostra só os modelos gratuitos por padrão e permite ver também os pagos", () => {
+      openLlmStep({ hasKey: false, provider: null, model: null, keyHint: null });
+      const paid = screen.getByRole("checkbox", { name: "Mostrar também modelos pagos" });
+      expect(paid).not.toBeChecked();
+      expect(screen.getByRole("option", { name: "Modelo Grátis (vendor/free:free) — Gratuito" })).toBeEnabled();
+      expect(screen.queryByRole("option", { name: /Modelo Pago/ })).not.toBeInTheDocument();
+      expect(screen.queryByRole("option", { name: /Roteamento automático/ })).not.toBeInTheDocument();
+
+      fireEvent.click(paid);
+      openModels();
+      expect(screen.getByRole("option", { name: "Modelo Pago (vendor/paid)" })).toBeEnabled();
+      expect(screen.getByRole("option", { name: /Roteamento automático/ })).toBeInTheDocument();
+    });
+
+    it("quem já usa um modelo pago abre com os pagos visíveis", () => {
+      openLlmStep({ hasKey: true, provider: "openrouter", model: "vendor/paid", keyHint: "xyz9" });
+      expect(screen.getByRole("checkbox", { name: "Mostrar também modelos pagos" })).toBeChecked();
+      expect(screen.getByRole("option", { name: "Modelo Pago (vendor/paid)" })).toBeEnabled();
+    });
   });
 
   it("preserva edições locais quando uma revalidação traz o contexto antigo do servidor", () => {

@@ -13,6 +13,7 @@ import { useIaModels } from 'src/hooks/useIaModels';
 import { Select, type SelectOption } from 'components/ui/select';
 import { Checkbox } from 'components/ui/checkbox';
 import { isFreeIaModel } from 'src/lib/utils/isFreeIaModel';
+import { startsWithFreeModelsOnly } from 'src/lib/utils/iaModelPriceFilter';
 import {
   FaCircleCheck,
   FaCircleExclamation,
@@ -34,7 +35,7 @@ export default function FormIaSettings() {
   const [apiKey, setApiKey] = useState('');
   const [showKey, setShowKey] = useState(false);
   const [modelOption, setModelOption] = useState<string | null>(null);
-  const [onlyFreeModels, setOnlyFreeModels] = useState(false);
+  const [onlyFreeModels, setOnlyFreeModels] = useState(() => startsWithFreeModelsOnly(loaderData?.iaConfig));
   const [needsReload, setNeedsReload] = useState(false);
   const lastResult = useRef<IaSettingsActionResult | undefined>(undefined);
   const { catalog, loading, error: catalogError, reload: reloadModels } = useIaModels(iaConfig);
@@ -116,7 +117,7 @@ export default function FormIaSettings() {
         isFreeIaModel(model.id)
           ? ' — Gratuito'
           : onlyFreeModels
-            ? ' — seleção atual (fora do filtro de gratuitos)'
+            ? ' — seleção atual (modelo pago)'
             : ''
       }`,
       disabled: onlyFreeModels && !isFreeIaModel(model.id),
@@ -267,23 +268,24 @@ export default function FormIaSettings() {
             </label>
             <label className="flex w-fit cursor-pointer items-center gap-2 py-1 text-xs text-(--text-secondary)">
               <Checkbox
-                checked={onlyFreeModels}
+                checked={!onlyFreeModels}
                 onChange={(event) => {
-                  // Marcar o filtro não muda a seleção, inclusive o padrão inicial.
-                  setModelOption(effectiveModel);
-                  setOnlyFreeModels(event.target.checked);
+                  // Trocar o filtro não muda a seleção, inclusive o padrão inicial;
+                  // sem seleção, o padrão do novo filtro passa a valer.
+                  setModelOption(effectiveModel || null);
+                  setOnlyFreeModels(!event.target.checked);
                 }}
                 disabled={loading || isBusy || !catalog || requiresReload}
                 aria-describedby="modelStatus"
               />
-              Buscar modelos gratuitos
+              Mostrar também modelos pagos
             </label>
             <Select
               id="modelSelect"
               value={effectiveModel}
               onChange={(model) => setModelOption(model)}
               options={modelOptions}
-              placeholder={loading ? 'Carregando modelos...' : 'Selecione um modelo'}
+              placeholder={loading ? 'Carregando modelos...' : onlyFreeModels ? 'Selecione um modelo gratuito' : 'Selecione um modelo'}
               disabled={loading || isBusy || !catalog || models.length === 0 || requiresReload}
               aria-describedby="modelStatus modelHelp"
               searchable
@@ -291,7 +293,7 @@ export default function FormIaSettings() {
               searchPlaceholder="Busque pelo nome ou identificador"
               emptyMessage={onlyFreeModels ? 'Nenhum modelo gratuito corresponde à busca.' : 'Nenhum modelo encontrado para esta busca.'}
               noResultsMessage={onlyFreeModels
-                ? 'Nenhum modelo gratuito encontrado com os filtros atuais. Altere a busca ou desmarque o filtro.'
+                ? 'Nenhum modelo gratuito encontrado com os filtros atuais. Altere a busca ou mostre também os modelos pagos.'
                 : 'Nenhum modelo encontrado para esta busca. A seleção atual foi mantida.'}
               dropdownClassName="border-(--primary-color)/25 shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
             />
@@ -303,7 +305,7 @@ export default function FormIaSettings() {
               {missingCurrentModel && <p className="text-amber-600 dark:text-amber-400">O modelo atual não está disponível neste catálogo. Sua configuração foi mantida; selecione outro modelo para alterá-la.</p>}
               {catalog && effectiveModel && !selectedModel && effectiveModel !== activeModel && <p>O modelo selecionado não está mais disponível. Escolha outro modelo.</p>}
               {catalog && onlyFreeModels && models.length > 0 && !models.some((model) => isFreeIaModel(model.id)) && <p>Nenhum modelo gratuito encontrado no catálogo atual.</p>}
-              {catalog && selectedOutsideFreeFilter && <p className="text-amber-600 dark:text-amber-400">A seleção atual não é uma opção gratuita. Escolha um modelo gratuito ou desmarque o filtro para salvar. Sua configuração não foi alterada.</p>}
+              {catalog && selectedOutsideFreeFilter && <p className="text-amber-600 dark:text-amber-400">A seleção atual é um modelo pago. Escolha um modelo gratuito ou marque "Mostrar também modelos pagos" para salvar. Sua configuração não foi alterada.</p>}
               {catalog && onlyFreeModels && <p>Modelos gratuitos podem ter limites de uso e disponibilidade no OpenRouter.</p>}
               {requiresReload && <p>A configuração foi alterada. Recarregue antes de continuar.</p>}
             </div>
