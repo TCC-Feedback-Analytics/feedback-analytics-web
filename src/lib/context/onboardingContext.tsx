@@ -49,6 +49,7 @@ export function OnboardingProvider({ children, collecting, iaConfig = null, sess
   const [isInitialSetupRunning, setInitialSetupRunning] = useState(false);
   const [isTourDeferred, setTourDeferred] = useState(false);
   const requestEpoch = useRef(0);
+  const setupSessionKey = useRef(sessionKey);
   const currentSessionKey = useRef(sessionKey);
   const sessionChanged = currentSessionKey.current !== sessionKey;
 
@@ -70,8 +71,13 @@ export function OnboardingProvider({ children, collecting, iaConfig = null, sess
     setGuideLoaded(false);
     setIsTourSaving(false);
     setTourSaveError(null);
-    setInitialSetupRunning(false);
-    setTourDeferred(false);
+    // Os efeitos dos filhos rodam antes deste: na montagem o onboarding já pode
+    // ter marcado a configuração inicial. Só uma troca real de sessão a desfaz.
+    if (setupSessionKey.current !== sessionKey) {
+      setupSessionKey.current = sessionKey;
+      setInitialSetupRunning(false);
+      setTourDeferred(false);
+    }
 
     void ServiceGetSystemGuide(controller.signal)
       .then((response) => {

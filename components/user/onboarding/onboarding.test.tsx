@@ -1,4 +1,5 @@
-import { render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
+import { useEffect } from "react";
+import { act, render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import "@testing-library/jest-dom";
 import { MemoryRouter } from "react-router-dom";
@@ -288,6 +289,40 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
       mobileSelector: '[data-tour="mobile-nav-profile"]',
       openMobileDrawer: true,
     });
+  });
+
+  it("o tour espera a configuração inicial marcada por um filho na montagem", async () => {
+    systemGuide.get.mockResolvedValue({
+      tourKey: "system-guide", version: 1, status: "pending", finishedAt: null,
+    });
+    const completeCollecting = {
+      business_summary: "Resumo",
+      company_objective: "Objetivo",
+      analytics_goal: "Analítico",
+    } as CollectingDataEnterprise;
+
+    // Como o UserOnboardingManager: marca no próprio efeito, que roda antes do provider.
+    function SetupProbe() {
+      const { setInitialSetupRunning } = useOnboarding();
+      useEffect(() => { setInitialSetupRunning(true); }, [setInitialSetupRunning]);
+      return <button onClick={() => setInitialSetupRunning(false)}>Concluir configuração</button>;
+    }
+
+    render(
+      <MemoryRouter initialEntries={["/user/dashboard"]}>
+        <OnboardingProvider collecting={completeCollecting} sessionKey="user-1">
+          <SetupProbe />
+          <TestConsumer />
+        </OnboardingProvider>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => expect(systemGuide.get).toHaveBeenCalled());
+    await act(async () => {});
+    expect(screen.getByTestId("tour-active")).toHaveTextContent("false");
+
+    fireEvent.click(screen.getByText("Concluir configuração"));
+    await waitFor(() => expect(screen.getByTestId("tour-active")).toHaveTextContent("true"));
   });
 
   it("permite navegar pelos passos do Tour Interativo Spotlight e pular a introdução", async () => {
