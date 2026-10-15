@@ -6,7 +6,7 @@ import type { IaOperationStatus } from 'src/lib/context/insightsControls.types';
 import { ServiceGetActiveAnalysisJobs, type IaAnalysisJob } from 'src/services/serviceFeedbacks';
 
 type Result = { analyzedCount?: number; reportGenerated?: boolean };
-type Response = { ok?: boolean; jobId?: string; error?: string };
+type Response = { ok?: boolean; jobId?: string; error?: string; errorCode?: string };
 
 function readSavedJob(key: string | null) {
   try { return key ? localStorage.getItem(key) : null; } catch { return null; }
@@ -16,7 +16,8 @@ function readSavedJob(key: string | null) {
 export function useIaOperation({ kind, onSuccess, onError, enterpriseId }: {
   kind: 'analyze_raw' | 'regenerate_insights';
   onSuccess: (result: Result) => void;
-  onError: (message: string) => void;
+  /** `errorCode` vem do job ou da action quando a falha tem código tipado. */
+  onError: (message: string, errorCode: string | null) => void;
   enterpriseId?: string;
 }) {
   const fetcher = useFetcher();
@@ -65,14 +66,14 @@ export function useIaOperation({ kind, onSuccess, onError, enterpriseId }: {
     return () => { cancelled = true; clearTimeout(timer); };
   }, [enterpriseId, kind, remember]);
 
-  const fail = useCallback((message: string) => {
+  const fail = useCallback((message: string, errorCode: string | null = null) => {
     activeRef.current = false;
     awaitingResponse.current = false;
     setJobId(null);
     remember(null);
     setError(message);
     setStatus('failed');
-    callbacks.current.onError(message);
+    callbacks.current.onError(message, errorCode);
   }, [remember]);
 
   const succeed = useCallback((result: Result) => {
@@ -93,7 +94,7 @@ export function useIaOperation({ kind, onSuccess, onError, enterpriseId }: {
       }
       succeed(kind === 'analyze_raw' ? { analyzedCount: job.done } : { reportGenerated: true });
     },
-    onFailed: (code) => fail(getIaErrorMessage(code)),
+    onFailed: (code) => fail(getIaErrorMessage(code), code),
   });
 
   useEffect(() => {
@@ -101,7 +102,7 @@ export function useIaOperation({ kind, onSuccess, onError, enterpriseId }: {
     awaitingResponse.current = false;
     const data = fetcher.data as Response | undefined;
     if (!data?.ok) {
-      fail(data?.error || 'Não foi possível concluir o processamento de IA. Tente novamente.');
+      fail(data?.error || 'Não foi possível concluir o processamento de IA. Tente novamente.', data?.errorCode ?? null);
     } else if (data.jobId) {
       // O HTTP 202 só confirma o enfileiramento, não o sucesso do processamento.
       setJobId(data.jobId);
