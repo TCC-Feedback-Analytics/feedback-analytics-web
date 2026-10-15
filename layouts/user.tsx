@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Outlet, useFetcher, useLoaderData, useLocation, useNavigation } from 'react-router-dom';
+import { Outlet, useFetcher, useLoaderData, useLocation, useNavigation, useRevalidator } from 'react-router-dom';
 import Header from 'components/user/layout/Header';
 import {
   InsightsControlsProvider,
@@ -37,6 +37,7 @@ import { OnboardingProvider, useOnboarding } from 'src/lib/context/onboardingCon
 import AIContextDialog from 'components/user/onboarding/AIContextDialog';
 import UserInteractiveTour from 'components/user/onboarding/UserInteractiveTour';
 import { useIaOperation } from 'src/lib/hooks/useIaOperation';
+import { useCompanyQuestionsGeneration } from 'src/lib/hooks/useCompanyQuestionsGeneration';
 
 function UserOnboardingManager({
   onOpenMobileDrawer,
@@ -165,6 +166,22 @@ export default function User() {
   });
   const submitRaw = rawOperation.submit;
   const submitInsights = insightsOperation.submit;
+
+  const revalidator = useRevalidator();
+  useCompanyQuestionsGeneration({
+    enabled: Boolean(iaConfig?.hasKey),
+    refreshKey: collecting,
+    onCompleted: (applied) => {
+      revalidator.revalidate();
+      if (applied) {
+        toast.success('Perguntas personalizadas!', 'A IA criou as perguntas do seu formulário. Você pode editá-las em Configurar perguntas.');
+      }
+    },
+    onFailed: () => toast.warning(
+      'Perguntas padrão mantidas',
+      'A IA não conseguiu gerar as perguntas agora. Você pode personalizá-las em Configurar perguntas.',
+    ),
+  });
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
