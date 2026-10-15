@@ -95,6 +95,15 @@ function selectModel(modelId: string) {
   fireEvent.click(option);
 }
 
+function paidModelsCheckbox() {
+  return screen.getByRole('checkbox', { name: 'Mostrar também modelos pagos' });
+}
+
+/** O cadastro inicial começa só com gratuitos; vários testes usam o catálogo pago. */
+function showPaidModels() {
+  fireEvent.click(paidModelsCheckbox());
+}
+
 describe('FormIaSettings — cadastro e remoção da chave', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -119,9 +128,12 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
     await ready();
 
     expect(screen.getByLabelText(/Chave da API OpenRouter/)).toHaveAttribute('type', 'password');
-    expect(screen.getByRole('combobox', { name: 'Modelo de IA' })).toHaveValue('openrouter/auto');
+    expect(paidModelsCheckbox()).not.toBeChecked();
+    expect(screen.getByRole('combobox', { name: 'Modelo de IA' })).toHaveValue('');
     expect(screen.getByRole('button', { name: 'Salvar Configuração de IA' })).toBeDisabled();
     expect(screen.queryByRole('button', { name: 'Remover chave' })).not.toBeInTheDocument();
+    showPaidModels();
+    expect(screen.getByRole('combobox', { name: 'Modelo de IA' })).toHaveValue('openrouter/auto');
   });
 
   it.each(['openrouter/auto', 'meta-llama/custom-model'])(
@@ -140,6 +152,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     const { rerender } = render(<FormIaSettings />);
     await ready();
+    showPaidModels();
     const input = screen.getByLabelText(/Chave da API OpenRouter/);
     fireEvent.change(input, { target: { value: '  sk-or-v1-test-xyz9  ' } });
     fireEvent.click(screen.getByRole('button', { name: 'Mostrar chave' }));
@@ -229,6 +242,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
   it('mantém o formulário e a chave digitada quando o salvamento falha', async () => {
     const { rerender } = render(<FormIaSettings />);
     await ready();
+    showPaidModels();
     fireEvent.change(screen.getByLabelText(/Chave da API OpenRouter/), {
       target: { value: 'sk-or-v1-invalid' },
     });
@@ -245,6 +259,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
   it('usa opções da API, busca por nome/ID e não oferece a lista fixa ou modelo livre', async () => {
     render(<FormIaSettings />);
     await ready();
+    showPaidModels();
     openModelDropdown();
     expect(screen.getByRole('option', { name: 'Modelo Alpha (vendor/model-a)' })).toBeInTheDocument();
     expect(screen.queryByText('Outro (personalizado)')).not.toBeInTheDocument();
@@ -306,7 +321,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
     expect(screen.getByRole('combobox')).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Remover chave' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Salvando...' })).toBeDisabled();
-    expect(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' })).toBeDisabled();
+    expect(screen.getByRole('checkbox', { name: 'Mostrar também modelos pagos' })).toBeDisabled();
   });
 
   it('preserva modelo salvo ausente como opção desabilitada, sem selecionar outro automaticamente', async () => {
@@ -391,6 +406,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
   it('atualização de catálogo que remove a escolha não troca a seleção silenciosamente', async () => {
     render(<FormIaSettings />);
     await ready();
+    showPaidModels();
     selectModel('vendor/model-a');
     vi.mocked(ServiceGetIaModels).mockResolvedValueOnce({ ...catalogFor(emptyConfig), models: [dynamicModels[0]] });
     fireEvent.click(screen.getByRole('button', { name: 'Atualizar modelos' }));
@@ -443,15 +459,15 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
       vi.mocked(ServiceGetIaModels).mockResolvedValue({ ...catalogFor(savedConfig), models: [...dynamicModels, ...freeModels] });
     });
 
-    it('inicia desmarcado e filtra as opções sem fazer novas chamadas', async () => {
+    it('com modelo pago salvo, inicia mostrando os pagos e filtra sem fazer novas chamadas', async () => {
       render(<FormIaSettings />);
       await ready();
-      const checkbox = screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' });
-      expect(checkbox).not.toBeChecked();
+      const checkbox = paidModelsCheckbox();
+      expect(checkbox).toBeChecked();
       expect(modelSearch()).toBeInTheDocument();
       expect(screen.getByRole('option', { name: 'Modelo Alpha (vendor/model-a)' })).toBeInTheDocument();
       fireEvent.click(checkbox);
-      expect(checkbox).toBeChecked();
+      expect(checkbox).not.toBeChecked();
       openModelDropdown();
       expect(screen.queryByRole('option', { name: 'Modelo Alpha (vendor/model-a)' })).not.toBeInTheDocument();
       expect(screen.queryByRole('option', { name: 'Modelo Beta (vendor/model-b)' })).not.toBeInTheDocument();
@@ -465,7 +481,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
       render(<FormIaSettings />);
       await ready();
       fireEvent.change(modelSearch(), { target: { value: 'ALPHA' } });
-      fireEvent.click(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' }));
+      fireEvent.click(screen.getByRole('checkbox', { name: 'Mostrar também modelos pagos' }));
       expect(modelSearch()).toHaveValue('ALPHA');
       expect(screen.getByRole('option', { name: /Modelo Alpha grátis/ })).toBeInTheDocument();
       expect(screen.queryByRole('option', { name: /Modelo Beta grátis/ })).not.toBeInTheDocument();
@@ -478,11 +494,11 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
     it('preserva auto como seleção fora do filtro, sem apresentá-lo como gratuito', async () => {
       render(<FormIaSettings />);
       await ready();
-      fireEvent.click(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' }));
+      fireEvent.click(screen.getByRole('checkbox', { name: 'Mostrar também modelos pagos' }));
       expect(screen.getByRole('combobox')).toHaveValue('openrouter/auto');
       openModelDropdown();
-      expect(screen.getByRole('option', { name: /Roteamento automático.*fora do filtro de gratuitos/ })).toBeDisabled();
-      expect(screen.getByText(/A seleção atual não é uma opção gratuita/)).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: /Roteamento automático.*seleção atual \(modelo pago\)/ })).toBeDisabled();
+      expect(screen.getByText(/A seleção atual é um modelo pago/)).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Salvar modelo' })).toBeDisabled();
       expectConfiguredView();
     });
@@ -492,23 +508,23 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
       await ready();
       selectModel('vendor/model-a');
       expect(screen.getByRole('button', { name: 'Salvar modelo' })).toBeEnabled();
-      fireEvent.click(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' }));
+      fireEvent.click(screen.getByRole('checkbox', { name: 'Mostrar também modelos pagos' }));
       expect(screen.getByRole('combobox')).toHaveValue('vendor/model-a');
       expect(screen.getByRole('button', { name: 'Salvar modelo' })).toBeDisabled();
       fireEvent.click(screen.getByRole('button', { name: 'Salvar modelo' }));
       expect(fetcher.submit).not.toHaveBeenCalled();
-      fireEvent.click(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' }));
+      fireEvent.click(screen.getByRole('checkbox', { name: 'Mostrar também modelos pagos' }));
       expect(screen.getByRole('button', { name: 'Salvar modelo' })).toBeEnabled();
-      expect(screen.queryByText(/A seleção atual não é uma opção gratuita/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/A seleção atual é um modelo pago/)).not.toBeInTheDocument();
     });
 
     it('restaura opções ao desmarcar sem perder texto nem modelo escolhido', async () => {
       render(<FormIaSettings />);
       await ready();
       fireEvent.change(modelSearch(), { target: { value: 'Alpha' } });
-      fireEvent.click(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' }));
+      fireEvent.click(screen.getByRole('checkbox', { name: 'Mostrar também modelos pagos' }));
       selectModel('vendor/model-a:free');
-      fireEvent.click(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' }));
+      fireEvent.click(screen.getByRole('checkbox', { name: 'Mostrar também modelos pagos' }));
       expect(modelSearch()).toHaveValue('Alpha');
       expect(screen.getByRole('combobox')).toHaveValue('vendor/model-a:free');
       expect(screen.getByRole('option', { name: 'Modelo Alpha (vendor/model-a)' })).toBeEnabled();
@@ -518,9 +534,9 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
     it('grava só o modelo gratuito, sem token nem preferência de filtro no payload', async () => {
       render(<FormIaSettings />);
       await ready();
-      fireEvent.click(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' }));
+      fireEvent.click(screen.getByRole('checkbox', { name: 'Mostrar também modelos pagos' }));
       selectModel('vendor/model-a:free');
-      expect(screen.queryByText(/A seleção atual não é uma opção gratuita/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/A seleção atual é um modelo pago/)).not.toBeInTheDocument();
       fireEvent.click(screen.getByRole('button', { name: 'Salvar modelo' }));
       expect(Object.fromEntries(fetcher.submit.mock.calls[0][0] as FormData))
         .toEqual({ intent: 'update_ia_model', model: 'vendor/model-a:free' });
@@ -530,7 +546,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
     it('explica quando nenhum gratuito corresponde à busca', async () => {
       render(<FormIaSettings />);
       await ready();
-      fireEvent.click(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' }));
+      fireEvent.click(screen.getByRole('checkbox', { name: 'Mostrar também modelos pagos' }));
       fireEvent.change(modelSearch(), { target: { value: 'inexistente' } });
       expect(screen.getByText(/Nenhum modelo gratuito encontrado com os filtros atuais/)).toBeInTheDocument();
       expect(screen.getByRole('combobox')).toHaveValue('openrouter/auto');
@@ -541,21 +557,24 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
       vi.mocked(ServiceGetIaModels).mockResolvedValueOnce(catalogFor(savedConfig));
       render(<FormIaSettings />);
       await ready();
-      fireEvent.click(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' }));
+      fireEvent.click(screen.getByRole('checkbox', { name: 'Mostrar também modelos pagos' }));
       expect(screen.getByText(/Nenhum modelo gratuito encontrado/)).toBeInTheDocument();
       expect(screen.queryByRole('option', { name: / — Gratuito$/ })).not.toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Salvar modelo' })).toBeDisabled();
     });
 
-    it('preserva o padrão no cadastro inicial, mas não o salva sob o filtro de gratuitos', async () => {
+    it('cadastro inicial começa só com gratuitos e não pré-seleciona um modelo pago', async () => {
       vi.mocked(useLoaderData).mockReturnValue({ iaConfig: emptyConfig });
       vi.mocked(ServiceGetIaModels).mockResolvedValueOnce({ ...catalogFor(emptyConfig), models: [...dynamicModels, ...freeModels] });
       render(<FormIaSettings />);
       await ready();
+      expect(paidModelsCheckbox()).not.toBeChecked();
+      expect(screen.getByRole('combobox')).toHaveValue('');
+      openModelDropdown();
+      expect(screen.queryByRole('option', { name: /Roteamento automático/ })).not.toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: 'Modelo Alpha (vendor/model-a)' })).not.toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Modelo Beta grátis (vendor/model-b:free) — Gratuito' })).toBeEnabled();
       fireEvent.change(screen.getByLabelText(/Chave da API OpenRouter/), { target: { value: 'test-key' } });
-      expect(screen.getByRole('button', { name: 'Salvar Configuração de IA' })).toBeEnabled();
-      fireEvent.click(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' }));
-      expect(screen.getByRole('combobox')).toHaveValue('openrouter/auto');
       expect(screen.getByRole('button', { name: 'Salvar Configuração de IA' })).toBeDisabled();
       selectModel('vendor/model-b:free');
       fireEvent.click(screen.getByRole('button', { name: 'Salvar Configuração de IA' }));
@@ -564,18 +583,29 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
       });
     });
 
-    it('mantém a escolha gratuita atual mesmo quando a busca não corresponde a ela', async () => {
+    it('no cadastro inicial, mostrar os pagos oferece o roteamento automático como padrão', async () => {
+      vi.mocked(useLoaderData).mockReturnValue({ iaConfig: emptyConfig });
+      vi.mocked(ServiceGetIaModels).mockResolvedValueOnce({ ...catalogFor(emptyConfig), models: [...dynamicModels, ...freeModels] });
+      render(<FormIaSettings />);
+      await ready();
+      fireEvent.change(screen.getByLabelText(/Chave da API OpenRouter/), { target: { value: 'test-key' } });
+      showPaidModels();
+      expect(screen.getByRole('combobox')).toHaveValue('openrouter/auto');
+      expect(screen.getByRole('button', { name: 'Salvar Configuração de IA' })).toBeEnabled();
+    });
+
+    it('com modelo gratuito salvo, mantém só os gratuitos e a escolha mesmo quando a busca não corresponde', async () => {
       const config = { ...savedConfig, model: 'vendor/model-a:free' };
       vi.mocked(useLoaderData).mockReturnValue({ iaConfig: config });
       vi.mocked(ServiceGetIaModels).mockResolvedValueOnce({ ...catalogFor(config), models: [...dynamicModels, ...freeModels] });
       render(<FormIaSettings />);
       await ready();
-      fireEvent.click(screen.getByRole('checkbox', { name: 'Buscar modelos gratuitos' }));
+      expect(paidModelsCheckbox()).not.toBeChecked();
       fireEvent.change(modelSearch(), { target: { value: 'Beta' } });
       expect(screen.getByRole('combobox')).toHaveValue('vendor/model-a:free');
       expect(screen.getByRole('option', { name: /Modelo Alpha grátis/ })).toBeEnabled();
       expect(screen.getByRole('option', { name: /Modelo Beta grátis/ })).toBeEnabled();
-      expect(screen.queryByText(/A seleção atual não é uma opção gratuita/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/A seleção atual é um modelo pago/)).not.toBeInTheDocument();
     });
   });
 });

@@ -8,6 +8,9 @@ import { INTENT_SAVE_IA_CONFIG, INTENT_UPDATE_IA_MODEL } from "src/lib/constants
 import { useIaModels } from "src/hooks/useIaModels";
 import { useToast } from "components/public/forms/messages/useToast";
 import { Select, type SelectOption } from "components/ui/select";
+import { Checkbox } from "components/ui/checkbox";
+import { isFreeIaModel } from "src/lib/utils/isFreeIaModel";
+import { filterIaModelsByPrice, startsWithFreeModelsOnly } from "src/lib/utils/iaModelPriceFilter";
 import HelpHint from "components/user/shared/HelpHint";
 import {
   FaWandMagicSparkles,
@@ -99,6 +102,8 @@ export default function AIContextDialog({
   const [apiKey, setApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState("");
+  // Começa só com os gratuitos; o usuário pode pedir para ver também os pagos.
+  const [showPaidModels, setShowPaidModels] = useState(() => !startsWithFreeModelsOnly(routeData?.iaConfig));
   const [step, setStep] = useState(0);
   const dialogContentRef = useRef<HTMLDivElement>(null);
   const serverValuesRef = useRef(getContextValues(collecting));
@@ -130,6 +135,7 @@ export default function AIContextDialog({
     setApiKey("");
     setShowApiKey(false);
     setSelectedModelId("");
+    setShowPaidModels(!startsWithFreeModelsOnly(routeData?.iaConfig));
     setStep(0);
     contextSubmitPendingRef.current = false;
     iaSubmitPendingRef.current = false;
@@ -141,6 +147,9 @@ export default function AIContextDialog({
 
   const isSaving = collectingFetcher.state !== "idle" || iaFetcher.state !== "idle";
   const models = catalog?.models ?? [];
+  const selectedModel = selectedModelId || iaConfig?.model || "";
+  const visibleModels = filterIaModelsByPrice(models, { includePaid: showPaidModels, keepId: selectedModel });
+  const hasFreeModels = models.some((model) => isFreeIaModel(model.id));
   const modelOptions: SelectOption<string>[] = [
     ...(iaConfig?.model && !models.some((model) => model.id === iaConfig.model)
       ? [{
@@ -149,13 +158,21 @@ export default function AIContextDialog({
           disabled: true,
         }]
       : []),
-    ...models.map((model) => ({
-      value: model.id,
-      label: `${model.isAutomatic ? "Roteamento automático" : model.name} (${model.id})`,
-    })),
+    ...visibleModels.map((model) => {
+      const isFree = isFreeIaModel(model.id);
+      return {
+        value: model.id,
+        label: `${model.isAutomatic ? "Roteamento automático" : model.name} (${model.id})${
+          isFree ? " — Gratuito" : !showPaidModels ? " — seleção atual (modelo pago)" : ""
+        }`,
+        disabled: !showPaidModels && !isFree,
+      };
+    }),
   ];
-  const selectedModel = selectedModelId || iaConfig?.model || "";
-  const selectedModelIsAvailable = models.some((model) => model.id === selectedModel);
+  // Com o filtro de gratuitos, uma seleção paga fica visível mas não pode ser salva.
+  const selectedModelIsAvailable = models.some((model) => model.id === selectedModel)
+    && (showPaidModels || isFreeIaModel(selectedModel));
+  const selectedPaidUnderFreeFilter = Boolean(selectedModel && !showPaidModels && !isFreeIaModel(selectedModel));
   const isLlmConfigured = Boolean(iaConfig?.hasKey && iaConfig.model);
   const needsLlmUpdate = Boolean(
     iaConfig && (!isLlmConfigured || (selectedModelId && selectedModelId !== iaConfig.model)),
@@ -477,25 +494,39 @@ export default function AIContextDialog({
 
                   <div className="space-y-2">
                     <label htmlFor="onboarding-model" className="block text-sm font-medium text-(--text-primary)">Modelo LLM</label>
+                    <label className="flex w-fit cursor-pointer items-center gap-2 py-1 text-xs text-(--text-secondary)">
+                      <Checkbox
+                        checked={showPaidModels}
+                        onChange={(event) => setShowPaidModels(event.target.checked)}
+                        disabled={isLoadingModels || isSaving || !catalog}
+                        aria-describedby="onboarding-model-status"
+                      />
+                      Mostrar também modelos pagos
+                    </label>
                     <Select
                       id="onboarding-model"
                       value={selectedModel}
                       onChange={setSelectedModelId}
                       options={modelOptions}
-                      placeholder={isLoadingModels ? "Carregando modelos..." : "Selecione um modelo"}
+                      placeholder={isLoadingModels ? "Carregando modelos..." : showPaidModels ? "Selecione um modelo" : "Selecione um modelo gratuito"}
                       disabled={isLoadingModels || models.length === 0 || isSaving}
                       aria-describedby="onboarding-model-status"
                       searchable
                       searchLabel="Buscar modelo"
                       searchPlaceholder="Busque pelo nome ou identificador"
-                      emptyMessage="Nenhum modelo encontrado."
-                      noResultsMessage="Nenhum modelo corresponde à busca."
+                      emptyMessage={showPaidModels ? "Nenhum modelo encontrado." : "Nenhum modelo gratuito encontrado."}
+                      noResultsMessage={showPaidModels
+                        ? "Nenhum modelo corresponde à busca."
+                        : "Nenhum modelo gratuito corresponde à busca. Altere a busca ou mostre também os modelos pagos."}
                       dropdownClassName="border-(--primary-color)/25 shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
                     />
                     <div id="onboarding-model-status" role="status" className="min-w-0 space-y-1 break-words text-xs text-(--text-tertiary)">
                       {isLoadingModels && <p>Carregando modelos compatíveis...</p>}
                       {modelsError && <p className="text-amber-400">{modelsError}</p>}
                       {!isLoadingModels && catalog && models.length === 0 && <p className="text-amber-400">Nenhum modelo compatível está disponível. Você ainda pode continuar sem configurar a IA.</p>}
+                      {!isLoadingModels && catalog && models.length > 0 && !showPaidModels && !hasFreeModels && <p className="text-amber-400">Nenhum modelo gratuito no catálogo atual. Marque "Mostrar também modelos pagos" para ver os demais.</p>}
+                      {selectedPaidUnderFreeFilter && <p className="text-amber-400">A seleção atual é um modelo pago. Escolha um gratuito ou marque "Mostrar também modelos pagos".</p>}
+                      {!showPaidModels && catalog && hasFreeModels && <p>Modelos gratuitos podem ter limites de uso e disponibilidade no OpenRouter.</p>}
                       {selectedModel && selectedModelIsAvailable && <p className="text-emerald-400">Modelo selecionado e pronto para salvar.</p>}
                     </div>
                     <button type="button" onClick={reloadModels} disabled={isLoadingModels || isSaving} className="text-xs font-medium text-(--primary-color) hover:underline disabled:opacity-50">
