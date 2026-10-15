@@ -11,7 +11,8 @@ import SectionQrInstructions from 'components/user/pages/qrcodeEnterprise/Sectio
 import SectionQrCodeDisplay from 'components/user/pages/qrcodeEnterprise/SectionQrCodeDisplay';
 import SectionQrUsageTips from 'components/user/pages/qrcodeEnterprise/SectionQrUsageTips';
 import type { QrCodeEnterpriseActionResponse } from 'pages/user/qrcodes/ui.types';
-import { FaArrowRight, FaChartLine, FaCircleCheck, FaCirclePause, FaLink, FaPenToSquare, FaPlay, FaQrcode } from 'react-icons/fa6';
+import { FaArrowRight, FaChartLine, FaCircleCheck, FaCirclePause, FaLink, FaPenToSquare, FaPlay, FaQrcode, FaSpinner } from 'react-icons/fa6';
+import { useCompanyQuestionsGenerationPhase } from 'src/lib/context/companyQuestionsGenerationContext';
 
 export default function EditFeedbackGeneral() {
   const { enterprise } = useRouteLoaderData('user') as {
@@ -21,6 +22,7 @@ export default function EditFeedbackGeneral() {
     useLoaderData<Awaited<ReturnType<typeof LoaderFeedbackGeneral>>>();
   const qrFetcher = useFetcher<QrCodeEnterpriseActionResponse>();
   const toast = useToast();
+  const isGeneratingQuestions = useCompanyQuestionsGenerationPhase() === 'running';
 
   const [showCopied, setShowCopied] = useState(false);
   const [qrActive, setQrActive] = useState<boolean>(initialQrActive ?? false);
@@ -135,6 +137,12 @@ export default function EditFeedbackGeneral() {
             <FaCircleCheck className="text-(--primary-color)" aria-hidden /> 3 perguntas essenciais
           </div>
         </div>
+        {isGeneratingQuestions && (
+          <div role="status" className="mt-6 flex items-start gap-3 rounded-2xl border border-(--primary-color)/25 bg-(--primary-color)/10 px-4 py-3 text-sm text-(--text-secondary)">
+            <FaSpinner className="mt-0.5 shrink-0 animate-spin text-(--primary-color)" aria-hidden />
+            <p>A IA está criando suas perguntas personalizadas. Elas aparecem aqui assim que ficarem prontas.</p>
+          </div>
+        )}
         <div className="mt-8">
           <QuestionDinamicEnterprise />
         </div>

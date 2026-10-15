@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Outlet, useFetcher, useLoaderData, useLocation, useNavigate, useNavigation, useRevalidator } from 'react-router-dom';
+import { Outlet, useFetcher, useLoaderData, useLocation, useNavigate, useNavigation } from 'react-router-dom';
 import Header from 'components/user/layout/Header';
 import {
   InsightsControlsProvider,
@@ -36,25 +36,59 @@ import { useToast } from 'components/public/forms/messages/useToast';
 import { OnboardingProvider, useOnboarding } from 'src/lib/context/onboardingContext';
 import AIContextDialog from 'components/user/onboarding/AIContextDialog';
 import UserInteractiveTour from 'components/user/onboarding/UserInteractiveTour';
+import InitialSetupProgressDialog from 'components/user/onboarding/InitialSetupProgressDialog';
 import { useIaOperation } from 'src/lib/hooks/useIaOperation';
-import {
-  getCompanyQuestionsFailureNotice,
-  useCompanyQuestionsGeneration,
-} from 'src/lib/hooks/useCompanyQuestionsGeneration';
+import { CompanyQuestionsGenerationProvider } from 'src/lib/context/companyQuestionsGenerationContext';
+import { getIaFailureNotice } from 'src/lib/utils/iaErrorMapper';
+
+const IA_SETTINGS_PATH = '/user/edit/ia-settings';
 
 function UserOnboardingManager({
   onOpenMobileDrawer,
   onCloseMobileDrawer,
+  model,
 }: {
   onOpenMobileDrawer: () => void;
   onCloseMobileDrawer: () => void;
+  model: string | null;
 }) {
-  const { hasCompletedAIContext } = useOnboarding();
+  const { hasCompletedAIContext, setInitialSetupRunning, isTourDeferred, setTourDeferred } = useOnboarding();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [mandatoryOpen, setMandatoryOpen] = useState(!hasCompletedAIContext);
+  const [setupOpen, setSetupOpen] = useState(false);
+  const arrivedAtIaSettings = useRef(false);
 
   useEffect(() => {
     setMandatoryOpen(!hasCompletedAIContext);
-  }, [hasCompletedAIContext]);
+    // O tour só começa depois da tela de configuração inicial.
+    if (!hasCompletedAIContext) setInitialSetupRunning(true);
+  }, [hasCompletedAIContext, setInitialSetupRunning]);
+
+  const handleSetupSaved = useCallback(({ llmConfigured }: { llmConfigured: boolean }) => {
+    // Sem LLM não há perguntas a gerar: segue direto para o tour.
+    if (llmConfigured) setSetupOpen(true);
+    else setInitialSetupRunning(false);
+  }, [setInitialSetupRunning]);
+
+  const handleSetupFinish = useCallback((destination: 'dashboard' | 'ia-settings') => {
+    setSetupOpen(false);
+    setInitialSetupRunning(false);
+    if (destination === 'ia-settings') {
+      // O tour navega sozinho; espera o usuário sair da Configuração de IA.
+      arrivedAtIaSettings.current = false;
+      setTourDeferred(true);
+      navigate(IA_SETTINGS_PATH);
+      return;
+    }
+    navigate('/user/dashboard');
+  }, [navigate, setInitialSetupRunning, setTourDeferred]);
+
+  useEffect(() => {
+    if (!isTourDeferred) return;
+    if (pathname === IA_SETTINGS_PATH) arrivedAtIaSettings.current = true;
+    else if (arrivedAtIaSettings.current) setTourDeferred(false);
+  }, [isTourDeferred, pathname, setTourDeferred]);
 
   return (
     <>
@@ -62,6 +96,12 @@ function UserOnboardingManager({
         open={mandatoryOpen}
         onOpenChange={setMandatoryOpen}
         isMandatory={true}
+        onSetupSaved={handleSetupSaved}
+      />
+      <InitialSetupProgressDialog
+        open={setupOpen}
+        onFinish={handleSetupFinish}
+        model={model}
       />
       <UserInteractiveTour
         onOpenMobileDrawer={onOpenMobileDrawer}
@@ -152,6 +192,21 @@ export default function User() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collecting]);
 
+  const navigate = useNavigate();
+  const iaModel = iaConfig?.model ?? null;
+  // Falha com causa conhecida diz se é do modelo, da conta ou temporária e
+  // leva à Configuração de IA; sem causa conhecida, mantém a mensagem.
+  const notifyIaFailure = useCallback((title: string, message: string, errorCode: string | null, task: string) => {
+    const notice = getIaFailureNotice({ errorCode, model: iaModel, task });
+    if (!notice) {
+      toast.error(title, message);
+      return;
+    }
+    toast.error(notice.title, notice.description, notice.actionLabel
+      ? { actionLabel: notice.actionLabel, onAction: () => navigate(IA_SETTINGS_PATH), duration: 12000 }
+      : undefined);
+  }, [iaModel, navigate, toast]);
+
   const rawOperation = useIaOperation({
     kind: 'analyze_raw',
     enterpriseId: enterprise.id,
@@ -159,35 +214,16 @@ export default function User() {
       analyzedCount > 0 ? 'Feedbacks analisados!' : 'Nenhum feedback novo',
       analyzedCount > 0 ? `${analyzedCount} feedback(s) processado(s) com sucesso.` : 'Os feedbacks deste escopo já estavam analisados.',
     ),
-    onError: (message) => toast.error('Erro na análise', message),
+    onError: (message, errorCode) => notifyIaFailure('Erro na análise', message, errorCode, 'analisar os feedbacks'),
   });
   const insightsOperation = useIaOperation({
     kind: 'regenerate_insights',
     enterpriseId: enterprise.id,
     onSuccess: () => toast.success('Insights atualizados!', 'Relatório atualizado com os novos insights da IA'),
-    onError: (message) => toast.error('Erro na geração de insights', message),
+    onError: (message, errorCode) => notifyIaFailure('Erro na geração de insights', message, errorCode, 'gerar o relatório'),
   });
   const submitRaw = rawOperation.submit;
   const submitInsights = insightsOperation.submit;
-
-  const revalidator = useRevalidator();
-  const navigate = useNavigate();
-  useCompanyQuestionsGeneration({
-    enabled: Boolean(iaConfig?.hasKey),
-    refreshKey: collecting,
-    onCompleted: (applied) => {
-      revalidator.revalidate();
-      if (applied) {
-        toast.success('Perguntas personalizadas!', 'A IA criou as perguntas do seu formulário. Você pode editá-las em Configurar perguntas.');
-      }
-    },
-    onFailed: (errorCode) => {
-      const notice = getCompanyQuestionsFailureNotice(errorCode, iaConfig?.model ?? null);
-      toast.warning(notice.title, notice.description, notice.actionLabel
-        ? { actionLabel: notice.actionLabel, onAction: () => navigate('/user/edit/ia-settings'), duration: 12000 }
-        : { duration: 8000 });
-    },
-  });
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
@@ -304,6 +340,7 @@ export default function User() {
 
   return (
     <OnboardingProvider collecting={collecting} iaConfig={iaConfig} sessionKey={user.id}>
+      <CompanyQuestionsGenerationProvider enabled={Boolean(iaConfig?.hasKey)} refreshKey={collecting} model={iaModel}>
       <InsightsControlsProvider
         value={{
           ...insightsState,
@@ -394,10 +431,12 @@ export default function User() {
             <UserOnboardingManager
               onOpenMobileDrawer={openMobileDrawer}
               onCloseMobileDrawer={closeMobileDrawer}
+              model={iaModel}
             />
           </div>
         </SidebarProvider>
       </InsightsControlsProvider>
+      </CompanyQuestionsGenerationProvider>
     </OnboardingProvider>
   );
 }

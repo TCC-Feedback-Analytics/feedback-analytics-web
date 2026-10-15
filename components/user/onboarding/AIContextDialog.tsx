@@ -82,6 +82,7 @@ export default function AIContextDialog({
   onOpenChange,
   isMandatory = false,
   closeOnlyAfterSave = false,
+  onSetupSaved,
 }: AIContextDialogProps) {
   const routeData = useRouteLoaderData("user") as {
     user?: { id?: string | null };
@@ -230,12 +231,13 @@ export default function AIContextDialog({
       if (wasExplicitlySubmitted) {
         allowCloseRef.current = true;
         requestClose();
+        onSetupSaved?.({ llmConfigured: Boolean(iaConfig?.hasKey && iaConfig.model) });
       }
       return;
     }
 
     toast.error("Erro ao salvar informações", data.message || "Tente novamente em instantes.");
-  }, [collectingFetcher.data, requestClose, toast]);
+  }, [collectingFetcher.data, requestClose, toast, onSetupSaved, iaConfig]);
 
   useEffect(() => {
     const data = iaFetcher.data;
