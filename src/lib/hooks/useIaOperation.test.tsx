@@ -170,3 +170,24 @@ describe('useIaOperation — somente jobs assíncronos', () => {
     expect(t.onSuccess).not.toHaveBeenCalled();
   });
 });
+
+describe('useIaOperation — código do erro', () => {
+  it('job falho repassa a mensagem e o errorCode para o aviso', async () => {
+    vi.mocked(ServiceGetAnalysisJob).mockResolvedValue({ ...job('failed'), errorCode: 'invalid_ai_response_schema' });
+    const t = setup(); t.start(); t.respond({ ok: true, jobId: 'job-1' });
+    await waitFor(() => expect(t.result.current.status).toBe('failed'));
+    expect(t.onError).toHaveBeenCalledExactlyOnceWith(expect.any(String), 'invalid_ai_response_schema');
+  });
+
+  it('erro da action repassa o errorCode devolvido por ela', () => {
+    const t = setup(); t.start();
+    t.respond({ ok: false, error: 'Configure sua chave', errorCode: 'ia_config_required' });
+    expect(t.onError).toHaveBeenCalledExactlyOnceWith('Configure sua chave', 'ia_config_required');
+  });
+
+  it('falha sem código chega com errorCode null', () => {
+    const t = setup(); t.start();
+    t.respond({ error: 'Falha na IA' });
+    expect(t.onError).toHaveBeenCalledExactlyOnceWith('Falha na IA', null);
+  });
+});

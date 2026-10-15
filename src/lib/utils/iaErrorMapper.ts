@@ -49,6 +49,8 @@ const IA_MODEL_ERROR_CODES = new Set<string>([
   'empty_ai_response',
   'truncated_ai_response',
   'ai_response_refused',
+  // O modelo devolveu menos itens do que recebeu no lote.
+  'incomplete_ai_response',
   // OpenRouter: modelo inexistente ou sem provedor compatível com JSON (404/5xx persistente).
   'ia_provider_unavailable',
 ]);
@@ -92,4 +94,63 @@ export function getIaErrorMessage(errorCode: string | null | undefined): string 
   }
 
   return 'Ocorreu um erro ao processar a análise com IA.';
+}
+
+export type IaFailureNotice = {
+  category: Exclude<IaErrorCategory, 'unknown'>;
+  title: string;
+  description: string;
+  /** Presente quando o próximo passo é a Configuração de IA (trocar modelo ou revisar a chave). */
+  actionLabel?: string;
+};
+
+/**
+ * Aviso de uma falha terminal da IA: o motivo pela categoria do erro e o que o
+ * usuário pode fazer. `task` completa "O modelo X não conseguiu …" (ex.: "analisar
+ * os feedbacks"); `outcome` diz o que ficou valendo (ex.: "As perguntas padrão
+ * foram mantidas."). Devolve null quando o erro não tem categoria conhecida.
+ */
+export function getIaFailureNotice({
+  errorCode,
+  model,
+  task,
+  outcome,
+}: {
+  errorCode: string | null | undefined;
+  model: string | null | undefined;
+  task: string;
+  outcome?: string;
+}): IaFailureNotice | null {
+  const reason = getIaErrorMessage(errorCode);
+  const suffix = outcome ? ` ${outcome}` : '';
+  const modelName = model ? `O modelo ${model}` : 'O modelo escolhido';
+
+  switch (getIaErrorCategory(errorCode)) {
+    case 'model':
+      return {
+        category: 'model',
+        title: 'Modelo com erro',
+        description: `${modelName} não conseguiu ${task}. ${reason}${suffix}`,
+        actionLabel: 'Trocar modelo',
+      };
+    case 'account':
+      return {
+        category: 'account',
+        title: 'Revise sua conta OpenRouter',
+        description: `${reason}${suffix}`,
+        actionLabel: 'Revisar chave',
+      };
+    case 'temporary':
+      // Só falhas do provedor se resolvem trocando de modelo; queda do nosso serviço, não.
+      return String(errorCode).startsWith('ia_provider_')
+        ? {
+            category: 'temporary',
+            title: 'Provedor de IA indisponível',
+            description: `${modelName} segue sem responder depois de várias tentativas. ${reason}${suffix} Se continuar, troque de modelo.`,
+            actionLabel: 'Trocar modelo',
+          }
+        : { category: 'temporary', title: 'IA indisponível no momento', description: `${reason}${suffix}` };
+    default:
+      return null;
+  }
 }

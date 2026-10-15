@@ -1,0 +1,183 @@
+/*
+ * Tela "Preparando sua conta": núcleo 3D com anéis em órbita, só com CSS.
+ * O estado vem de data-state: running (gerando), done (pronto) e failed.
+ */
+.setup-orb {
+  --orb-color: var(--primary-color);
+  --orb-deep: var(--secondary-color);
+  position: relative;
+  width: 10rem;
+  height: 10rem;
+  perspective: 900px;
+  transform-style: preserve-3d;
+}
+
+.setup-orb[data-state='done'] {
+  --orb-color: var(--positive);
+  --orb-deep: color-mix(in oklab, var(--positive) 55%, #022c22);
+}
+
+.setup-orb[data-state='failed'] {
+  --orb-color: #f59e0b;
+  --orb-deep: #92400e;
+}
+
+/* Sombra no "chão" reforça a profundidade. */
+.setup-orb::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -0.75rem;
+  width: 55%;
+  height: 0.9rem;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--orb-color) 45%, transparent), transparent);
+  transform: translateX(-50%);
+  filter: blur(4px);
+  animation: setup-orb-shadow 3.2s ease-in-out infinite;
+}
+
+.setup-orb__float {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  animation: setup-orb-float 3.2s ease-in-out infinite;
+}
+
+.setup-orb__core {
+  position: absolute;
+  inset: 27%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 28%, rgb(255 255 255 / 0.75) 0, transparent 22%),
+    radial-gradient(circle at 38% 38%, var(--orb-color), var(--orb-deep) 58%, #03161c 100%);
+  box-shadow:
+    0 0 2.5rem color-mix(in oklab, var(--orb-color) 55%, transparent),
+    inset -0.6rem -0.9rem 1.5rem rgb(0 0 0 / 0.45);
+  animation: setup-orb-breathe 2.4s ease-in-out infinite;
+  transition: background 0.6s ease, box-shadow 0.6s ease;
+}
+
+/* Brilho girando dentro da esfera. */
+.setup-orb__core::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0 55%, rgb(255 255 255 / 0.28) 70%, transparent 85%);
+  mix-blend-mode: overlay;
+  animation: setup-orb-spin 3s linear infinite;
+}
+
+.setup-orb__icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.5rem;
+  opacity: 0;
+  transform: scale(0.4);
+  transition: opacity 0.4s ease 0.25s, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.25s;
+}
+
+.setup-orb[data-state='done'] .setup-orb__icon,
+.setup-orb[data-state='failed'] .setup-orb__icon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Cada anel tem a própria inclinação; o filho gira no plano inclinado. */
+.setup-orb__tilt {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transition: transform 0.7s ease, opacity 0.6s ease;
+}
+
+.setup-orb__tilt:nth-child(1) { --tilt-x: 72deg; --tilt-y: 0deg; --spin: 4.5s; }
+.setup-orb__tilt:nth-child(2) { --tilt-x: 64deg; --tilt-y: 52deg; --spin: 6s; }
+.setup-orb__tilt:nth-child(3) { --tilt-x: 68deg; --tilt-y: -50deg; --spin: 7.5s; }
+
+.setup-orb__ring {
+  position: absolute;
+  inset: 4%;
+  border-radius: 50%;
+  border: 2px solid color-mix(in oklab, var(--orb-color) 70%, transparent);
+  box-shadow: 0 0 0.75rem color-mix(in oklab, var(--orb-color) 35%, transparent);
+  animation: setup-orb-spin var(--spin) linear infinite;
+  transition: border-color 0.6s ease;
+}
+
+/* Satélite que percorre o anel. */
+.setup-orb__ring::before {
+  content: '';
+  position: absolute;
+  top: -0.3rem;
+  left: 50%;
+  width: 0.6rem;
+  height: 0.6rem;
+  margin-left: -0.3rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0.6rem 0.15rem var(--orb-color);
+}
+
+/* Pronto: os anéis recolhem para dentro do núcleo. */
+.setup-orb[data-state='done'] .setup-orb__tilt {
+  opacity: 0;
+  transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) scale(0.35);
+}
+
+.setup-orb[data-state='done'] .setup-orb__core {
+  animation: setup-orb-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Falha: tudo desacelera e para. */
+.setup-orb[data-state='failed'] .setup-orb__ring,
+.setup-orb[data-state='failed'] .setup-orb__core,
+.setup-orb[data-state='failed'] .setup-orb__core::before,
+.setup-orb[data-state='failed'] .setup-orb__float,
+.setup-orb[data-state='failed']::after {
+  animation-play-state: paused;
+}
+
+.setup-orb[data-state='failed'] .setup-orb__tilt {
+  opacity: 0.45;
+}
+
+@keyframes setup-orb-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes setup-orb-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-0.5rem); }
+}
+
+@keyframes setup-orb-shadow {
+  0%, 100% { opacity: 0.9; transform: translateX(-50%) scale(1); }
+  50% { opacity: 0.55; transform: translateX(-50%) scale(0.82); }
+}
+
+@keyframes setup-orb-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+@keyframes setup-orb-pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .setup-orb *,
+  .setup-orb *::before,
+  .setup-orb::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

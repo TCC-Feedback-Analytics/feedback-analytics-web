@@ -15,6 +15,27 @@ export interface AIContextDialogProps {
   isMandatory?: boolean;
   /** Na edição do perfil, o fechamento só acontece após salvar o contexto. */
   closeOnlyAfterSave?: boolean;
+  /** Chamado quando o contexto é salvo pelo usuário; diz se a LLM ficou configurada. */
+  onSetupSaved?: (info: { llmConfigured: boolean }) => void;
+}
+
+export type InitialSetupItemStatus = "done" | "running" | "failed";
+
+export interface SetupOrbProps {
+  status: InitialSetupItemStatus;
+}
+
+export interface InitialSetupProgressItemProps {
+  status: InitialSetupItemStatus;
+  label: string;
+  detail?: string;
+}
+
+export interface InitialSetupProgressDialogProps {
+  open: boolean;
+  /** Fecha a tela; o usuário segue para o dashboard ou para a Configuração de IA. */
+  onFinish: (destination: "dashboard" | "ia-settings") => void;
+  model: string | null;
 }
 
 export interface UserInteractiveTourProps {
