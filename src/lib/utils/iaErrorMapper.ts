@@ -27,6 +27,46 @@ export const IA_RESPONSE_ERROR_MESSAGES: Record<string, string> = {
   ia_provider_unavailable: 'Não há um provedor compatível disponível ou o provedor falhou. Tente novamente mais tarde ou selecione outro modelo com suporte a JSON.',
 };
 
+/**
+ * De quem é a falha, para orientar o usuário:
+ * - temporary: limite ou instabilidade do provedor/serviço; tentar mais tarde resolve.
+ * - account: chave, créditos ou configuração da conta OpenRouter.
+ * - model: o modelo escolhido não entrega o que a análise exige; trocar de modelo resolve.
+ */
+export type IaErrorCategory = 'temporary' | 'account' | 'model' | 'unknown';
+
+const IA_ACCOUNT_ERROR_CODES = new Set<string>([
+  'ia_provider_auth_error',
+  'ia_provider_credits_exhausted',
+  'ia_config_required',
+]);
+
+const IA_MODEL_ERROR_CODES = new Set<string>([
+  'invalid_ai_response',
+  'invalid_ai_response_schema',
+  'invalid_ai_response_language',
+  'invalid_provider_response',
+  'empty_ai_response',
+  'truncated_ai_response',
+  'ai_response_refused',
+  // OpenRouter: modelo inexistente ou sem provedor compatível com JSON (404/5xx persistente).
+  'ia_provider_unavailable',
+]);
+
+const IA_TEMPORARY_ERROR_CODES = new Set<string>([
+  'ia_provider_rate_limited',
+  'ia_provider_error',
+  ...[...IA_SERVICE_UNAVAILABLE_CODES].filter((code) => !IA_MODEL_ERROR_CODES.has(code)),
+]);
+
+export function getIaErrorCategory(errorCode: string | null | undefined): IaErrorCategory {
+  const code = String(errorCode ?? '').trim();
+  if (IA_ACCOUNT_ERROR_CODES.has(code)) return 'account';
+  if (IA_MODEL_ERROR_CODES.has(code)) return 'model';
+  if (IA_TEMPORARY_ERROR_CODES.has(code)) return 'temporary';
+  return 'unknown';
+}
+
 export function getIaErrorMessage(errorCode: string | null | undefined): string {
   const code = String(errorCode ?? '').trim();
   if (Object.hasOwn(IA_RESPONSE_ERROR_MESSAGES, code)) return IA_RESPONSE_ERROR_MESSAGES[code];

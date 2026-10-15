@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAnalysisJobPolling } from './useAnalysisJobPolling';
+import { getIaErrorCategory, getIaErrorMessage } from 'src/lib/utils/iaErrorMapper';
 import {
   ServiceGetLatestCompanyQuestionsJob,
   type IaAnalysisJob,
@@ -7,6 +8,52 @@ import {
 
 const ACTIVE_STATUSES = new Set(['queued', 'running', 'waiting_budget']);
 const POLL_INTERVAL_MS = 5000;
+
+export type CompanyQuestionsFailureNotice = {
+  title: string;
+  description: string;
+  /** Presente quando o próximo passo é a Configuração de IA (trocar modelo ou revisar a chave). */
+  actionLabel?: string;
+};
+
+/** Aviso da falha terminal da geração: o motivo pela categoria do erro e o que fazer. */
+export function getCompanyQuestionsFailureNotice(
+  errorCode: string | null,
+  model: string | null,
+): CompanyQuestionsFailureNotice {
+  const reason = getIaErrorMessage(errorCode);
+  const kept = 'As perguntas padrão foram mantidas.';
+  const modelName = model ? `O modelo ${model}` : 'O modelo escolhido';
+
+  switch (getIaErrorCategory(errorCode)) {
+    case 'model':
+      return {
+        title: 'Modelo com erro',
+        description: `${modelName} não conseguiu gerar as perguntas. ${reason} ${kept}`,
+        actionLabel: 'Trocar modelo',
+      };
+    case 'account':
+      return {
+        title: 'Revise sua conta OpenRouter',
+        description: `${reason} ${kept}`,
+        actionLabel: 'Revisar chave',
+      };
+    case 'temporary':
+      // Só falhas do provedor se resolvem trocando de modelo; queda do nosso serviço, não.
+      return String(errorCode).startsWith('ia_provider_')
+        ? {
+            title: 'Provedor de IA indisponível',
+            description: `${modelName} segue sem responder depois de várias tentativas. ${reason} ${kept} Se continuar, troque de modelo.`,
+            actionLabel: 'Trocar modelo',
+          }
+        : { title: 'IA indisponível no momento', description: `${reason} ${kept}` };
+    default:
+      return {
+        title: 'Perguntas padrão mantidas',
+        description: 'A IA não conseguiu gerar as perguntas agora. Você pode personalizá-las em Configurar perguntas.',
+      };
+  }
+}
 
 /**
  * Acompanha a geração automática das 3 perguntas da configuração inicial. O
