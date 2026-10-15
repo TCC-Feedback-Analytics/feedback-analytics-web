@@ -175,3 +175,15 @@ export function ServiceGetActiveAnalysisJobs() {
   return getJson<{ jobs: IaAnalysisJob[] }>('/api/protected/ia-analyze/jobs');
 }
 
+/** Pedido mais recente de geração das perguntas da configuração inicial. */
+export type CompanyQuestionsJob = {
+  id: string;
+  status: IaAnalysisJobStatus;
+  errorCode: string | null;
+  applied: boolean | null;
+};
+
+export function ServiceGetLatestCompanyQuestionsJob() {
+  return getJson<{ job: CompanyQuestionsJob | null }>('/api/protected/ia-analyze/jobs/company-questions/latest');
+}
+

@@ -26,6 +26,7 @@ vi.mock('react-router-dom', async () => {
     useNavigation: mocks.useNavigation,
     useLocation: mocks.useLocation,
     useNavigate: mocks.useNavigate,
+    useRevalidator: () => ({ revalidate: vi.fn(), state: 'idle' }),
     Outlet: () => <div data-testid="outlet-content">Outlet content</div>,
     Link: ({ children, to, className }: { children: React.ReactNode; to: string; className?: string }) => (
       <a href={to} className={className}>{children}</a>
