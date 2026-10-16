@@ -1,9 +1,9 @@
 import type { ElementType } from "react";
 import {
   FaChartPie,
-  FaFileLines,
-  FaHeartPulse,
   FaChartSimple,
+  FaList,
+  FaStar,
   FaCircleQuestion,
   FaCommentDots,
   FaBoxesStacked,
@@ -74,34 +74,35 @@ export const INTERACTIVE_STEPS: TourStepData[] = [
     description: "Acompanhe os principais indicadores e métricas da sua empresa em tempo real.",
     mobileDescription: "Na barra inferior, toque em Visão geral para acompanhar os indicadores principais da sua empresa.",
   },
-  // As abas de Insights aparecem também no celular: o mesmo alvo vale nos dois tamanhos.
+  // As seções do Dashboard e as abas da Análise dos comentários aparecem também
+  // no celular: o mesmo alvo vale nos dois tamanhos.
   {
-    selector: '[data-tour="tour-insights-reports"]',
-    route: "/user/insights/reports",
-    title: "Relatórios de Insights",
-    icon: FaFileLines,
-    description: "Um resumo estratégico escrito pela IA, com pontos fortes, oportunidades de melhoria e recomendações para a empresa, um produto, um serviço ou um setor. Para gerar, use Gerar Insights com IA. É preciso ter a IA configurada, o contexto da empresa preenchido e pelo menos 10 feedbacks no escopo escolhido.",
+    selector: '[data-tour="tour-star-ratings"]',
+    route: "/user/dashboard",
+    title: "Avaliação por estrelas",
+    icon: FaStar,
+    description: "A nota de 1 a 5 que os clientes marcaram: a média, as avaliações positivas (4–5★) e as críticas (1–2★). A etiqueta no canto diz de qual escopo são os números; clique nela para trocar. Em \"Ver todas as métricas de estrelas\" ficam a distribuição completa e as neutras.",
   },
   {
-    selector: '[data-tour="tour-insights-emotional"]',
-    route: "/user/insights/emotional",
-    title: "Análise Emocional",
-    icon: FaHeartPulse,
-    description: "Mostra o termômetro emocional dos clientes e os momentos que mais se repetem, com exemplos reais dos feedbacks de emoção mais forte. Aparece depois que a IA analisa os feedbacks.",
-  },
-  {
-    selector: '[data-tour="tour-insights-statistics"]',
-    route: "/user/insights/statistics",
-    title: "Estatísticas",
-    icon: FaChartSimple,
-    description: "Mostra a distribuição dos sentimentos, as categorias e palavras-chave mais citadas e os assuntos que mais pesam na percepção dos clientes. Também usa os feedbacks já analisados pela IA.",
-  },
-  {
-    selector: '[data-tour="tour-insights-questions"]',
-    route: "/user/insights/questions",
-    title: "Perguntas",
+    selector: '[data-tour="tour-form-questions"]',
+    route: "/user/dashboard",
+    title: "Perguntas do formulário",
     icon: FaCircleQuestion,
-    description: "Mostra a nota média de cada pergunta e subpergunta do formulário, por escopo, para você ver onde a experiência vai bem e onde precisa de atenção. Usa as respostas dos clientes, mesmo sem a IA configurada.",
+    description: "Cada pergunta do seu formulário aparece aqui, na ordem, com a nota, as respostas e o % de satisfeitos. Clique em \"Ver todas as métricas desta pergunta\" para ver as subperguntas. Usa as respostas dos clientes, mesmo sem a IA configurada.",
+  },
+  {
+    selector: '[data-tour="tour-comments-overview"]',
+    route: "/user/insights/overview",
+    title: "Análise dos comentários",
+    icon: FaChartSimple,
+    description: "A IA lê o que os clientes escreveram e mostra o tom dos comentários, os assuntos que mais impactam e um resumo com recomendações para a empresa, um produto, um serviço ou um setor. Para atualizar, use Analisar comentários com IA. É preciso ter a IA configurada, o contexto da empresa preenchido e pelo menos 10 feedbacks no escopo escolhido.",
+  },
+  {
+    selector: '[data-tour="tour-comments-list"]',
+    route: "/user/insights/comments",
+    title: "Comentários",
+    icon: FaList,
+    description: "Todos os comentários já analisados pela IA, com filtros por tom (positivos, neutros e negativos) e para quando a nota e o texto não combinam.",
   },
   {
     selector: '[data-tour="tour-feedback-general"]',

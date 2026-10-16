@@ -111,7 +111,7 @@ export function useIaOperation({ kind, onSuccess, onError, enterpriseId }: {
         status: 'queued', done: 0, total: 0, errorCode: null, updatedAt: null });
     } else {
       fail(kind === 'regenerate_insights'
-        ? 'Nenhum relatório foi gerado. Verifique se há feedbacks analisados suficientes e tente novamente.'
+        ? 'Nenhum resumo foi gerado. Verifique se há feedbacks analisados suficientes e tente novamente.'
         : 'A análise não confirmou sua conclusão. Tente novamente.');
     }
   }, [fetcher.state, fetcher.data, kind, fail, remember]);
@@ -131,7 +131,7 @@ export function useIaOperation({ kind, onSuccess, onError, enterpriseId }: {
     setStatus('running');
     // Também cobre falhas do router anteriores à resposta da action.
     try {
-      void Promise.resolve(fetcher.submit(form, { method: 'post', action: '/user/insights/reports' }))
+      void Promise.resolve(fetcher.submit(form, { method: 'post', action: '/user/insights/overview' }))
         .catch(() => fail('Não foi possível iniciar o processamento de IA. Tente novamente.'));
     } catch {
       fail('Não foi possível iniciar o processamento de IA. Tente novamente.');

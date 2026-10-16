@@ -10,15 +10,19 @@ import { NotificationBellDropdown } from "components/user/pages/feedbacksInsight
 
 /**
  * Barra de controles de Insights no layout (abaixo do header): seletor de
- * escopo + contador de feedbacks novos (com sino interativo) + Botão unificado "Gerar Insights com IA".
+ * escopo + contador de feedbacks novos (com sino interativo) + Botão unificado "Analisar comentários com IA".
  * Os controles aparecem em Dashboard/Insights; o progresso acompanha todas as rotas.
  */
 export default function InsightsActionBar() {
   const { pathname } = useLocation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // Rotas cujas métricas seguem o escopo do cabeçalho (o ScopeTag delas abre este seletor).
   const isScopeRoute =
-    isMatch("/user/dashboard", pathname) || isMatch("/user/insights", pathname);
+    isMatch("/user/dashboard", pathname) ||
+    isMatch("/user/ratings", pathname) ||
+    isMatch("/user/questions", pathname) ||
+    isMatch("/user/insights", pathname);
 
   const {
     scope,
@@ -56,7 +60,7 @@ export default function InsightsActionBar() {
         </>}
 
         {isProcessing && <p role="status" className="text-xs text-(--text-secondary)">
-          {pollingWarning ? 'Reconectando ao progresso...' : isAnalyzingRaw ? 'Analisando feedbacks em segundo plano' : 'Gerando relatório em segundo plano'}
+          {pollingWarning ? 'Reconectando ao progresso...' : isAnalyzingRaw ? 'Analisando feedbacks em segundo plano' : 'Escrevendo o resumo da IA em segundo plano'}
           {progress && progress.total > 0 ? ` (${progress.done}/${progress.total})` : ''}
         </p>}
 
@@ -74,7 +78,7 @@ export default function InsightsActionBar() {
             ) : (
               <>
                 <FaWandMagicSparkles aria-hidden className="text-xs" />
-                <span>Gerar Insights com IA</span>
+                <span>Analisar comentários com IA</span>
               </>
             )}
           </button>

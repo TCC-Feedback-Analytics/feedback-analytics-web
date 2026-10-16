@@ -3,15 +3,9 @@ import {
   FaChartPie,
   FaComments,
   FaInbox,
-  FaChartLine,
   FaList,
-  FaFaceSmile,
-  FaFaceFrown,
   FaWandMagicSparkles,
-  FaFileLines,
-  FaHeartPulse,
   FaChartSimple,
-  FaCircleQuestion,
   FaSliders,
   FaCommentDots,
   FaBoxesStacked,
@@ -30,26 +24,16 @@ export const menuData: MenuItem[] = [
     icon: FaComments,
     children: [
       { label: "Recebidos", to: "/user/feedbacks/all", icon: FaInbox },
-      {
-        label: "Analisados",
-        icon: FaChartLine,
-        children: [
-          { label: "Todos", to: "/user/feedbacks/analytics/all", icon: FaList },
-          { label: "Positivos", to: "/user/feedbacks/analytics/positive", icon: FaFaceSmile },
-          { label: "Negativos", to: "/user/feedbacks/analytics/negative", icon: FaFaceFrown },
-        ],
-      },
     ],
   },
   {
-    label: "Insights",
+    // O que os clientes escreveram, lido pela IA (antiga "Insights").
+    label: "Análise dos comentários ✨",
     icon: FaWandMagicSparkles,
     tourAttr: "nav-insights",
     children: [
-      { label: "Relatórios", to: "/user/insights/reports", icon: FaFileLines },
-      { label: "Emocional", to: "/user/insights/emotional", icon: FaHeartPulse },
-      { label: "Estatísticas", to: "/user/insights/statistics", icon: FaChartSimple },
-      { label: "Perguntas", to: "/user/insights/questions", icon: FaCircleQuestion },
+      { label: "Visão geral", to: "/user/insights/overview", icon: FaChartSimple },
+      { label: "Comentários", to: "/user/insights/comments", icon: FaList },
     ],
   },
   {

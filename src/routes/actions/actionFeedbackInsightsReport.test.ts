@@ -23,7 +23,7 @@ function createArgs(): ActionFunctionArgs {
   });
 
   return {
-    request: new Request('http://localhost/user/insights/reports', {
+    request: new Request('http://localhost/user/insights/overview', {
       method: 'POST',
       body: form,
       headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
@@ -66,7 +66,7 @@ describe('[Integração] ActionFeedbackInsightsReport', () => {
       intent: INTENT_FEEDBACK_RUN_IA, scope_type: 'COMPANY', analyze_pending: 'true', force: 'true',
     });
     const args = createArgs();
-    args.request = new Request('http://localhost/user/insights/reports', {
+    args.request = new Request('http://localhost/user/insights/overview', {
       method: 'POST', body: form,
       headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
     });

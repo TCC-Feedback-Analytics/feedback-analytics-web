@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
 import type { RouteCrumb } from 'src/lib/constants/routes/routeMeta';
-import type { ConfidenceTier } from 'lib/interfaces/domain/feedback.domain';
+import type { Interval } from 'lib/interfaces/domain/feedback.domain';
+import type { Precision, PrecisionKind } from 'src/lib/utils/precision';
 import type { MetricTermKey } from 'src/lib/constants/metricExplanations';
 import type { HelpTopicKey } from 'src/lib/constants/helpTopics';
-import type { ConfidenceSampleUnit } from 'src/lib/utils/statistics';
 
 /**
  * Props do cabeçalho padrão das telas logadas (PageHeader).
@@ -35,32 +35,33 @@ export type ScopeBadgeProps = {
 };
 
 /**
- * Props do selo de confiança da amostra (ConfidenceBadge).
- * Usado em: components/user/shared/ConfidenceBadge.tsx.
+ * Props da etiqueta de escopo das seções e páginas de detalhe (ScopeTag).
+ * Usado em: components/user/shared/ScopeTag.tsx.
  */
-export type ConfidenceBadgeProps = {
-  tier?: ConfidenceTier;
-  /** Tamanho da amostra (n) exibido ao lado do rótulo, quando informado. */
-  n?: number;
-  /**
-   * O QUE o `n` conta: 'feedbacks' (geral, padrão), 'respostas' (granular, de UMA
-   * pergunta) ou 'analyzed' (feedbacks analisados pela IA). Deixa o número claro.
-   */
-  unit?: ConfidenceSampleUnit;
+export type ScopeTagProps = {
   className?: string;
 };
 
 /**
- * Props do modal explicativo da confiança (ConfidenceInfoModal).
- * Usado em: components/user/shared/ConfidenceInfoModal.tsx.
+ * Props do indicador de Precisão (PrecisionBadge) e do seu painel.
+ * Usado em: components/user/shared/PrecisionBadge.tsx.
  */
-export type ConfidenceInfoModalProps = {
-  /** Faixa atual a destacar no modal (opcional). */
-  tier?: ConfidenceTier;
-  /** Quantidade de respostas do resultado clicado (opcional, mostrado no topo). */
-  n?: number;
-  /** O que o `n` conta — define a frase de origem da amostra no modal. */
-  unit?: ConfidenceSampleUnit;
+export type PrecisionBadgeProps = {
+  /** Nome da métrica no painel (ex.: "Média de satisfação"). */
+  metricName: string;
+  /** Quantidade de respostas que formam o número. */
+  n: number;
+  /** O que o `n` conta, no plural (ex.: "avaliações", "respostas", "comentários analisados"). */
+  unit: string;
+  interval: Interval | null | undefined;
+  kind: PrecisionKind;
+  /** Complemento de escopo ("do QR geral da empresa"); vem de scopeText().ofScope. */
+  ofScope?: string;
+  className?: string;
+};
+
+export type PrecisionInfoModalProps = Omit<PrecisionBadgeProps, 'className'> & {
+  precision: Precision;
   onClose: () => void;
 };
 

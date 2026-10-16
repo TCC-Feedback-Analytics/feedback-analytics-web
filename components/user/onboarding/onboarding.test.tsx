@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { act, render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import "@testing-library/jest-dom";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, useLocation } from "react-router-dom";
 import { OnboardingProvider, useOnboarding } from "src/lib/context/onboardingContext";
 import AIContextDialog from "./AIContextDialog";
 import UserInteractiveTour from "./UserInteractiveTour";
@@ -336,11 +336,11 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
   it("mapeia o guia móvel para a barra inferior e o menu central", () => {
     expect(INTERACTIVE_STEPS.map((step) => step.mobileSelector ?? step.selector).slice(0, 7)).toEqual([
       '[data-tour="mobile-nav-dashboard"]',
-      // As abas de Insights aparecem também no celular.
-      '[data-tour="tour-insights-reports"]',
-      '[data-tour="tour-insights-emotional"]',
-      '[data-tour="tour-insights-statistics"]',
-      '[data-tour="tour-insights-questions"]',
+      // As seções do Dashboard e as abas da Análise dos comentários aparecem também no celular.
+      '[data-tour="tour-star-ratings"]',
+      '[data-tour="tour-form-questions"]',
+      '[data-tour="tour-comments-overview"]',
+      '[data-tour="tour-comments-list"]',
       '[data-tour="mobile-nav-feedback"]',
       '[data-tour="mobile-nav-catalog"]',
     ]);
@@ -413,20 +413,22 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     // Tour começa apenas após a confirmação de pending pelo servidor.
     expect(await screen.findByText("Dashboard de Resultados")).toBeInTheDocument();
 
-    // Um passo para cada área de Insights.
+    // As duas seções do Dashboard, depois cada página da Análise dos comentários.
     fireEvent.click(screen.getByText("Próximo"));
-    expect(screen.getByText("Relatórios de Insights")).toBeInTheDocument();
+    expect(screen.getByText("Avaliação por estrelas")).toBeInTheDocument();
+    expect(screen.getByText(/A etiqueta no canto diz de qual escopo/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Próximo"));
+    expect(screen.getByText("Perguntas do formulário")).toBeInTheDocument();
+    expect(screen.getByText(/mesmo sem a IA configurada/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Próximo"));
+    expect(screen.getByText("Análise dos comentários")).toBeInTheDocument();
     expect(screen.getByText(/pelo menos 10 feedbacks/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("Próximo"));
-    expect(screen.getByText("Análise Emocional")).toBeInTheDocument();
-
-    fireEvent.click(screen.getByText("Próximo"));
-    expect(screen.getByText("Estatísticas")).toBeInTheDocument();
-
-    fireEvent.click(screen.getByText("Próximo"));
-    expect(screen.getByText("Perguntas")).toBeInTheDocument();
-    expect(screen.getByText(/mesmo sem a IA configurada/)).toBeInTheDocument();
+    expect(screen.getByText("Comentários")).toBeInTheDocument();
+    expect(screen.getByText(/a nota e o texto não combinam/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("Próximo"));
     expect(screen.getByText("Feedback Geral")).toBeInTheDocument();
@@ -479,5 +481,66 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     fireEvent.click(screen.getByText("Pular"));
     await waitFor(() => expect(screen.queryByText("Dashboard de Resultados")).not.toBeInTheDocument());
     expect(systemGuide.update).toHaveBeenLastCalledWith({ version: 1, status: "skipped" });
+  });
+
+  describe("conclusão do guia", () => {
+    function LocationProbe() {
+      return <span data-testid="pathname">{useLocation().pathname}</span>;
+    }
+
+    async function goToLastStep() {
+      systemGuide.get.mockResolvedValue({
+        tourKey: "system-guide", version: 1, status: "pending", finishedAt: null,
+      });
+      const completeCollecting = {
+        business_summary: "Resumo", company_objective: "Objetivo", analytics_goal: "Analítico",
+      } as CollectingDataEnterprise;
+      render(
+        <MemoryRouter initialEntries={["/user/dashboard"]}>
+          <OnboardingProvider collecting={completeCollecting} sessionKey="user-1">
+            <UserInteractiveTour />
+            <LocationProbe />
+          </OnboardingProvider>
+        </MemoryRouter>,
+      );
+      await screen.findByText("Dashboard de Resultados");
+      for (let step = 1; step < INTERACTIVE_STEPS.length; step += 1) {
+        fireEvent.click(screen.getByText("Próximo"));
+      }
+      expect(screen.getByText("Dados e configurações da empresa")).toBeInTheDocument();
+      expect(screen.getByTestId("pathname")).toHaveTextContent("/user/profile");
+    }
+
+    it("ao concluir, grava o status e leva o usuário ao dashboard", async () => {
+      await goToLastStep();
+      fireEvent.click(screen.getByText("Entendi"));
+      await waitFor(() => expect(screen.getByTestId("pathname")).toHaveTextContent("/user/dashboard"));
+      expect(systemGuide.update).toHaveBeenCalledWith({ version: 1, status: "completed" });
+      expect(screen.queryByText("Dados e configurações da empresa")).not.toBeInTheDocument();
+    });
+
+    it("ao pular no meio do guia, grava o status e leva o usuário ao dashboard", async () => {
+      await goToLastStep();
+      fireEvent.click(screen.getByText("Pular"));
+      await waitFor(() => expect(screen.getByTestId("pathname")).toHaveTextContent("/user/dashboard"));
+      expect(systemGuide.update).toHaveBeenCalledWith({ version: 1, status: "skipped" });
+    });
+
+    it("se pular não for gravado, continua no guia e na página atual", async () => {
+      systemGuide.update.mockRejectedValueOnce(new Error("offline"));
+      await goToLastStep();
+      fireEvent.click(screen.getByText("Pular"));
+      expect(await screen.findByRole("alert")).toHaveTextContent("Não foi possível salvar o guia");
+      expect(screen.getByTestId("pathname")).toHaveTextContent("/user/profile");
+    });
+
+    it("se a conclusão não for gravada, continua no guia e na página atual", async () => {
+      systemGuide.update.mockRejectedValueOnce(new Error("offline"));
+      await goToLastStep();
+      fireEvent.click(screen.getByText("Entendi"));
+      expect(await screen.findByRole("alert")).toHaveTextContent("Não foi possível salvar o guia");
+      expect(screen.getByTestId("pathname")).toHaveTextContent("/user/profile");
+      expect(screen.getByText("Dados e configurações da empresa")).toBeInTheDocument();
+    });
   });
 });

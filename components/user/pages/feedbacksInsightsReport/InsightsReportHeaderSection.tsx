@@ -9,12 +9,11 @@ export default function InsightsReportHeaderSection({
   return (
     <div className="font-work-sans flex flex-col gap-1">
       <h2 className="text-lg font-montserrat font-semibold text-(--text-primary)">
-        Relatório de Insights da IA
+        Resumo e recomendações da IA
       </h2>
       <p className="max-w-2xl text-sm text-(--text-tertiary)">
-        Resumo estratégico gerado automaticamente a partir dos feedbacks,
-        sentimentos e categorias identificadas pela IA, com foco em
-        oportunidades de melhoria e pontos fortes da experiência do cliente.
+        Texto escrito pela IA a partir dos comentários, com os pontos fortes, as
+        oportunidades de melhoria e o que fazer a seguir.
       </p>
 
       {updatedLabel && (

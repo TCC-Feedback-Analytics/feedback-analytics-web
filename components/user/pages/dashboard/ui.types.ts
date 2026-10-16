@@ -1,17 +1,26 @@
 import type { LoaderUserDashboard } from 'src/routes/loaders/loaderUserDashboard';
-import type { Interval, QuestionMetric } from 'lib/interfaces/domain/feedback.domain';
+import type { FeedbackStats } from 'lib/interfaces/domain/feedback.domain';
 
 /**
- * Props da seção de métricas principais do dashboard.
- * Usado em: components/user/pages/dashboard/SectionMetric.tsx.
+ * Props da seção "Avaliação por estrelas" do dashboard.
+ * Usado em: components/user/pages/dashboard/SectionRatings.tsx.
  */
-export interface SectionMetricProps {
-  totalFeedbacks: number;
-  averageRating: number;
-  positive: number;
-  negative: number;
-  /** Faixa provável (IC t) da média de estrelas; ausente sem feedbacks no escopo. */
-  starMeanCI?: Interval | null;
+export interface SectionRatingsProps {
+  stats: FeedbackStats | null;
+  /** 'detail' (página de estrelas): inclui as neutras (3★) e omite o link "ver todas". */
+  variant?: 'dashboard' | 'detail';
+}
+
+export interface RatingCardsProps {
+  stats: FeedbackStats;
+  total: number;
+  ofScope: string;
+  showNeutral: boolean;
+}
+
+export interface ShareValueProps {
+  count: number;
+  pct: number;
 }
 
 /**
@@ -30,19 +39,3 @@ export interface EvaluationDistributionProps {
   stats: DashboardStats | null;
 }
 
-/**
- * Props da seção de radar de satisfação.
- * Usado em: components/user/pages/dashboard/SectionSatisfactionRadar.tsx.
- */
-export interface SectionSatisfactionRadarProps {
-  /** Estatísticas do escopo (indicadores de satisfação + sentimento IA). */
-  stats?: DashboardStats | null;
-}
-
-/**
- * Props do card "Perguntas com menor nota" (atalho para a aba Perguntas).
- * Usado em: components/user/pages/dashboard/SectionLowestQuestions.tsx.
- */
-export interface SectionLowestQuestionsProps {
-  questions: QuestionMetric[];
-}

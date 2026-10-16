@@ -17,13 +17,7 @@ import ProfileSkeleton from 'components/user/pages/profile/ProfileSkeleton';
 import QrCodeEnterpriseSkeleton from 'components/user/pages/qrcodes/QrCodeEnterpriseSkeleton';
 import FeedbacksAllSkeleton from 'components/user/pages/feedbacks/FeedbacksAllSkeleton';
 import FeedbackDetailsSkeleton from 'components/user/pages/feedbacks/FeedbackDetailsSkeleton';
-import FeedbacksAnalyticsAllSkeleton from 'components/user/pages/feedbacks/analytics/FeedbacksAnalyticsAllSkeleton';
-import FeedbacksAnalyticsPositiveSkeleton from 'components/user/pages/feedbacks/analytics/FeedbacksAnalyticsPositiveSkeleton';
-import FeedbacksAnalyticsNegativeSkeleton from 'components/user/pages/feedbacks/analytics/FeedbacksAnalyticsNegativeSkeleton';
 import InsightsReportSkeleton from 'components/user/pages/feedbacks/insights/InsightsReportSkeleton';
-import InsightsEmotionalSkeleton from 'components/user/pages/feedbacks/insights/InsightsEmotionalSkeleton';
-import InsightsStatisticsSkeleton from 'components/user/pages/feedbacks/insights/InsightsStatisticsSkeleton';
-import InsightsQuestionsSkeleton from 'components/user/pages/feedbacks/insights/InsightsQuestionsSkeleton';
 import EditCustomersSkeleton from 'components/user/pages/edit/EditCustomersSkeleton';
 import EditProfileSkeleton from 'components/user/pages/edit/EditProfileSkeleton';
 import EditCollectingDataSkeleton from 'components/user/pages/edit/EditCollectingDataSkeleton';
@@ -219,8 +213,8 @@ export default function User() {
   const insightsOperation = useIaOperation({
     kind: 'regenerate_insights',
     enterpriseId: enterprise.id,
-    onSuccess: () => toast.success('Insights atualizados!', 'Relatório atualizado com os novos insights da IA'),
-    onError: (message, errorCode) => notifyIaFailure('Erro na geração de insights', message, errorCode, 'gerar o relatório'),
+    onSuccess: () => toast.success('Análise atualizada!', 'Resumo e recomendações da IA atualizados.'),
+    onError: (message, errorCode) => notifyIaFailure('Erro ao gerar o resumo da IA', message, errorCode, 'gerar o resumo'),
   });
   const submitRaw = rawOperation.submit;
   const submitInsights = insightsOperation.submit;
@@ -273,7 +267,7 @@ export default function User() {
     if (insightsState.catalogItemId) {
       form.set('catalog_item_id', insightsState.catalogItemId);
     }
-    toast.success('Enfileirando relatório...', 'O processamento continuará em segundo plano.');
+    toast.success('Preparando o resumo da IA...', 'O processamento continuará em segundo plano.');
     submitInsights(form);
   }, [insightsState.canAnalyze, insightsState.scope, insightsState.catalogItemId, submitInsights, toast]);
 
@@ -291,14 +285,8 @@ export default function User() {
     if (pendingPathname.startsWith('/user/feedbacks/') && !pendingPathname.startsWith('/user/feedbacks/analytics/')) {
       return <FeedbackDetailsSkeleton />;
     }
-    if (pendingPathname === '/user/feedbacks/analytics/all') return <FeedbacksAnalyticsAllSkeleton />;
-    if (pendingPathname === '/user/feedbacks/analytics/positive') return <FeedbacksAnalyticsPositiveSkeleton />;
-    if (pendingPathname === '/user/feedbacks/analytics/negative') return <FeedbacksAnalyticsNegativeSkeleton />;
 
-    if (pendingPathname === '/user/insights/reports') return <InsightsReportSkeleton />;
-    if (pendingPathname === '/user/insights/emotional') return <InsightsEmotionalSkeleton />;
-    if (pendingPathname === '/user/insights/statistics') return <InsightsStatisticsSkeleton />;
-    if (pendingPathname === '/user/insights/questions') return <InsightsQuestionsSkeleton />;
+    if (pendingPathname === '/user/insights/overview') return <InsightsReportSkeleton />;
 
     if (pendingPathname === '/user/edit/customers') return <EditCustomersSkeleton />;
     if (pendingPathname === '/user/edit/profile') return <EditProfileSkeleton />;

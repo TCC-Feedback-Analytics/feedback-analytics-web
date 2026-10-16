@@ -1,6 +1,9 @@
+import { formatRating, ratingShares } from 'src/lib/utils/ratingLabel';
 import type { FeedbackHeaderProps } from './ui.types';
 
 export default function FeedbackHeader({ stats }: FeedbackHeaderProps) {
+  const shares = stats ? ratingShares(stats.ratingDistribution, stats.totalFeedbacks) : null;
+
   return (
     <div className="font-work-sans relative overflow-hidden rounded-2xl border border-(--quaternary-color)/10 bg-gradient-to-br from-(--bg-secondary) to-(--sixth-color) p-5 md:p-6 lg:p-8 glass-card">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -10,31 +13,27 @@ export default function FeedbackHeader({ stats }: FeedbackHeaderProps) {
           </h1>
           {stats && (
             <div className="mt-1.5 text-sm text-[var(--text-tertiary)]">
-              Total: {stats.totalFeedbacks} feedbacks | Média:{' '}
-              {stats.averageRating}/5
+              Total: {stats.totalFeedbacks} feedbacks | Média das estrelas:{' '}
+              {stats.totalFeedbacks > 0 ? `${formatRating(stats.averageRating)}/5` : '—'}
             </div>
           )}
         </div>
 
-        {stats && (
-          <div className="flex shrink-0 items-center gap-4 sm:gap-6">
+        {shares && (
+          // Contagens pelas ESTRELAS: "positivas/críticas" ficam para a nota e
+          // "positivo/negativo", para o tom dos comentários lido pela IA.
+          <div className="flex shrink-0 items-center gap-4 sm:gap-6" aria-label="Avaliações por estrelas">
             <div className="text-center">
-              <div className="text-xl sm:text-2xl font-bold text-(--positive)">
-                {stats.sentimentBreakdown.positive}
-              </div>
-              <div className="text-xs text-[var(--text-tertiary)]">Positivos</div>
+              <div className="text-xl sm:text-2xl font-bold text-(--positive)">{shares.positive.count}</div>
+              <div className="text-xs text-[var(--text-tertiary)]">Positivas (4–5★)</div>
             </div>
             <div className="text-center">
-              <div className="text-xl sm:text-2xl font-bold text-(--neutral)">
-                {stats.sentimentBreakdown.neutral}
-              </div>
-              <div className="text-xs text-[var(--text-tertiary)]">Neutros</div>
+              <div className="text-xl sm:text-2xl font-bold text-(--neutral)">{shares.neutral.count}</div>
+              <div className="text-xs text-[var(--text-tertiary)]">Neutras (3★)</div>
             </div>
             <div className="text-center">
-              <div className="text-xl sm:text-2xl font-bold text-(--negative)">
-                {stats.sentimentBreakdown.negative}
-              </div>
-              <div className="text-xs text-[var(--text-tertiary)]">Negativos</div>
+              <div className="text-xl sm:text-2xl font-bold text-(--negative)">{shares.critical.count}</div>
+              <div className="text-xs text-[var(--text-tertiary)]">Críticas (1–2★)</div>
             </div>
           </div>
         )}

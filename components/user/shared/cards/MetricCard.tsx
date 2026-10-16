@@ -5,15 +5,15 @@ export default function MetricCard({ title, value, helper, icon: Icon }: MetricC
     <div className="font-work-sans rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="font-montserrat text-sm text-(--text-tertiary)">{title}</p>
-          <p className="mt-3 text-3xl font-semibold text-(--text-primary)">{value}</p>
+          <div className="font-montserrat text-sm text-(--text-tertiary)">{title}</div>
+          <div className="mt-3 text-3xl font-semibold text-(--text-primary)">{value}</div>
         </div>
         <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-(--quaternary-color)/10 bg-(--seventh-color) text-(--text-secondary)">
           <Icon size={20} />
         </div>
       </div>
       {helper ? (
-        <p className="mt-3 text-xs text-(--text-tertiary)">{helper}</p>
+        <div className="mt-3 text-xs text-(--text-tertiary)">{helper}</div>
       ) : null}
     </div>
   );

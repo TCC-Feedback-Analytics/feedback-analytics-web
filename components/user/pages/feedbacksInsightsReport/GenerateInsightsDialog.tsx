@@ -144,7 +144,7 @@ export default function GenerateInsightsDialog({
               id="generate-insights-dialog-title"
               className="font-montserrat text-lg font-bold text-(--text-primary)"
             >
-              Gerar Insights com IA
+              Analisar comentários com IA
             </h3>
           </div>
 
@@ -281,10 +281,10 @@ export default function GenerateInsightsDialog({
                 )}
               </div>
               <div>
-                <h5 className="text-xs font-bold text-(--text-primary)">2. Sintetizar Relatório de IA</h5>
+                <h5 className="text-xs font-bold text-(--text-primary)">2. Escrever o resumo e as recomendações</h5>
                 {isRegeneratingInsights && insightsProgress && insightsProgress.total > 0 && (
                   <p className="text-[11px] text-(--primary-color) font-medium">
-                    Gerando relatório ({insightsProgress.done} de {insightsProgress.total})...
+                    Escrevendo o resumo ({insightsProgress.done} de {insightsProgress.total})...
                   </p>
                 )}
               </div>
@@ -345,7 +345,7 @@ export default function GenerateInsightsDialog({
             ) : (
               <>
                 <FaWandMagicSparkles className="text-sm" />
-                <span>Processar e Gerar Insights com IA</span>
+                <span>Processar e analisar comentários com IA</span>
                 <FaArrowRight className="text-[10px] ml-1" />
               </>
             )}
@@ -370,7 +370,7 @@ export default function GenerateInsightsDialog({
               title={!hasAnalysis ? "Sem análises prévias" : insightsUpToDate ? "Gerar novamente usando as análises atuais" : undefined}
               className="text-xs font-medium text-(--text-secondary) hover:text-(--text-primary) hover:underline disabled:opacity-40 disabled:no-underline disabled:cursor-not-allowed transition-colors"
             >
-              Apenas Gerar Relatório
+              Apenas gerar o resumo
             </button>
           </div>
         </div>

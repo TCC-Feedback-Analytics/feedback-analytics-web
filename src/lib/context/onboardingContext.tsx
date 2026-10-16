@@ -108,12 +108,12 @@ export function OnboardingProvider({ children, collecting, iaConfig = null, sess
     setIsTourActive(true);
   };
 
-  const persistTourStatus = async (status: Extract<SystemGuideStatus, "completed" | "skipped">) => {
+  const persistTourStatus = async (status: Extract<SystemGuideStatus, "completed" | "skipped">): Promise<boolean> => {
     if (!guide || isTourSaving) {
       if (!guide) {
         setTourSaveError("O estado do guia não foi carregado. Recarregue a página e tente novamente.");
       }
-      return;
+      return false;
     }
 
     const epoch = requestEpoch.current;
@@ -122,12 +122,14 @@ export function OnboardingProvider({ children, collecting, iaConfig = null, sess
 
     try {
       const response = await ServiceUpdateSystemGuide({ version: guide.version, status });
-      if (requestEpoch.current !== epoch) return;
+      if (requestEpoch.current !== epoch) return false;
       setGuide(response);
       setIsTourActive(false);
+      return true;
     } catch {
-      if (requestEpoch.current !== epoch) return;
+      if (requestEpoch.current !== epoch) return false;
       setTourSaveError("Não foi possível salvar o guia. Tente novamente.");
+      return false;
     } finally {
       if (requestEpoch.current === epoch) {
         setIsTourSaving(false);
