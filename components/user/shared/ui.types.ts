@@ -1,10 +1,9 @@
 import type { ReactNode } from 'react';
 import type { RouteCrumb } from 'src/lib/constants/routes/routeMeta';
-import type { ConfidenceTier, Interval } from 'lib/interfaces/domain/feedback.domain';
+import type { Interval } from 'lib/interfaces/domain/feedback.domain';
 import type { Precision, PrecisionKind } from 'src/lib/utils/precision';
 import type { MetricTermKey } from 'src/lib/constants/metricExplanations';
 import type { HelpTopicKey } from 'src/lib/constants/helpTopics';
-import type { ConfidenceSampleUnit } from 'src/lib/utils/statistics';
 
 /**
  * Props do cabeçalho padrão das telas logadas (PageHeader).
@@ -63,36 +62,6 @@ export type PrecisionBadgeProps = {
 
 export type PrecisionInfoModalProps = Omit<PrecisionBadgeProps, 'className'> & {
   precision: Precision;
-  onClose: () => void;
-};
-
-/**
- * Props do selo de confiança da amostra (ConfidenceBadge).
- * Usado em: components/user/shared/ConfidenceBadge.tsx.
- */
-export type ConfidenceBadgeProps = {
-  tier?: ConfidenceTier;
-  /** Tamanho da amostra (n) exibido ao lado do rótulo, quando informado. */
-  n?: number;
-  /**
-   * O QUE o `n` conta: 'feedbacks' (geral, padrão), 'respostas' (granular, de UMA
-   * pergunta) ou 'analyzed' (feedbacks analisados pela IA). Deixa o número claro.
-   */
-  unit?: ConfidenceSampleUnit;
-  className?: string;
-};
-
-/**
- * Props do modal explicativo da confiança (ConfidenceInfoModal).
- * Usado em: components/user/shared/ConfidenceInfoModal.tsx.
- */
-export type ConfidenceInfoModalProps = {
-  /** Faixa atual a destacar no modal (opcional). */
-  tier?: ConfidenceTier;
-  /** Quantidade de respostas do resultado clicado (opcional, mostrado no topo). */
-  n?: number;
-  /** O que o `n` conta — define a frase de origem da amostra no modal. */
-  unit?: ConfidenceSampleUnit;
   onClose: () => void;
 };
 

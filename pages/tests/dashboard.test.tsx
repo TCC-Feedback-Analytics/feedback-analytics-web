@@ -198,7 +198,7 @@ describe('[Unidade] Dashboard Page', () => {
     expect(within(section).getByRole('button', { name: /QR geral da empresa/ })).toBeInTheDocument();
     expect(within(section).getByText('Ainda sem comentários analisados pela IA no QR geral da empresa.')).toBeInTheDocument();
     expect(within(section).getByText('Resumo e recomendações da IA')).toBeInTheDocument();
-    expect(within(section).getByText('Ainda não há relatório para este escopo')).toBeInTheDocument();
+    expect(within(section).getByText('Ainda não há resumo da IA para este escopo')).toBeInTheDocument();
     expect(within(section).getByRole('link', { name: /Ver a análise completa dos comentários/ }))
       .toHaveAttribute('href', '/user/insights/overview');
     expect(screen.queryByText('Relatório de Insights')).not.toBeInTheDocument();
