@@ -13,7 +13,7 @@ export default function UserInteractiveTour({
   onOpenMobileDrawer,
   onCloseMobileDrawer,
 }: UserInteractiveTourProps) {
-  const { isTourActive, currentTourStep, isTourSaving, tourSaveError, nextTourStep, prevTourStep, skipTour, goToStep } =
+  const { isTourActive, currentTourStep, isTourSaving, tourSaveError, nextTourStep, prevTourStep, skipTour, completeTour, goToStep } =
     useOnboarding();
   const navigate = useNavigate();
   const location = useLocation();
@@ -161,7 +161,19 @@ export default function UserInteractiveTour({
     };
   })();
 
+  // Ao concluir ou pular, o usuário termina no dashboard; se o salvamento
+  // falhar, o guia continua aberto com o erro para nova tentativa.
+  const finishTour = (finish: () => Promise<boolean>) => {
+    void finish().then((saved) => {
+      if (saved) navigate("/user/dashboard");
+    });
+  };
+
   const handleActionClick = () => {
+    if (isLast) {
+      finishTour(completeTour);
+      return;
+    }
     if (location.pathname !== stepData.route) {
       navigate(stepData.route);
     }
@@ -229,7 +241,7 @@ export default function UserInteractiveTour({
 
           <button
             type="button"
-            onClick={() => void skipTour()}
+            onClick={() => finishTour(skipTour)}
             disabled={isTourSaving}
             className="flex items-center gap-1 rounded-lg p-1 text-xs text-(--text-tertiary) hover:bg-(--seventh-color) hover:text-(--text-primary) transition-colors"
             title="Pular introdução"
