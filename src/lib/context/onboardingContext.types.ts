@@ -14,8 +14,9 @@ export interface OnboardingContextValue {
   isTourDeferred: boolean;
   setTourDeferred: (deferred: boolean) => void;
   startTour: () => void;
-  completeTour: () => Promise<void>;
-  skipTour: () => Promise<void>;
+  /** Resolve true quando o servidor gravou o status do guia. */
+  completeTour: () => Promise<boolean>;
+  skipTour: () => Promise<boolean>;
   nextTourStep: () => void;
   prevTourStep: () => void;
   goToStep: (step: number) => void;
