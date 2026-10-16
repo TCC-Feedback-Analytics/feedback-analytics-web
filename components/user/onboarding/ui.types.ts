@@ -1,9 +1,8 @@
 import type { ElementType } from "react";
 import {
   FaChartPie,
-  FaFileLines,
-  FaHeartPulse,
   FaChartSimple,
+  FaList,
   FaCircleQuestion,
   FaCommentDots,
   FaBoxesStacked,
@@ -74,27 +73,20 @@ export const INTERACTIVE_STEPS: TourStepData[] = [
     description: "Acompanhe os principais indicadores e métricas da sua empresa em tempo real.",
     mobileDescription: "Na barra inferior, toque em Visão geral para acompanhar os indicadores principais da sua empresa.",
   },
-  // As abas de Insights aparecem também no celular: o mesmo alvo vale nos dois tamanhos.
+  // As abas da Análise dos comentários aparecem também no celular: o mesmo alvo vale nos dois tamanhos.
   {
-    selector: '[data-tour="tour-insights-reports"]',
-    route: "/user/insights/reports",
-    title: "Relatórios de Insights",
-    icon: FaFileLines,
-    description: "Um resumo estratégico escrito pela IA, com pontos fortes, oportunidades de melhoria e recomendações para a empresa, um produto, um serviço ou um setor. Para gerar, use Gerar Insights com IA. É preciso ter a IA configurada, o contexto da empresa preenchido e pelo menos 10 feedbacks no escopo escolhido.",
-  },
-  {
-    selector: '[data-tour="tour-insights-emotional"]',
-    route: "/user/insights/emotional",
-    title: "Análise Emocional",
-    icon: FaHeartPulse,
-    description: "Mostra o termômetro emocional dos clientes e os momentos que mais se repetem, com exemplos reais dos feedbacks de emoção mais forte. Aparece depois que a IA analisa os feedbacks.",
-  },
-  {
-    selector: '[data-tour="tour-insights-statistics"]',
-    route: "/user/insights/statistics",
-    title: "Estatísticas",
+    selector: '[data-tour="tour-comments-overview"]',
+    route: "/user/insights/overview",
+    title: "Análise dos comentários",
     icon: FaChartSimple,
-    description: "Mostra a distribuição dos sentimentos, as categorias e palavras-chave mais citadas e os assuntos que mais pesam na percepção dos clientes. Também usa os feedbacks já analisados pela IA.",
+    description: "A IA lê o que os clientes escreveram e mostra o tom dos comentários, os assuntos que mais impactam e um resumo com recomendações para a empresa, um produto, um serviço ou um setor. Para atualizar, use Analisar comentários com IA. É preciso ter a IA configurada, o contexto da empresa preenchido e pelo menos 10 feedbacks no escopo escolhido.",
+  },
+  {
+    selector: '[data-tour="tour-comments-list"]',
+    route: "/user/insights/comments",
+    title: "Comentários",
+    icon: FaList,
+    description: "Todos os comentários já analisados pela IA, com filtros por tom (positivos, neutros e negativos) e para quando a nota e o texto não combinam.",
   },
   {
     selector: '[data-tour="tour-form-questions"]',

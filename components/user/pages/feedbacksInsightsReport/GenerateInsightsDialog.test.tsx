@@ -38,7 +38,7 @@ function setup() {
   const close = vi.fn();
   const t = render(<GenerateInsightsDialog open onOpenChange={close} />);
   const refresh = () => t.rerender(<GenerateInsightsDialog open onOpenChange={close} />);
-  const start = () => fireEvent.click(screen.getByRole('button', { name: 'Processar e Gerar Insights com IA' }));
+  const start = () => fireEvent.click(screen.getByRole('button', { name: 'Processar e analisar comentários com IA' }));
   return { ...t, refresh, start, close };
 }
 

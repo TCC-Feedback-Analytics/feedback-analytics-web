@@ -10,7 +10,7 @@ export default function InsightsReportEmptyState({
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold text-[var(--text-primary)] font-montserrat">
-              Relatório de Insights da IA
+              Resumo e recomendações da IA
             </h2>
             <p className="text-sm text-[var(--text-tertiary)]">
               Gere um relatório inteligente a partir dos feedbacks já analisados

@@ -20,7 +20,7 @@ export type RouteMeta = {
 
 const SECTION_CONFIG = 'Configuração da coleta';
 const SECTION_FEEDBACKS = 'Feedbacks';
-const SECTION_INSIGHTS = 'Insights';
+const SECTION_COMMENTS = 'Análise dos comentários';
 
 const CATALOG_CRUMB: RouteCrumb = {
   label: 'Catálogo',
@@ -49,32 +49,17 @@ const ROUTE_META: Record<string, RouteMeta> = {
     description: 'Todos os feedbacks coletados, com filtros e detalhes.',
     breadcrumb: [{ label: SECTION_FEEDBACKS }, { label: 'Recebidos' }],
   },
-  '/user/feedbacks/analytics/all': {
-    title: 'Análises — Todos',
-    breadcrumb: [{ label: SECTION_FEEDBACKS }, { label: 'Análises' }, { label: 'Todos' }],
-  },
-  '/user/feedbacks/analytics/positive': {
-    title: 'Análises — Positivos',
-    breadcrumb: [{ label: SECTION_FEEDBACKS }, { label: 'Análises' }, { label: 'Positivos' }],
-  },
-  '/user/feedbacks/analytics/negative': {
-    title: 'Análises — Negativos',
-    breadcrumb: [{ label: SECTION_FEEDBACKS }, { label: 'Análises' }, { label: 'Negativos' }],
-  },
 
-  // Insights (IA)
-  '/user/insights/reports': {
-    title: 'Relatórios de Insights',
-    description: 'Resumo estratégico e recomendações geradas pela IA por escopo.',
-    breadcrumb: [{ label: SECTION_INSIGHTS }, { label: 'Relatórios' }],
+  // Análise dos comentários (IA): o que os clientes escreveram, lido pela IA.
+  '/user/insights/overview': {
+    title: 'Análise dos comentários',
+    description: 'O que os clientes escreveram, lido pela IA: tom, assuntos que mais impactam e recomendações.',
+    breadcrumb: [{ label: SECTION_COMMENTS }, { label: 'Visão geral' }],
   },
-  '/user/insights/emotional': {
-    title: 'Análise Emocional',
-    breadcrumb: [{ label: SECTION_INSIGHTS }, { label: 'Emocional' }],
-  },
-  '/user/insights/statistics': {
-    title: 'Estatísticas',
-    breadcrumb: [{ label: SECTION_INSIGHTS }, { label: 'Estatísticas' }],
+  '/user/insights/comments': {
+    title: 'Comentários',
+    description: 'Os comentários lidos pela IA, com filtros por tom e pela divergência entre nota e texto.',
+    breadcrumb: [{ label: SECTION_COMMENTS, to: '/user/insights/overview' }, { label: 'Comentários' }],
   },
   '/user/questions/removed': {
     title: 'Perguntas que saíram do formulário',

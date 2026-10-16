@@ -24,9 +24,8 @@ export default function SectionTabs({ className = "" }: SectionTabsProps) {
             if (to === "/user/edit/feedback-general") return "tour-feedback-general";
             if (to === "/user/edit/types-feedback") return "tour-catalog";
             if (to === "/user/edit/collecting-data-enterprise") return "ai-context-steps";
-            if (to === "/user/insights/reports") return "tour-insights-reports";
-            if (to === "/user/insights/emotional") return "tour-insights-emotional";
-            if (to === "/user/insights/statistics") return "tour-insights-statistics";
+            if (to === "/user/insights/overview") return "tour-comments-overview";
+            if (to === "/user/insights/comments") return "tour-comments-list";
             return undefined;
           };
 

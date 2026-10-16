@@ -10,7 +10,7 @@ import { NotificationBellDropdown } from "components/user/pages/feedbacksInsight
 
 /**
  * Barra de controles de Insights no layout (abaixo do header): seletor de
- * escopo + contador de feedbacks novos (com sino interativo) + Botão unificado "Gerar Insights com IA".
+ * escopo + contador de feedbacks novos (com sino interativo) + Botão unificado "Analisar comentários com IA".
  * Os controles aparecem em Dashboard/Insights; o progresso acompanha todas as rotas.
  */
 export default function InsightsActionBar() {
@@ -78,7 +78,7 @@ export default function InsightsActionBar() {
             ) : (
               <>
                 <FaWandMagicSparkles aria-hidden className="text-xs" />
-                <span>Gerar Insights com IA</span>
+                <span>Analisar comentários com IA</span>
               </>
             )}
           </button>
