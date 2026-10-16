@@ -23,7 +23,6 @@ import FeedbacksAnalyticsNegativeSkeleton from 'components/user/pages/feedbacks/
 import InsightsReportSkeleton from 'components/user/pages/feedbacks/insights/InsightsReportSkeleton';
 import InsightsEmotionalSkeleton from 'components/user/pages/feedbacks/insights/InsightsEmotionalSkeleton';
 import InsightsStatisticsSkeleton from 'components/user/pages/feedbacks/insights/InsightsStatisticsSkeleton';
-import InsightsQuestionsSkeleton from 'components/user/pages/feedbacks/insights/InsightsQuestionsSkeleton';
 import EditCustomersSkeleton from 'components/user/pages/edit/EditCustomersSkeleton';
 import EditProfileSkeleton from 'components/user/pages/edit/EditProfileSkeleton';
 import EditCollectingDataSkeleton from 'components/user/pages/edit/EditCollectingDataSkeleton';
@@ -298,7 +297,6 @@ export default function User() {
     if (pendingPathname === '/user/insights/reports') return <InsightsReportSkeleton />;
     if (pendingPathname === '/user/insights/emotional') return <InsightsEmotionalSkeleton />;
     if (pendingPathname === '/user/insights/statistics') return <InsightsStatisticsSkeleton />;
-    if (pendingPathname === '/user/insights/questions') return <InsightsQuestionsSkeleton />;
 
     if (pendingPathname === '/user/edit/customers') return <EditCustomersSkeleton />;
     if (pendingPathname === '/user/edit/profile') return <EditProfileSkeleton />;

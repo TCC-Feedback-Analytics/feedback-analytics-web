@@ -97,11 +97,11 @@ export const INTERACTIVE_STEPS: TourStepData[] = [
     description: "Mostra a distribuição dos sentimentos, as categorias e palavras-chave mais citadas e os assuntos que mais pesam na percepção dos clientes. Também usa os feedbacks já analisados pela IA.",
   },
   {
-    selector: '[data-tour="tour-insights-questions"]',
-    route: "/user/insights/questions",
-    title: "Perguntas",
+    selector: '[data-tour="tour-form-questions"]',
+    route: "/user/dashboard",
+    title: "Perguntas do formulário",
     icon: FaCircleQuestion,
-    description: "Mostra a nota média de cada pergunta e subpergunta do formulário, por escopo, para você ver onde a experiência vai bem e onde precisa de atenção. Usa as respostas dos clientes, mesmo sem a IA configurada.",
+    description: "Cada pergunta do seu formulário aparece aqui, na ordem, com a nota, as respostas e o % de satisfeitos. Clique em \"Ver todas as métricas desta pergunta\" para ver as subperguntas. Usa as respostas dos clientes, mesmo sem a IA configurada.",
   },
   {
     selector: '[data-tour="tour-feedback-general"]',

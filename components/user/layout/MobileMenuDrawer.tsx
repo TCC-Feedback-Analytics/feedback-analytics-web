@@ -12,7 +12,6 @@ import {
   FaFileLines,
   FaHeartPulse,
   FaChartSimple,
-  FaCircleQuestion,
   FaCommentDots,
   FaBoxesStacked,
   FaSliders,
@@ -216,19 +215,6 @@ export default function MobileMenuDrawer({
               >
                 <FaChartSimple className="h-5 w-5 shrink-0 text-purple-400" />
                 <span className="text-xs font-bold text-(--text-primary)">Estatísticas</span>
-              </NavLink>
-
-              <NavLink
-                to="/user/insights/questions"
-                onClick={onClose}
-                className={`flex items-center gap-3 rounded-2xl border p-3 transition-all duration-150 active:scale-95 ${
-                  isMatch('/user/insights/questions', pathname)
-                    ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--primary-color) font-bold'
-                    : 'border-(--quaternary-color)/12 bg-(--seventh-color)/40 text-(--text-secondary) hover:bg-(--seventh-color)'
-                }`}
-              >
-                <FaCircleQuestion className="h-5 w-5 shrink-0 text-amber-400" />
-                <span className="text-xs font-bold text-(--text-primary)">Perguntas</span>
               </NavLink>
             </div>
           </div>

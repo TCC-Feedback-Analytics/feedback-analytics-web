@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs } from 'react-router-dom';
 import { loadFeedbackQuestionsData } from 'src/routes/load/loadFeedbackQuestions';
 
-export async function LoaderFeedbacksInsightsQuestions(
+export async function LoaderFormQuestions(
   _args: LoaderFunctionArgs,
 ) {
   void _args;
