@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { RouteCrumb } from 'src/lib/constants/routes/routeMeta';
-import type { ConfidenceTier } from 'lib/interfaces/domain/feedback.domain';
+import type { ConfidenceTier, Interval } from 'lib/interfaces/domain/feedback.domain';
+import type { Precision, PrecisionKind } from 'src/lib/utils/precision';
 import type { MetricTermKey } from 'src/lib/constants/metricExplanations';
 import type { HelpTopicKey } from 'src/lib/constants/helpTopics';
 import type { ConfidenceSampleUnit } from 'src/lib/utils/statistics';
@@ -32,6 +33,37 @@ export type SectionTabsProps = {
  */
 export type ScopeBadgeProps = {
   className?: string;
+};
+
+/**
+ * Props da etiqueta de escopo das seções e páginas de detalhe (ScopeTag).
+ * Usado em: components/user/shared/ScopeTag.tsx.
+ */
+export type ScopeTagProps = {
+  className?: string;
+};
+
+/**
+ * Props do indicador de Precisão (PrecisionBadge) e do seu painel.
+ * Usado em: components/user/shared/PrecisionBadge.tsx.
+ */
+export type PrecisionBadgeProps = {
+  /** Nome da métrica no painel (ex.: "Média de satisfação"). */
+  metricName: string;
+  /** Quantidade de respostas que formam o número. */
+  n: number;
+  /** O que o `n` conta, no plural (ex.: "avaliações", "respostas", "comentários analisados"). */
+  unit: string;
+  interval: Interval | null | undefined;
+  kind: PrecisionKind;
+  /** Complemento de escopo ("do QR geral da empresa"); vem de scopeText().ofScope. */
+  ofScope?: string;
+  className?: string;
+};
+
+export type PrecisionInfoModalProps = Omit<PrecisionBadgeProps, 'className'> & {
+  precision: Precision;
+  onClose: () => void;
 };
 
 /**
