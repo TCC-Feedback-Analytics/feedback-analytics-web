@@ -14,11 +14,11 @@ export const IA_RESPONSE_ERROR_MESSAGES: Record<string, string> = {
   failed_ia_request: 'Não foi possível concluir a chamada ao provedor de IA. Tente novamente mais tarde.',
   invalid_ai_response: 'O modelo retornou um JSON inválido. A análise não foi concluída. Tente novamente ou selecione outro modelo compatível.',
   invalid_ai_response_schema: 'A resposta da IA não segue o formato esperado ou contém resultados inválidos. A análise foi interrompida.',
-  invalid_ai_response_language: 'A IA não conseguiu produzir o relatório integralmente em português brasileiro, mesmo após a correção automática. Tente novamente ou selecione outro modelo.',
+  invalid_ai_response_language: 'A IA não conseguiu produzir o resumo integralmente em português brasileiro, mesmo após a correção automática. Tente novamente ou selecione outro modelo.',
   invalid_provider_response: 'O OpenRouter retornou uma resposta inesperada. A análise não foi concluída.',
   empty_ai_response: 'O modelo não retornou conteúdo para análise. Tente novamente mais tarde ou selecione outro modelo.',
   truncated_ai_response: 'A resposta do modelo foi cortada pelo limite de saída. A análise foi interrompida; reduza o tamanho dos lotes ou selecione outro modelo.',
-  incomplete_ai_response: 'A IA não concluiu todos os feedbacks. O fluxo foi interrompido antes de gerar novos insights. Tente novamente para processar os pendentes.',
+  incomplete_ai_response: 'A IA não concluiu todos os feedbacks. O fluxo foi interrompido antes de gerar o novo resumo. Tente novamente para processar os pendentes.',
   ai_response_refused: 'O provedor recusou a análise ou bloqueou a resposta por um filtro de conteúdo.',
   ia_provider_error: 'O OpenRouter informou uma falha do provedor durante a análise. Verifique os logs de diagnóstico.',
   ia_provider_auth_error: 'O OpenRouter recusou a chave configurada. Verifique sua configuração de IA.',
@@ -86,7 +86,7 @@ export function getIaErrorMessage(errorCode: string | null | undefined): string 
   }
 
   if (code === 'insights_not_generated') {
-    return 'Nenhum relatório foi gerado. Verifique se há feedbacks analisados suficientes e tente novamente.';
+    return 'Nenhum resumo foi gerado. Verifique se há feedbacks analisados suficientes e tente novamente.';
   }
 
   if (IA_SERVICE_UNAVAILABLE_CODES.has(code)) {
