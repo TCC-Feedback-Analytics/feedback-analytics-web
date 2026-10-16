@@ -3,6 +3,7 @@ import {
   FaChartPie,
   FaChartSimple,
   FaList,
+  FaStar,
   FaCircleQuestion,
   FaCommentDots,
   FaBoxesStacked,
@@ -73,7 +74,22 @@ export const INTERACTIVE_STEPS: TourStepData[] = [
     description: "Acompanhe os principais indicadores e métricas da sua empresa em tempo real.",
     mobileDescription: "Na barra inferior, toque em Visão geral para acompanhar os indicadores principais da sua empresa.",
   },
-  // As abas da Análise dos comentários aparecem também no celular: o mesmo alvo vale nos dois tamanhos.
+  // As seções do Dashboard e as abas da Análise dos comentários aparecem também
+  // no celular: o mesmo alvo vale nos dois tamanhos.
+  {
+    selector: '[data-tour="tour-star-ratings"]',
+    route: "/user/dashboard",
+    title: "Avaliação por estrelas",
+    icon: FaStar,
+    description: "A nota de 1 a 5 que os clientes marcaram: a média, as avaliações positivas (4–5★) e as críticas (1–2★). A etiqueta no canto diz de qual escopo são os números; clique nela para trocar. Em \"Ver todas as métricas de estrelas\" ficam a distribuição completa e as neutras.",
+  },
+  {
+    selector: '[data-tour="tour-form-questions"]',
+    route: "/user/dashboard",
+    title: "Perguntas do formulário",
+    icon: FaCircleQuestion,
+    description: "Cada pergunta do seu formulário aparece aqui, na ordem, com a nota, as respostas e o % de satisfeitos. Clique em \"Ver todas as métricas desta pergunta\" para ver as subperguntas. Usa as respostas dos clientes, mesmo sem a IA configurada.",
+  },
   {
     selector: '[data-tour="tour-comments-overview"]',
     route: "/user/insights/overview",
@@ -87,13 +103,6 @@ export const INTERACTIVE_STEPS: TourStepData[] = [
     title: "Comentários",
     icon: FaList,
     description: "Todos os comentários já analisados pela IA, com filtros por tom (positivos, neutros e negativos) e para quando a nota e o texto não combinam.",
-  },
-  {
-    selector: '[data-tour="tour-form-questions"]',
-    route: "/user/dashboard",
-    title: "Perguntas do formulário",
-    icon: FaCircleQuestion,
-    description: "Cada pergunta do seu formulário aparece aqui, na ordem, com a nota, as respostas e o % de satisfeitos. Clique em \"Ver todas as métricas desta pergunta\" para ver as subperguntas. Usa as respostas dos clientes, mesmo sem a IA configurada.",
   },
   {
     selector: '[data-tour="tour-feedback-general"]',
