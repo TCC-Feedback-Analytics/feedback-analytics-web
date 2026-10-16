@@ -214,7 +214,7 @@ export default function User() {
     kind: 'regenerate_insights',
     enterpriseId: enterprise.id,
     onSuccess: () => toast.success('Análise atualizada!', 'Resumo e recomendações da IA atualizados.'),
-    onError: (message, errorCode) => notifyIaFailure('Erro na geração de insights', message, errorCode, 'gerar o relatório'),
+    onError: (message, errorCode) => notifyIaFailure('Erro ao gerar o resumo da IA', message, errorCode, 'gerar o resumo'),
   });
   const submitRaw = rawOperation.submit;
   const submitInsights = insightsOperation.submit;
@@ -267,7 +267,7 @@ export default function User() {
     if (insightsState.catalogItemId) {
       form.set('catalog_item_id', insightsState.catalogItemId);
     }
-    toast.success('Enfileirando relatório...', 'O processamento continuará em segundo plano.');
+    toast.success('Preparando o resumo da IA...', 'O processamento continuará em segundo plano.');
     submitInsights(form);
   }, [insightsState.canAnalyze, insightsState.scope, insightsState.catalogItemId, submitInsights, toast]);
 

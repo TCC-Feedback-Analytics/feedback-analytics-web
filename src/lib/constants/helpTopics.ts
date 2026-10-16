@@ -90,7 +90,7 @@ export const HELP_TOPICS: Record<HelpTopicKey, HelpTopicContent> = {
     title: 'O que são subperguntas',
     paragraphs: [
       'A pergunta principal é o tema central que você quer avaliar. As subperguntas desdobram esse tema em pontos mais específicos, para você entender o que puxou a nota para cima ou para baixo.',
-      'Cada subpergunta é avaliada em separado e tem as suas próprias métricas no relatório. São opcionais: deixe só a pergunta principal e adicione subperguntas apenas onde fizer sentido.',
+      'Cada subpergunta é avaliada em separado e tem as suas próprias métricas na página da pergunta. São opcionais: deixe só a pergunta principal e adicione subperguntas apenas onde fizer sentido.',
     ],
     example: 'Pergunta: "Como foi o atendimento na recepção?" · Subpergunta: "A recepcionista foi cordial e prestativa?"',
   },
@@ -98,7 +98,7 @@ export const HELP_TOPICS: Record<HelpTopicKey, HelpTopicContent> = {
     title: 'Ativar ou pausar a pergunta',
     paragraphs: [
       'Quando uma pergunta está ATIVA, ela aparece no formulário que o cliente responde pelo QR Code. Ao desativar, ela some do formulário a partir daquele momento, mas nada é apagado.',
-      'Todo o histórico de respostas continua guardado e visível nos relatórios, marcado como pergunta desativada. Você pode reativar quando quiser, e ela volta com tudo o que já foi coletado.',
+      'Todo o histórico de respostas continua guardado e visível na página da pergunta, marcado como pergunta desativada. Você pode reativar quando quiser, e ela volta com tudo o que já foi coletado.',
       'Ou seja, pausar uma pergunta é seguro e reversível. Use sem medo de perder dados, seja para descansar uma pergunta sazonal ou para preparar uma nova antes de colocá-la no ar.',
     ],
     example: 'Você pausa uma pergunta no inverno e reativa no verão; as respostas das duas estações continuam somadas.',
@@ -107,7 +107,7 @@ export const HELP_TOPICS: Record<HelpTopicKey, HelpTopicContent> = {
     title: 'O que acontece ao remover',
     paragraphs: [
       'Remover ESVAZIA o espaço desta pergunta para você reaproveitá-lo com outra. O texto sai do formulário, mas as respostas já coletadas não são apagadas.',
-      'No relatório, o histórico continua disponível, identificado como pergunta antiga. Você nunca perde o que já foi medido.',
+      'Na página da pergunta, o histórico continua disponível, identificado como pergunta antiga. Você nunca perde o que já foi medido.',
       'Use Remover quando quiser limpar o espaço e recomeçar; use o botão Ativa quando quiser apenas pausar, mantendo a pergunta pronta para voltar.',
     ],
     example: 'Você remove uma pergunta pouco útil; a nova entra no lugar e a antiga segue visível no histórico.',

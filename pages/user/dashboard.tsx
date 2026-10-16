@@ -157,7 +157,7 @@ export default function Dashboard() {
         </>
       )}
 
-      {/* O que os clientes ESCREVERAM, lido pela IA (antigo "Relatório de Insights"). */}
+      {/* O que os clientes ESCREVERAM, lido pela IA (antigo bloco de insights). */}
       <section className="font-work-sans relative space-y-4" aria-labelledby="dashboard-comments-title">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <h2 id="dashboard-comments-title" className="font-montserrat text-lg font-semibold text-(--text-primary)">

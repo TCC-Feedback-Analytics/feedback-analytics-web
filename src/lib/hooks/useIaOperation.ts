@@ -111,7 +111,7 @@ export function useIaOperation({ kind, onSuccess, onError, enterpriseId }: {
         status: 'queued', done: 0, total: 0, errorCode: null, updatedAt: null });
     } else {
       fail(kind === 'regenerate_insights'
-        ? 'Nenhum relatório foi gerado. Verifique se há feedbacks analisados suficientes e tente novamente.'
+        ? 'Nenhum resumo foi gerado. Verifique se há feedbacks analisados suficientes e tente novamente.'
         : 'A análise não confirmou sua conclusão. Tente novamente.');
     }
   }, [fetcher.state, fetcher.data, kind, fail, remember]);
