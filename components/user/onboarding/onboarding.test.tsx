@@ -7,6 +7,7 @@ import { OnboardingProvider, useOnboarding } from "src/lib/context/onboardingCon
 import AIContextDialog from "./AIContextDialog";
 import UserInteractiveTour from "./UserInteractiveTour";
 import { INTERACTIVE_STEPS } from "./ui.types";
+import { TOUR_STEPS_COUNT } from "src/lib/context/onboardingContext.types";
 import type { CollectingDataEnterprise } from "lib/interfaces/entities/enterprise.entity";
 import type { IaConfigResponse } from "src/services/serviceIaConfig";
 
@@ -333,20 +334,28 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
   });
 
   it("mapeia o guia móvel para a barra inferior e o menu central", () => {
-    expect(INTERACTIVE_STEPS.slice(0, 4).map((step) => step.mobileSelector)).toEqual([
+    expect(INTERACTIVE_STEPS.map((step) => step.mobileSelector ?? step.selector).slice(0, 7)).toEqual([
       '[data-tour="mobile-nav-dashboard"]',
-      '[data-tour="mobile-nav-insights"]',
+      // As abas de Insights aparecem também no celular.
+      '[data-tour="tour-insights-reports"]',
+      '[data-tour="tour-insights-emotional"]',
+      '[data-tour="tour-insights-statistics"]',
+      '[data-tour="tour-insights-questions"]',
       '[data-tour="mobile-nav-feedback"]',
       '[data-tour="mobile-nav-catalog"]',
     ]);
-    expect(INTERACTIVE_STEPS[4]).toMatchObject({
+    expect(INTERACTIVE_STEPS[7]).toMatchObject({
       mobileSelector: '[data-tour="mobile-nav-ia-settings"]',
       openMobileDrawer: true,
     });
-    expect(INTERACTIVE_STEPS[5]).toMatchObject({
+    expect(INTERACTIVE_STEPS[8]).toMatchObject({
       mobileSelector: '[data-tour="mobile-nav-profile"]',
       openMobileDrawer: true,
     });
+  });
+
+  it("o total de passos do tour acompanha a lista de passos", () => {
+    expect(INTERACTIVE_STEPS).toHaveLength(TOUR_STEPS_COUNT);
   });
 
   it("o tour espera a configuração inicial marcada por um filho na montagem", async () => {
@@ -404,11 +413,21 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     // Tour começa apenas após a confirmação de pending pelo servidor.
     expect(await screen.findByText("Dashboard de Resultados")).toBeInTheDocument();
 
-    // Avançar para o passo 2
+    // Um passo para cada área de Insights.
     fireEvent.click(screen.getByText("Próximo"));
-    expect(screen.getByText("Insights com IA")).toBeInTheDocument();
+    expect(screen.getByText("Relatórios de Insights")).toBeInTheDocument();
+    expect(screen.getByText(/pelo menos 10 feedbacks/)).toBeInTheDocument();
 
-    // Avançar para o passo 3
+    fireEvent.click(screen.getByText("Próximo"));
+    expect(screen.getByText("Análise Emocional")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Próximo"));
+    expect(screen.getByText("Estatísticas")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Próximo"));
+    expect(screen.getByText("Perguntas")).toBeInTheDocument();
+    expect(screen.getByText(/mesmo sem a IA configurada/)).toBeInTheDocument();
+
     fireEvent.click(screen.getByText("Próximo"));
     expect(screen.getByText("Feedback Geral")).toBeInTheDocument();
 
@@ -423,6 +442,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
 
     fireEvent.click(screen.getByText("Próximo"));
     expect(screen.getByText("Dados e configurações da empresa")).toBeInTheDocument();
+    expect(screen.getByText(/Essas escolhas definem o que seus clientes poderão avaliar/)).toBeInTheDocument();
 
     // Pular tour
     fireEvent.click(screen.getByText("Pular"));
