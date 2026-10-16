@@ -17,10 +17,10 @@ export default function InsightsReportContent({ report }: InsightsReportContentP
     return (
       <div className="rounded-2xl border border-(--quaternary-color)/20 bg-(--bg-primary)/60 p-5">
         <h3 className="font-montserrat text-base font-semibold text-(--text-primary)">
-          Ainda não há relatório para este escopo
+          Ainda não há resumo da IA para este escopo
         </h3>
         <p className="mt-2 text-sm text-(--text-secondary)">
-          Use os controles no topo para analisar feedbacks e gerar o relatório.
+          Use Analisar comentários com IA, no topo, para a IA ler os comentários e escrever o resumo e as recomendações.
         </p>
       </div>
     );

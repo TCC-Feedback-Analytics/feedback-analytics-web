@@ -26,7 +26,11 @@ export default function SectionRatings({ stats, variant = 'dashboard' }: Section
   const total = stats?.totalFeedbacks ?? 0;
 
   return (
-    <section className="font-work-sans space-y-4" aria-labelledby="ratings-section-title">
+    <section
+      className="font-work-sans space-y-4"
+      aria-labelledby="ratings-section-title"
+      data-tour={variant === 'dashboard' ? 'tour-star-ratings' : undefined}
+    >
       <header className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="ratings-section-title" className="font-montserrat text-lg font-semibold text-(--text-primary)">
           Avaliação por estrelas
