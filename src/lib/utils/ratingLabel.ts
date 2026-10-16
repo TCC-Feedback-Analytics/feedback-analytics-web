@@ -29,6 +29,35 @@ export function ratingTone(mean: number): RatingTone {
   return 'negative';
 }
 
+/** Cor do rótulo da nota (tokens do tema). */
+export const RATING_TONE_CLASS: Record<RatingTone, string> = {
+  positive: 'text-(--positive)',
+  neutral: 'text-(--neutral)',
+  negative: 'text-(--negative)',
+};
+
+export type RatingShare = { count: number; pct: number };
+
+/**
+ * Avaliações positivas (4–5★), neutras (3★) e críticas (1–2★), com o % sobre o
+ * total. Calculado pela distribuição das estrelas — e não pelo campo
+ * `sentimentBreakdown`, que tem nome de sentimento mas também vem das estrelas.
+ */
+export function ratingShares(
+  distribution: Record<1 | 2 | 3 | 4 | 5, number>,
+  total: number,
+): { positive: RatingShare; neutral: RatingShare; critical: RatingShare } {
+  const share = (count: number): RatingShare => ({
+    count,
+    pct: total > 0 ? Math.round((count / total) * 100) : 0,
+  });
+  return {
+    positive: share(distribution[4] + distribution[5]),
+    neutral: share(distribution[3]),
+    critical: share(distribution[1] + distribution[2]),
+  };
+}
+
 /** Nota no formato da tela: "4,2". */
 export function formatRating(mean: number): string {
   return roundForDisplay(mean).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });

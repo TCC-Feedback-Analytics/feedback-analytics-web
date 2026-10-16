@@ -6,8 +6,8 @@ import type { ReactNode } from 'react';
  * Usado em: components/user/shared/cards/MetricCard.tsx.
  */
 export type MetricCardProps = {
-  title: string;
-  value: string;
+  title: ReactNode;
+  value: ReactNode;
   helper?: ReactNode;
   icon: IconType;
 };
