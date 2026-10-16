@@ -131,7 +131,7 @@ export function useIaOperation({ kind, onSuccess, onError, enterpriseId }: {
     setStatus('running');
     // Também cobre falhas do router anteriores à resposta da action.
     try {
-      void Promise.resolve(fetcher.submit(form, { method: 'post', action: '/user/insights/reports' }))
+      void Promise.resolve(fetcher.submit(form, { method: 'post', action: '/user/insights/overview' }))
         .catch(() => fail('Não foi possível iniciar o processamento de IA. Tente novamente.'));
     } catch {
       fail('Não foi possível iniciar o processamento de IA. Tente novamente.');

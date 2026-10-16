@@ -14,10 +14,13 @@ import ShareQrCard from 'components/user/pages/dashboard/ShareQrCard';
 import SectionFormQuestions from 'components/user/pages/questions/SectionFormQuestions';
 import DashboardScopedSkeleton from 'components/user/pages/dashboard/DashboardScopedSkeleton';
 import InsightsReportContent from 'components/user/pages/feedbacksInsightsReport/InsightsReportContent';
+import CommentToneSection from 'components/user/pages/comments/CommentToneSection';
+import ScopeTag from 'components/user/shared/ScopeTag';
 import { useToast } from 'components/public/forms/messages/useToast';
 import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { useScopedInsightsReport } from 'src/lib/hooks/useScopedInsightsReport';
 import { getCatalogKindByKind } from 'src/lib/constants/catalog';
+import { scopeText } from 'src/lib/utils/scopeText';
 import {
   ServiceGetFeedbackStats,
   ServiceGetFeedbackQuestions,
@@ -31,7 +34,7 @@ export default function Dashboard() {
   const dashboardLoaderData = useLoaderData<DashboardLoaderData>();
   const [searchParams, setSearchParams] = useSearchParams();
   const toast = useToast();
-  const { scope, catalogItemId } = useInsightsControls();
+  const { scope, catalogItemId, catalogItemOptions } = useInsightsControls();
 
   const toastShownRef = useRef(false);
 
@@ -87,8 +90,9 @@ export default function Dashboard() {
     fetchScopedData();
   }, [fetchScopedData]);
 
-  // Relatório de insights (resumo + recomendações), também filtrado por escopo.
-  const { report, loading: reportLoading } = useScopedInsightsReport();
+  // Análise dos comentários (tom + resumo e recomendações da IA), filtrada por escopo.
+  const { report, summary, loading: reportLoading } = useScopedInsightsReport({ withAnalysis: true });
+  const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions });
 
   // O link de compartilhar segue o escopo selecionado no header: empresa → QR
   // geral; produto/serviço/departamento com item escolhido → QR do item; tipo
@@ -153,35 +157,40 @@ export default function Dashboard() {
         </>
       )}
 
-      <section className="relative overflow-hidden rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6 glass-card">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h2 className="font-montserrat text-lg font-semibold text-(--text-primary)">
-              Relatório de Insights
-            </h2>
-            <p className="mt-1 text-sm text-(--text-tertiary)">
-              Resumo e recomendações da IA para o escopo selecionado.
-            </p>
-          </div>
-          <Link
-            to="/user/insights/reports"
-            className="inline-flex shrink-0 items-center gap-2 text-sm text-(--text-secondary) transition-colors hover:text-(--text-primary)">
-            Ver completo
-            <FaArrowRight className="text-xs" />
-          </Link>
-        </div>
+      {/* O que os clientes ESCREVERAM, lido pela IA (antigo "Relatório de Insights"). */}
+      <section className="font-work-sans relative space-y-4" aria-labelledby="dashboard-comments-title">
+        <header className="flex flex-wrap items-center justify-between gap-3">
+          <h2 id="dashboard-comments-title" className="font-montserrat text-lg font-semibold text-(--text-primary)">
+            Análise dos comentários <span className="text-sm font-medium text-(--primary-color)">✨ IA</span>
+          </h2>
+          <ScopeTag />
+        </header>
 
-        <div className="mt-4">
-          {reportLoading && !report ? (
-            <p className="text-sm text-(--text-tertiary)">Carregando relatório…</p>
-          ) : (
-            <InsightsReportContent report={report} />
+        <CommentToneSection summary={summary} inScope={scopeInfo.inScope} ofScope={scopeInfo.ofScope} />
+
+        <div className="relative overflow-hidden rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6 glass-card">
+          <h3 className="font-montserrat text-base font-semibold text-(--text-primary)">Resumo e recomendações da IA</h3>
+          <div className="mt-4">
+            {reportLoading && !report ? (
+              <p className="text-sm text-(--text-tertiary)">Carregando o resumo…</p>
+            ) : (
+              <InsightsReportContent report={report} />
+            )}
+          </div>
+          {reportLoading && report && (
+            <div className="pointer-events-none absolute inset-0 rounded-2xl border border-(--quaternary-color)/12 bg-(--bg-primary)/30 backdrop-blur-[1px]" />
           )}
         </div>
 
-        {reportLoading && report && (
-          <div className="pointer-events-none absolute inset-0 rounded-2xl border border-(--quaternary-color)/12 bg-(--bg-primary)/30 backdrop-blur-[1px]" />
-        )}
+        <div className="flex justify-end">
+          <Link
+            to="/user/insights/overview"
+            className="inline-flex items-center gap-1.5 text-sm text-(--text-secondary) transition-colors hover:text-(--text-primary)"
+          >
+            Ver a análise completa dos comentários
+            <FaArrowRight className="text-xs" aria-hidden />
+          </Link>
+        </div>
       </section>
     </div>
   );

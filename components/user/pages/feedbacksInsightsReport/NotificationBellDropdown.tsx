@@ -150,7 +150,7 @@ export function NotificationBellDropdown({
               className="btn-primary font-poppins w-full flex items-center justify-center gap-1.5 py-2 text-xs font-semibold shadow-xs"
             >
               <FaWandMagicSparkles className="text-xs" />
-              <span>Gerar Insights com IA</span>
+              <span>Analisar comentários com IA</span>
             </button>
 
             <Link

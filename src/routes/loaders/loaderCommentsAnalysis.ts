@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs } from 'react-router-dom';
 import { loadFeedbackAnalysisData } from 'src/routes/load/loadFeedbackAnalysis';
 
-export async function LoaderFeedbacksInsightsEmotional(
+export async function LoaderCommentsAnalysis(
   _args: LoaderFunctionArgs,
 ) {
   void _args;
@@ -11,6 +11,8 @@ export async function LoaderFeedbacksInsightsEmotional(
 
   return {
     ...data,
-    error: data.error ? 'Erro ao carregar insights emocionais' : null,
+    error: data.error
+      ? 'Erro ao carregar os comentários analisados'
+      : null,
   };
 }

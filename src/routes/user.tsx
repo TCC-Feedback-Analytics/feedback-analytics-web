@@ -4,26 +4,18 @@ import Ratings from "pages/user/ratings";
 import EditCustomer from "pages/user/edit/editCustomers";
 import FeedbacksAll from "pages/user/feedbacks/feedbacksAll";
 import Feedbacks from "pages/user/feedbacks/feedbacks";
-import FeedbacksInsightsReport from "pages/user/feedbacks/insights/feedbackInsightsReport";
+import CommentsOverview from "pages/user/feedbacks/insights/overview";
+import CommentsPage from "pages/user/feedbacks/insights/comments";
 import LayoutUser from "layouts/user";
 import { Route, redirect } from "react-router-dom";
 import { LoaderUserProtected } from "src/routes/loaders/loaderUserProtected";
 import { LoaderUserDashboard } from "src/routes/loaders/loaderUserDashboard";
 import { LoaderFeedbacksAll } from "src/routes/loaders/loaderFeedbacksAll";
-import { LoaderFeedbacksAnalyticsAll } from "src/routes/loaders/loaderFeedbacksAnalyticsAll";
-import { LoaderFeedbacksAnalyticsPositive } from "src/routes/loaders/loaderFeedbacksAnalyticsPositive";
-import { LoaderFeedbacksAnalyticsNegative } from "src/routes/loaders/loaderFeedbacksAnalyticsNegative";
-import { LoaderFeedbacksInsightsStatistics } from "src/routes/loaders/loaderFeedbacksInsightsStatistics";
-import { LoaderFeedbacksInsightsEmotional } from "./loaders/loaderFeedbacksInsightsEmotional";
+import { LoaderCommentsAnalysis } from "src/routes/loaders/loaderCommentsAnalysis";
 import { LoaderFormQuestions } from "./loaders/loaderFormQuestions";
 import Profile from "pages/user/profile";
-import FeedbacksInsightsEmotional from "pages/user/feedbacks/insights/feedbacksInsightsEmotional";
-import FeedbacksInsightsStatistics from "pages/user/feedbacks/insights/feedbacksInsightsStatistics";
 import QuestionPage from "pages/user/questions/question";
 import RemovedQuestionsPage from "pages/user/questions/removed";
-import FeedbacksAnalyticsPositive from "pages/user/feedbacks/analytics/feedbacksAnalyticsPositive";
-import FeedbacksAnalyticsNegative from "pages/user/feedbacks/analytics/feedbacksAnalyticsNegative";
-import FeedbacksAnalyticsAll from "pages/user/feedbacks/analytics/feedbacksAnalyticsAll";
 import { ActionCollectingData } from "./actions/actionCollectingData";
 import { ActionTypesFeedback } from "./actions/actionTypesFeedback";
 import { ActionFeedbackInsightsReport } from "./actions/actionFeedbackInsightsReport";
@@ -79,36 +71,25 @@ export function RouteUser() {
         element={<FeedbacksAll />}
       />
       <Route path="feedbacks/:id" element={<Feedbacks />} />
+      {/* "Análise dos comentários": Visão geral (com a action de análise da IA) e Comentários. */}
+      <Route path="insights" loader={() => redirect("/user/insights/overview")} />
       <Route
-        path="feedbacks/analytics/all"
-        loader={LoaderFeedbacksAnalyticsAll}
-        element={<FeedbacksAnalyticsAll />}
-      />
-      <Route
-        path="feedbacks/analytics/positive"
-        loader={LoaderFeedbacksAnalyticsPositive}
-        element={<FeedbacksAnalyticsPositive />}
-      />
-      <Route
-        path="feedbacks/analytics/negative"
-        loader={LoaderFeedbacksAnalyticsNegative}
-        element={<FeedbacksAnalyticsNegative />}
-      />
-      <Route
-        path="insights/reports"
+        path="insights/overview"
         action={ActionFeedbackInsightsReport}
-        element={<FeedbacksInsightsReport />}
+        element={<CommentsOverview />}
       />
       <Route
-        path="insights/emotional"
-        loader={LoaderFeedbacksInsightsEmotional}
-        element={<FeedbacksInsightsEmotional />}
+        path="insights/comments"
+        loader={LoaderCommentsAnalysis}
+        element={<CommentsPage />}
       />
-      <Route
-        path="insights/statistics"
-        loader={LoaderFeedbacksInsightsStatistics}
-        element={<FeedbacksInsightsStatistics />}
-      />
+      {/* Páginas antigas, absorvidas pela nova estrutura: links salvos continuam funcionando. */}
+      <Route path="insights/reports" loader={() => redirect("/user/insights/overview")} />
+      <Route path="insights/emotional" loader={() => redirect("/user/insights/overview")} />
+      <Route path="insights/statistics" loader={() => redirect("/user/insights/overview")} />
+      <Route path="feedbacks/analytics/all" loader={() => redirect("/user/insights/comments")} />
+      <Route path="feedbacks/analytics/positive" loader={() => redirect("/user/insights/comments?filtro=positivos")} />
+      <Route path="feedbacks/analytics/negative" loader={() => redirect("/user/insights/comments?filtro=negativos")} />
       {/* As perguntas ficam no Dashboard ("Perguntas do formulário"), uma página por pergunta. */}
       <Route path="insights/questions" loader={() => redirect("/user/dashboard")} />
       <Route path="questions/removed" loader={LoaderFormQuestions} element={<RemovedQuestionsPage />} />

@@ -1,8 +1,4 @@
-import type {
-  ConfidenceTier,
-  FeedbackAnalysisSummary,
-  FeedbackInsightsReport,
-} from 'lib/interfaces/domain/feedback.domain';
+import type { FeedbackInsightsReport } from 'lib/interfaces/domain/feedback.domain';
 
 export type InsightScopeOption = 'COMPANY' | 'PRODUCT' | 'SERVICE' | 'DEPARTMENT';
 
@@ -64,40 +60,6 @@ export interface CatalogItemDropdownProps {
   items: InsightsCatalogItemOption[];
   selectedId: string;
   onChange: (id: string) => void;
-}
-
-/**
- * Tons de sentimento usados no bloco de humor.
- * Usado em: components/user/pages/feedbacksInsightsReport/InsightsReportMoodSection.tsx.
- */
-export type MoodTone = 'positive' | 'neutral' | 'negative';
-
-/**
- * Estrutura de dados do cartão de humor.
- * Usado em: components/user/pages/feedbacksInsightsReport/InsightsReportMoodSection.tsx.
- */
-export type MoodData = {
-  label: string;
-  tone: MoodTone;
-  description: string;
-};
-
-/**
- * Props da seção de humor dos insights.
- * Usado em: components/user/pages/feedbacksInsightsReport/InsightsReportMoodSection.tsx.
- */
-export interface InsightsReportMoodSectionProps {
-  mood: MoodData;
-  summary: FeedbackAnalysisSummary | null;
-  positivePct: number;
-  neutralPct: number;
-  negativePct: number;
-  /** Net Sentiment Score (-100..100) do escopo; null/undefined quando sem dados. */
-  nss?: number;
-  /** Camada de confiança pela quantidade de feedbacks analisados. */
-  confidenceTier?: ConfidenceTier;
-  /** Exibir o número do NSS (só com amostra suficiente). */
-  showNss?: boolean;
 }
 
 /**

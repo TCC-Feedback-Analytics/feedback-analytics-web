@@ -334,21 +334,20 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
   });
 
   it("mapeia o guia móvel para a barra inferior e o menu central", () => {
-    expect(INTERACTIVE_STEPS.map((step) => step.mobileSelector ?? step.selector).slice(0, 7)).toEqual([
+    expect(INTERACTIVE_STEPS.map((step) => step.mobileSelector ?? step.selector).slice(0, 6)).toEqual([
       '[data-tour="mobile-nav-dashboard"]',
-      // As abas de Insights aparecem também no celular.
-      '[data-tour="tour-insights-reports"]',
-      '[data-tour="tour-insights-emotional"]',
-      '[data-tour="tour-insights-statistics"]',
+      // As abas da Análise dos comentários aparecem também no celular.
+      '[data-tour="tour-comments-overview"]',
+      '[data-tour="tour-comments-list"]',
       '[data-tour="tour-form-questions"]',
       '[data-tour="mobile-nav-feedback"]',
       '[data-tour="mobile-nav-catalog"]',
     ]);
-    expect(INTERACTIVE_STEPS[7]).toMatchObject({
+    expect(INTERACTIVE_STEPS[6]).toMatchObject({
       mobileSelector: '[data-tour="mobile-nav-ia-settings"]',
       openMobileDrawer: true,
     });
-    expect(INTERACTIVE_STEPS[8]).toMatchObject({
+    expect(INTERACTIVE_STEPS[7]).toMatchObject({
       mobileSelector: '[data-tour="mobile-nav-profile"]',
       openMobileDrawer: true,
     });
@@ -413,16 +412,14 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     // Tour começa apenas após a confirmação de pending pelo servidor.
     expect(await screen.findByText("Dashboard de Resultados")).toBeInTheDocument();
 
-    // Um passo para cada área de Insights.
+    // Um passo para cada página da Análise dos comentários.
     fireEvent.click(screen.getByText("Próximo"));
-    expect(screen.getByText("Relatórios de Insights")).toBeInTheDocument();
+    expect(screen.getByText("Análise dos comentários")).toBeInTheDocument();
     expect(screen.getByText(/pelo menos 10 feedbacks/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("Próximo"));
-    expect(screen.getByText("Análise Emocional")).toBeInTheDocument();
-
-    fireEvent.click(screen.getByText("Próximo"));
-    expect(screen.getByText("Estatísticas")).toBeInTheDocument();
+    expect(screen.getByText("Comentários")).toBeInTheDocument();
+    expect(screen.getByText(/a nota e o texto não combinam/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("Próximo"));
     expect(screen.getByText("Perguntas do formulário")).toBeInTheDocument();

@@ -8,10 +8,8 @@ import {
   FaUserGear,
   FaChartPie,
   FaInbox,
-  FaChartLine,
-  FaFileLines,
-  FaHeartPulse,
   FaChartSimple,
+  FaList,
   FaCommentDots,
   FaBoxesStacked,
   FaSliders,
@@ -153,68 +151,42 @@ export default function MobileMenuDrawer({
                 <FaInbox className="h-5 w-5 shrink-0 text-(--primary-color)" />
                 <span className="text-xs font-bold text-(--text-primary)">Recebidos</span>
               </NavLink>
-
-              <NavLink
-                to="/user/feedbacks/analytics/all"
-                onClick={onClose}
-                className={`flex items-center gap-3 rounded-2xl border p-3 transition-all duration-150 active:scale-95 ${
-                  isMatch('/user/feedbacks/analytics/all', pathname)
-                    ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--primary-color) font-bold'
-                    : 'border-(--quaternary-color)/12 bg-(--seventh-color)/40 text-(--text-secondary) hover:bg-(--seventh-color)'
-                }`}
-              >
-                <FaChartLine className="h-5 w-5 shrink-0 text-cyan-400" />
-                <span className="text-xs font-bold text-(--text-primary)">Analisados</span>
-              </NavLink>
             </div>
           </div>
 
-          {/* Section 3: Insights & Estatísticas */}
+          {/* Section 3: Análise dos comentários (IA) */}
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-(--text-tertiary) px-1">
               <FaWandMagicSparkles className="h-3.5 w-3.5 text-(--primary-color)" />
-              <span>Insights & Análises</span>
+              <span>Análise dos comentários · IA</span>
             </div>
 
             <div className="grid grid-cols-2 gap-2.5">
               <NavLink
-                to="/user/insights/reports"
+                to="/user/insights/overview"
                 onClick={onClose}
                 data-tour="nav-insights"
                 className={`flex items-center gap-3 rounded-2xl border p-3 transition-all duration-150 active:scale-95 ${
-                  isMatch('/user/insights/reports', pathname)
+                  isMatch('/user/insights/overview', pathname)
                     ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--primary-color) font-bold'
                     : 'border-(--quaternary-color)/12 bg-(--seventh-color)/40 text-(--text-secondary) hover:bg-(--seventh-color)'
                 }`}
               >
-                <FaFileLines className="h-5 w-5 shrink-0 text-emerald-400" />
-                <span className="text-xs font-bold text-(--text-primary)">Relatórios</span>
+                <FaChartSimple className="h-5 w-5 shrink-0 text-emerald-400" />
+                <span className="text-xs font-bold text-(--text-primary)">Visão geral</span>
               </NavLink>
 
               <NavLink
-                to="/user/insights/emotional"
+                to="/user/insights/comments"
                 onClick={onClose}
                 className={`flex items-center gap-3 rounded-2xl border p-3 transition-all duration-150 active:scale-95 ${
-                  isMatch('/user/insights/emotional', pathname)
+                  isMatch('/user/insights/comments', pathname)
                     ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--primary-color) font-bold'
                     : 'border-(--quaternary-color)/12 bg-(--seventh-color)/40 text-(--text-secondary) hover:bg-(--seventh-color)'
                 }`}
               >
-                <FaHeartPulse className="h-5 w-5 shrink-0 text-rose-400" />
-                <span className="text-xs font-bold text-(--text-primary)">Emocional</span>
-              </NavLink>
-
-              <NavLink
-                to="/user/insights/statistics"
-                onClick={onClose}
-                className={`flex items-center gap-3 rounded-2xl border p-3 transition-all duration-150 active:scale-95 ${
-                  isMatch('/user/insights/statistics', pathname)
-                    ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--primary-color) font-bold'
-                    : 'border-(--quaternary-color)/12 bg-(--seventh-color)/40 text-(--text-secondary) hover:bg-(--seventh-color)'
-                }`}
-              >
-                <FaChartSimple className="h-5 w-5 shrink-0 text-purple-400" />
-                <span className="text-xs font-bold text-(--text-primary)">Estatísticas</span>
+                <FaList className="h-5 w-5 shrink-0 text-purple-400" />
+                <span className="text-xs font-bold text-(--text-primary)">Comentários</span>
               </NavLink>
             </div>
           </div>

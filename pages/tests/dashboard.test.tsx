@@ -186,16 +186,49 @@ describe('[Unidade] Dashboard Page', () => {
     expect(screen.queryByText('0,0')).not.toBeInTheDocument();
   });
 
-  it('exibe o bloco de relatório de insights (estado vazio sem relatório)', async () => {
+  it('exibe a Análise dos comentários vazia, com o escopo e o link da visão geral', async () => {
     render(
       <MemoryRouter>
         <Dashboard />
       </MemoryRouter>,
     );
 
-    expect(screen.getByText('Relatório de Insights')).toBeInTheDocument();
-    expect(
-      screen.getByText('Ainda não há relatório para este escopo'),
-    ).toBeInTheDocument();
+    const section = await screen.findByRole('region', { name: /Análise dos comentários/ });
+    expect(mocks.useScopedInsightsReport).toHaveBeenCalledWith({ withAnalysis: true });
+    expect(within(section).getByRole('button', { name: /QR geral da empresa/ })).toBeInTheDocument();
+    expect(within(section).getByText('Ainda sem comentários analisados pela IA no QR geral da empresa.')).toBeInTheDocument();
+    expect(within(section).getByText('Resumo e recomendações da IA')).toBeInTheDocument();
+    expect(within(section).getByText('Ainda não há relatório para este escopo')).toBeInTheDocument();
+    expect(within(section).getByRole('link', { name: /Ver a análise completa dos comentários/ }))
+      .toHaveAttribute('href', '/user/insights/overview');
+    expect(screen.queryByText('Relatório de Insights')).not.toBeInTheDocument();
+  });
+
+  it('mostra o tom dos comentários num bloco só, com o resumo em palavras', async () => {
+    mocks.useScopedInsightsReport.mockReturnValue({
+      report: null,
+      summary: {
+        totalAnalyzed: 20,
+        sentiments: { positive: 12, neutral: 5, negative: 3 },
+        topCategories: [],
+        topKeywords: [],
+        netSentimentScore: 45,
+      },
+      loading: false,
+      error: null,
+      reload: vi.fn(),
+    });
+
+    render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>,
+    );
+
+    const tone = await screen.findByRole('region', { name: /Tom dos comentários/ });
+    expect(within(tone).getByText('+45')).toBeInTheDocument();
+    expect(within(tone).getByText('Positivo')).toBeInTheDocument();
+    expect(within(tone).getByText('20 comentários analisados')).toBeInTheDocument();
+    expect(within(tone).getByText('60%')).toBeInTheDocument();
   });
 });

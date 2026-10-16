@@ -144,7 +144,7 @@ export default function GenerateInsightsDialog({
               id="generate-insights-dialog-title"
               className="font-montserrat text-lg font-bold text-(--text-primary)"
             >
-              Gerar Insights com IA
+              Analisar comentários com IA
             </h3>
           </div>
 
@@ -345,7 +345,7 @@ export default function GenerateInsightsDialog({
             ) : (
               <>
                 <FaWandMagicSparkles className="text-sm" />
-                <span>Processar e Gerar Insights com IA</span>
+                <span>Processar e analisar comentários com IA</span>
                 <FaArrowRight className="text-[10px] ml-1" />
               </>
             )}

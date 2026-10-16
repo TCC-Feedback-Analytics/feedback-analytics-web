@@ -57,12 +57,12 @@ describe('fluxo integrado com React Router real (IA simulada)', () => {
       return { ok: true, jobId: 'pipeline-job' };
     };
     const router = createMemoryRouter([{ path: '/user', element: <Harness />, children: [
-      { path: 'insights/reports', element: <h1>Relatórios</h1>, action },
+      { path: 'insights/overview', element: <h1>Relatórios</h1>, action },
       { path: 'profile', element: <h1>Meu perfil</h1> },
-    ] }], { initialEntries: ['/user/insights/reports'] });
+    ] }], { initialEntries: ['/user/insights/overview'] });
     routers.push(router);
     render(<StrictMode><RouterProvider router={router} /></StrictMode>);
-    fireEvent.click(screen.getByRole('button', { name: 'Processar e Gerar Insights com IA' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Processar e analisar comentários com IA' }));
     await waitFor(() => expect(ServiceGetAnalysisJob).toHaveBeenCalledOnce());
     expect(actions).toEqual(['insights']);
     expect(onSuccess).not.toHaveBeenCalled();
@@ -90,13 +90,13 @@ describe('fluxo integrado com React Router real (IA simulada)', () => {
     const action = vi.fn(async () => reject ? { error: 'Fila indisponível' } : { ok: true, jobId: 'retry-job' });
     vi.mocked(ServiceGetAnalysisJob).mockResolvedValue({ id: 'retry-job', jobType: 'regenerate_insights', scopeType: 'COMPANY',
       catalogItemId: null, phase: 'generating', status: 'completed', total: 6, done: 6, errorCode: null, updatedAt: null });
-    const router = createMemoryRouter([{ path: '/user/insights/reports', element: <Harness />, action }], { initialEntries: ['/user/insights/reports'] });
+    const router = createMemoryRouter([{ path: '/user/insights/overview', element: <Harness />, action }], { initialEntries: ['/user/insights/overview'] });
     routers.push(router);
     render(<RouterProvider router={router} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Processar e Gerar Insights com IA' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Processar e analisar comentários com IA' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Fila indisponível');
     reject = false;
-    fireEvent.click(screen.getByRole('button', { name: 'Processar e Gerar Insights com IA' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Processar e analisar comentários com IA' }));
     expect(await screen.findByText(/concluído com sucesso/)).toBeInTheDocument();
     expect(action).toHaveBeenCalledTimes(2);
   });

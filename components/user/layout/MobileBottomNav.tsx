@@ -24,8 +24,8 @@ export default function MobileBottomNav({
       tourAttr: 'mobile-nav-dashboard',
     },
     {
-      label: 'Insights',
-      to: '/user/insights/reports',
+      label: 'Comentários',
+      to: '/user/insights',
       icon: FaWandMagicSparkles,
       tourAttr: 'mobile-nav-insights',
     },

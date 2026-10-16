@@ -3,7 +3,7 @@ import SkeletonBlock from 'components/user/shared/skeletons/SkeletonBlock';
 /**
  * Placeholder das seções de dados do dashboard (métricas + gráficos + perguntas)
  * exibido ao TROCAR de escopo, enquanto stats/questions recarregam. Não cobre o
- * cabeçalho nem o "Relatório de Insights" (que tem seu próprio estado de loading).
+ * cabeçalho nem a "Análise dos comentários" (que tem seu próprio estado de loading).
  */
 export default function DashboardScopedSkeleton() {
   return (
