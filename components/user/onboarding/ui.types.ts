@@ -1,7 +1,10 @@
 import type { ElementType } from "react";
 import {
   FaChartPie,
-  FaWandMagicSparkles,
+  FaFileLines,
+  FaHeartPulse,
+  FaChartSimple,
+  FaCircleQuestion,
   FaCommentDots,
   FaBoxesStacked,
   FaBrain,
@@ -71,14 +74,34 @@ export const INTERACTIVE_STEPS: TourStepData[] = [
     description: "Acompanhe os principais indicadores e métricas da sua empresa em tempo real.",
     mobileDescription: "Na barra inferior, toque em Visão geral para acompanhar os indicadores principais da sua empresa.",
   },
+  // As abas de Insights aparecem também no celular: o mesmo alvo vale nos dois tamanhos.
   {
-    selector: '[data-tour="nav-insights"]',
-    mobileSelector: '[data-tour="mobile-nav-insights"]',
+    selector: '[data-tour="tour-insights-reports"]',
     route: "/user/insights/reports",
-    title: "Insights com IA",
-    icon: FaWandMagicSparkles,
-    description: "Veja diagnósticos automáticos e análises de sentimento das avaliações dos clientes.",
-    mobileDescription: "Na barra inferior, toque em Insights para ver os diagnósticos e análises feitas pela IA.",
+    title: "Relatórios de Insights",
+    icon: FaFileLines,
+    description: "Um resumo estratégico escrito pela IA, com pontos fortes, oportunidades de melhoria e recomendações para a empresa, um produto, um serviço ou um setor. Para gerar, use Gerar Insights com IA. É preciso ter a IA configurada, o contexto da empresa preenchido e pelo menos 10 feedbacks no escopo escolhido.",
+  },
+  {
+    selector: '[data-tour="tour-insights-emotional"]',
+    route: "/user/insights/emotional",
+    title: "Análise Emocional",
+    icon: FaHeartPulse,
+    description: "Mostra o termômetro emocional dos clientes e os momentos que mais se repetem, com exemplos reais dos feedbacks de emoção mais forte. Aparece depois que a IA analisa os feedbacks.",
+  },
+  {
+    selector: '[data-tour="tour-insights-statistics"]',
+    route: "/user/insights/statistics",
+    title: "Estatísticas",
+    icon: FaChartSimple,
+    description: "Mostra a distribuição dos sentimentos, as categorias e palavras-chave mais citadas e os assuntos que mais pesam na percepção dos clientes. Também usa os feedbacks já analisados pela IA.",
+  },
+  {
+    selector: '[data-tour="tour-insights-questions"]',
+    route: "/user/insights/questions",
+    title: "Perguntas",
+    icon: FaCircleQuestion,
+    description: "Mostra a nota média de cada pergunta e subpergunta do formulário, por escopo, para você ver onde a experiência vai bem e onde precisa de atenção. Usa as respostas dos clientes, mesmo sem a IA configurada.",
   },
   {
     selector: '[data-tour="tour-feedback-general"]',
@@ -123,6 +146,6 @@ export const INTERACTIVE_STEPS: TourStepData[] = [
     route: "/user/profile",
     title: "Dados e configurações da empresa",
     icon: FaSliders,
-    description: "No Perfil, acesse esta seção para visualizar o cadastro e editar os escopos operacionais e o contexto de IA.",
+    description: "Informe se sua empresa tem produtos, oferece serviços ou possui áreas e departamentos. Essas escolhas definem o que seus clientes poderão avaliar.",
   },
 ];
