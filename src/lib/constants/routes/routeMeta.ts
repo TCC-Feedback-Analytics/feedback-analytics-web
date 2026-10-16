@@ -33,6 +33,11 @@ const ROUTE_META: Record<string, RouteMeta> = {
     description: 'Acompanhe a situação dos feedbacks da sua empresa.',
     breadcrumb: [{ label: 'Visão geral' }],
   },
+  '/user/ratings': {
+    title: 'Todas as métricas de estrelas',
+    description: 'Média, positivas, neutras, críticas e a distribuição das avaliações de 1 a 5 estrelas.',
+    breadcrumb: [{ label: 'Visão geral', to: '/user/dashboard' }, { label: 'Avaliação por estrelas' }],
+  },
   '/user/profile': {
     title: 'Perfil',
     breadcrumb: [{ label: 'Perfil' }],

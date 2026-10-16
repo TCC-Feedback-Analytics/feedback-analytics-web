@@ -1,5 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { formatRating, ratingLabel, ratingTone } from './ratingLabel';
+import { formatRating, ratingLabel, ratingShares, ratingTone } from './ratingLabel';
+
+describe('ratingShares', () => {
+  it('positivas 4–5★, neutras 3★ e críticas 1–2★ com o % do total', () => {
+    expect(ratingShares({ 1: 1, 2: 1, 3: 2, 4: 3, 5: 5 }, 12)).toEqual({
+      positive: { count: 8, pct: 67 },
+      neutral: { count: 2, pct: 17 },
+      critical: { count: 2, pct: 17 },
+    });
+  });
+
+  it('sem avaliações, tudo zero', () => {
+    expect(ratingShares({ 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }, 0).positive).toEqual({ count: 0, pct: 0 });
+  });
+});
 
 describe('ratingLabel', () => {
   it.each([

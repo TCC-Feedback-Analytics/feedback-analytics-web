@@ -9,10 +9,8 @@ import CardSimple from 'components/user/shared/cards/cardSimple';
 import {
   FaArrowRight,
 } from 'react-icons/fa';
-import SectionMetric from 'components/user/pages/dashboard/SectionMetric';
+import SectionRatings from 'components/user/pages/dashboard/SectionRatings';
 import ShareQrCard from 'components/user/pages/dashboard/ShareQrCard';
-import SectionEvaluationDistribution from 'components/user/pages/dashboard/SectionEvaluationDistribution';
-import SectionSatisfactionRadar from 'components/user/pages/dashboard/SectionSatisfactionRadar';
 import SectionLowestQuestions from 'components/user/pages/dashboard/SectionLowestQuestions';
 import DashboardScopedSkeleton from 'components/user/pages/dashboard/DashboardScopedSkeleton';
 import InsightsReportContent from 'components/user/pages/feedbacksInsightsReport/InsightsReportContent';
@@ -107,9 +105,6 @@ export default function Dashboard() {
     user?.user_metadata?.full_name || enterprise?.full_name || user?.email || 'Dashboard';
 
   const totalFeedbacks = stats?.totalFeedbacks ?? 0;
-  const averageRating = stats?.averageRating ?? 0;
-  const positive = stats?.sentimentBreakdown.positive ?? 0;
-  const negative = stats?.sentimentBreakdown.negative ?? 0;
   const pendingCount = stats?.pendingCount ?? 0;
 
   return (
@@ -152,18 +147,7 @@ export default function Dashboard() {
         <DashboardScopedSkeleton />
       ) : (
         <>
-          <SectionMetric
-            totalFeedbacks={totalFeedbacks}
-            averageRating={averageRating}
-            positive={positive}
-            negative={negative}
-            starMeanCI={stats?.starMeanCI ?? null}
-          />
-
-          <div className="grid gap-6 lg:grid-cols-2">
-            <SectionEvaluationDistribution stats={stats} />
-            <SectionSatisfactionRadar stats={stats} />
-          </div>
+          <SectionRatings stats={stats} />
 
           <SectionLowestQuestions questions={questions} />
         </>

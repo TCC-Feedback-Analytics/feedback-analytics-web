@@ -25,7 +25,7 @@ export default function SectionEvaluationDistribution({ stats }: EvaluationDistr
             Distribuição das avaliações
           </h2>
           <p className="text-sm text-(--text-tertiary)">
-            Percentual de feedbacks por nota nos últimos registros
+            Percentual de avaliações em cada nota, no escopo selecionado
           </p>
         </div>
         <FaChartLine className="text-(--text-tertiary)" size={20} />

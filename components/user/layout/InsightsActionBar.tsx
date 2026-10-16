@@ -17,8 +17,11 @@ export default function InsightsActionBar() {
   const { pathname } = useLocation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // Rotas cujas métricas seguem o escopo do cabeçalho (o ScopeTag delas abre este seletor).
   const isScopeRoute =
-    isMatch("/user/dashboard", pathname) || isMatch("/user/insights", pathname);
+    isMatch("/user/dashboard", pathname) ||
+    isMatch("/user/ratings", pathname) ||
+    isMatch("/user/insights", pathname);
 
   const {
     scope,

@@ -106,6 +106,7 @@ describe('[Unidade] Dashboard Page', () => {
     mocks.useInsightsControls.mockReturnValue({
       scope: 'COMPANY',
       catalogItemId: '',
+      catalogItemOptions: [],
     });
     mocks.useScopedInsightsReport.mockReturnValue({
       report: null,
@@ -138,31 +139,51 @@ describe('[Unidade] Dashboard Page', () => {
     ).toBeInTheDocument();
   });
 
-  it('exibe métricas principais após carregar estatísticas', async () => {
+  it('exibe a Avaliação por estrelas com média, positivas e críticas', async () => {
     render(
       <MemoryRouter>
         <Dashboard />
       </MemoryRouter>,
     );
 
-    await waitFor(() => {
-      expect(screen.getByText('Feedbacks recebidos')).toBeInTheDocument();
-    });
+    const section = await screen.findByRole('region', { name: 'Avaliação por estrelas' });
+    // Escopo explícito: "Geral" é só o QR geral da empresa.
+    expect(within(section).getByRole('button', { name: /QR geral da empresa/ })).toBeInTheDocument();
 
-    const totalCard = screen.getByText('Feedbacks recebidos').closest('div');
-    const averageCard = screen.getByText('Média de satisfação').closest('div');
-    const positiveCard = screen.getByText('Feedbacks positivos').closest('div');
-    const criticalCard = screen.getByText('Feedbacks críticos').closest('div');
+    // Média com parâmetro: escala, rótulo e quantidade de avaliações.
+    expect(within(section).getByText('4,2')).toBeInTheDocument();
+    expect(within(section).getByText('Boa')).toBeInTheDocument();
+    expect(within(section).getByText('12 avaliações')).toBeInTheDocument();
 
-    expect(totalCard).not.toBeNull();
-    expect(averageCard).not.toBeNull();
-    expect(positiveCard).not.toBeNull();
-    expect(criticalCard).not.toBeNull();
+    // Positivas (4–5★) = 3 + 5 = 8 de 12 → 67%; críticas (1–2★) = 2 → 17%.
+    expect(within(section).getByText('Positivas (4–5★)')).toBeInTheDocument();
+    expect(within(section).getByText('8')).toBeInTheDocument();
+    expect(within(section).getByText('· 67%')).toBeInTheDocument();
+    expect(within(section).getByText('Críticas (1–2★)')).toBeInTheDocument();
+    expect(within(section).getByText('· 17%')).toBeInTheDocument();
 
-    expect(within(totalCard!).getByText('12')).toBeInTheDocument();
-    expect(within(averageCard!).getByText('4,2')).toBeInTheDocument();
-    expect(within(positiveCard!).getByText('8')).toBeInTheDocument();
-    expect(within(criticalCard!).getByText('2')).toBeInTheDocument();
+    // Saem do Dashboard: card de recebidos, distribuição e "Satisfação e sentimento".
+    expect(screen.queryByText('Feedbacks recebidos')).not.toBeInTheDocument();
+    expect(screen.queryByText('Distribuição das avaliações')).not.toBeInTheDocument();
+    expect(screen.queryByText('Satisfação e sentimento')).not.toBeInTheDocument();
+
+    expect(within(section).getByRole('link', { name: /Ver todas as métricas de estrelas/ }))
+      .toHaveAttribute('href', '/user/ratings');
+  });
+
+  it('sem avaliações diz isso no lugar de mostrar "0,0"', async () => {
+    const empty = { ...feedbackStats, totalFeedbacks: 0, averageRating: 0, ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } };
+    vi.mocked(useLoaderData).mockReturnValue({ stats: empty, dashboardError: null } as ReturnType<typeof useLoaderData>);
+    mocks.getFeedbackStats.mockResolvedValue(empty);
+
+    render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByText('Ainda sem avaliações no QR geral da empresa.')).toBeInTheDocument();
+    expect(screen.queryByText('0,0')).not.toBeInTheDocument();
   });
 
   it('exibe o bloco de relatório de insights (estado vazio sem relatório)', async () => {
