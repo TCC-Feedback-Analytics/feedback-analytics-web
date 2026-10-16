@@ -1,0 +1,47 @@
+import type {
+  Interval,
+  QuestionDistribution,
+  QuestionMetric,
+  QuestionMetricStatus,
+} from 'lib/interfaces/domain/feedback.domain';
+
+/**
+ * Props do selo de estado de uma redação (desativada / antiga).
+ * Usado em: components/user/pages/questions/QuestionParts.tsx.
+ */
+export interface QuestionStatusTagProps {
+  status: QuestionMetricStatus;
+}
+
+/**
+ * Props da barra de distribuição das respostas (péssimo → ótimo).
+ * Usado em: components/user/pages/questions/QuestionParts.tsx.
+ */
+export interface AnswerDistributionProps {
+  distribution: QuestionDistribution;
+  total: number;
+  /** Mostra a contagem de cada resposta abaixo da barra (página da pergunta). */
+  showLegend?: boolean;
+}
+
+/**
+ * Props do resumo da nota de uma pergunta ou subpergunta.
+ * Usado em: components/user/pages/questions/QuestionParts.tsx.
+ */
+export interface QuestionScoreProps {
+  metricName: string;
+  mean: number;
+  count: number;
+  satisfiedPct: number;
+  ci: Interval;
+  ofScope: string;
+}
+
+/**
+ * Props da seção "Perguntas do formulário" do Dashboard.
+ * Usado em: components/user/pages/questions/SectionFormQuestions.tsx.
+ */
+export interface SectionFormQuestionsProps {
+  /** Métricas por pergunta do escopo (`/feedbacks/questions`). */
+  metrics: QuestionMetric[];
+}

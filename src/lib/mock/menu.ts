@@ -11,7 +11,6 @@ import {
   FaFileLines,
   FaHeartPulse,
   FaChartSimple,
-  FaCircleQuestion,
   FaSliders,
   FaCommentDots,
   FaBoxesStacked,
@@ -49,7 +48,6 @@ export const menuData: MenuItem[] = [
       { label: "Relatórios", to: "/user/insights/reports", icon: FaFileLines },
       { label: "Emocional", to: "/user/insights/emotional", icon: FaHeartPulse },
       { label: "Estatísticas", to: "/user/insights/statistics", icon: FaChartSimple },
-      { label: "Perguntas", to: "/user/insights/questions", icon: FaCircleQuestion },
     ],
   },
   {

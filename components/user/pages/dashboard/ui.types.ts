@@ -1,5 +1,5 @@
 import type { LoaderUserDashboard } from 'src/routes/loaders/loaderUserDashboard';
-import type { FeedbackStats, QuestionMetric } from 'lib/interfaces/domain/feedback.domain';
+import type { FeedbackStats } from 'lib/interfaces/domain/feedback.domain';
 
 /**
  * Props da seção "Avaliação por estrelas" do dashboard.
@@ -39,10 +39,3 @@ export interface EvaluationDistributionProps {
   stats: DashboardStats | null;
 }
 
-/**
- * Props do card "Perguntas com menor nota" (atalho para a aba Perguntas).
- * Usado em: components/user/pages/dashboard/SectionLowestQuestions.tsx.
- */
-export interface SectionLowestQuestionsProps {
-  questions: QuestionMetric[];
-}

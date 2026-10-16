@@ -76,10 +76,10 @@ const ROUTE_META: Record<string, RouteMeta> = {
     title: 'Estatísticas',
     breadcrumb: [{ label: SECTION_INSIGHTS }, { label: 'Estatísticas' }],
   },
-  '/user/insights/questions': {
-    title: 'Perguntas',
-    description: 'Desempenho de cada pergunta e subpergunta (nota média por escopo).',
-    breadcrumb: [{ label: SECTION_INSIGHTS }, { label: 'Perguntas' }],
+  '/user/questions/removed': {
+    title: 'Perguntas que saíram do formulário',
+    description: 'Perguntas desativadas ou excluídas que ainda têm respostas no escopo selecionado.',
+    breadcrumb: [{ label: 'Visão geral', to: '/user/dashboard' }, { label: 'Perguntas do formulário' }, { label: 'Saíram do formulário' }],
   },
 
   // Configuração da coleta

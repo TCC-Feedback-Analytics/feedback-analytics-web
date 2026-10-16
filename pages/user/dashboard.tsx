@@ -11,7 +11,7 @@ import {
 } from 'react-icons/fa';
 import SectionRatings from 'components/user/pages/dashboard/SectionRatings';
 import ShareQrCard from 'components/user/pages/dashboard/ShareQrCard';
-import SectionLowestQuestions from 'components/user/pages/dashboard/SectionLowestQuestions';
+import SectionFormQuestions from 'components/user/pages/questions/SectionFormQuestions';
 import DashboardScopedSkeleton from 'components/user/pages/dashboard/DashboardScopedSkeleton';
 import InsightsReportContent from 'components/user/pages/feedbacksInsightsReport/InsightsReportContent';
 import { useToast } from 'components/public/forms/messages/useToast';
@@ -149,7 +149,7 @@ export default function Dashboard() {
         <>
           <SectionRatings stats={stats} />
 
-          <SectionLowestQuestions questions={questions} />
+          <SectionFormQuestions metrics={questions} />
         </>
       )}
 

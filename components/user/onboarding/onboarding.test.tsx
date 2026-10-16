@@ -340,7 +340,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
       '[data-tour="tour-insights-reports"]',
       '[data-tour="tour-insights-emotional"]',
       '[data-tour="tour-insights-statistics"]',
-      '[data-tour="tour-insights-questions"]',
+      '[data-tour="tour-form-questions"]',
       '[data-tour="mobile-nav-feedback"]',
       '[data-tour="mobile-nav-catalog"]',
     ]);
@@ -425,7 +425,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     expect(screen.getByText("Estatísticas")).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("Próximo"));
-    expect(screen.getByText("Perguntas")).toBeInTheDocument();
+    expect(screen.getByText("Perguntas do formulário")).toBeInTheDocument();
     expect(screen.getByText(/mesmo sem a IA configurada/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("Próximo"));

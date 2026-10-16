@@ -27,7 +27,6 @@ export default function SectionTabs({ className = "" }: SectionTabsProps) {
             if (to === "/user/insights/reports") return "tour-insights-reports";
             if (to === "/user/insights/emotional") return "tour-insights-emotional";
             if (to === "/user/insights/statistics") return "tour-insights-statistics";
-            if (to === "/user/insights/questions") return "tour-insights-questions";
             return undefined;
           };
 
