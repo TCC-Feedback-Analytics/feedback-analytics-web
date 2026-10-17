@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useFetcher, useLoaderData, useRouteLoaderData } from 'react-router-dom';
-import { getQrCodeUrl } from 'src/lib/utils/qrcode';
+import { useEnterpriseFeedbackLink } from 'src/lib/hooks/useEnterpriseFeedbackLink';
 import { useToast } from 'components/public/forms/messages/useToast';
 import type { EnterpriseContext } from 'lib/interfaces/entities/enterprise.entity';
 import type { LoaderFeedbackGeneral } from 'src/routes/loaders/loaderFeedbackGeneral';
@@ -24,7 +24,6 @@ export default function EditFeedbackGeneral() {
   const toast = useToast();
   const isGeneratingQuestions = useCompanyQuestionsGenerationPhase() === 'running';
 
-  const [showCopied, setShowCopied] = useState(false);
   const [qrActive, setQrActive] = useState<boolean>(initialQrActive ?? false);
   const [qrError, setQrError] = useState<string | null>(initialQrError ?? null);
 
@@ -52,62 +51,14 @@ export default function EditFeedbackGeneral() {
     }
   }, [qrFetcher.data, toast]);
 
-  const feedbackUrl = useMemo(() => {
-    const baseUrl = window.location.origin;
-    return `${baseUrl}/feedback/qrcode?enterprise=${enterprise.id}`;
-  }, [enterprise.id]);
-
-  const qrCodeUrl = useMemo(
-    () => getQrCodeUrl(feedbackUrl, { size: 300, format: 'png' }),
-    [feedbackUrl],
-  );
-
-  const handleDownload = useCallback(async () => {
-    try {
-      const response = await fetch(qrCodeUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `qrcode-feedback-${(enterprise.full_name || 'empresa')
-        .toLowerCase()
-        .replace(/\s+/g, '-')}.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-      toast.success('QR Code baixado!', 'Download iniciado automaticamente');
-    } catch (error) {
-      console.error('Erro ao baixar QR Code:', error);
-      toast.error('Erro no download', 'Não foi possível baixar o QR Code');
-    }
-  }, [enterprise.full_name, qrCodeUrl, toast]);
-
-  const handleCopyLink = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(feedbackUrl);
-      setShowCopied(true);
-      setTimeout(() => setShowCopied(false), 2000);
-    } catch (error) {
-      console.error('Erro ao copiar link:', error);
-    }
-  }, [feedbackUrl]);
-
-  const handleShare = useCallback(async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `Deixe seu Feedback - ${enterprise.full_name || 'Nossa Empresa'}`,
-          text: 'Compartilhe sua experiência conosco! Acesse o formulário de feedback.',
-          url: feedbackUrl,
-        });
-      } catch (error) {
-        console.error('Erro ao compartilhar:', error);
-      }
-    } else {
-      handleCopyLink();
-    }
-  }, [enterprise.full_name, feedbackUrl, handleCopyLink]);
+  const {
+    feedbackUrl,
+    qrCodeUrl,
+    showCopied,
+    download: handleDownload,
+    copyLink: handleCopyLink,
+    share: handleShare,
+  } = useEnterpriseFeedbackLink(enterprise);
 
   const handleToggleQr = useCallback(() => {
     setQrError(null);
