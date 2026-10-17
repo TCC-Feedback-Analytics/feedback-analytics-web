@@ -52,7 +52,7 @@ describe('[Unidade] Troca rápida de modelo', () => {
   });
 
   it('lista os outros gratuitos (sem o atual) e troca sem sair da tela', async () => {
-    mocks.updateAction.mockResolvedValue({ ok: true, operation: 'model' });
+    mocks.updateAction.mockResolvedValue({ ok: true, operation: 'model', iaConfig: { ...withKey, model: 'vendor/other:free', questionsGeneration: { status: 'queued' } } });
     const onChanged = renderSwitch(withKey);
 
     expect(await screen.findByText('Modelo atual: vendor/free:free')).toBeInTheDocument();
@@ -63,7 +63,7 @@ describe('[Unidade] Troca rápida de modelo', () => {
     fireEvent.click(within(dropdown).getByRole('option', { name: /Outro Grátis/ }));
 
     fireEvent.click(screen.getByRole('button', { name: 'Trocar modelo' }));
-    await vi.waitFor(() => expect(onChanged).toHaveBeenCalledWith('vendor/other:free'));
+    await vi.waitFor(() => expect(onChanged).toHaveBeenCalledWith('vendor/other:free', { status: 'queued' }));
     const form = await mocks.updateAction.mock.calls[0][0].request.formData();
     expect(form.get('intent')).toBe(INTENT_UPDATE_IA_MODEL);
     expect(form.get('model')).toBe('vendor/other:free');
