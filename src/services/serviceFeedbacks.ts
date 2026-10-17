@@ -187,3 +187,20 @@ export function ServiceGetLatestCompanyQuestionsJob() {
   return getJson<{ job: CompanyQuestionsJob | null }>('/api/protected/ia-analyze/jobs/company-questions/latest');
 }
 
+/**
+ * O que aconteceu ao pedir de novo a geração das perguntas (ao trocar o modelo ou
+ * em "Tentar de novo"): queued/running seguem o pedido; os demais dizem por que não saiu.
+ */
+export type QuestionsGenerationResult =
+  | { status: 'queued' | 'running' | 'completed' | 'customized' }
+  | { status: 'rate_limited'; retryAfterSeconds: number }
+  | { status: 'unavailable'; code: string };
+
+/** "Tentar de novo" a geração das perguntas com o modelo atual. */
+export function ServiceRetryCompanyQuestions() {
+  return postJson<{ questionsGeneration: QuestionsGenerationResult }>(
+    '/api/protected/ia-analyze/jobs/company-questions/retry',
+    {},
+  );
+}
+

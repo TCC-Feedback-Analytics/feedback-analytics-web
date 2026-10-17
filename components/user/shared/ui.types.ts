@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import type { QuestionsGenerationResult } from 'src/services/serviceFeedbacks';
 import type { RouteCrumb } from 'src/lib/constants/routes/routeMeta';
 import type { Interval } from 'lib/interfaces/domain/feedback.domain';
 import type { Precision, PrecisionKind } from 'src/lib/utils/precision';
@@ -104,7 +105,10 @@ export type HelpPopoverProps = {
  * Usado em: components/user/shared/IaModelQuickSwitch.tsx.
  */
 export type IaModelQuickSwitchProps = {
-  /** Chamado com o novo modelo depois que a troca foi salva. */
-  onChanged?: (model: string) => void;
+  /**
+   * Chamado com o novo modelo depois que a troca foi salva, e com o que aconteceu
+   * com a geração das perguntas da configuração inicial (quando o gateway informa).
+   */
+  onChanged?: (model: string, questionsGeneration?: QuestionsGenerationResult) => void;
   className?: string;
 };

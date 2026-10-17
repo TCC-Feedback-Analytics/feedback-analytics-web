@@ -1,10 +1,13 @@
 import { getJson, putJson, patchJson, deleteJson } from 'src/lib/utils/http';
+import type { QuestionsGenerationResult } from 'src/services/serviceFeedbacks';
 
 export interface IaConfigResponse {
   hasKey: boolean;
   provider: string | null;
   model: string | null;
   keyHint: string | null;
+  /** Só na troca de modelo: se a geração das perguntas da configuração inicial saiu de novo. */
+  questionsGeneration?: QuestionsGenerationResult;
 }
 
 export interface UpdateIaConfigPayload {

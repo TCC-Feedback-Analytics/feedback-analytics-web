@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRevalidator } from "react-router-dom";
 import {
   FaArrowRight,
+  FaArrowsRotate,
   FaCheck,
   FaSpinner,
   FaTriangleExclamation,
@@ -9,6 +10,8 @@ import {
 import SetupOrb from "./SetupOrb";
 import IaModelQuickSwitch from "components/user/shared/IaModelQuickSwitch";
 import { IA_SLOW_AFTER_MS } from "src/lib/utils/iaSlowNotice";
+import { questionsGenerationBlockedMessage } from "src/lib/utils/questionsGeneration";
+import { ServiceRetryCompanyQuestions, type QuestionsGenerationResult } from "src/services/serviceFeedbacks";
 import { useCompanyQuestionsGenerationState } from "src/lib/context/companyQuestionsGenerationContext";
 import { getCompanyQuestionsFailureNotice } from "src/lib/hooks/useCompanyQuestionsGeneration";
 import type {
@@ -59,6 +62,9 @@ export default function InitialSetupProgressDialog({ open, onFinish, model }: In
   // Cada troca de modelo recomeça a espera do aviso de demora.
   const [attempt, setAttempt] = useState(0);
   const [currentModel, setCurrentModel] = useState(model);
+  const [retrying, setRetrying] = useState(false);
+  // Motivo de uma nova tentativa não ter saído (intervalo, limite diário...).
+  const [retryMessage, setRetryMessage] = useState<string | null>(null);
   const onFinishRef = useRef(onFinish);
   onFinishRef.current = onFinish;
   const revalidateRef = useRef(revalidator.revalidate);
@@ -87,6 +93,7 @@ export default function InitialSetupProgressDialog({ open, onFinish, model }: In
     if (!open) {
       setGivenUp(false);
       setAttempt(0);
+      setRetryMessage(null);
       return;
     }
     const giveUpTimer = window.setTimeout(() => setGivenUp(true), INITIAL_SETUP_GIVE_UP_AFTER_MS);
@@ -98,11 +105,32 @@ export default function InitialSetupProgressDialog({ open, onFinish, model }: In
     if (open) setCurrentModel(model);
   }, [open, model]);
 
-  const handleModelChanged = useCallback((nextModel: string) => {
-    setCurrentModel(nextModel);
+  // Nova tentativa (troca de modelo ou "Tentar de novo"): acompanha o pedido de novo,
+  // ou mostra por que ele não saiu.
+  const followGeneration = useCallback((result?: QuestionsGenerationResult) => {
+    const blocked = questionsGenerationBlockedMessage(result);
+    setRetryMessage(blocked);
+    if (blocked) return;
     setSlow(false);
     setAttempt((value) => value + 1);
   }, []);
+
+  const handleModelChanged = useCallback((nextModel: string, result?: QuestionsGenerationResult) => {
+    setCurrentModel(nextModel);
+    followGeneration(result);
+  }, [followGeneration]);
+
+  const handleRetry = useCallback(async () => {
+    setRetrying(true);
+    try {
+      const { questionsGeneration } = await ServiceRetryCompanyQuestions();
+      followGeneration(questionsGeneration);
+    } catch {
+      setRetryMessage("Não foi possível tentar de novo agora. Tente em instantes.");
+    } finally {
+      setRetrying(false);
+    }
+  }, [followGeneration]);
 
   const isDone = ready && phase === "completed";
   const isFailed = ready && phase === "failed";
@@ -171,11 +199,32 @@ export default function InitialSetupProgressDialog({ open, onFinish, model }: In
               </p>
             </div>
             <IaModelQuickSwitch onChanged={handleModelChanged} />
+            {retryMessage && <p role="status" className="text-xs text-amber-400">{retryMessage}</p>}
+          </div>
+        )}
+
+        {isFailed && (
+          <div className="relative z-10 mb-5 space-y-3 rounded-2xl border border-(--primary-color)/20 bg-(--primary-color)/8 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm font-semibold text-(--text-primary)">Tente de novo ou escolha outro modelo</p>
+              <button
+                type="button"
+                onClick={() => void handleRetry()}
+                disabled={retrying}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-(--primary-color)/30 bg-(--primary-color)/10 px-3 py-1.5 text-xs font-semibold text-(--primary-color) hover:bg-(--primary-color)/18 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {retrying ? <FaSpinner className="animate-spin" aria-hidden /> : <FaArrowsRotate aria-hidden />}
+                {retrying ? "Tentando…" : "Tentar de novo"}
+              </button>
+            </div>
+            <IaModelQuickSwitch onChanged={handleModelChanged} />
+            {retryMessage && <p role="status" className="text-xs text-amber-400">{retryMessage}</p>}
           </div>
         )}
 
         <div className="relative z-10 flex flex-col gap-2 sm:flex-row sm:justify-end">
-          {isFailed && notice?.actionLabel && (
+          {/* Modelo se troca ali mesmo; a chave só na Configuração de IA. */}
+          {isFailed && notice?.actionLabel === "Revisar chave" && (
             <button
               type="button"
               onClick={() => onFinish("ia-settings")}
