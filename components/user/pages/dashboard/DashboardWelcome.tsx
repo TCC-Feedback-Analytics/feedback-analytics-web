@@ -2,6 +2,7 @@ import { useFetcher } from 'react-router-dom';
 import {
   FaArrowUpRightFromSquare,
   FaCheck,
+  FaCompass,
   FaDownload,
   FaLink,
   FaPlay,
@@ -41,7 +42,7 @@ function WelcomeStep({ number, title, description, note, children }: WelcomeStep
  * seções vazias, uma animação "aguardando", os passos para começar a coletar e
  * o progresso até a IA poder analisar os comentários.
  */
-export default function DashboardWelcome({ enterprise, qrActive, totalFeedbacks }: DashboardWelcomeProps) {
+export default function DashboardWelcome({ enterprise, qrActive, totalFeedbacks, onStartGuide }: DashboardWelcomeProps) {
   const { feedbackUrl, showCopied, download, copyLink, share } = useEnterpriseFeedbackLink(enterprise);
   const collected = Math.min(totalFeedbacks, MIN_FEEDBACKS_FOR_AI);
   const progressPct = Math.round((collected / MIN_FEEDBACKS_FOR_AI) * 100);
@@ -81,6 +82,15 @@ export default function DashboardWelcome({ enterprise, qrActive, totalFeedbacks 
             </div>
           </div>
           <figcaption className="text-xs font-medium text-(--primary-color)">Aguardando os primeiros feedbacks</figcaption>
+          {onStartGuide && (
+            <button
+              type="button"
+              onClick={onStartGuide}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-(--text-secondary) underline-offset-2 hover:text-(--text-primary) hover:underline"
+            >
+              <FaCompass aria-hidden /> Conhecer o sistema (2 min)
+            </button>
+          )}
         </figure>
 
         <div className="w-full min-w-0 space-y-4">

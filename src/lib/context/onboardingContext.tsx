@@ -94,13 +94,11 @@ export function OnboardingProvider({ children, collecting, iaConfig = null, sess
     return () => controller.abort();
   }, [sessionKey]);
 
-  // Abre automaticamente somente depois da leitura bem-sucedida do estado remoto
-  // e depois da tela de configuração inicial, que leva o usuário ao dashboard.
-  useEffect(() => {
-    if (guideLoaded && guide?.status === "pending" && hasCompletedAIContext && !isInitialSetupRunning && !isTourDeferred) {
-      setIsTourActive(true);
-    }
-  }, [guide, guideLoaded, hasCompletedAIContext, isInitialSetupRunning, isTourDeferred]);
+  // O guia não abre sozinho: depois da configuração inicial, o Dashboard convida
+  // a pessoa (no primeiro feedback ou numa próxima sessão) e ela escolhe começar.
+  const isGuidePending = Boolean(
+    guideLoaded && guide?.status === "pending" && hasCompletedAIContext && !isInitialSetupRunning && !isTourDeferred,
+  );
 
   const startTour = () => {
     setCurrentTourStep(0);
@@ -170,6 +168,7 @@ export function OnboardingProvider({ children, collecting, iaConfig = null, sess
         hasConfiguredAI,
         hasCompletedAISetup,
         isTourDismissed: !sessionChanged && guide ? guide.status !== "pending" : false,
+        isGuidePending: sessionChanged ? false : isGuidePending,
         tourSaveError: sessionChanged ? null : tourSaveError,
         isInitialSetupRunning: sessionChanged ? false : isInitialSetupRunning,
         setInitialSetupRunning,

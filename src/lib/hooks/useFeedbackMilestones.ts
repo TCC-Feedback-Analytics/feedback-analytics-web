@@ -22,6 +22,7 @@ export function useFeedbackMilestones({
   inScope,
   watching,
   refresh,
+  celebrateFirst = true,
 }: {
   enterpriseId: string | undefined;
   snapshot: MilestoneSnapshot;
@@ -29,6 +30,8 @@ export function useFeedbackMilestones({
   inScope: string;
   watching: boolean;
   refresh: () => void;
+  /** false quando o convite do guia já comemora o primeiro feedback (sem toast duplicado). */
+  celebrateFirst?: boolean;
 }) {
   const toast = useToast();
   const navigate = useNavigate();
@@ -39,7 +42,7 @@ export function useFeedbackMilestones({
     const result = nextMilestones(readMilestones(enterpriseId), { accountTotal, scopeKey, scopeTotal });
     saveMilestones(enterpriseId, result.state);
 
-    if (result.celebrate.includes('first')) {
+    if (result.celebrate.includes('first') && celebrateFirst) {
       toast.success('Seu primeiro feedback chegou!', 'O painel já mostra as primeiras métricas.', {
         actionLabel: 'Ver feedback',
         onAction: () => navigate('/user/feedbacks/all'),
@@ -53,7 +56,7 @@ export function useFeedbackMilestones({
         { duration: 10000 },
       );
     }
-  }, [enterpriseId, accountTotal, scopeKey, scopeTotal, inScope, navigate, toast]);
+  }, [enterpriseId, accountTotal, scopeKey, scopeTotal, inScope, celebrateFirst, navigate, toast]);
 
   // O refresh muda a cada render do Dashboard; o intervalo usa sempre o mais recente.
   const refreshRef = useRef(refresh);

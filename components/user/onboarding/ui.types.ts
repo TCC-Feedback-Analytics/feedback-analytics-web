@@ -1,4 +1,5 @@
 import type { ElementType } from "react";
+import type { GuideInviteVariant } from "src/lib/utils/guideInvite";
 import {
   FaChartPie,
   FaChartSimple,
@@ -40,6 +41,13 @@ export interface InitialSetupProgressDialogProps {
   /** Fecha a tela; o usuário segue para o dashboard ou para a Configuração de IA. */
   onFinish: (destination: "dashboard" | "ia-settings") => void;
   model: string | null;
+}
+
+export interface GuideInviteDialogProps {
+  /** null: fechado. first-feedback: no primeiro feedback; later: numa próxima sessão. */
+  variant: GuideInviteVariant | null;
+  onStart: () => void;
+  onLater: () => void;
 }
 
 export interface UserInteractiveTourProps {

@@ -19,6 +19,17 @@ import CommentToneSection from 'components/user/pages/comments/CommentToneSectio
 import ScopeTag from 'components/user/shared/ScopeTag';
 import DashboardWelcome from 'components/user/pages/dashboard/DashboardWelcome';
 import WelcomePreview from 'components/user/pages/dashboard/WelcomePreview';
+import GuideInviteDialog from 'components/user/onboarding/GuideInviteDialog';
+import { useOnboarding } from 'src/lib/context/onboardingContext';
+import {
+  MAX_GUIDE_POSTPONES,
+  currentBrowserSessionId,
+  markGuideInvite,
+  nextGuideInvite,
+  readGuideInvite,
+  saveGuideInvite,
+  type GuideInviteVariant,
+} from 'src/lib/utils/guideInvite';
 import { useToast } from 'components/public/forms/messages/useToast';
 import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { useScopedInsightsReport } from 'src/lib/hooks/useScopedInsightsReport';
@@ -42,6 +53,7 @@ export default function Dashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
   const toast = useToast();
   const { scope, catalogItemId, catalogItemOptions } = useInsightsControls();
+  const { isGuidePending, isTourActive, startTour } = useOnboarding();
 
   const toastShownRef = useRef(false);
 
@@ -141,7 +153,33 @@ export default function Dashboard() {
       revalidator.revalidate();
       void fetchScopedData(true);
     },
+    // Com o guia pendente, o convite do guia é que comemora o primeiro feedback.
+    celebrateFirst: !isGuidePending,
   });
+
+  // Convite do guia: no primeiro feedback da conta ou numa próxima sessão.
+  const accountTotalFeedbacks = dashboardLoaderData?.accountTotalFeedbacks ?? null;
+  const enterpriseId = enterprise?.id;
+  const [guideInvite, setGuideInvite] = useState<GuideInviteVariant | null>(null);
+  useEffect(() => {
+    if (!isGuidePending || isTourActive || !enterpriseId || accountTotalFeedbacks === null) return;
+    const result = nextGuideInvite(readGuideInvite(enterpriseId), {
+      sessionId: currentBrowserSessionId(),
+      hasFeedback: accountTotalFeedbacks > 0,
+    });
+    saveGuideInvite(enterpriseId, result.state);
+    if (result.offer) setGuideInvite(result.offer);
+  }, [isGuidePending, isTourActive, enterpriseId, accountTotalFeedbacks]);
+
+  const closeGuideInvite = (postponed: boolean) => {
+    if (!enterpriseId) return;
+    const state = markGuideInvite(readGuideInvite(enterpriseId), currentBrowserSessionId(), postponed);
+    saveGuideInvite(enterpriseId, state);
+    setGuideInvite(null);
+    if (postponed && state.postponed >= MAX_GUIDE_POSTPONES) {
+      toast.info('Tudo bem!', 'O guia fica em Minha conta › Guia do Sistema.');
+    }
+  };
 
   return (
     <div className="font-work-sans space-y-6">
@@ -188,6 +226,7 @@ export default function Dashboard() {
               enterprise={enterprise}
               qrActive={dashboardLoaderData?.qrActive ?? null}
               totalFeedbacks={0}
+              onStartGuide={isTourActive ? undefined : startTour}
             />
           )}
           <WelcomePreview questions={activeFormQuestions(userLoaderData?.collecting?.company_feedback_questions)} />
@@ -251,6 +290,15 @@ export default function Dashboard() {
           </section>
         </>
       )}
+
+      <GuideInviteDialog
+        variant={guideInvite}
+        onStart={() => {
+          closeGuideInvite(false);
+          startTour();
+        }}
+        onLater={() => closeGuideInvite(true)}
+      />
     </div>
   );
 }
