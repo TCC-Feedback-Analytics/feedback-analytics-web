@@ -12,6 +12,8 @@ export interface CommentToneSectionProps {
   /** Complemento de escopo para vazios e precisão (scopeText). */
   inScope: string;
   ofScope: string;
+  /** Quantos feedbacks faltam no escopo para a IA poder analisar (só no estado vazio). */
+  feedbacksUntilAnalysis?: number;
 }
 
 /**

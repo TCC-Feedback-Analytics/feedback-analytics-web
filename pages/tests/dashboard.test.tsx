@@ -204,6 +204,67 @@ describe('[Unidade] Dashboard Page', () => {
     expect(screen.queryByText('Relatório de Insights')).not.toBeInTheDocument();
   });
 
+  it('conta sem nenhum feedback mostra as boas-vindas e a prévia, com as âncoras do guia', async () => {
+    const empty = { ...feedbackStats, totalFeedbacks: 0, averageRating: 0, ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } };
+    vi.mocked(useLoaderData).mockReturnValue({
+      stats: empty,
+      accountTotalFeedbacks: 0,
+      qrActive: true,
+      dashboardError: null,
+    } as ReturnType<typeof useLoaderData>);
+    vi.mocked(useRouteLoaderData).mockReturnValue({
+      ...loaderData,
+      collecting: {
+        ...loaderData.collecting,
+        company_feedback_questions: [
+          { id: 'q2', question_order: 2, question_text: 'O atendimento foi rápido?', is_active: true },
+          { id: 'q1', question_order: 1, question_text: 'Como foi sua experiência?', is_active: true },
+          { id: 'q3', question_order: 3, question_text: 'Pergunta desligada', is_active: false },
+        ],
+      },
+    } as ReturnType<typeof useRouteLoaderData>);
+    mocks.getFeedbackStats.mockResolvedValue(empty);
+
+    const { container } = render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByRole('region', { name: 'Seu painel está pronto. Falta o primeiro feedback.' })).toBeInTheDocument();
+    expect(screen.getByText('Vamos coletar os primeiros feedbacks.')).toBeInTheDocument();
+
+    const preview = screen.getByRole('region', { name: 'O que vai aparecer aqui' });
+    // As perguntas são as reais do formulário, só as ativas e na ordem.
+    const questions = within(preview).getAllByText(/^\d\. /).map((node) => node.textContent);
+    expect(questions).toEqual(['1. Como foi sua experiência?', '2. O atendimento foi rápido?']);
+    expect(within(preview).getAllByText('Exemplo')).toHaveLength(2);
+
+    // O guia passa pelas seções do Dashboard logo após o cadastro.
+    expect(container.querySelector('[data-tour="tour-star-ratings"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-tour="tour-form-questions"]')).toBeInTheDocument();
+
+    // As seções vazias saem enquanto a conta não tem feedbacks.
+    expect(screen.queryByText('Ainda sem avaliações no QR geral da empresa.')).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: /Tom dos comentários/ })).not.toBeInTheDocument();
+  });
+
+  it('com poucos feedbacks no escopo, diz quantos faltam para a IA analisar', async () => {
+    const few = { ...feedbackStats, totalFeedbacks: 7 };
+    vi.mocked(useLoaderData).mockReturnValue({ stats: few, accountTotalFeedbacks: 7, qrActive: true, dashboardError: null } as ReturnType<typeof useLoaderData>);
+    mocks.getFeedbackStats.mockResolvedValue(few);
+
+    render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>,
+    );
+
+    const tone = await screen.findByRole('region', { name: /Tom dos comentários/ });
+    expect(within(tone).getByText(/Faltam 3 feedbacks para a IA analisar\./)).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'O que vai aparecer aqui' })).not.toBeInTheDocument();
+  });
+
   it('mostra o tom dos comentários num bloco só, com o resumo em palavras', async () => {
     mocks.useScopedInsightsReport.mockReturnValue({
       report: null,
