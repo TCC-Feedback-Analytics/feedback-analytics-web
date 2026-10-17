@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { act, render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import "@testing-library/jest-dom";
@@ -51,18 +51,32 @@ vi.mock("src/hooks/useIaModels", () => ({
 }));
 
 function TestConsumer() {
-  const { isTourActive, currentTourStep, hasCompletedAIContext, hasCompletedAISetup, startTour, skipTour } =
+  const { isTourActive, isGuidePending, currentTourStep, hasCompletedAIContext, hasCompletedAISetup, startTour, skipTour } =
     useOnboarding();
   return (
     <div>
       <span data-testid="context-completed">{String(hasCompletedAIContext)}</span>
       <span data-testid="ai-setup-completed">{String(hasCompletedAISetup)}</span>
       <span data-testid="tour-active">{String(isTourActive)}</span>
+      <span data-testid="guide-pending">{String(isGuidePending)}</span>
       <span data-testid="tour-step">{currentTourStep}</span>
       <button onClick={startTour}>Start Tour</button>
       <button onClick={skipTour}>Skip Tour</button>
     </div>
   );
+}
+
+/** Faz o papel do convite do Dashboard: começa o guia quando ele fica pendente. */
+function StartWhenPending() {
+  const { isGuidePending, isTourActive, startTour } = useOnboarding();
+  const started = useRef(false);
+  useEffect(() => {
+    if (isGuidePending && !isTourActive && !started.current) {
+      started.current = true;
+      startTour();
+    }
+  }, [isGuidePending, isTourActive, startTour]);
+  return null;
 }
 
 describe("[Unidade] Componentes e Contexto de Onboarding", () => {
@@ -374,7 +388,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     expect(INTERACTIVE_STEPS).toHaveLength(TOUR_STEPS_COUNT);
   });
 
-  it("o tour espera a configuração inicial marcada por um filho na montagem", async () => {
+  it("o guia só fica pendente depois da configuração inicial e não abre sozinho", async () => {
     systemGuide.get.mockResolvedValue({
       tourKey: "system-guide", version: 1, status: "pending", finishedAt: null,
     });
@@ -402,10 +416,12 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
 
     await waitFor(() => expect(systemGuide.get).toHaveBeenCalled());
     await act(async () => {});
-    expect(screen.getByTestId("tour-active")).toHaveTextContent("false");
+    expect(screen.getByTestId("guide-pending")).toHaveTextContent("false");
 
     fireEvent.click(screen.getByText("Concluir configuração"));
-    await waitFor(() => expect(screen.getByTestId("tour-active")).toHaveTextContent("true"));
+    // Depois da configuração o guia fica pendente para o convite, mas não abre sozinho.
+    await waitFor(() => expect(screen.getByTestId("guide-pending")).toHaveTextContent("true"));
+    expect(screen.getByTestId("tour-active")).toHaveTextContent("false");
   });
 
   it("permite navegar pelos passos do Tour Interativo Spotlight e pular a introdução", async () => {
@@ -422,6 +438,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
       <MemoryRouter initialEntries={["/user/dashboard"]}>
         <OnboardingProvider collecting={completeCollecting} sessionKey="user-1">
           <UserInteractiveTour />
+          <StartWhenPending />
         </OnboardingProvider>
       </MemoryRouter>
     );
@@ -465,7 +482,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
 
     fireEvent.click(screen.getByText("Próximo"));
     expect(screen.getByText("Dados e configurações da empresa")).toBeInTheDocument();
-    expect(screen.getByText(/Essas escolhas definem o que seus clientes poderão avaliar/)).toBeInTheDocument();
+    expect(screen.getByText(/Os produtos, serviços e departamentos que seus clientes avaliam se ativam no Catálogo/)).toBeInTheDocument();
 
     // Pular tour
     fireEvent.click(screen.getByText("Pular"));
@@ -490,6 +507,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
           sessionKey="user-1"
         >
           <UserInteractiveTour />
+          <StartWhenPending />
         </OnboardingProvider>
       </MemoryRouter>,
     );
@@ -520,6 +538,8 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
         <MemoryRouter initialEntries={["/user/dashboard"]}>
           <OnboardingProvider collecting={completeCollecting} sessionKey="user-1">
             <UserInteractiveTour />
+            <StartWhenPending />
+          <StartWhenPending />
             <LocationProbe />
           </OnboardingProvider>
         </MemoryRouter>,

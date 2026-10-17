@@ -7,7 +7,6 @@ import PageHeader from "components/user/shared/PageHeader";
 import Information from "components/user/pages/profile/editUser/information";
 import AIContextProfileCard from "components/user/pages/profile/AIContextProfileCard";
 import CompanyProfileSection from "components/user/pages/profile/CompanyProfileSection";
-import FormCollectingDataEnterprise from "components/user/pages/profile/editCollectingData/formCollectingDataEnterprise";
 import CardSimple from "components/user/shared/cards/cardSimple";
 import { FaUser } from "react-icons/fa6";
 
@@ -52,9 +51,7 @@ export default function Profile() {
           </CardSimple>
         </section>
 
-        <CompanyProfileSection enterprise={enterprise}>
-          <FormCollectingDataEnterprise />
-        </CompanyProfileSection>
+        <CompanyProfileSection enterprise={enterprise} />
 
         <section aria-labelledby="contexto-ia-titulo" className="scroll-mt-6">
           <h2 id="contexto-ia-titulo" className="sr-only">Contexto da empresa para IA</h2>

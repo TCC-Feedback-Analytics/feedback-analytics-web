@@ -59,6 +59,8 @@ export interface DashboardWelcomeProps {
   qrActive: boolean | null;
   /** Feedbacks da conta inteira, para o progresso até a análise da IA. */
   totalFeedbacks: number;
+  /** Abre o guia do sistema (atalho "Conhecer o sistema"). */
+  onStartGuide?: () => void;
 }
 
 /**

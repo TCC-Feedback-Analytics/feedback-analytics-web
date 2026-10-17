@@ -30,6 +30,7 @@
 
   --primary-color: #64748b;
   --secondary-color: #94a3b8;
+  --on-primary: #ffffff; /* texto sobre a cor primária: contraste legível */
   --tertiary-color: #475569;
   --quaternary-color: #cbd5e1;
   --quinary-color: #e2e8f0;
@@ -54,6 +55,7 @@
 
   --primary-color: #3ed9e3;
   --secondary-color: #1395a7;
+  --on-primary: #04131a;
   --tertiary-color: #1b616f;
   --quaternary-color: #70eaf0;
   --quinary-color: #abf4f6;
@@ -72,6 +74,7 @@
 
   --primary-color: #3ed9e3;
   --secondary-color: #1395a7;
+  --on-primary: #04131a;
   --tertiary-color: #1b616f;
   --quaternary-color: #abf4f6;
   --quinary-color: #d2fafb;
@@ -101,6 +104,7 @@
 
     --primary-color: #64748b;
     --secondary-color: #94a3b8;
+    --on-primary: #ffffff;
     --tertiary-color: #475569;
     --quaternary-color: #cbd5e1;
     --quinary-color: #e2e8f0;
@@ -122,6 +126,7 @@
 
     --primary-color: #0f7c8f;
     --secondary-color: #1294a8;
+    --on-primary: #ffffff;
     --tertiary-color: #0c6374;
     --quaternary-color: #2ea3bc;
     --quinary-color: #dff4f8;
@@ -146,6 +151,7 @@
 
     --primary-color: #0f7c8f;
     --secondary-color: #1294a8;
+    --on-primary: #ffffff;
     --tertiary-color: #38b2ca;
     --quaternary-color: #2ea3bc;
     --quinary-color: #dff4f8;

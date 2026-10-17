@@ -1,4 +1,5 @@
 import type { ElementType } from "react";
+import type { GuideInviteVariant } from "src/lib/utils/guideInvite";
 import {
   FaChartPie,
   FaChartSimple,
@@ -40,6 +41,13 @@ export interface InitialSetupProgressDialogProps {
   /** Fecha a tela; o usuário segue para o dashboard ou para a Configuração de IA. */
   onFinish: (destination: "dashboard" | "ia-settings") => void;
   model: string | null;
+}
+
+export interface GuideInviteDialogProps {
+  /** null: fechado. first-feedback: no primeiro feedback; later: numa próxima sessão. */
+  variant: GuideInviteVariant | null;
+  onStart: () => void;
+  onLater: () => void;
 }
 
 export interface UserInteractiveTourProps {
@@ -155,6 +163,6 @@ export const INTERACTIVE_STEPS: TourStepData[] = [
     route: "/user/profile",
     title: "Dados e configurações da empresa",
     icon: FaSliders,
-    description: "Informe se sua empresa tem produtos, oferece serviços ou possui áreas e departamentos. Essas escolhas definem o que seus clientes poderão avaliar.",
+    description: "Aqui ficam os dados de cadastro da empresa: documento, tipo de cadastro e status da conta. Os produtos, serviços e departamentos que seus clientes avaliam se ativam no Catálogo.",
   },
 ];

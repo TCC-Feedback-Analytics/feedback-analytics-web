@@ -38,7 +38,7 @@ export default function FeedbackPagination({
                     onClick={() => onPageChange(page)}
                     className={`font-poppins px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
                       isActive
-                        ? 'border border-(--primary-color) bg-(--primary-color) text-white'
+                        ? 'border border-(--primary-color) bg-(--primary-color) text-(--on-primary)'
                         : 'border border-(--quaternary-color)/14 bg-(--seventh-color) text-(--text-secondary) hover:border-(--quaternary-color)/20 hover:bg-(--bg-tertiary)'
                     }`}>
                     {page}

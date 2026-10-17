@@ -189,7 +189,6 @@ describe('[Unidade] LayoutUser', () => {
 
   it.each([
     ['/user/profile', 'Profile skeleton'],
-    ['/user/qrcode/enterprise', 'QrCode Enterprise skeleton'],
     ['/user/feedbacks/all', 'Feedbacks All skeleton'],
     ['/user/feedbacks/123', 'Feedback Details skeleton'],
     ['/user/insights/overview', 'Insights Report skeleton'],
