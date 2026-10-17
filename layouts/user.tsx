@@ -14,7 +14,6 @@ import SectionTabs from 'components/user/shared/SectionTabs';
 import InsightsActionBar from 'components/user/layout/InsightsActionBar';
 import DashboardSkeleton from 'components/user/pages/dashboard/DashboardSkeleton';
 import ProfileSkeleton from 'components/user/pages/profile/ProfileSkeleton';
-import QrCodeEnterpriseSkeleton from 'components/user/pages/qrcodes/QrCodeEnterpriseSkeleton';
 import FeedbacksAllSkeleton from 'components/user/pages/feedbacks/FeedbacksAllSkeleton';
 import FeedbackDetailsSkeleton from 'components/user/pages/feedbacks/FeedbackDetailsSkeleton';
 import InsightsReportSkeleton from 'components/user/pages/feedbacks/insights/InsightsReportSkeleton';
@@ -279,7 +278,6 @@ export default function User() {
     if (pendingPathname === '/user/dashboard') return <DashboardSkeleton />;
     if (pendingPathname === '/user/profile') return <ProfileSkeleton />;
 
-    if (pendingPathname === '/user/qrcode/enterprise') return <QrCodeEnterpriseSkeleton />;
 
     if (pendingPathname === '/user/feedbacks/all') return <FeedbacksAllSkeleton />;
     if (pendingPathname.startsWith('/user/feedbacks/') && !pendingPathname.startsWith('/user/feedbacks/analytics/')) {

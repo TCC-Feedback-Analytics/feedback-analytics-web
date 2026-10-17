@@ -1,6 +1,6 @@
 /**
  * Resposta da action de ativação/desativação do QR Code.
- * Usado em: pages/user/qrcodes/qrcodeEnterprise.tsx.
+ * Usado em: pages/user/edit/editFeedbackGeneral.tsx e components/user/pages/dashboard/DashboardWelcome.tsx.
  */
 export type QrCodeEnterpriseActionResponse = {
   ok?: boolean;

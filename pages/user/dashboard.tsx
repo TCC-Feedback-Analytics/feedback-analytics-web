@@ -111,9 +111,9 @@ export default function Dashboard() {
   // geral; produto/serviço/departamento com item escolhido → QR do item; tipo
   // selecionado sem item → catálogo do tipo, para o gestor escolher o item.
   const shareFormPath = (() => {
-    if (scope === 'COMPANY') return '/user/qrcode/enterprise';
+    if (scope === 'COMPANY') return '/user/edit/feedback-general';
     const config = getCatalogKindByKind(scope);
-    if (!config) return '/user/qrcode/enterprise';
+    if (!config) return '/user/edit/feedback-general';
     if (!catalogItemId) return config.listPath;
     return `/user/edit/feedback/${config.slug}/${catalogItemId}`;
   })();
