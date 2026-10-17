@@ -9,8 +9,8 @@ import type { ScopeTagProps } from './ui.types';
  * entre telas. Clicar leva ao seletor de escopo do cabeçalho e o abre.
  */
 export default function ScopeTag({ className = '' }: ScopeTagProps) {
-  const { scope, catalogItemId, catalogItemOptions } = useInsightsControls();
-  const { label } = scopeText({ scope, catalogItemId, catalogItemOptions });
+  const { scope, catalogItemId, catalogItemOptions, period } = useInsightsControls();
+  const { label } = scopeText({ scope, catalogItemId, catalogItemOptions, period });
 
   const openScopeSelector = () => {
     const trigger = document.querySelector<HTMLButtonElement>('[data-scope-selector-trigger]');

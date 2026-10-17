@@ -37,7 +37,12 @@ import { useFeedbackMilestones } from 'src/lib/hooks/useFeedbackMilestones';
 import { MIN_FEEDBACKS_FOR_AI } from 'src/lib/utils/feedbackMilestones';
 import { getCatalogKindByKind } from 'src/lib/constants/catalog';
 import { scopeText } from 'src/lib/utils/scopeText';
-import { COMMENTS_SUMMARY_SOURCE, COMMENTS_SUMMARY_TITLE } from 'src/lib/constants/commentsSummary';
+import {
+  COMMENTS_SUMMARY_PERIOD_NOTE,
+  COMMENTS_SUMMARY_SOURCE,
+  COMMENTS_SUMMARY_TITLE,
+} from 'src/lib/constants/commentsSummary';
+import { hasMetricsPeriod, metricsPeriodParams } from 'src/lib/utils/metricsPeriod';
 import { activeFormQuestions } from 'src/lib/utils/formQuestions';
 import {
   ServiceGetFeedbackStats,
@@ -52,7 +57,7 @@ export default function Dashboard() {
   const dashboardLoaderData = useLoaderData<DashboardLoaderData>();
   const [searchParams, setSearchParams] = useSearchParams();
   const toast = useToast();
-  const { scope, catalogItemId, catalogItemOptions } = useInsightsControls();
+  const { scope, catalogItemId, catalogItemOptions, period } = useInsightsControls();
   const { isGuidePending, isTourActive, startTour } = useOnboarding();
 
   const toastShownRef = useRef(false);
@@ -73,18 +78,27 @@ export default function Dashboard() {
   const [stats, setStats] = useState<FeedbackStats | null>(
     dashboardLoaderData?.stats ?? null,
   );
+  // Stats do escopo no histórico inteiro: o pendente, os marcos e o mínimo para a
+  // IA não seguem o período (etapa 02). Sem período, são as mesmas `stats`.
+  const [allTimeStats, setAllTimeStats] = useState<FeedbackStats | null>(
+    dashboardLoaderData?.stats ?? null,
+  );
   const [questions, setQuestions] = useState<QuestionMetric[]>([]);
   // De qual escopo são as `stats` atuais (o seed do loader é do escopo Empresa).
   const [statsScopeKey, setStatsScopeKey] = useState<string | null>(
     dashboardLoaderData?.stats ? 'COMPANY:' : null,
   );
-  const [scopedLoading, setScopedLoading] = useState(false);
-  // O 1º fetch reaproveita o seed do loader (escopo Empresa) — só mostramos o
-  // skeleton nas TROCAS de escopo seguintes, para não piscar no carregamento inicial.
+  // O seed do loader é do escopo Empresa, no histórico inteiro. Ao voltar ao Dashboard
+  // com outro escopo ou com um período, ele não serve: esqueleto até os dados chegarem,
+  // em vez de mostrar por um instante os números de outro recorte.
+  const seedIsCurrent = scope === 'COMPANY' && !catalogItemId && !hasMetricsPeriod(period);
+  const [scopedLoading, setScopedLoading] = useState(!seedIsCurrent);
+  // Com o seed valendo, o 1º fetch o reaproveita — só mostramos o skeleton nas
+  // TROCAS de escopo seguintes, para não piscar no carregamento inicial.
   const firstScopedFetchRef = useRef(true);
   const error = dashboardLoaderData?.dashboardError ?? null;
 
-  // Métricas seguem o escopo selecionado no header (Geral = só o QR da empresa).
+  // Métricas seguem o escopo e o período selecionados no header (Geral = só o QR da empresa).
   // `silent`: atualização em segundo plano (marcos da coleta), sem skeleton.
   const fetchScopedData = useCallback(async (silent = false) => {
     const showSkeleton = !silent && !firstScopedFetchRef.current;
@@ -93,23 +107,35 @@ export default function Dashboard() {
     const catalogParam =
       scope !== 'COMPANY' ? catalogItemId || undefined : undefined;
 
-    const [statsData, questionsData] = await Promise.all([
+    const withPeriod = hasMetricsPeriod(period);
+    const periodParams = metricsPeriodParams(period);
+
+    const [statsData, questionsData, allTimeData] = await Promise.all([
       ServiceGetFeedbackStats({
         scope_type: scope,
         catalog_item_id: catalogParam,
+        ...periodParams,
       }).catch(() => null),
       ServiceGetFeedbackQuestions({
         scope_type: scope,
         catalog_item_id: catalogParam,
+        ...periodParams,
       }).catch(() => null),
+      withPeriod
+        ? ServiceGetFeedbackStats({
+            scope_type: scope,
+            catalog_item_id: catalogParam,
+          }).catch(() => null)
+        : Promise.resolve(null),
     ]);
 
     setStats(statsData);
+    setAllTimeStats(withPeriod ? allTimeData : statsData);
     setStatsScopeKey(`${scope}:${catalogItemId || ''}`);
     setQuestions(questionsData?.questions ?? []);
     firstScopedFetchRef.current = false;
     setScopedLoading(false);
-  }, [scope, catalogItemId]);
+  }, [scope, catalogItemId, period]);
 
   useEffect(() => {
     fetchScopedData();
@@ -117,7 +143,10 @@ export default function Dashboard() {
 
   // Análise dos comentários (tom + resumo e recomendações da IA), filtrada por escopo.
   const { report, summary, loading: reportLoading } = useScopedInsightsReport({ withAnalysis: true });
-  const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions });
+  const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions, period });
+  // Os marcos contam o histórico inteiro do escopo, então o texto deles não leva o período.
+  const milestoneInScope = scopeText({ scope, catalogItemId, catalogItemOptions }).inScope;
+  const withPeriod = hasMetricsPeriod(period);
 
   // O link de compartilhar segue o escopo selecionado no header: empresa → QR
   // geral; produto/serviço/departamento com item escolhido → QR do item; tipo
@@ -133,8 +162,8 @@ export default function Dashboard() {
   const displayName =
     user?.user_metadata?.full_name || enterprise?.full_name || user?.email || 'Dashboard';
 
-  const totalFeedbacks = stats?.totalFeedbacks ?? 0;
-  const pendingCount = stats?.pendingCount ?? 0;
+  const totalFeedbacks = allTimeStats?.totalFeedbacks ?? 0;
+  const pendingCount = allTimeStats?.pendingCount ?? 0;
   // Conta inteira sem nenhum feedback: boas-vindas e prévia no lugar das seções vazias.
   const isAccountEmpty = dashboardLoaderData?.accountTotalFeedbacks === 0;
   const feedbacksUntilAnalysis = Math.max(0, MIN_FEEDBACKS_FOR_AI - totalFeedbacks);
@@ -143,11 +172,11 @@ export default function Dashboard() {
   // os números em segundo plano para o marco aparecer sem recarregar a página.
   const revalidator = useRevalidator();
   const scopeKey = `${scope}:${catalogItemId || ''}`;
-  const scopeTotal = statsScopeKey === scopeKey ? stats?.totalFeedbacks ?? null : null;
+  const scopeTotal = statsScopeKey === scopeKey ? allTimeStats?.totalFeedbacks ?? null : null;
   useFeedbackMilestones({
     enterpriseId: enterprise?.id,
     snapshot: { accountTotal: dashboardLoaderData?.accountTotalFeedbacks ?? null, scopeKey, scopeTotal },
-    inScope: scopeInfo.inScope,
+    inScope: milestoneInScope,
     watching: isAccountEmpty || (scopeTotal !== null && scopeTotal < MIN_FEEDBACKS_FOR_AI),
     refresh: () => {
       revalidator.revalidate();
@@ -266,6 +295,9 @@ export default function Dashboard() {
             <div className="relative overflow-hidden rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6 glass-card">
               <h3 className="font-montserrat text-base font-semibold text-(--text-primary)">{COMMENTS_SUMMARY_TITLE}</h3>
               <p className="mt-1 text-xs text-(--text-tertiary)">{COMMENTS_SUMMARY_SOURCE}</p>
+              {withPeriod && (
+                <p className="mt-1 text-xs font-medium text-(--text-secondary)">{COMMENTS_SUMMARY_PERIOD_NOTE}</p>
+              )}
               <div className="mt-4">
                 {reportLoading && !report ? (
                   <p className="text-sm text-(--text-tertiary)">Carregando o resumo…</p>

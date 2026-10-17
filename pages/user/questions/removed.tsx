@@ -17,8 +17,8 @@ import type { LoaderFormQuestions } from 'src/routes/loaders/loaderFormQuestions
 export default function RemovedQuestionsPage() {
   const initialData = useLoaderData<Awaited<ReturnType<typeof LoaderFormQuestions>>>();
   const { questions: metrics, loading, error } = useScopedFeedbackQuestions(initialData);
-  const { scope, catalogItemId, catalogItemOptions } = useInsightsControls();
-  const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions });
+  const { scope, catalogItemId, catalogItemOptions, period } = useInsightsControls();
+  const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions, period });
   const config = useFormQuestionsConfig();
   const { removed } = orderFormQuestions(config.questions, metrics);
   const waitingConfig = config.status === 'loading';

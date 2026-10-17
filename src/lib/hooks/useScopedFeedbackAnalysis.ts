@@ -6,6 +6,7 @@ import type {
 import type { FeedbackAnalysisLoadData } from "src/routes/load/loadFeedbackAnalysis";
 import { useInsightsControls } from "src/lib/context/insightsControls";
 import { ServiceGetFeedbackAnalysis } from "src/services/serviceFeedbacks";
+import { hasMetricsPeriod, metricsPeriodParams } from "src/lib/utils/metricsPeriod";
 
 type UseScopedFeedbackAnalysisResult = {
   items: FeedbackAnalysisItem[];
@@ -16,8 +17,8 @@ type UseScopedFeedbackAnalysisResult = {
 };
 
 /**
- * Análise de feedbacks (resumo + itens) filtrada pelo escopo selecionado em
- * `useInsightsControls`. Semeia o estado com os dados do loader (escopo Empresa)
+ * Análise de feedbacks (resumo + itens) filtrada pelo escopo e pelo período
+ * selecionados em `useInsightsControls`. Semeia o estado com os dados do loader (escopo Empresa)
  * e recarrega ao trocar de escopo/item e ao concluir uma análise/geração de
  * insights — mesma mecânica de `useScopedInsightsReport`, mas só para a análise.
  *
@@ -27,7 +28,7 @@ type UseScopedFeedbackAnalysisResult = {
 export function useScopedFeedbackAnalysis(
   initialData: FeedbackAnalysisLoadData,
 ): UseScopedFeedbackAnalysisResult {
-  const { scope, catalogItemId, isAnalyzingRaw, isRegeneratingInsights } =
+  const { scope, catalogItemId, period, isAnalyzingRaw, isRegeneratingInsights } =
     useInsightsControls();
 
   const didInitRef = useRef(false);
@@ -52,6 +53,7 @@ export function useScopedFeedbackAnalysis(
       const data = await ServiceGetFeedbackAnalysis({
         scope_type: scope,
         catalog_item_id: catalogParam,
+        ...metricsPeriodParams(period),
       });
       setItems(data.items);
       setSummary(data.summary);
@@ -62,19 +64,19 @@ export function useScopedFeedbackAnalysis(
     } finally {
       setLoading(false);
     }
-  }, [scope, catalogItemId]);
+  }, [scope, catalogItemId, period]);
 
-  // Recarrega ao trocar escopo/item; no 1º render usa a semente do loader
-  // quando o escopo ainda é Empresa (sem item).
+  // Recarrega ao trocar escopo/item/período; no 1º render usa a semente do loader
+  // quando o escopo ainda é Empresa (sem item) e sem período.
   useEffect(() => {
     if (!didInitRef.current) {
       didInitRef.current = true;
-      if (scope === "COMPANY" && !catalogItemId) {
+      if (scope === "COMPANY" && !catalogItemId && !hasMetricsPeriod(period)) {
         return;
       }
     }
     fetchAnalysis();
-  }, [fetchAnalysis, scope, catalogItemId]);
+  }, [fetchAnalysis, scope, catalogItemId, period]);
 
   // Recarrega quando a análise bruta conclui (true -> false).
   useEffect(() => {

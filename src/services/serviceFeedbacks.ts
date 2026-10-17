@@ -17,6 +17,13 @@ import type {
   IaAnalyzeRegenerateInsightsResponse,
 } from 'lib/interfaces/contracts/ia-analyze/run.contract';
 import { getJson, postJson } from 'src/lib/utils/http';
+import type { MetricsPeriodParams } from 'src/lib/utils/metricsPeriod';
+
+/** Período das métricas (etapa 02): `[start_date, end_date)`; ausente = histórico inteiro. */
+function appendPeriod(searchParams: URLSearchParams, params?: MetricsPeriodParams) {
+  if (params?.start_date) searchParams.append('start_date', params.start_date);
+  if (params?.end_date) searchParams.append('end_date', params.end_date);
+}
 
 export function ServiceGetFeedbacks(filters: FeedbackFilters = {}) {
   const params = new URLSearchParams();
@@ -36,7 +43,7 @@ export function ServiceGetFeedbacks(filters: FeedbackFilters = {}) {
   return getJson<FeedbacksResponse>(url);
 }
 
-export function ServiceGetFeedbackStats(params?: FeedbackStatsOptions) {
+export function ServiceGetFeedbackStats(params?: FeedbackStatsOptions & MetricsPeriodParams) {
   const searchParams = new URLSearchParams();
 
   if (params?.scope_type) {
@@ -46,6 +53,7 @@ export function ServiceGetFeedbackStats(params?: FeedbackStatsOptions) {
   if (params?.catalog_item_id) {
     searchParams.append('catalog_item_id', params.catalog_item_id);
   }
+  appendPeriod(searchParams, params);
 
   const queryString = searchParams.toString();
   const url = `/api/protected/user/feedbacks/stats${
@@ -55,7 +63,7 @@ export function ServiceGetFeedbackStats(params?: FeedbackStatsOptions) {
   return getJson<FeedbackStats>(url);
 }
 
-export function ServiceGetFeedbackAnalysis(params?: FeedbackAnalysisOptions) {
+export function ServiceGetFeedbackAnalysis(params?: FeedbackAnalysisOptions & MetricsPeriodParams) {
   const searchParams = new URLSearchParams();
 
   if (params?.sentiment) {
@@ -69,6 +77,7 @@ export function ServiceGetFeedbackAnalysis(params?: FeedbackAnalysisOptions) {
   if (params?.catalog_item_id) {
     searchParams.append('catalog_item_id', params.catalog_item_id);
   }
+  appendPeriod(searchParams, params);
 
   const queryString = searchParams.toString();
   const url = `/api/protected/user/feedbacks/analysis${
@@ -78,7 +87,7 @@ export function ServiceGetFeedbackAnalysis(params?: FeedbackAnalysisOptions) {
   return getJson<FeedbackAnalysisResponse>(url);
 }
 
-export function ServiceGetFeedbackQuestions(params?: FeedbackQuestionsOptions) {
+export function ServiceGetFeedbackQuestions(params?: FeedbackQuestionsOptions & MetricsPeriodParams) {
   const searchParams = new URLSearchParams();
 
   if (params?.scope_type) {
@@ -88,6 +97,7 @@ export function ServiceGetFeedbackQuestions(params?: FeedbackQuestionsOptions) {
   if (params?.catalog_item_id) {
     searchParams.append('catalog_item_id', params.catalog_item_id);
   }
+  appendPeriod(searchParams, params);
 
   const queryString = searchParams.toString();
   const url = `/api/protected/user/feedbacks/questions${

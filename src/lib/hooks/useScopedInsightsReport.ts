@@ -8,11 +8,14 @@ import {
   ServiceGetFeedbackAnalysis,
   ServiceGetFeedbackInsightsReport,
 } from 'src/services/serviceFeedbacks';
+import { ALL_TIME_PERIOD, metricsPeriodParams } from 'src/lib/utils/metricsPeriod';
 
 type UseScopedInsightsReportOptions = {
   /**
    * Quando `true`, busca também a análise (`ServiceGetFeedbackAnalysis`) e
    * retorna `summary` — usado pela página de relatório para o card de clima.
+   * O `summary` segue o período escolhido; o relatório da IA, não (ele
+   * considera todos os comentários analisados).
    * O dashboard não precisa (só resumo + recomendações), então deixa `false`.
    */
   withAnalysis?: boolean;
@@ -39,8 +42,11 @@ export function useScopedInsightsReport(
 ): UseScopedInsightsReportResult {
   const withAnalysis = options.withAnalysis === true;
 
-  const { scope, catalogItemId, isAnalyzingRaw, isRegeneratingInsights } =
+  const { scope, catalogItemId, period, isAnalyzingRaw, isRegeneratingInsights } =
     useInsightsControls();
+
+  // Sem a análise, o período não muda nada: não recarrega o relatório à toa.
+  const analysisPeriod = withAnalysis ? period : ALL_TIME_PERIOD;
 
   const wasAnalyzingRawRef = useRef(false);
   const wasRegeneratingRef = useRef(false);
@@ -68,6 +74,7 @@ export function useScopedInsightsReport(
           ? ServiceGetFeedbackAnalysis({
               scope_type: scopeParam,
               catalog_item_id: catalogParam,
+              ...metricsPeriodParams(analysisPeriod),
             }).catch(() => null)
           : Promise.resolve(null),
       ]);
@@ -83,7 +90,7 @@ export function useScopedInsightsReport(
     } finally {
       setLoading(false);
     }
-  }, [scope, catalogItemId, withAnalysis]);
+  }, [scope, catalogItemId, withAnalysis, analysisPeriod]);
 
   // Recarrega ao montar e ao trocar escopo/item.
   useEffect(() => {

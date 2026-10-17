@@ -18,8 +18,8 @@ export default function QuestionPage() {
   const { questionId = '' } = useParams();
   const initialData = useLoaderData<Awaited<ReturnType<typeof LoaderFormQuestions>>>();
   const { questions: metrics, loading, error } = useScopedFeedbackQuestions(initialData);
-  const { scope, catalogItemId, catalogItemOptions } = useInsightsControls();
-  const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions });
+  const { scope, catalogItemId, catalogItemOptions, period } = useInsightsControls();
+  const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions, period });
   const config = useFormQuestionsConfig();
 
   const { main, history } = questionEntries(metrics, questionId);

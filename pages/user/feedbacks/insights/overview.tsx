@@ -4,6 +4,8 @@ import { FaArrowRight } from 'react-icons/fa6';
 import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { useScopedInsightsReport } from 'src/lib/hooks/useScopedInsightsReport';
 import { scopeText } from 'src/lib/utils/scopeText';
+import { hasMetricsPeriod } from 'src/lib/utils/metricsPeriod';
+import { COMMENTS_SUMMARY_PERIOD_NOTE } from 'src/lib/constants/commentsSummary';
 import InsightsReportSkeleton from 'components/user/pages/feedbacks/insights/InsightsReportSkeleton';
 import InsightsReportErrorState from 'components/user/pages/feedbacksInsightsReport/InsightsReportErrorState';
 import InsightsReportHeaderSection from 'components/user/pages/feedbacksInsightsReport/InsightsReportHeaderSection';
@@ -20,8 +22,8 @@ import ScopeTag from 'components/user/shared/ScopeTag';
  * Estatísticas, que repetiam a mesma contagem de tom.
  */
 export default function CommentsOverview() {
-  const { canAnalyze, isRegeneratingInsights, scope, catalogItemId, catalogItemOptions } = useInsightsControls();
-  const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions });
+  const { canAnalyze, isRegeneratingInsights, scope, catalogItemId, catalogItemOptions, period } = useInsightsControls();
+  const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions, period });
   const [dismissedErrorKey, setDismissedErrorKey] = useState<string | null>(null);
 
   const { report, summary, loading, error: fetchError } = useScopedInsightsReport({ withAnalysis: true });
@@ -67,6 +69,9 @@ export default function CommentsOverview() {
               canAnalyze={canAnalyze}
               analysisBlockedMessage={analysisBlockedMessage}
             />
+            {hasMetricsPeriod(period) && (
+              <p className="-mt-3 text-xs font-medium text-(--text-secondary)">{COMMENTS_SUMMARY_PERIOD_NOTE}</p>
+            )}
             <InsightsReportContent report={report} />
           </section>
 

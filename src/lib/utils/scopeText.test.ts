@@ -37,4 +37,17 @@ describe('scopeText', () => {
   it('item fora da lista carregada não inventa nome', () => {
     expect(scopeText({ scope: 'PRODUCT', catalogItemId: 'desconhecido', catalogItemOptions: items }).label).toBe('Produto');
   });
+
+  it('com período, ele entra na etiqueta e nas frases; sem período nada muda', () => {
+    expect(
+      scopeText({ scope: 'PRODUCT', catalogItemId: 'p1', catalogItemOptions: items, period: { preset: 'LAST_30_DAYS' } }),
+    ).toEqual({
+      label: 'Produto · Pizza · Últimos 30 dias',
+      inScope: 'no produto Pizza nos últimos 30 dias',
+      ofScope: 'do produto Pizza nos últimos 30 dias',
+    });
+    expect(scopeText({ scope: 'COMPANY', catalogItemId: '', catalogItemOptions: items, period: { preset: 'ALL' } }).label).toBe(
+      'Avaliação geral da empresa',
+    );
+  });
 });
