@@ -25,7 +25,7 @@ export function useFeedbackMilestones({
 }: {
   enterpriseId: string | undefined;
   snapshot: MilestoneSnapshot;
-  /** Complemento do escopo para o texto (ex.: "no QR geral da empresa"). */
+  /** Complemento do escopo para o texto (ex.: "na empresa (avaliação geral)"). */
   inScope: string;
   watching: boolean;
   refresh: () => void;

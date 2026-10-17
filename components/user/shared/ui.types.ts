@@ -56,7 +56,7 @@ export type PrecisionBadgeProps = {
   unit: string;
   interval: Interval | null | undefined;
   kind: PrecisionKind;
-  /** Complemento de escopo ("do QR geral da empresa"); vem de scopeText().ofScope. */
+  /** Complemento de escopo ("da empresa (avaliação geral)"); vem de scopeText().ofScope. */
   ofScope?: string;
   className?: string;
 };

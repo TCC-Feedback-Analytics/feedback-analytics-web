@@ -71,12 +71,12 @@ describe('[Unidade] SectionFormQuestions', () => {
       .toHaveAttribute('href', '/user/questions/q1');
 
     expect(within(items[1]).getByText('Ótima')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /QR geral da empresa/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Avaliação geral da empresa/ })).toBeInTheDocument();
   });
 
   it('pergunta sem respostas diz isso, com o escopo', () => {
     renderSection([metric('q1', 'Como foi o atendimento?', 3.1)]);
-    expect(screen.getByText('Ainda sem respostas no QR geral da empresa.')).toBeInTheDocument();
+    expect(screen.getByText('Ainda sem respostas na empresa (avaliação geral).')).toBeInTheDocument();
   });
 
   it('tipo sem item escolhido pede para escolher o item, em vez de misturar perguntas', () => {

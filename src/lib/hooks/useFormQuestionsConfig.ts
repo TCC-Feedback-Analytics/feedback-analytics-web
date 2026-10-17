@@ -17,7 +17,7 @@ export type FormQuestionsConfigState = {
 
 /**
  * Perguntas ATUAIS do formulário do escopo do cabeçalho, na ordem do formulário.
- * Empresa: as do "Feedback geral", já no loader do layout. Item: as do QR daquele
+ * Empresa: as da "Avaliação da empresa", já no loader do layout. Item: as do QR daquele
  * item (`/collection-points/qr/catalog`). Sem mudar a API.
  */
 export function useFormQuestionsConfig(): FormQuestionsConfigState {
