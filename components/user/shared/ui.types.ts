@@ -98,3 +98,13 @@ export type HelpPopoverProps = {
   idBase: string;
   className?: string;
 };
+
+/**
+ * Props da troca rápida de modelo de IA, sem sair da tela.
+ * Usado em: components/user/shared/IaModelQuickSwitch.tsx.
+ */
+export type IaModelQuickSwitchProps = {
+  /** Chamado com o novo modelo depois que a troca foi salva. */
+  onChanged?: (model: string) => void;
+  className?: string;
+};

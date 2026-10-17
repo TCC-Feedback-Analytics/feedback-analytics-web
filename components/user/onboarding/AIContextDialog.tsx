@@ -146,6 +146,8 @@ export default function AIContextDialog({
   }, [sessionKey]);
 
   const isSaving = collectingFetcher.state !== "idle" || iaFetcher.state !== "idle";
+  // Sem chave salva nem digitada, o modelo não pode ser escolhido.
+  const needsApiKey = !iaConfig?.hasKey && apiKey.trim().length === 0;
   const models = catalog?.models ?? [];
   const selectedModel = selectedModelId || iaConfig?.model || "";
   const visibleModels = filterIaModelsByPrice(models, { includePaid: showPaidModels, keepId: selectedModel });
@@ -498,7 +500,7 @@ export default function AIContextDialog({
                       <Checkbox
                         checked={showPaidModels}
                         onChange={(event) => setShowPaidModels(event.target.checked)}
-                        disabled={isLoadingModels || isSaving || !catalog}
+                        disabled={needsApiKey || isLoadingModels || isSaving || !catalog}
                         aria-describedby="onboarding-model-status"
                       />
                       Mostrar também modelos pagos
@@ -508,8 +510,8 @@ export default function AIContextDialog({
                       value={selectedModel}
                       onChange={setSelectedModelId}
                       options={modelOptions}
-                      placeholder={isLoadingModels ? "Carregando modelos..." : showPaidModels ? "Selecione um modelo" : "Selecione um modelo gratuito"}
-                      disabled={isLoadingModels || models.length === 0 || isSaving}
+                      placeholder={needsApiKey ? "Informe a chave primeiro" : isLoadingModels ? "Carregando modelos..." : showPaidModels ? "Selecione um modelo" : "Selecione um modelo gratuito"}
+                      disabled={needsApiKey || isLoadingModels || models.length === 0 || isSaving}
                       aria-describedby="onboarding-model-status"
                       searchable
                       searchLabel="Buscar modelo"
@@ -521,6 +523,7 @@ export default function AIContextDialog({
                       dropdownClassName="border-(--primary-color)/25 shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
                     />
                     <div id="onboarding-model-status" role="status" className="min-w-0 space-y-1 break-words text-xs text-(--text-tertiary)">
+                      {needsApiKey && <p>Informe a chave da API para escolher o modelo.</p>}
                       {isLoadingModels && <p>Carregando modelos compatíveis...</p>}
                       {modelsError && <p className="text-amber-400">{modelsError}</p>}
                       {!isLoadingModels && catalog && models.length === 0 && <p className="text-amber-400">Nenhum modelo compatível está disponível. Você ainda pode continuar sem configurar a IA.</p>}

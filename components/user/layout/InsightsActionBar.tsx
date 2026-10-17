@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { FaWandMagicSparkles, FaSpinner } from "react-icons/fa6";
 import { useInsightsControls } from "src/lib/context/insightsControls";
@@ -7,6 +7,9 @@ import { useScopedPendingCount } from "src/lib/hooks/useScopedPendingCount";
 import InsightsControlsBar from "components/user/pages/feedbacksInsightsReport/InsightsControlsBar";
 import GenerateInsightsDialog from "components/user/pages/feedbacksInsightsReport/GenerateInsightsDialog";
 import { NotificationBellDropdown } from "components/user/pages/feedbacksInsightsReport/NotificationBellDropdown";
+import IaModelQuickSwitch from "components/user/shared/IaModelQuickSwitch";
+import { useIaSlowNoticePreference } from "src/lib/hooks/useIaSlowNoticePreference";
+import { IA_SLOW_AFTER_MS } from "src/lib/utils/iaSlowNotice";
 
 /**
  * Barra de controles de Insights no layout (abaixo do header): seletor de
@@ -41,6 +44,28 @@ export default function InsightsActionBar() {
 
   const isProcessing = isAnalyzingRaw || isRegeneratingInsights || rawStatus === 'running' || insightsStatus === 'running';
   const progress = isAnalyzingRaw ? rawProgress : insightsProgress;
+
+  // Aviso de IA lenta: depois de 40s processando, recomenda trocar de modelo.
+  const [slowNoticeEnabled, setSlowNoticeEnabled] = useIaSlowNoticePreference();
+  const [slow, setSlow] = useState(false);
+  const [switchOpen, setSwitchOpen] = useState(false);
+  const [slowAttempt, setSlowAttempt] = useState(0);
+
+  useEffect(() => {
+    if (!isProcessing) {
+      setSlow(false);
+      setSwitchOpen(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setSlow(true), IA_SLOW_AFTER_MS);
+    return () => window.clearTimeout(timer);
+  }, [isProcessing, slowAttempt]);
+
+  const handleModelChanged = () => {
+    setSwitchOpen(false);
+    setSlow(false);
+    setSlowAttempt((value) => value + 1);
+  };
 
   return (
     <>
@@ -84,6 +109,34 @@ export default function InsightsActionBar() {
           </button>
         </div>
       </div>}
+
+      {isProcessing && slow && slowNoticeEnabled && (
+        <div role="status" className="-mt-3 mb-5 space-y-3 rounded-xl border border-(--primary-color)/20 bg-(--primary-color)/8 p-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="text-xs text-(--text-secondary)">
+              A IA está demorando mais que o normal. Trocar de modelo costuma resolver.
+            </p>
+            <div className="sm:ml-auto flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setSwitchOpen((open) => !open)}
+                aria-expanded={switchOpen}
+                className="rounded-lg border border-(--primary-color)/30 bg-(--primary-color)/10 px-3 py-1.5 text-xs font-semibold text-(--primary-color) hover:bg-(--primary-color)/18"
+              >
+                Trocar modelo
+              </button>
+              <button
+                type="button"
+                onClick={() => setSlowNoticeEnabled(false)}
+                className="rounded-lg px-3 py-1.5 text-xs font-medium text-(--text-tertiary) hover:text-(--text-primary)"
+              >
+                Não recomendar de novo
+              </button>
+            </div>
+          </div>
+          {switchOpen && <IaModelQuickSwitch onChanged={handleModelChanged} />}
+        </div>
+      )}
 
       <GenerateInsightsDialog
         open={isDialogOpen}

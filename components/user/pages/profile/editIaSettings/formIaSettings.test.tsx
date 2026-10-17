@@ -73,6 +73,11 @@ async function ready() {
   await waitFor(() => expect(screen.queryByText('Carregando modelos compatíveis...')).not.toBeInTheDocument());
 }
 
+/** Sem chave salva, o modelo só pode ser escolhido depois de digitar a chave. */
+function typeApiKey() {
+  fireEvent.change(screen.getByLabelText(/Chave da API OpenRouter/), { target: { value: 'sk-or-v1-teste' } });
+}
+
 function modelCombobox() {
   return screen.getByRole('combobox', { name: 'Modelo de IA' });
 }
@@ -259,6 +264,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
   it('usa opções da API, busca por nome/ID e não oferece a lista fixa ou modelo livre', async () => {
     render(<FormIaSettings />);
     await ready();
+    typeApiKey();
     showPaidModels();
     openModelDropdown();
     expect(screen.getByRole('option', { name: 'Modelo Alpha (vendor/model-a)' })).toBeInTheDocument();
@@ -343,6 +349,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
     vi.mocked(ServiceGetIaModels).mockResolvedValue({ ...catalogFor(emptyConfig), models: dynamicModels.slice(1) });
     render(<FormIaSettings />);
     await ready();
+    typeApiKey();
     expect(screen.getByRole('combobox')).toHaveValue('');
     openModelDropdown();
     expect(screen.queryByRole('option', { name: /Roteamento automático/ })).not.toBeInTheDocument();
@@ -406,6 +413,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
   it('atualização de catálogo que remove a escolha não troca a seleção silenciosamente', async () => {
     render(<FormIaSettings />);
     await ready();
+    typeApiKey();
     showPaidModels();
     selectModel('vendor/model-a');
     vi.mocked(ServiceGetIaModels).mockResolvedValueOnce({ ...catalogFor(emptyConfig), models: [dynamicModels[0]] });
@@ -568,6 +576,7 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
       vi.mocked(ServiceGetIaModels).mockResolvedValueOnce({ ...catalogFor(emptyConfig), models: [...dynamicModels, ...freeModels] });
       render(<FormIaSettings />);
       await ready();
+      typeApiKey();
       expect(paidModelsCheckbox()).not.toBeChecked();
       expect(screen.getByRole('combobox')).toHaveValue('');
       openModelDropdown();
@@ -606,6 +615,29 @@ describe('FormIaSettings — cadastro e remoção da chave', () => {
       expect(screen.getByRole('option', { name: /Modelo Alpha grátis/ })).toBeEnabled();
       expect(screen.getByRole('option', { name: /Modelo Beta grátis/ })).toBeEnabled();
       expect(screen.queryByText(/A seleção atual é um modelo pago/)).not.toBeInTheDocument();
+    });
+  });
+
+  describe('aviso de IA lenta', () => {
+    beforeEach(() => window.localStorage.clear());
+
+    it('com chave salva, o aviso começa ligado e pode ser desligado e religado', async () => {
+      vi.mocked(useLoaderData).mockReturnValue({ iaConfig: savedConfig });
+      render(<FormIaSettings />);
+      await ready();
+      const toggle = screen.getByRole('checkbox', { name: /Avisar quando a IA demorar/ });
+      expect(toggle).toBeChecked();
+      fireEvent.click(toggle);
+      expect(toggle).not.toBeChecked();
+      expect(window.localStorage.getItem('feedback-analytics:aviso-ia-lenta')).toBe('off');
+      fireEvent.click(toggle);
+      expect(window.localStorage.getItem('feedback-analytics:aviso-ia-lenta')).toBeNull();
+    });
+
+    it('sem chave, não mostra o interruptor', async () => {
+      render(<FormIaSettings />);
+      await ready();
+      expect(screen.queryByRole('checkbox', { name: /Avisar quando a IA demorar/ })).not.toBeInTheDocument();
     });
   });
 });

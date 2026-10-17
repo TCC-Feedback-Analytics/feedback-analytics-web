@@ -192,7 +192,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     } as CollectingDataEnterprise;
     const model = (id: string, name: string) => ({ id, name, isAutomatic: id === "openrouter/auto", contextLength: 128000, maxCompletionTokens: 8000 });
 
-    function openLlmStep(iaConfig: IaConfigResponse) {
+    function openLlmStep(iaConfig: IaConfigResponse, { typeKey = true } = {}) {
       routeData.collecting = completeContext;
       routeData.iaConfig = iaConfig;
       iaModels.models = [
@@ -208,7 +208,11 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
         </MemoryRouter>
       );
       fireEvent.click(screen.getByRole("button", { name: "4. Modelo LLM" }));
-      openModels();
+      // Sem chave salva, o modelo só pode ser escolhido depois de digitar a chave.
+      if (!iaConfig.hasKey && typeKey) {
+        fireEvent.change(screen.getByLabelText("Chave da API OpenRouter"), { target: { value: "sk-or-v1-teste" } });
+      }
+      if (iaConfig.hasKey || typeKey) openModels();
     }
 
     function openModels() {
@@ -228,6 +232,17 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
       openModels();
       expect(screen.getByRole("option", { name: "Modelo Pago (vendor/paid)" })).toBeEnabled();
       expect(screen.getByRole("option", { name: /Roteamento automático/ })).toBeInTheDocument();
+    });
+
+    it("sem chave, o seletor de modelo fica bloqueado até a chave ser digitada", () => {
+      openLlmStep({ hasKey: false, provider: null, model: null, keyHint: null }, { typeKey: false });
+      expect(screen.getByRole("combobox", { name: "Modelo LLM" })).toBeDisabled();
+      expect(screen.getByRole("checkbox", { name: "Mostrar também modelos pagos" })).toBeDisabled();
+      expect(screen.getByText("Informe a chave da API para escolher o modelo.")).toBeInTheDocument();
+
+      fireEvent.change(screen.getByLabelText("Chave da API OpenRouter"), { target: { value: "sk-or-v1-teste" } });
+      expect(screen.getByRole("combobox", { name: "Modelo LLM" })).toBeEnabled();
+      expect(screen.queryByText("Informe a chave da API para escolher o modelo.")).not.toBeInTheDocument();
     });
 
     it("quem já usa um modelo pago abre com os pagos visíveis", () => {
@@ -334,21 +349,22 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
   });
 
   it("mapeia o guia móvel para a barra inferior e o menu central", () => {
-    expect(INTERACTIVE_STEPS.map((step) => step.mobileSelector ?? step.selector).slice(0, 7)).toEqual([
+    expect(INTERACTIVE_STEPS.map((step) => step.mobileSelector ?? step.selector).slice(0, 8)).toEqual([
       '[data-tour="mobile-nav-dashboard"]',
       // As seções do Dashboard e as abas da Análise dos comentários aparecem também no celular.
       '[data-tour="tour-star-ratings"]',
       '[data-tour="tour-form-questions"]',
+      '[data-tour="tour-dashboard-comments"]',
       '[data-tour="tour-comments-overview"]',
       '[data-tour="tour-comments-list"]',
       '[data-tour="mobile-nav-feedback"]',
       '[data-tour="mobile-nav-catalog"]',
     ]);
-    expect(INTERACTIVE_STEPS[7]).toMatchObject({
+    expect(INTERACTIVE_STEPS[8]).toMatchObject({
       mobileSelector: '[data-tour="mobile-nav-ia-settings"]',
       openMobileDrawer: true,
     });
-    expect(INTERACTIVE_STEPS[8]).toMatchObject({
+    expect(INTERACTIVE_STEPS[9]).toMatchObject({
       mobileSelector: '[data-tour="mobile-nav-profile"]',
       openMobileDrawer: true,
     });
@@ -422,8 +438,13 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     expect(screen.getByText("Perguntas do formulário")).toBeInTheDocument();
     expect(screen.getByText(/mesmo sem a IA configurada/)).toBeInTheDocument();
 
+    // O card do Dashboard vem antes de ir para as páginas da análise.
     fireEvent.click(screen.getByText("Próximo"));
-    expect(screen.getByText("Análise dos comentários")).toBeInTheDocument();
+    expect(screen.getByText("Análise dos comentários ✨ IA")).toBeInTheDocument();
+    expect(screen.getByText(/A análise completa fica na página Análise dos comentários/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Próximo"));
+    expect(screen.getByText("Visão geral da análise")).toBeInTheDocument();
     expect(screen.getByText(/pelo menos 10 feedbacks/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("Próximo"));

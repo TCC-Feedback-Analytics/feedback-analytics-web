@@ -86,6 +86,7 @@ export default function WelcomePreview({ questions }: WelcomePreviewProps) {
         <PreviewCard
           title={<>Análise dos comentários <span className="text-sm font-medium text-(--primary-color)">✨ IA</span></>}
           description="A IA lê o que os clientes escreveram e mostra o tom, os assuntos que mais pesam e recomendações. Começa com 10 feedbacks."
+          tourId="tour-dashboard-comments"
           example
         >
           <div className="welcome-ghost space-y-2" aria-hidden>
