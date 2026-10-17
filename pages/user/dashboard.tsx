@@ -26,6 +26,7 @@ import { useFeedbackMilestones } from 'src/lib/hooks/useFeedbackMilestones';
 import { MIN_FEEDBACKS_FOR_AI } from 'src/lib/utils/feedbackMilestones';
 import { getCatalogKindByKind } from 'src/lib/constants/catalog';
 import { scopeText } from 'src/lib/utils/scopeText';
+import { COMMENTS_SUMMARY_SOURCE, COMMENTS_SUMMARY_TITLE } from 'src/lib/constants/commentsSummary';
 import { activeFormQuestions } from 'src/lib/utils/formQuestions';
 import {
   ServiceGetFeedbackStats,
@@ -224,7 +225,8 @@ export default function Dashboard() {
             />
 
             <div className="relative overflow-hidden rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6 glass-card">
-              <h3 className="font-montserrat text-base font-semibold text-(--text-primary)">Resumo e recomendações da IA</h3>
+              <h3 className="font-montserrat text-base font-semibold text-(--text-primary)">{COMMENTS_SUMMARY_TITLE}</h3>
+              <p className="mt-1 text-xs text-(--text-tertiary)">{COMMENTS_SUMMARY_SOURCE}</p>
               <div className="mt-4">
                 {reportLoading && !report ? (
                   <p className="text-sm text-(--text-tertiary)">Carregando o resumo…</p>

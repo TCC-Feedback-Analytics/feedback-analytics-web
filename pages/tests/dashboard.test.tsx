@@ -201,8 +201,10 @@ describe('[Unidade] Dashboard Page', () => {
     expect(mocks.useScopedInsightsReport).toHaveBeenCalledWith({ withAnalysis: true });
     expect(within(section).getByRole('button', { name: /QR geral da empresa/ })).toBeInTheDocument();
     expect(within(section).getByText('Ainda sem comentários analisados pela IA no QR geral da empresa.')).toBeInTheDocument();
-    expect(within(section).getByText('Resumo e recomendações da IA')).toBeInTheDocument();
-    expect(within(section).getByText('Ainda não há resumo da IA para este escopo')).toBeInTheDocument();
+    expect(within(section).getByText('Resumo dos comentários e recomendações')).toBeInTheDocument();
+    // Diz de onde vêm os dados: só os comentários, com a nota e as respostas de cada um.
+    expect(within(section).getByText(/A IA lê os comentários analisados, junto com a nota e as respostas de cada um/)).toBeInTheDocument();
+    expect(within(section).getByText('Ainda não há resumo dos comentários para este escopo')).toBeInTheDocument();
     expect(within(section).getByRole('link', { name: /Ver a análise completa dos comentários/ }))
       .toHaveAttribute('href', '/user/insights/overview');
     expect(screen.queryByText('Relatório de Insights')).not.toBeInTheDocument();
