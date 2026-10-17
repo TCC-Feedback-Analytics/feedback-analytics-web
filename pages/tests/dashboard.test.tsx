@@ -21,6 +21,7 @@ vi.mock('react-router-dom', async () => {
     useLoaderData: mocks.useLoaderData,
     useRouteLoaderData: mocks.useRouteLoaderData,
     useRevalidator: () => mocks.revalidator,
+    useFetcher: () => ({ state: 'idle', data: undefined, submit: vi.fn() }),
   };
 });
 
@@ -196,6 +197,7 @@ describe('[Unidade] Dashboard Page', () => {
     );
 
     const section = await screen.findByRole('region', { name: /Análise dos comentários/ });
+    expect(section).toHaveAttribute('data-tour', 'tour-dashboard-comments');
     expect(mocks.useScopedInsightsReport).toHaveBeenCalledWith({ withAnalysis: true });
     expect(within(section).getByRole('button', { name: /QR geral da empresa/ })).toBeInTheDocument();
     expect(within(section).getByText('Ainda sem comentários analisados pela IA no QR geral da empresa.')).toBeInTheDocument();
@@ -245,6 +247,7 @@ describe('[Unidade] Dashboard Page', () => {
     // O guia passa pelas seções do Dashboard logo após o cadastro.
     expect(container.querySelector('[data-tour="tour-star-ratings"]')).toBeInTheDocument();
     expect(container.querySelector('[data-tour="tour-form-questions"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-tour="tour-dashboard-comments"]')).toBeInTheDocument();
 
     // As seções vazias saem enquanto a conta não tem feedbacks.
     expect(screen.queryByText('Ainda sem avaliações no QR geral da empresa.')).not.toBeInTheDocument();

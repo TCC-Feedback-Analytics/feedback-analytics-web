@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { useFetcher } from 'react-router-dom';
 import {
   FaArrowUpRightFromSquare,
   FaCheck,
@@ -6,11 +6,14 @@ import {
   FaLink,
   FaPlay,
   FaShareNodes,
+  FaSpinner,
 } from 'react-icons/fa6';
+import { INTENT_QR_ENABLE } from 'src/lib/constants/routes/intents';
 import { useEnterpriseFeedbackLink } from 'src/lib/hooks/useEnterpriseFeedbackLink';
 import { MIN_FEEDBACKS_FOR_AI } from 'src/lib/utils/feedbackMilestones';
 import QrGlyph from './QrGlyph';
 import type { DashboardWelcomeProps, WelcomeStepProps } from './ui.types';
+import type { QrCodeEnterpriseActionResponse } from 'pages/user/qrcodes/ui.types';
 
 const actionClass =
   'inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-(--primary-color)/30 bg-(--primary-color)/10 px-3 py-1.5 text-xs font-semibold text-(--primary-color) transition-colors hover:bg-(--primary-color)/18';
@@ -42,8 +45,20 @@ export default function DashboardWelcome({ enterprise, qrActive, totalFeedbacks 
   const { feedbackUrl, showCopied, download, copyLink, share } = useEnterpriseFeedbackLink(enterprise);
   const collected = Math.min(totalFeedbacks, MIN_FEEDBACKS_FOR_AI);
   const progressPct = Math.round((collected / MIN_FEEDBACKS_FOR_AI) * 100);
-  const showActivateStep = qrActive === false;
+  // Ativa o QR geral ali mesmo, pela action da tela Feedback geral. O passo fica
+  // na lista como concluído, para os números dos passos seguintes não mudarem.
+  const qrFetcher = useFetcher<QrCodeEnterpriseActionResponse>();
+  const activating = qrFetcher.state !== 'idle';
+  const activatedHere = qrFetcher.data?.ok === true && qrFetcher.data.active === true;
+  const activateError = qrFetcher.data?.error ?? null;
+  const showActivateStep = qrActive === false || activatedHere;
+  const qrInactive = qrActive === false && !activatedHere;
   const firstShareStep = showActivateStep ? 2 : 1;
+  const inactiveNote = qrInactive ? 'Ative o QR Code para os clientes conseguirem responder.' : undefined;
+
+  const activateQr = () => {
+    qrFetcher.submit({ intent: INTENT_QR_ENABLE }, { method: 'post', action: '/user/edit/feedback-general' });
+  };
 
   return (
     <section
@@ -105,18 +120,28 @@ export default function DashboardWelcome({ enterprise, qrActive, totalFeedbacks 
           {showActivateStep && (
             <WelcomeStep
               number={1}
-              title="Ativar o QR Code geral"
-              description="Ele está desativado, então os clientes ainda não conseguem responder."
+              title={activatedHere ? 'QR Code ativado' : 'Ativar o QR Code geral'}
+              description={activatedHere
+                ? 'Pronto: os clientes já conseguem responder pelo QR Code e pelo link.'
+                : 'Ele está desativado, então os clientes ainda não conseguem responder.'}
+              note={activateError ?? undefined}
             >
-              <Link to="/user/edit/feedback-general" className={actionClass}>
-                <FaPlay aria-hidden /> Ativar QR Code
-              </Link>
+              {activatedHere ? (
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-(--positive)">
+                  <FaCheck aria-hidden /> Ativado
+                </span>
+              ) : (
+                <button type="button" onClick={activateQr} disabled={activating} className={`${actionClass} disabled:cursor-not-allowed disabled:opacity-60`}>
+                  {activating ? <FaSpinner aria-hidden className="animate-spin" /> : <FaPlay aria-hidden />} {activating ? 'Ativando…' : 'Ativar QR Code'}
+                </button>
+              )}
             </WelcomeStep>
           )}
           <WelcomeStep
             number={firstShareStep}
             title="Baixar o QR Code"
             description="Imprima e coloque no balcão, na mesa ou na embalagem."
+            note={inactiveNote}
           >
             <button type="button" onClick={download} className={actionClass}>
               <FaDownload aria-hidden /> Baixar QR Code
@@ -126,6 +151,7 @@ export default function DashboardWelcome({ enterprise, qrActive, totalFeedbacks 
             number={firstShareStep + 1}
             title="Compartilhar o link do formulário"
             description="Mande por WhatsApp, e-mail ou redes sociais."
+            note={inactiveNote}
           >
             <button type="button" onClick={copyLink} className={actionClass}>
               {showCopied ? <FaCheck aria-hidden /> : <FaLink aria-hidden />} {showCopied ? 'Link copiado!' : 'Copiar link'}
@@ -138,7 +164,7 @@ export default function DashboardWelcome({ enterprise, qrActive, totalFeedbacks 
             number={firstShareStep + 2}
             title="Ver o formulário como o cliente"
             description="Confira como seus clientes vão responder."
-            note="Se você enviar uma resposta, ela conta como um feedback real."
+            note={inactiveNote ?? 'Se você enviar uma resposta, ela conta como um feedback real.'}
           >
             <a href={feedbackUrl} target="_blank" rel="noopener noreferrer" className={actionClass}>
               <FaArrowUpRightFromSquare aria-hidden /> Abrir formulário

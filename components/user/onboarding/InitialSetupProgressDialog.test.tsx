@@ -1,7 +1,10 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '@testing-library/jest-dom';
-import InitialSetupProgressDialog, { INITIAL_SETUP_SLOW_AFTER_MS } from './InitialSetupProgressDialog';
+import InitialSetupProgressDialog, {
+  INITIAL_SETUP_GIVE_UP_AFTER_MS,
+  INITIAL_SETUP_SLOW_AFTER_MS,
+} from './InitialSetupProgressDialog';
 import type { CompanyQuestionsGenerationState } from 'src/lib/hooks/useCompanyQuestionsGeneration';
 
 const mocks = vi.hoisted(() => ({
@@ -10,6 +13,12 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('react-router-dom', () => ({ useRevalidator: () => ({ revalidate: mocks.revalidate, state: 'idle' }) }));
+// A troca rápida usa o router de dados; aqui basta simular a troca concluída.
+vi.mock('components/user/shared/IaModelQuickSwitch', () => ({
+  default: ({ onChanged }: { onChanged?: (model: string) => void }) => (
+    <button type="button" onClick={() => onChanged?.('outro/modelo')}>Simular troca de modelo</button>
+  ),
+}));
 vi.mock('src/lib/context/companyQuestionsGenerationContext', () => ({
   useCompanyQuestionsGenerationState: () => mocks.state,
 }));
@@ -82,14 +91,33 @@ describe('[Unidade] InitialSetupProgressDialog', () => {
     expect(onFinish).toHaveBeenLastCalledWith('dashboard');
   });
 
-  it(`libera continuar só depois de ${INITIAL_SETUP_SLOW_AFTER_MS / 1000}s sem terminar`, async () => {
-    const { onFinish } = await renderDialog();
-    expect(screen.queryByRole('button', { name: /Continuar e avisar/ })).not.toBeInTheDocument();
+  it(`aos ${INITIAL_SETUP_SLOW_AFTER_MS / 1000}s recomenda trocar de modelo, sem liberar seguir`, async () => {
+    await renderDialog();
     act(() => { vi.advanceTimersByTime(INITIAL_SETUP_SLOW_AFTER_MS - 1); });
-    expect(screen.queryByRole('button', { name: /Continuar e avisar/ })).not.toBeInTheDocument();
+    expect(screen.queryByText('A IA está demorando')).not.toBeInTheDocument();
     act(() => { vi.advanceTimersByTime(1); });
-    expect(screen.getByText(/Está demorando mais que o normal/)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: /Continuar e avisar quando terminar/ }));
+    expect(screen.getByText('A IA está demorando')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Simular troca de modelo' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Continuar/ })).not.toBeInTheDocument();
+  });
+
+  it('trocar o modelo na tela acompanha o pedido de novo e recomeça a espera', async () => {
+    await renderDialog();
+    act(() => { vi.advanceTimersByTime(INITIAL_SETUP_SLOW_AFTER_MS); });
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Simular troca de modelo' })); });
+    expect(screen.getByText('Modelo outro/modelo')).toBeInTheDocument();
+    expect(mocks.state.track).toHaveBeenCalledTimes(2);
+    expect(screen.queryByText('A IA está demorando')).not.toBeInTheDocument();
+    act(() => { vi.advanceTimersByTime(INITIAL_SETUP_SLOW_AFTER_MS); });
+    expect(screen.getByText('A IA está demorando')).toBeInTheDocument();
+  });
+
+  it(`só depois de ${INITIAL_SETUP_GIVE_UP_AFTER_MS / 60000} min sem resposta libera seguir com as perguntas padrão`, async () => {
+    const { onFinish } = await renderDialog();
+    act(() => { vi.advanceTimersByTime(INITIAL_SETUP_GIVE_UP_AFTER_MS - 1); });
+    expect(screen.queryByRole('button', { name: /Continuar com as perguntas padrão/ })).not.toBeInTheDocument();
+    act(() => { vi.advanceTimersByTime(1); });
+    fireEvent.click(screen.getByRole('button', { name: /Continuar com as perguntas padrão/ }));
     expect(onFinish).toHaveBeenCalledExactlyOnceWith('dashboard');
   });
 

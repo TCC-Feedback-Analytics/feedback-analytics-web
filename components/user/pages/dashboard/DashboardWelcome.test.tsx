@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { MemoryRouter } from 'react-router-dom';
+import { RouterProvider, createMemoryRouter } from 'react-router-dom';
 
-const { toast } = vi.hoisted(() => ({
+const { toast, qrAction } = vi.hoisted(() => ({
   toast: { success: vi.fn(), error: vi.fn() },
+  qrAction: vi.fn(),
 }));
 
 // O setup global troca o react-router-dom por um mock mínimo; aqui usamos o real.
@@ -15,15 +16,20 @@ vi.mock('components/public/forms/messages/useToast', () => ({
 }));
 
 import DashboardWelcome from './DashboardWelcome';
+import { INTENT_QR_ENABLE } from 'src/lib/constants/routes/intents';
 
 const enterprise = { id: 'ent-1', full_name: 'Padaria da Vovó' };
 
+// Router de dados: o "Ativar QR Code" usa a action da tela Feedback geral.
 function renderWelcome(qrActive: boolean | null = true, totalFeedbacks = 0) {
-  return render(
-    <MemoryRouter>
-      <DashboardWelcome enterprise={enterprise} qrActive={qrActive} totalFeedbacks={totalFeedbacks} />
-    </MemoryRouter>,
-  );
+  const router = createMemoryRouter([
+    {
+      path: '/user/dashboard',
+      element: <DashboardWelcome enterprise={enterprise} qrActive={qrActive} totalFeedbacks={totalFeedbacks} />,
+    },
+    { path: '/user/edit/feedback-general', action: qrAction, element: <p>Feedback geral</p> },
+  ], { initialEntries: ['/user/dashboard'] });
+  return render(<RouterProvider router={router} />);
 }
 
 describe('[Unidade] Boas-vindas do Dashboard', () => {
@@ -55,12 +61,33 @@ describe('[Unidade] Boas-vindas do Dashboard', () => {
     expect(within(steps[0]).getByText('Baixar o QR Code')).toBeInTheDocument();
   });
 
-  it('com o QR desativado, o primeiro passo é ativá-lo', () => {
+  it('com o QR desativado, o primeiro passo é ativá-lo e os outros avisam', () => {
     renderWelcome(false);
     const steps = screen.getAllByRole('listitem');
     expect(steps).toHaveLength(4);
     expect(within(steps[0]).getByText('Ativar o QR Code geral')).toBeInTheDocument();
-    expect(within(steps[0]).getByRole('link', { name: /Ativar QR Code/ })).toHaveAttribute('href', '/user/edit/feedback-general');
+    expect(screen.getAllByText('Ative o QR Code para os clientes conseguirem responder.')).toHaveLength(3);
+  });
+
+  it('ativa o QR ali mesmo, sem sair do Dashboard, e mantém o passo como concluído', async () => {
+    qrAction.mockResolvedValue({ ok: true, active: true });
+    renderWelcome(false);
+    fireEvent.click(screen.getByRole('button', { name: /Ativar QR Code/ }));
+    expect(await screen.findByText('QR Code ativado')).toBeInTheDocument();
+    expect(qrAction).toHaveBeenCalledOnce();
+    const form = await qrAction.mock.calls[0][0].request.formData();
+    expect(form.get('intent')).toBe(INTENT_QR_ENABLE);
+    expect(screen.queryByText('Feedback geral')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('listitem')).toHaveLength(4);
+    expect(screen.queryByText('Ative o QR Code para os clientes conseguirem responder.')).not.toBeInTheDocument();
+  });
+
+  it('mostra o erro no passo quando não consegue ativar', async () => {
+    qrAction.mockResolvedValue({ error: 'Não foi possível ativar o QR.' });
+    renderWelcome(false);
+    fireEvent.click(screen.getByRole('button', { name: /Ativar QR Code/ }));
+    expect(await screen.findByText('Não foi possível ativar o QR.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Ativar QR Code/ })).toBeEnabled();
   });
 
   it('sem conseguir consultar o QR, não sugere ativá-lo', () => {

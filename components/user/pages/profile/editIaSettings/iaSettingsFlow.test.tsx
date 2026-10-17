@@ -73,11 +73,14 @@ describe('IA — formulário, action e revalidação real do router (serviços s
       expect(toast.success).toHaveBeenCalledTimes(1);
 
       await user.click(screen.getByRole('button', { name: 'Remover chave' }));
-      await waitFor(() => expect(screen.getByRole('combobox')).toBeEnabled());
       const keyInput = await screen.findByLabelText(/Chave da API OpenRouter/);
       expect(keyInput).toHaveValue('');
       expect(screen.getByText(/Catálogo público de modelos compatíveis/)).toBeInTheDocument();
+      // Sem chave, o modelo fica bloqueado até a chave ser digitada.
+      await waitFor(() => expect(screen.queryByText('Carregando modelos compatíveis...')).not.toBeInTheDocument());
+      expect(screen.getByRole('combobox')).toBeDisabled();
       await user.type(keyInput, 'new-test-key-5678');
+      await waitFor(() => expect(screen.getByRole('combobox')).toBeEnabled());
       await user.click(screen.getByRole('button', { name: 'Salvar Configuração de IA' }));
       await waitFor(() => expect(screen.queryByLabelText(/Chave da API OpenRouter/)).not.toBeInTheDocument());
       await waitFor(() => expect(screen.getByRole('combobox')).toBeEnabled());

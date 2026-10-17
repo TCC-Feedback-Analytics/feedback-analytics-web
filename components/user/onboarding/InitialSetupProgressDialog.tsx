@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRevalidator } from "react-router-dom";
 import {
   FaArrowRight,
@@ -7,6 +7,8 @@ import {
   FaTriangleExclamation,
 } from "react-icons/fa6";
 import SetupOrb from "./SetupOrb";
+import IaModelQuickSwitch from "components/user/shared/IaModelQuickSwitch";
+import { IA_SLOW_AFTER_MS } from "src/lib/utils/iaSlowNotice";
 import { useCompanyQuestionsGenerationState } from "src/lib/context/companyQuestionsGenerationContext";
 import { getCompanyQuestionsFailureNotice } from "src/lib/hooks/useCompanyQuestionsGeneration";
 import type {
@@ -15,8 +17,10 @@ import type {
   InitialSetupProgressItemProps,
 } from "./ui.types";
 
-/** Depois disso a tela libera seguir enquanto a geração continua em segundo plano. */
-export const INITIAL_SETUP_SLOW_AFTER_MS = 60_000;
+/** Depois disso sem resposta, a tela recomenda trocar de modelo (com o seletor ali mesmo). */
+export const INITIAL_SETUP_SLOW_AFTER_MS = IA_SLOW_AFTER_MS;
+/** Só depois disso (ou de uma falha) a tela libera seguir com as perguntas padrão. */
+export const INITIAL_SETUP_GIVE_UP_AFTER_MS = 180_000;
 const REDIRECT_AFTER_DONE_MS = 1500;
 
 function ProgressItem({ status, label, detail }: InitialSetupProgressItemProps) {
@@ -51,6 +55,10 @@ export default function InitialSetupProgressDialog({ open, onFinish, model }: In
   const revalidator = useRevalidator();
   const [ready, setReady] = useState(false);
   const [slow, setSlow] = useState(false);
+  const [givenUp, setGivenUp] = useState(false);
+  // Cada troca de modelo recomeça a espera do aviso de demora.
+  const [attempt, setAttempt] = useState(0);
+  const [currentModel, setCurrentModel] = useState(model);
   const onFinishRef = useRef(onFinish);
   onFinishRef.current = onFinish;
   const revalidateRef = useRef(revalidator.revalidate);
@@ -72,7 +80,29 @@ export default function InitialSetupProgressDialog({ open, onFinish, model }: In
       cancelled = true;
       window.clearTimeout(slowTimer);
     };
-  }, [open, track]);
+  }, [open, track, attempt]);
+
+  // A saída com as perguntas padrão conta desde a abertura, sem recomeçar na troca.
+  useEffect(() => {
+    if (!open) {
+      setGivenUp(false);
+      setAttempt(0);
+      return;
+    }
+    const giveUpTimer = window.setTimeout(() => setGivenUp(true), INITIAL_SETUP_GIVE_UP_AFTER_MS);
+    return () => window.clearTimeout(giveUpTimer);
+  }, [open]);
+
+  // O layout passa o modelo salvo; ele muda depois de uma troca feita aqui.
+  useEffect(() => {
+    if (open) setCurrentModel(model);
+  }, [open, model]);
+
+  const handleModelChanged = useCallback((nextModel: string) => {
+    setCurrentModel(nextModel);
+    setSlow(false);
+    setAttempt((value) => value + 1);
+  }, []);
 
   const isDone = ready && phase === "completed";
   const isFailed = ready && phase === "failed";
@@ -87,7 +117,7 @@ export default function InitialSetupProgressDialog({ open, onFinish, model }: In
 
   if (!open) return null;
 
-  const notice = isFailed ? getCompanyQuestionsFailureNotice(errorCode, model) : null;
+  const notice = isFailed ? getCompanyQuestionsFailureNotice(errorCode, currentModel) : null;
   const questionsStatus: InitialSetupItemStatus = isDone ? "done" : isFailed ? "failed" : "running";
 
   return (
@@ -117,7 +147,7 @@ export default function InitialSetupProgressDialog({ open, onFinish, model }: In
 
         <ul className="relative z-10 my-5 space-y-4" aria-live="polite">
           <ProgressItem status="done" label="Contexto da empresa salvo" />
-          <ProgressItem status="done" label="IA configurada" detail={model ? `Modelo ${model}` : undefined} />
+          <ProgressItem status="done" label="IA configurada" detail={currentModel ? `Modelo ${currentModel}` : undefined} />
           <ProgressItem
             status={questionsStatus}
             label={isDone ? "Perguntas do formulário criadas" : isFailed ? "Não foi possível criar as perguntas" : "Criando as perguntas personalizadas do formulário"}
@@ -133,9 +163,15 @@ export default function InitialSetupProgressDialog({ open, onFinish, model }: In
         )}
 
         {!isDone && !isFailed && slow && (
-          <p className="relative z-10 mb-5 text-xs text-(--text-secondary)">
-            Está demorando mais que o normal. Você pode continuar: as perguntas aparecem assim que ficarem prontas e avisaremos quando terminar.
-          </p>
+          <div role="status" className="relative z-10 mb-5 space-y-3 rounded-2xl border border-(--primary-color)/20 bg-(--primary-color)/8 p-4">
+            <div>
+              <p className="text-sm font-semibold text-(--text-primary)">A IA está demorando</p>
+              <p className="mt-1 text-xs text-(--text-secondary)">
+                Modelos gratuitos podem ficar lentos ou ocupados; trocar de modelo costuma resolver.
+              </p>
+            </div>
+            <IaModelQuickSwitch onChanged={handleModelChanged} />
+          </div>
         )}
 
         <div className="relative z-10 flex flex-col gap-2 sm:flex-row sm:justify-end">
@@ -148,22 +184,13 @@ export default function InitialSetupProgressDialog({ open, onFinish, model }: In
               {notice.actionLabel}
             </button>
           )}
-          {isFailed && (
+          {(isFailed || (givenUp && !isDone)) && (
             <button
               type="button"
               onClick={() => onFinish("dashboard")}
               className="btn-primary font-poppins flex items-center justify-center gap-1.5 px-5 py-2.5 text-xs font-semibold"
             >
               Continuar com as perguntas padrão <FaArrowRight className="text-[10px]" aria-hidden />
-            </button>
-          )}
-          {!isDone && !isFailed && slow && (
-            <button
-              type="button"
-              onClick={() => onFinish("dashboard")}
-              className="btn-primary font-poppins flex items-center justify-center gap-1.5 px-5 py-2.5 text-xs font-semibold"
-            >
-              Continuar e avisar quando terminar <FaArrowRight className="text-[10px]" aria-hidden />
             </button>
           )}
         </div>
