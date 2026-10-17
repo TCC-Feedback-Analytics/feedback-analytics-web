@@ -184,6 +184,33 @@ describe('[Unidade] Dashboard Page', () => {
       .toHaveAttribute('href', '/user/ratings');
   });
 
+  it('oferece comparar dois itens só quando há 2 do mesmo tipo', async () => {
+    const { unmount } = render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>,
+    );
+    await screen.findByRole('region', { name: 'Avaliação por estrelas' });
+    expect(screen.queryByRole('link', { name: /Comparar dois itens/ })).not.toBeInTheDocument();
+    unmount();
+
+    mocks.useInsightsControls.mockReturnValue({
+      scope: 'COMPANY',
+      catalogItemId: '',
+      catalogItemOptions: [
+        { id: 'p1', name: 'Pizza', kind: 'PRODUCT' },
+        { id: 'p2', name: 'Refrigerante', kind: 'PRODUCT' },
+      ],
+      period: { preset: 'ALL' },
+    });
+    render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>,
+    );
+    expect(await screen.findByRole('link', { name: /Comparar dois itens/ })).toHaveAttribute('href', '/user/compare');
+  });
+
   it('sem avaliações diz isso no lugar de mostrar "0,0"', async () => {
     const empty = { ...feedbackStats, totalFeedbacks: 0, averageRating: 0, ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } };
     vi.mocked(useLoaderData).mockReturnValue({ stats: empty, dashboardError: null } as ReturnType<typeof useLoaderData>);
