@@ -33,7 +33,8 @@ export default function InsightsControlsBar() {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    // Alvo do passo "Escopo e período" do guia.
+    <div data-tour="tour-period" className="flex flex-wrap items-center gap-2">
       <InsightsHeaderControls
         availableScopes={availableScopes}
         selectedScope={scope}

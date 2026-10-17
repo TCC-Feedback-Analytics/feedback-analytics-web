@@ -363,22 +363,24 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
   });
 
   it("mapeia o guia móvel para a barra inferior e o menu central", () => {
-    expect(INTERACTIVE_STEPS.map((step) => step.mobileSelector ?? step.selector).slice(0, 8)).toEqual([
+    expect(INTERACTIVE_STEPS.map((step) => step.mobileSelector ?? step.selector).slice(0, 10)).toEqual([
       '[data-tour="mobile-nav-dashboard"]',
       // As seções do Dashboard e as abas da Análise dos comentários aparecem também no celular.
+      '[data-tour="tour-period"]',
       '[data-tour="tour-star-ratings"]',
       '[data-tour="tour-form-questions"]',
       '[data-tour="tour-dashboard-comments"]',
       '[data-tour="tour-comments-overview"]',
       '[data-tour="tour-comments-list"]',
+      '[data-tour="tour-compare-items"]',
       '[data-tour="mobile-nav-feedback"]',
       '[data-tour="mobile-nav-catalog"]',
     ]);
-    expect(INTERACTIVE_STEPS[8]).toMatchObject({
+    expect(INTERACTIVE_STEPS[10]).toMatchObject({
       mobileSelector: '[data-tour="mobile-nav-ia-settings"]',
       openMobileDrawer: true,
     });
-    expect(INTERACTIVE_STEPS[9]).toMatchObject({
+    expect(INTERACTIVE_STEPS[11]).toMatchObject({
       mobileSelector: '[data-tour="mobile-nav-profile"]',
       openMobileDrawer: true,
     });
@@ -446,7 +448,11 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     // Tour começa apenas após a confirmação de pending pelo servidor.
     expect(await screen.findByText("Dashboard de Resultados")).toBeInTheDocument();
 
-    // As duas seções do Dashboard, depois cada página da Análise dos comentários.
+    // Escopo e período, as seções do Dashboard e depois cada página da Análise dos comentários.
+    fireEvent.click(screen.getByText("Próximo"));
+    expect(screen.getByText("Escopo e período")).toBeInTheDocument();
+    expect(screen.getByText(/Comparar com o período anterior/)).toBeInTheDocument();
+
     fireEvent.click(screen.getByText("Próximo"));
     expect(screen.getByText("Avaliação por estrelas")).toBeInTheDocument();
     expect(screen.getByText(/A etiqueta no canto diz de qual escopo/)).toBeInTheDocument();
@@ -467,6 +473,10 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     fireEvent.click(screen.getByText("Próximo"));
     expect(screen.getByText("Comentários")).toBeInTheDocument();
     expect(screen.getByText(/a nota e o texto não combinam/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Próximo"));
+    expect(screen.getByText("Comparar itens")).toBeInTheDocument();
+    expect(screen.getByText(/a partir de 2 itens do mesmo tipo/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("Próximo"));
     expect(screen.getByText("Avaliação da empresa")).toBeInTheDocument();
