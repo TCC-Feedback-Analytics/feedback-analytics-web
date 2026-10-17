@@ -20,7 +20,7 @@ afterEach(cleanup);
 describe('[Unidade] ScopeTag', () => {
   it('mostra de quem é o número', () => {
     render(<ScopeTag />);
-    expect(screen.getByRole('button')).toHaveTextContent('QR geral da empresa');
+    expect(screen.getByRole('button')).toHaveTextContent('Avaliação geral da empresa');
   });
 
   it('com item escolhido mostra o tipo e o nome', () => {
@@ -44,7 +44,7 @@ describe('[Unidade] ScopeTag', () => {
       </>,
     );
     Element.prototype.scrollIntoView = vi.fn();
-    fireEvent.click(screen.getByRole('button', { name: /QR geral da empresa/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Avaliação geral da empresa/ }));
     expect(openSelector).toHaveBeenCalledOnce();
   });
 });

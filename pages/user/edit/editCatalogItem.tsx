@@ -28,14 +28,11 @@ import PageHeader from "components/user/shared/PageHeader";
 import CardSimple from "components/user/shared/cards/cardSimple";
 import HelpHint from "components/user/shared/HelpHint";
 import GuidedQuestionsEditor from "components/user/pages/profile/questionsDinamic/GuidedQuestionsEditor";
-import SectionQrInstructions from "components/user/pages/qrcodeEnterprise/SectionQrInstructions";
-import SectionQrCodeDisplay from "components/user/pages/qrcodeEnterprise/SectionQrCodeDisplay";
-import SectionQrUsageTips from "components/user/pages/qrcodeEnterprise/SectionQrUsageTips";
-import { FaCircleCheck, FaCirclePause, FaPlay } from "react-icons/fa6";
+import CollectionChannelsSection from "components/user/pages/qrcodeEnterprise/CollectionChannelsSection";
 
 /**
  * Tela de configuração de UM item do catálogo (produto/serviço/departamento).
- * Espelha o "Feedback geral": dados do item + editor de perguntas (Editar|Prévia)
+ * Espelha a "Avaliação da empresa": dados do item + editor de perguntas (Editar|Prévia)
  * + QR Code próprio do item. Remonta ao trocar de item (key por itemId).
  */
 export default function EditCatalogItem() {
@@ -341,12 +338,12 @@ function CatalogItemConfig() {
       <section className="space-y-3">
         <div className="px-1">
           <h2 className="flex items-center gap-1.5 font-montserrat text-lg font-semibold text-(--text-primary)">
-            Perguntas de avaliação
+            Perguntas
             <HelpHint topic="evaluationQuestions" />
           </h2>
           <p className="mt-0.5 text-sm text-(--text-tertiary)">
-            Até 3 perguntas (com subperguntas opcionais) exibidas no QR Code deste
-            item. Deixe em branco para usar apenas a nota.{" "}
+            Até 3 perguntas (com subperguntas opcionais) que os clientes respondem ao
+            avaliar este item. Deixe em branco para usar apenas a nota.{" "}
             <HelpHint topic="starsOnly" className="ml-0.5" />
           </p>
         </div>
@@ -364,42 +361,19 @@ function CatalogItemConfig() {
         />
       </section>
 
-      {/* QR Code do item */}
-      <section className="rounded-2xl border border-(--quaternary-color)/12 bg-(--bg-secondary) p-5 sm:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="font-montserrat text-xl font-bold text-(--text-primary)">QR Code do {config.singular}</h2>
-            <p className="mt-1 text-sm text-(--text-secondary)">Disponibilidade da coleta para este item.</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${qrActive ? "text-emerald-300" : "text-(--text-tertiary)"}`}>{qrActive ? <FaCircleCheck aria-hidden /> : <FaCirclePause aria-hidden />} {qrLoading ? "Atualizando…" : qrActive ? "Recebendo respostas" : "Pausado"}</span>
-            <button type="button" onClick={handleToggleQr} disabled={qrLoading} className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3.5 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${qrActive ? "border border-rose-500/30 bg-rose-500/10 text-rose-200 hover:bg-rose-500/15" : "bg-(--primary-color) text-white hover:bg-(--secondary-color)"}`}>{qrActive ? <FaCirclePause aria-hidden /> : <FaPlay aria-hidden />} {qrLoading ? "Atualizando…" : qrActive ? "Pausar coleta" : "Ativar coleta"}</button>
-          </div>
-        </div>
-      </section>
-
-      <SectionQrInstructions />
-
-      <div className="relative">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          <SectionQrCodeDisplay
-            enterpriseName={item.name}
-            qrActive={qrActive}
-            qrCodeUrl={qrCodeUrl}
-            feedbackUrl={feedbackUrl}
-            showCopied={showCopied}
-            onDownload={handleDownload}
-            onCopyLink={handleCopyLink}
-            onShare={handleShare}
-          />
-
-          <SectionQrUsageTips />
-        </div>
-
-        {qrLoading && (
-          <div className="pointer-events-none absolute inset-0 rounded-2xl border border-(--quaternary-color)/12 bg-(--bg-primary)/40 backdrop-blur-[1px]" />
-        )}
-      </div>
+      <CollectionChannelsSection
+        ofTarget={`deste ${config.singular}`}
+        displayName={item.name}
+        qrActive={qrActive}
+        qrLoading={qrLoading}
+        onToggleQr={handleToggleQr}
+        qrCodeUrl={qrCodeUrl}
+        feedbackUrl={feedbackUrl}
+        showCopied={showCopied}
+        onDownload={handleDownload}
+        onCopyLink={handleCopyLink}
+        onShare={handleShare}
+      />
     </div>
   );
 }

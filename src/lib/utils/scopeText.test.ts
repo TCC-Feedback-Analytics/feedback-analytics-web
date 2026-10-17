@@ -8,11 +8,11 @@ const items = [
 ];
 
 describe('scopeText', () => {
-  it('"Geral" é só o QR geral da empresa', () => {
+  it('"Geral" é só o Avaliação geral da empresa', () => {
     expect(scopeText({ scope: 'COMPANY', catalogItemId: '', catalogItemOptions: items })).toEqual({
-      label: 'QR geral da empresa',
-      inScope: 'no QR geral da empresa',
-      ofScope: 'do QR geral da empresa',
+      label: 'Avaliação geral da empresa',
+      inScope: 'na empresa (avaliação geral)',
+      ofScope: 'da empresa (avaliação geral)',
     });
   });
 
