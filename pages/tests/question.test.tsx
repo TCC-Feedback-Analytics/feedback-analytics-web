@@ -81,6 +81,6 @@ describe('[Unidade] Página de uma pergunta', () => {
 
   it('pergunta sem respostas no escopo', () => {
     renderPage('q404');
-    expect(screen.getByText('Esta pergunta ainda não tem respostas no QR geral da empresa.')).toBeInTheDocument();
+    expect(screen.getByText('Esta pergunta ainda não tem respostas na empresa (avaliação geral).')).toBeInTheDocument();
   });
 });

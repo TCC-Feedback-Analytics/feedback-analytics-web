@@ -99,9 +99,9 @@ const ROUTE_META: Record<string, RouteMeta> = {
     breadcrumb: [{ label: SECTION_CONFIG }, CATALOG_CRUMB, { label: 'Departamentos' }],
   },
   '/user/edit/feedback-general': {
-    title: 'Feedback geral',
-    description: 'Perguntas e QR Code do feedback enviado direto para a empresa (sem catálogo).',
-    breadcrumb: [{ label: SECTION_CONFIG }, { label: 'Feedback geral' }],
+    title: 'Avaliação da empresa',
+    description: 'As perguntas e os canais de coleta (QR Code e link) que seus clientes usam para avaliar a empresa como um todo.',
+    breadcrumb: [{ label: SECTION_CONFIG }, { label: 'Avaliação da empresa' }],
   },
 
   // Clientes

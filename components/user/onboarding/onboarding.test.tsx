@@ -452,7 +452,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     expect(screen.getByText(/a nota e o texto não combinam/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("Próximo"));
-    expect(screen.getByText("Feedback Geral")).toBeInTheDocument();
+    expect(screen.getByText("Avaliação da empresa")).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("Próximo"));
     expect(screen.getByText("Catálogo da Empresa")).toBeInTheDocument();

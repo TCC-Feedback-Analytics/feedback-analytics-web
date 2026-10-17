@@ -116,10 +116,10 @@ export const INTERACTIVE_STEPS: TourStepData[] = [
     selector: '[data-tour="tour-feedback-general"]',
     mobileSelector: '[data-tour="mobile-nav-feedback"]',
     route: "/user/edit/feedback-general",
-    title: "Feedback Geral",
+    title: "Avaliação da empresa",
     icon: FaCommentDots,
-    description: "Configure as perguntas globais da empresa e ative o QR Code geral de avaliação.",
-    mobileDescription: "Na barra inferior, toque em Feedback para configurar as perguntas e o QR Code geral.",
+    description: "Configure as perguntas da avaliação da empresa como um todo e ative o QR Code geral, o canal por onde seus clientes respondem.",
+    mobileDescription: "Na barra inferior, toque em Avaliação para configurar as perguntas e o QR Code geral.",
   },
   {
     selector: '[data-tour="tour-catalog"]',

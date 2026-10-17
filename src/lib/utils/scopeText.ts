@@ -5,8 +5,9 @@ import type {
 
 /**
  * Texto que diz DE QUEM é o número (decisão de 16/10/2026): descreve exatamente o
- * que entra na conta. "Geral" mostra só o QR geral da empresa — não o total —, por
- * isso aqui ele aparece como "QR geral da empresa".
+ * que entra na conta. "Geral" mostra só a avaliação geral da empresa (os canais da
+ * Avaliação da empresa, hoje o QR geral) — não o total com os itens —, por isso
+ * aqui ele aparece como "Avaliação geral da empresa".
  */
 
 type CatalogScope = Exclude<InsightScopeOption, 'COMPANY'>;
@@ -28,11 +29,11 @@ function capitalize(text: string): string {
 }
 
 export type ScopeText = {
-  /** Etiqueta da seção: "QR geral da empresa", "Todos os produtos (3)", "Produto · Pizza". */
+  /** Etiqueta da seção: "Avaliação geral da empresa", "Todos os produtos (3)", "Produto · Pizza". */
   label: string;
-  /** Para "Ainda sem avaliações {inScope}": "no QR geral da empresa", "no produto Pizza". */
+  /** Para "Ainda sem avaliações {inScope}": "na empresa (avaliação geral)", "no produto Pizza". */
   inScope: string;
-  /** Para "Baseada em 128 avaliações {ofScope}": "do QR geral da empresa", "do produto Pizza". */
+  /** Para "Baseada em 128 avaliações {ofScope}": "da empresa (avaliação geral)", "do produto Pizza". */
   ofScope: string;
 };
 
@@ -46,7 +47,11 @@ export function scopeText({
   catalogItemOptions: InsightsCatalogItemOption[];
 }): ScopeText {
   if (scope === 'COMPANY') {
-    return { label: 'QR geral da empresa', inScope: 'no QR geral da empresa', ofScope: 'do QR geral da empresa' };
+    return {
+      label: 'Avaliação geral da empresa',
+      inScope: 'na empresa (avaliação geral)',
+      ofScope: 'da empresa (avaliação geral)',
+    };
   }
 
   const singular = KIND_SINGULAR[scope];
