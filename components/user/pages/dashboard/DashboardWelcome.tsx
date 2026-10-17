@@ -8,11 +8,9 @@ import {
   FaShareNodes,
 } from 'react-icons/fa6';
 import { useEnterpriseFeedbackLink } from 'src/lib/hooks/useEnterpriseFeedbackLink';
+import { MIN_FEEDBACKS_FOR_AI } from 'src/lib/utils/feedbackMilestones';
 import QrGlyph from './QrGlyph';
 import type { DashboardWelcomeProps, WelcomeStepProps } from './ui.types';
-
-// A análise dos comentários pela IA só libera com este mínimo de feedbacks.
-const MIN_FEEDBACKS_TO_ANALYZE = 10;
 
 const actionClass =
   'inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-(--primary-color)/30 bg-(--primary-color)/10 px-3 py-1.5 text-xs font-semibold text-(--primary-color) transition-colors hover:bg-(--primary-color)/18';
@@ -42,8 +40,8 @@ function WelcomeStep({ number, title, description, note, children }: WelcomeStep
  */
 export default function DashboardWelcome({ enterprise, qrActive, totalFeedbacks }: DashboardWelcomeProps) {
   const { feedbackUrl, showCopied, download, copyLink, share } = useEnterpriseFeedbackLink(enterprise);
-  const collected = Math.min(totalFeedbacks, MIN_FEEDBACKS_TO_ANALYZE);
-  const progressPct = Math.round((collected / MIN_FEEDBACKS_TO_ANALYZE) * 100);
+  const collected = Math.min(totalFeedbacks, MIN_FEEDBACKS_FOR_AI);
+  const progressPct = Math.round((collected / MIN_FEEDBACKS_FOR_AI) * 100);
   const showActivateStep = qrActive === false;
   const firstShareStep = showActivateStep ? 2 : 1;
 
@@ -82,20 +80,20 @@ export default function DashboardWelcome({ enterprise, qrActive, totalFeedbacks 
 
           <div className="space-y-1.5">
             <p className="text-sm font-semibold text-(--text-primary)">
-              {collected} de {MIN_FEEDBACKS_TO_ANALYZE} feedbacks para a IA analisar os comentários
+              {collected} de {MIN_FEEDBACKS_FOR_AI} feedbacks para a IA analisar os comentários
             </p>
             <div
               role="progressbar"
               aria-label="Feedbacks até a análise da IA"
               aria-valuemin={0}
-              aria-valuemax={MIN_FEEDBACKS_TO_ANALYZE}
+              aria-valuemax={MIN_FEEDBACKS_FOR_AI}
               aria-valuenow={collected}
               className="h-2 w-full overflow-hidden rounded-full bg-(--seventh-color)"
             >
               <div className="h-full rounded-full bg-(--primary-color) transition-all" style={{ width: `${progressPct}%` }} />
             </div>
             <p className="text-xs text-(--text-tertiary)">
-              Com {MIN_FEEDBACKS_TO_ANALYZE} feedbacks, a IA começa a ler o que os clientes escreveram.
+              Com {MIN_FEEDBACKS_FOR_AI} feedbacks, a IA começa a ler o que os clientes escreveram.
             </p>
           </div>
         </div>
