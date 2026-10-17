@@ -1,17 +1,9 @@
 import { FaArrowDown, FaArrowUp, FaEquals } from 'react-icons/fa6';
-import { comparePeriods } from 'src/lib/utils/periodComparison';
+import { comparePeriods, formatDelta } from 'src/lib/utils/periodComparison';
 import type { PeriodDeltaProps } from './ui.types';
 
 const UNCERTAIN_HELP =
   'As margens de erro dos dois períodos se sobrepõem: a diferença pode ser só acaso. Com mais avaliações, ela fica clara.';
-
-function formatDelta(delta: number, kind: PeriodDeltaProps['kind']): string {
-  const sign = delta > 0 ? '+' : '−';
-  const abs = Math.abs(delta);
-  if (kind === 'rating') return `${sign}${abs.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`;
-  if (kind === 'points') return `${sign}${abs} p.p.`;
-  return `${sign}${abs}`;
-}
 
 /**
  * Diferença para o período anterior (etapa 02, parte C): seta e cor dizem se

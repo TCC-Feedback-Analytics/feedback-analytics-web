@@ -19,6 +19,15 @@ export type PeriodDeltaResult =
 
 const Z = 1.96;
 
+/** Diferença no formato da tela: nota "+0,3", pontos "+5 p.p.", tom "+8". */
+export function formatDelta(delta: number, kind: 'rating' | 'points' | 'nss'): string {
+  const sign = delta > 0 ? '+' : '−';
+  const abs = Math.abs(delta);
+  if (kind === 'rating') return `${sign}${abs.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`;
+  if (kind === 'points') return `${sign}${abs} p.p.`;
+  return `${sign}${abs}`;
+}
+
 function intervalsOverlap(a: Interval, b: Interval): boolean {
   return a.lower <= b.upper && b.lower <= a.upper;
 }

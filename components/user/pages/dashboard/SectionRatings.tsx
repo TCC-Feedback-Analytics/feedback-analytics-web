@@ -15,6 +15,7 @@ import {
 } from 'src/lib/utils/ratingLabel';
 import { scopeText } from 'src/lib/utils/scopeText';
 import { wilsonPctInterval } from 'src/lib/utils/periodComparison';
+import { comparableKinds } from 'src/lib/utils/compareItems';
 import type { RatingCardsProps, SectionRatingsProps, ShareValueProps } from './ui.types';
 
 /**
@@ -55,7 +56,16 @@ export default function SectionRatings({ stats, previous = null, variant = 'dash
       )}
 
       {variant === 'dashboard' && (
-        <div className="flex justify-end">
+        <div className="flex flex-wrap justify-end gap-x-5 gap-y-2">
+          {comparableKinds(catalogItemOptions).length > 0 && (
+            <Link
+              to="/user/compare"
+              className="inline-flex items-center gap-1.5 text-sm text-(--text-secondary) transition-colors hover:text-(--text-primary)"
+            >
+              Comparar dois itens
+              <FaArrowRight className="text-xs" aria-hidden />
+            </Link>
+          )}
           <Link
             to="/user/ratings"
             className="inline-flex items-center gap-1.5 text-sm text-(--text-secondary) transition-colors hover:text-(--text-primary)"
