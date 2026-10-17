@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from 'react';
-import { Link } from 'react-router-dom';
 import PageHeader from 'components/user/shared/PageHeader';
+import ComparePreview from 'components/user/pages/compare/ComparePreview';
 import PrecisionBadge from 'components/user/shared/PrecisionBadge';
 import { Select } from 'components/ui/select';
 import { PeriodSelectorDropdown } from 'components/user/pages/feedbacksInsightsReport/PeriodSelectorDropdown';
@@ -193,13 +193,7 @@ export default function CompareItems() {
     return (
       <div className="font-work-sans space-y-6">
         <PageHeader />
-        <div className="rounded-2xl border border-(--quaternary-color)/10 bg-(--seventh-color) p-6 text-sm text-(--text-secondary)">
-          Para comparar, cadastre pelo menos 2 itens do mesmo tipo (produtos, serviços ou departamentos) no{' '}
-          <Link to="/user/edit/types-feedback" className="font-medium text-(--primary-color) hover:underline">
-            Catálogo
-          </Link>
-          .
-        </div>
+        <ComparePreview />
       </div>
     );
   }
@@ -212,7 +206,11 @@ export default function CompareItems() {
     <div className="font-work-sans space-y-6">
       <PageHeader />
 
-      <section className="space-y-4 rounded-2xl border border-(--quaternary-color)/10 bg-(--bg-secondary) p-4 md:p-5" aria-label="O que comparar">
+      <section
+        data-tour="tour-compare-items"
+        className="space-y-4 rounded-2xl border border-(--quaternary-color)/10 bg-(--bg-secondary) p-4 md:p-5"
+        aria-label="O que comparar"
+      >
         {kinds.length > 1 && (
           <div className="flex flex-wrap gap-2" role="group" aria-label="Tipo de item">
             {kinds.map((option) => {

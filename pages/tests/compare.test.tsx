@@ -112,14 +112,25 @@ describe('[Unidade] Comparar itens', () => {
     expect(mocks.getFeedbackStats).toHaveBeenCalledWith({ scope_type: 'PRODUCT', catalog_item_id: 'p2', ...period });
   });
 
-  it('sem 2 itens do mesmo tipo, explica como habilitar', () => {
+  it('sem 2 itens do mesmo tipo, mostra como habilitar e uma prévia de exemplo', () => {
     mocks.controls.scope = 'COMPANY';
     mocks.controls.catalogItemId = '';
     mocks.controls.catalogItemOptions = [{ id: 'p1', name: 'Pizza', kind: 'PRODUCT' }];
-    renderPage();
+    const { container } = renderPage();
 
+    expect(screen.getByRole('heading', { name: 'Compare dois itens lado a lado' })).toBeInTheDocument();
     expect(screen.getByText(/cadastre pelo menos 2 itens do mesmo tipo/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Catálogo' })).toHaveAttribute('href', '/user/edit/types-feedback');
+    expect(screen.getByRole('link', { name: /Abrir o Catálogo/ })).toHaveAttribute('href', '/user/edit/types-feedback');
+    expect(screen.getByRole('heading', { name: 'Como vai ficar' })).toBeInTheDocument();
+    expect(screen.getByText('Exemplo')).toBeInTheDocument();
+    // A prévia mantém a âncora do passo "Comparar itens" do guia.
+    expect(container.querySelector('[data-tour="tour-compare-items"]')).not.toBeNull();
     expect(mocks.getFeedbackStats).not.toHaveBeenCalled();
+  });
+
+  it('com itens para comparar, a âncora do guia fica nos controles', async () => {
+    const { container } = renderPage();
+    await screen.findByRole('table');
+    expect(container.querySelector('[data-tour="tour-compare-items"]')).toHaveAttribute('aria-label', 'O que comparar');
   });
 });

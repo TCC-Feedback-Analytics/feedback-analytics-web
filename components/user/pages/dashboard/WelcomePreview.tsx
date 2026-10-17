@@ -1,4 +1,4 @@
-import { FaStar } from 'react-icons/fa6';
+import { FaArrowUp, FaStar } from 'react-icons/fa6';
 import type { WelcomePreviewCardProps, WelcomePreviewProps } from './ui.types';
 
 function PreviewCard({ title, description, example = false, tourId, children }: WelcomePreviewCardProps) {
@@ -37,7 +37,7 @@ export default function WelcomePreview({ questions }: WelcomePreviewProps) {
       <div className="grid gap-4 lg:grid-cols-3">
         <PreviewCard
           title="Avaliação por estrelas"
-          description="A média das estrelas e quantas avaliações foram positivas e críticas."
+          description="A média das estrelas e quantas avaliações foram positivas e críticas, no período que você escolher e comparadas com o período anterior."
           example
           tourId="tour-star-ratings"
         >
@@ -59,6 +59,9 @@ export default function WelcomePreview({ questions }: WelcomePreviewProps) {
               <p className="text-base font-semibold text-(--negative)">8%</p>
               <p className="text-[10px] text-(--text-tertiary)">1–2★</p>
             </div>
+            <p className="col-span-3 inline-flex items-center gap-1 text-[11px] font-semibold text-(--positive)">
+              <FaArrowUp className="text-[0.6rem]" /> +0,3 vs. 30 dias anteriores
+            </p>
           </div>
         </PreviewCard>
 

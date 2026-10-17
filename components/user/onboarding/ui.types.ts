@@ -12,6 +12,8 @@ import {
   FaBrain,
   FaUser,
   FaSliders,
+  FaCalendarDays,
+  FaScaleBalanced,
 } from "react-icons/fa6";
 
 export interface AIContextDialogProps {
@@ -86,6 +88,13 @@ export const INTERACTIVE_STEPS: TourStepData[] = [
   // As seções do Dashboard e as abas da Análise dos comentários aparecem também
   // no celular: o mesmo alvo vale nos dois tamanhos.
   {
+    selector: '[data-tour="tour-period"]',
+    route: "/user/dashboard",
+    title: "Escopo e período",
+    icon: FaCalendarDays,
+    description: "Aqui você escolhe de quem são os números (a empresa ou um item do catálogo) e de quando: todo o período, os últimos 7 ou 30 dias, 3 ou 6 meses, ou as datas que quiser. Com um período escolhido, ligue \"Comparar com o período anterior\" para ver em cada métrica se melhorou (▲ verde) ou piorou (▼ vermelho). \"Diferença incerta\" quer dizer que ainda há poucas avaliações para ter certeza.",
+  },
+  {
     selector: '[data-tour="tour-star-ratings"]',
     route: "/user/dashboard",
     title: "Avaliação por estrelas",
@@ -119,6 +128,13 @@ export const INTERACTIVE_STEPS: TourStepData[] = [
     title: "Comentários",
     icon: FaList,
     description: "Todos os comentários já analisados pela IA, com filtros por tom (positivos, neutros e negativos) e para quando a nota e o texto não combinam.",
+  },
+  {
+    selector: '[data-tour="tour-compare-items"]',
+    route: "/user/compare",
+    title: "Comparar itens",
+    icon: FaScaleBalanced,
+    description: "Coloque dois produtos, serviços ou departamentos lado a lado, no mesmo período, e veja quem está melhor na média, nas positivas, nas críticas e no tom dos comentários. Funciona a partir de 2 itens do mesmo tipo no Catálogo.",
   },
   {
     selector: '[data-tour="tour-feedback-general"]',
