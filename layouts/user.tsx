@@ -12,6 +12,7 @@ import MobileMenuDrawer from 'components/user/layout/MobileMenuDrawer';
 import { SidebarProvider } from 'components/ui/sidebar';
 import SectionTabs from 'components/user/shared/SectionTabs';
 import InsightsActionBar from 'components/user/layout/InsightsActionBar';
+import CompanyQuestionsFailureBanner from 'components/user/layout/CompanyQuestionsFailureBanner';
 import DashboardSkeleton from 'components/user/pages/dashboard/DashboardSkeleton';
 import ProfileSkeleton from 'components/user/pages/profile/ProfileSkeleton';
 import FeedbacksAllSkeleton from 'components/user/pages/feedbacks/FeedbacksAllSkeleton';
@@ -378,6 +379,7 @@ export default function User() {
                 isSidebarOpen ? 'md:pl-64' : 'md:pl-16'
               }`}>
                 <div className="w-full max-w-full min-w-0 bg-(--bg-primary) p-4 md:p-5">
+                  <CompanyQuestionsFailureBanner />
                   <InsightsActionBar />
                   <SectionTabs className="mb-5" />
                   {pendingContent}

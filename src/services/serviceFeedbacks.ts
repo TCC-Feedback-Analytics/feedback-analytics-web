@@ -181,10 +181,18 @@ export type CompanyQuestionsJob = {
   status: IaAnalysisJobStatus;
   errorCode: string | null;
   applied: boolean | null;
+  /** O gestor dispensou o aviso de falha ("Manter perguntas padrão"). */
+  dismissed?: boolean;
 };
 
 export function ServiceGetLatestCompanyQuestionsJob() {
-  return getJson<{ job: CompanyQuestionsJob | null }>('/api/protected/ia-analyze/jobs/company-questions/latest');
+  // stillDefault: as perguntas ainda são as padrão (null sem pedido).
+  return getJson<{ job: CompanyQuestionsJob | null; stillDefault?: boolean | null }>('/api/protected/ia-analyze/jobs/company-questions/latest');
+}
+
+/** "Manter perguntas padrão": dispensa o aviso de falha do último pedido. */
+export function ServiceDismissCompanyQuestionsFailure() {
+  return postJson<{ dismissed: boolean }>('/api/protected/ia-analyze/jobs/company-questions/dismiss', {});
 }
 
 /**
