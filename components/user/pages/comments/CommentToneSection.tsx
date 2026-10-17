@@ -15,7 +15,7 @@ const WORD_TONE = {
  * aparecia como distribuição de sentimentos, termômetro, clima e saldo, agora num
  * bloco só — barra positivo/neutro/negativo, resumo "+45 · Positivo" e precisão.
  */
-export default function CommentToneSection({ summary, inScope, ofScope }: CommentToneSectionProps) {
+export default function CommentToneSection({ summary, inScope, ofScope, feedbacksUntilAnalysis = 0 }: CommentToneSectionProps) {
   const total = summary?.totalAnalyzed ?? 0;
 
   return (
@@ -30,6 +30,14 @@ export default function CommentToneSection({ summary, inScope, ofScope }: Commen
       {!summary || total === 0 ? (
         <p className="mt-3 text-sm text-(--text-tertiary)">
           Ainda sem comentários analisados pela IA {inScope}.
+          {feedbacksUntilAnalysis > 0 && (
+            <>
+              {' '}
+              {feedbacksUntilAnalysis === 1
+                ? 'Falta 1 feedback para a IA analisar.'
+                : `Faltam ${feedbacksUntilAnalysis} feedbacks para a IA analisar.`}
+            </>
+          )}
         </p>
       ) : (
         <ToneBody summary={summary} ofScope={ofScope} />

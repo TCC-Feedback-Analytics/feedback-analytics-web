@@ -16,11 +16,14 @@ import DashboardScopedSkeleton from 'components/user/pages/dashboard/DashboardSc
 import InsightsReportContent from 'components/user/pages/feedbacksInsightsReport/InsightsReportContent';
 import CommentToneSection from 'components/user/pages/comments/CommentToneSection';
 import ScopeTag from 'components/user/shared/ScopeTag';
+import DashboardWelcome from 'components/user/pages/dashboard/DashboardWelcome';
+import WelcomePreview from 'components/user/pages/dashboard/WelcomePreview';
 import { useToast } from 'components/public/forms/messages/useToast';
 import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { useScopedInsightsReport } from 'src/lib/hooks/useScopedInsightsReport';
 import { getCatalogKindByKind } from 'src/lib/constants/catalog';
 import { scopeText } from 'src/lib/utils/scopeText';
+import { activeFormQuestions } from 'src/lib/utils/formQuestions';
 import {
   ServiceGetFeedbackStats,
   ServiceGetFeedbackQuestions,
@@ -28,6 +31,9 @@ import {
 import type { FeedbackStats, QuestionMetric } from 'lib/interfaces/domain/feedback.domain';
 import type { DashboardLoaderData, UserLoaderData } from './ui.types';
 
+
+// A análise dos comentários pela IA só libera com este mínimo de feedbacks no escopo.
+const MIN_FEEDBACKS_TO_ANALYZE = 10;
 
 export default function Dashboard() {
   const userLoaderData = useRouteLoaderData<UserLoaderData>('user');
@@ -110,6 +116,9 @@ export default function Dashboard() {
 
   const totalFeedbacks = stats?.totalFeedbacks ?? 0;
   const pendingCount = stats?.pendingCount ?? 0;
+  // Conta inteira sem nenhum feedback: boas-vindas e prévia no lugar das seções vazias.
+  const isAccountEmpty = dashboardLoaderData?.accountTotalFeedbacks === 0;
+  const feedbacksUntilAnalysis = Math.max(0, MIN_FEEDBACKS_TO_ANALYZE - totalFeedbacks);
 
   return (
     <div className="font-work-sans space-y-6">
@@ -123,7 +132,9 @@ export default function Dashboard() {
             {pendingCount > 0 && (
               <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-(--primary-color)" />
             )}
-            {totalFeedbacks === 0
+            {isAccountEmpty
+              ? 'Vamos coletar os primeiros feedbacks.'
+              : totalFeedbacks === 0
               ? 'Compartilhe o formulário pelo QR Code para começar a coletar feedbacks.'
               : pendingCount > 0
                 ? `${pendingCount} ${pendingCount === 1 ? 'feedback aguardando' : 'feedbacks aguardando'} análise neste escopo.`
@@ -147,51 +158,71 @@ export default function Dashboard() {
         </div>
       ) : null}
 
-      {scopedLoading ? (
-        <DashboardScopedSkeleton />
+      {isAccountEmpty ? (
+        <>
+          {enterprise && (
+            <DashboardWelcome
+              enterprise={enterprise}
+              qrActive={dashboardLoaderData?.qrActive ?? null}
+              totalFeedbacks={0}
+            />
+          )}
+          <WelcomePreview questions={activeFormQuestions(userLoaderData?.collecting?.company_feedback_questions)} />
+        </>
       ) : (
         <>
-          <SectionRatings stats={stats} />
+          {scopedLoading ? (
+            <DashboardScopedSkeleton />
+          ) : (
+            <>
+              <SectionRatings stats={stats} />
 
-          <SectionFormQuestions metrics={questions} />
+              <SectionFormQuestions metrics={questions} />
+            </>
+          )}
+
+          {/* O que os clientes ESCREVERAM, lido pela IA (antigo bloco de insights). */}
+          <section className="font-work-sans relative space-y-4" aria-labelledby="dashboard-comments-title">
+            <header className="flex flex-wrap items-center justify-between gap-3">
+              <h2 id="dashboard-comments-title" className="font-montserrat text-lg font-semibold text-(--text-primary)">
+                Análise dos comentários <span className="text-sm font-medium text-(--primary-color)">✨ IA</span>
+              </h2>
+              <ScopeTag />
+            </header>
+
+            <CommentToneSection
+              summary={summary}
+              inScope={scopeInfo.inScope}
+              ofScope={scopeInfo.ofScope}
+              feedbacksUntilAnalysis={feedbacksUntilAnalysis}
+            />
+
+            <div className="relative overflow-hidden rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6 glass-card">
+              <h3 className="font-montserrat text-base font-semibold text-(--text-primary)">Resumo e recomendações da IA</h3>
+              <div className="mt-4">
+                {reportLoading && !report ? (
+                  <p className="text-sm text-(--text-tertiary)">Carregando o resumo…</p>
+                ) : (
+                  <InsightsReportContent report={report} />
+                )}
+              </div>
+              {reportLoading && report && (
+                <div className="pointer-events-none absolute inset-0 rounded-2xl border border-(--quaternary-color)/12 bg-(--bg-primary)/30 backdrop-blur-[1px]" />
+              )}
+            </div>
+
+            <div className="flex justify-end">
+              <Link
+                to="/user/insights/overview"
+                className="inline-flex items-center gap-1.5 text-sm text-(--text-secondary) transition-colors hover:text-(--text-primary)"
+              >
+                Ver a análise completa dos comentários
+                <FaArrowRight className="text-xs" aria-hidden />
+              </Link>
+            </div>
+          </section>
         </>
       )}
-
-      {/* O que os clientes ESCREVERAM, lido pela IA (antigo bloco de insights). */}
-      <section className="font-work-sans relative space-y-4" aria-labelledby="dashboard-comments-title">
-        <header className="flex flex-wrap items-center justify-between gap-3">
-          <h2 id="dashboard-comments-title" className="font-montserrat text-lg font-semibold text-(--text-primary)">
-            Análise dos comentários <span className="text-sm font-medium text-(--primary-color)">✨ IA</span>
-          </h2>
-          <ScopeTag />
-        </header>
-
-        <CommentToneSection summary={summary} inScope={scopeInfo.inScope} ofScope={scopeInfo.ofScope} />
-
-        <div className="relative overflow-hidden rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6 glass-card">
-          <h3 className="font-montserrat text-base font-semibold text-(--text-primary)">Resumo e recomendações da IA</h3>
-          <div className="mt-4">
-            {reportLoading && !report ? (
-              <p className="text-sm text-(--text-tertiary)">Carregando o resumo…</p>
-            ) : (
-              <InsightsReportContent report={report} />
-            )}
-          </div>
-          {reportLoading && report && (
-            <div className="pointer-events-none absolute inset-0 rounded-2xl border border-(--quaternary-color)/12 bg-(--bg-primary)/30 backdrop-blur-[1px]" />
-          )}
-        </div>
-
-        <div className="flex justify-end">
-          <Link
-            to="/user/insights/overview"
-            className="inline-flex items-center gap-1.5 text-sm text-(--text-secondary) transition-colors hover:text-(--text-primary)"
-          >
-            Ver a análise completa dos comentários
-            <FaArrowRight className="text-xs" aria-hidden />
-          </Link>
-        </div>
-      </section>
     </div>
   );
 }

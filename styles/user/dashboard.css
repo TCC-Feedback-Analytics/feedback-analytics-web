@@ -1,0 +1,123 @@
+/*
+ * Bloco de boas-vindas do Dashboard: um QR em perspectiva 3D, flutuando sobre
+ * ondas que se espalham pelo "chão" — "aguardando os primeiros feedbacks".
+ * Mesma linguagem da tela "Preparando sua conta" (styles/user/onboarding.css).
+ */
+.collect-beacon {
+  --beacon-color: var(--primary-color);
+  position: relative;
+  width: 11rem;
+  height: 11rem;
+  perspective: 900px;
+}
+
+/* Chão inclinado onde as ondas se espalham. */
+.collect-beacon__floor {
+  position: absolute;
+  inset: 18% 0 -18%;
+  transform: rotateX(68deg);
+  transform-style: preserve-3d;
+}
+
+.collect-beacon__wave {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid color-mix(in oklab, var(--beacon-color) 70%, transparent);
+  box-shadow: 0 0 1.5rem color-mix(in oklab, var(--beacon-color) 35%, transparent);
+  opacity: 0;
+  transform: scale(0.2);
+  animation: collect-beacon-wave 3.6s ease-out infinite;
+}
+
+.collect-beacon__wave:nth-child(2) {
+  animation-delay: 1.2s;
+}
+
+.collect-beacon__wave:nth-child(3) {
+  animation-delay: 2.4s;
+}
+
+.collect-beacon__float {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transform-style: preserve-3d;
+  animation: collect-beacon-float 3.2s ease-in-out infinite;
+}
+
+/* O cartão do QR, girado para mostrar a espessura. */
+.collect-beacon__card {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 5.25rem;
+  height: 5.25rem;
+  border-radius: 1rem;
+  border: 1px solid color-mix(in oklab, var(--beacon-color) 45%, transparent);
+  background:
+    radial-gradient(circle at 30% 20%, rgb(255 255 255 / 0.18), transparent 45%),
+    linear-gradient(145deg, color-mix(in oklab, var(--beacon-color) 22%, var(--bg-secondary)), var(--bg-primary));
+  box-shadow:
+    0 0 2.5rem color-mix(in oklab, var(--beacon-color) 40%, transparent),
+    0.45rem 0.6rem 0 color-mix(in oklab, var(--beacon-color) 30%, #03161c);
+  transform: rotateX(18deg) rotateY(-24deg);
+  overflow: hidden;
+}
+
+.collect-beacon__card svg {
+  width: 3.5rem;
+  height: 3.5rem;
+  color: var(--text-primary);
+}
+
+/* Linha de leitura passando pelo QR. */
+.collect-beacon__scan {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 22%;
+  background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--beacon-color) 60%, transparent), transparent);
+  animation: collect-beacon-scan 2.4s ease-in-out infinite;
+}
+
+@keyframes collect-beacon-wave {
+  0% { opacity: 0; transform: scale(0.2); }
+  15% { opacity: 0.9; }
+  100% { opacity: 0; transform: scale(1.15); }
+}
+
+@keyframes collect-beacon-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-0.55rem); }
+}
+
+@keyframes collect-beacon-scan {
+  0% { transform: translateY(-100%); opacity: 0; }
+  15%, 85% { opacity: 1; }
+  100% { transform: translateY(460%); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collect-beacon *,
+  .collect-beacon *::before {
+    animation: none !important;
+  }
+
+  .collect-beacon__wave:first-child {
+    opacity: 0.6;
+    transform: scale(0.85);
+  }
+
+  .collect-beacon__scan {
+    opacity: 0;
+  }
+}
+
+/* Cards da prévia: dados de exemplo, apagados para não parecerem reais. */
+.welcome-ghost {
+  filter: grayscale(0.4);
+  opacity: 0.55;
+  pointer-events: none;
+  user-select: none;
+}
