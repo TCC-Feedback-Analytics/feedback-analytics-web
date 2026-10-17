@@ -301,7 +301,10 @@ describe('[Unidade] Dashboard Page', () => {
       </MemoryRouter>,
     );
 
+    // O seed do loader é do histórico inteiro: não aparece com o período escolhido.
+    expect(screen.getByLabelText('Carregando métricas do escopo')).toBeInTheDocument();
     expect(await screen.findByText('4 feedbacks aguardando análise neste escopo.')).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByLabelText('Carregando métricas do escopo')).not.toBeInTheDocument());
     const periodCall = mocks.getFeedbackStats.mock.calls.find(([params]) => params.start_date);
     expect(periodCall?.[0]).toEqual(expect.objectContaining({ scope_type: 'COMPANY', end_date: expect.any(String) }));
     expect(mocks.getFeedbackStats).toHaveBeenCalledWith({ scope_type: 'COMPANY', catalog_item_id: undefined });
@@ -313,6 +316,25 @@ describe('[Unidade] Dashboard Page', () => {
     expect(screen.queryByText(/para a IA analisar\./)).not.toBeInTheDocument();
   });
 
+  it('outro escopo ao voltar ao Dashboard: esqueleto em vez dos números do seed', async () => {
+    mocks.useInsightsControls.mockReturnValue({
+      scope: 'PRODUCT',
+      catalogItemId: 'p1',
+      catalogItemOptions: [{ id: 'p1', name: 'Pizza', kind: 'PRODUCT' }],
+      period: { preset: 'ALL' },
+    });
+
+    render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByLabelText('Carregando métricas do escopo')).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByLabelText('Carregando métricas do escopo')).not.toBeInTheDocument());
+    expect(mocks.getFeedbackStats).toHaveBeenCalledWith({ scope_type: 'PRODUCT', catalog_item_id: 'p1' });
+  });
+
   it('sem período, não mostra o aviso do resumo nem busca as stats duas vezes', async () => {
     render(
       <MemoryRouter>
@@ -320,6 +342,7 @@ describe('[Unidade] Dashboard Page', () => {
       </MemoryRouter>,
     );
 
+    expect(screen.queryByLabelText('Carregando métricas do escopo')).not.toBeInTheDocument();
     await waitFor(() => expect(mocks.getFeedbackStats).toHaveBeenCalledTimes(1));
     expect(screen.queryByText('O resumo considera todos os comentários analisados.')).not.toBeInTheDocument();
   });

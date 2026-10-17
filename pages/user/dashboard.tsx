@@ -88,9 +88,13 @@ export default function Dashboard() {
   const [statsScopeKey, setStatsScopeKey] = useState<string | null>(
     dashboardLoaderData?.stats ? 'COMPANY:' : null,
   );
-  const [scopedLoading, setScopedLoading] = useState(false);
-  // O 1º fetch reaproveita o seed do loader (escopo Empresa) — só mostramos o
-  // skeleton nas TROCAS de escopo seguintes, para não piscar no carregamento inicial.
+  // O seed do loader é do escopo Empresa, no histórico inteiro. Ao voltar ao Dashboard
+  // com outro escopo ou com um período, ele não serve: esqueleto até os dados chegarem,
+  // em vez de mostrar por um instante os números de outro recorte.
+  const seedIsCurrent = scope === 'COMPANY' && !catalogItemId && !hasMetricsPeriod(period);
+  const [scopedLoading, setScopedLoading] = useState(!seedIsCurrent);
+  // Com o seed valendo, o 1º fetch o reaproveita — só mostramos o skeleton nas
+  // TROCAS de escopo seguintes, para não piscar no carregamento inicial.
   const firstScopedFetchRef = useRef(true);
   const error = dashboardLoaderData?.dashboardError ?? null;
 
