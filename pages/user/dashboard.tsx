@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Link,
   useLoaderData,
+  useRevalidator,
   useRouteLoaderData,
   useSearchParams,
 } from 'react-router-dom';
@@ -21,6 +22,8 @@ import WelcomePreview from 'components/user/pages/dashboard/WelcomePreview';
 import { useToast } from 'components/public/forms/messages/useToast';
 import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { useScopedInsightsReport } from 'src/lib/hooks/useScopedInsightsReport';
+import { useFeedbackMilestones } from 'src/lib/hooks/useFeedbackMilestones';
+import { MIN_FEEDBACKS_FOR_AI } from 'src/lib/utils/feedbackMilestones';
 import { getCatalogKindByKind } from 'src/lib/constants/catalog';
 import { scopeText } from 'src/lib/utils/scopeText';
 import { activeFormQuestions } from 'src/lib/utils/formQuestions';
@@ -31,9 +34,6 @@ import {
 import type { FeedbackStats, QuestionMetric } from 'lib/interfaces/domain/feedback.domain';
 import type { DashboardLoaderData, UserLoaderData } from './ui.types';
 
-
-// A análise dos comentários pela IA só libera com este mínimo de feedbacks no escopo.
-const MIN_FEEDBACKS_TO_ANALYZE = 10;
 
 export default function Dashboard() {
   const userLoaderData = useRouteLoaderData<UserLoaderData>('user');
@@ -61,6 +61,10 @@ export default function Dashboard() {
     dashboardLoaderData?.stats ?? null,
   );
   const [questions, setQuestions] = useState<QuestionMetric[]>([]);
+  // De qual escopo são as `stats` atuais (o seed do loader é do escopo Empresa).
+  const [statsScopeKey, setStatsScopeKey] = useState<string | null>(
+    dashboardLoaderData?.stats ? 'COMPANY:' : null,
+  );
   const [scopedLoading, setScopedLoading] = useState(false);
   // O 1º fetch reaproveita o seed do loader (escopo Empresa) — só mostramos o
   // skeleton nas TROCAS de escopo seguintes, para não piscar no carregamento inicial.
@@ -68,8 +72,9 @@ export default function Dashboard() {
   const error = dashboardLoaderData?.dashboardError ?? null;
 
   // Métricas seguem o escopo selecionado no header (Geral = só o QR da empresa).
-  const fetchScopedData = useCallback(async () => {
-    const showSkeleton = !firstScopedFetchRef.current;
+  // `silent`: atualização em segundo plano (marcos da coleta), sem skeleton.
+  const fetchScopedData = useCallback(async (silent = false) => {
+    const showSkeleton = !silent && !firstScopedFetchRef.current;
     if (showSkeleton) setScopedLoading(true);
 
     const catalogParam =
@@ -87,6 +92,7 @@ export default function Dashboard() {
     ]);
 
     setStats(statsData);
+    setStatsScopeKey(`${scope}:${catalogItemId || ''}`);
     setQuestions(questionsData?.questions ?? []);
     firstScopedFetchRef.current = false;
     setScopedLoading(false);
@@ -118,7 +124,23 @@ export default function Dashboard() {
   const pendingCount = stats?.pendingCount ?? 0;
   // Conta inteira sem nenhum feedback: boas-vindas e prévia no lugar das seções vazias.
   const isAccountEmpty = dashboardLoaderData?.accountTotalFeedbacks === 0;
-  const feedbacksUntilAnalysis = Math.max(0, MIN_FEEDBACKS_TO_ANALYZE - totalFeedbacks);
+  const feedbacksUntilAnalysis = Math.max(0, MIN_FEEDBACKS_FOR_AI - totalFeedbacks);
+
+  // Comemora o primeiro feedback e os 10 do escopo; enquanto não chegam, atualiza
+  // os números em segundo plano para o marco aparecer sem recarregar a página.
+  const revalidator = useRevalidator();
+  const scopeKey = `${scope}:${catalogItemId || ''}`;
+  const scopeTotal = statsScopeKey === scopeKey ? stats?.totalFeedbacks ?? null : null;
+  useFeedbackMilestones({
+    enterpriseId: enterprise?.id,
+    snapshot: { accountTotal: dashboardLoaderData?.accountTotalFeedbacks ?? null, scopeKey, scopeTotal },
+    inScope: scopeInfo.inScope,
+    watching: isAccountEmpty || (scopeTotal !== null && scopeTotal < MIN_FEEDBACKS_FOR_AI),
+    refresh: () => {
+      revalidator.revalidate();
+      void fetchScopedData(true);
+    },
+  });
 
   return (
     <div className="font-work-sans space-y-6">

@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   getFeedbackQuestions: vi.fn(),
   useInsightsControls: vi.fn(),
   useScopedInsightsReport: vi.fn(),
+  revalidator: { revalidate: vi.fn(), state: 'idle' },
 }));
 
 vi.mock('react-router-dom', async () => {
@@ -19,6 +20,7 @@ vi.mock('react-router-dom', async () => {
     ...actual,
     useLoaderData: mocks.useLoaderData,
     useRouteLoaderData: mocks.useRouteLoaderData,
+    useRevalidator: () => mocks.revalidator,
   };
 });
 
