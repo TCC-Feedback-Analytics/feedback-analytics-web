@@ -116,6 +116,44 @@ export function metricsPeriodParams(period: MetricsPeriod, now: Date = new Date(
   return { start_date: range.start.toISOString(), end_date: range.end.toISOString() };
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Período anterior, do mesmo tamanho e logo antes do escolhido (etapa 02, comparação):
+ * "Últimos 30 dias" → os 30 dias antes deles; "Últimos 3 meses" → os 3 meses antes.
+ */
+export function resolvePreviousMetricsPeriodRange(period: MetricsPeriod, now: Date = new Date()): { start: Date; end: Date } | null {
+  const range = resolveMetricsPeriodRange(period, now);
+  if (!range) return null;
+  if (period.preset === 'LAST_3_MONTHS') return { start: addMonths(range.start, -3), end: range.start };
+  if (period.preset === 'LAST_6_MONTHS') return { start: addMonths(range.start, -6), end: range.start };
+  const days = Math.round((range.end.getTime() - range.start.getTime()) / DAY_MS);
+  return { start: addDays(range.start, -days), end: range.start };
+}
+
+export function previousMetricsPeriodParams(period: MetricsPeriod, now: Date = new Date()): MetricsPeriodParams {
+  const range = resolvePreviousMetricsPeriodRange(period, now);
+  if (!range) return {};
+  return { start_date: range.start.toISOString(), end_date: range.end.toISOString() };
+}
+
+const PREVIOUS_LABEL: Record<Exclude<MetricsPeriodPreset, 'ALL' | 'CUSTOM'>, string> = {
+  LAST_7_DAYS: '7 dias anteriores',
+  LAST_30_DAYS: '30 dias anteriores',
+  LAST_3_MONTHS: '3 meses anteriores',
+  LAST_6_MONTHS: '6 meses anteriores',
+};
+
+/** Como a comparação chama o período anterior: "30 dias anteriores", "14/09/2026 a 30/09/2026". */
+export function previousPeriodLabel(period: MetricsPeriod, now: Date = new Date()): string {
+  if (!hasMetricsPeriod(period)) return '';
+  if (period.preset !== 'CUSTOM') return PREVIOUS_LABEL[period.preset as keyof typeof PREVIOUS_LABEL];
+  const range = resolvePreviousMetricsPeriodRange(period, now)!;
+  const from = range.start.toLocaleDateString('pt-BR');
+  const to = addDays(range.end, -1).toLocaleDateString('pt-BR');
+  return from === to ? from : `${from} a ${to}`;
+}
+
 /** Chave estável do período (para dependências e para saber de qual período é um dado). */
 export function metricsPeriodKey(period: MetricsPeriod): string {
   if (!hasMetricsPeriod(period)) return 'ALL';

@@ -74,6 +74,20 @@ describe('[Unidade] SectionFormQuestions', () => {
     expect(screen.getByRole('button', { name: /Avaliação geral da empresa/ })).toBeInTheDocument();
   });
 
+  it('com a comparação ligada, mostra quanto a nota de cada pergunta mudou', () => {
+    render(
+      <MemoryRouter>
+        <SectionFormQuestions
+          metrics={[metric('q1', 'Como foi o atendimento?', 3.8), metric('q2', 'O que achou da qualidade?', 4.1)]}
+          previous={{ reference: '7 dias anteriores', loading: false, failed: false, data: [metric('q1', 'Como foi o atendimento?', 3.0)] }}
+        />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByLabelText('Pergunta 1: +0,8 vs. 7 dias anteriores, melhorou')).toBeInTheDocument();
+    expect(screen.getByText('Sem dados no período anterior')).toBeInTheDocument();
+  });
+
   it('pergunta sem respostas diz isso, com o escopo', () => {
     renderSection([metric('q1', 'Como foi o atendimento?', 3.1)]);
     expect(screen.getByText('Ainda sem respostas na empresa (avaliação geral).')).toBeInTheDocument();

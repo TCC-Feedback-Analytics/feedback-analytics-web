@@ -1,7 +1,9 @@
 import type {
   FeedbackAnalysisItem,
   FeedbackAnalysisSummary,
+  FeedbackStats,
 } from 'lib/interfaces/domain/feedback.domain';
+import type { PreviousPeriod } from 'src/lib/hooks/usePreviousPeriod';
 
 /**
  * Props do bloco "Tom dos comentários" (lente Comentários, IA).
@@ -14,6 +16,8 @@ export interface CommentToneSectionProps {
   ofScope: string;
   /** Quantos feedbacks faltam no escopo para a IA poder analisar (só no estado vazio). */
   feedbacksUntilAnalysis?: number;
+  /** Stats do mesmo escopo no período anterior (comparação ligada): o tom vem de `aiSentiment`. */
+  previous?: PreviousPeriod<FeedbackStats> | null;
 }
 
 /**

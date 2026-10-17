@@ -5,6 +5,7 @@ import SectionEvaluationDistribution from 'components/user/pages/dashboard/Secti
 import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { ServiceGetFeedbackStats } from 'src/services/serviceFeedbacks';
 import { metricsPeriodParams } from 'src/lib/utils/metricsPeriod';
+import { usePreviousPeriodStats } from 'src/lib/hooks/usePreviousPeriod';
 import type { FeedbackStats } from 'lib/interfaces/domain/feedback.domain';
 
 /**
@@ -17,6 +18,7 @@ export default function Ratings() {
   const [stats, setStats] = useState<FeedbackStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
+  const previous = usePreviousPeriodStats();
 
   useEffect(() => {
     let cancelled = false;
@@ -56,7 +58,7 @@ export default function Ratings() {
         <p className="text-sm text-(--text-tertiary)">Carregando avaliações…</p>
       ) : (
         <>
-          <SectionRatings stats={stats} variant="detail" />
+          <SectionRatings stats={stats} previous={previous} variant="detail" />
           {stats && stats.totalFeedbacks > 0 && <SectionEvaluationDistribution stats={stats} />}
         </>
       )}

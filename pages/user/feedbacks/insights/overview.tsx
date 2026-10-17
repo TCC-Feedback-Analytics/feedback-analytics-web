@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FaArrowRight } from 'react-icons/fa6';
 import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { useScopedInsightsReport } from 'src/lib/hooks/useScopedInsightsReport';
+import { usePreviousPeriodStats } from 'src/lib/hooks/usePreviousPeriod';
 import { scopeText } from 'src/lib/utils/scopeText';
 import { hasMetricsPeriod } from 'src/lib/utils/metricsPeriod';
 import { COMMENTS_SUMMARY_PERIOD_NOTE } from 'src/lib/constants/commentsSummary';
@@ -27,6 +28,7 @@ export default function CommentsOverview() {
   const [dismissedErrorKey, setDismissedErrorKey] = useState<string | null>(null);
 
   const { report, summary, loading, error: fetchError } = useScopedInsightsReport({ withAnalysis: true });
+  const previousStats = usePreviousPeriodStats();
 
   const refreshing = isRegeneratingInsights || loading;
   const errorKey = fetchError ? `fetch:${fetchError}` : null;
@@ -59,7 +61,7 @@ export default function CommentsOverview() {
         </div>
 
         <div className="relative space-y-6">
-          <CommentToneSection summary={summary} inScope={scopeInfo.inScope} ofScope={scopeInfo.ofScope} />
+          <CommentToneSection summary={summary} inScope={scopeInfo.inScope} ofScope={scopeInfo.ofScope} previous={previousStats} />
 
           {summary && summary.totalAnalyzed > 0 && <CommentTopicsSection summary={summary} />}
 

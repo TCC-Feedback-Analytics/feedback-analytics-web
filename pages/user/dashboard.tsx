@@ -33,6 +33,7 @@ import {
 import { useToast } from 'components/public/forms/messages/useToast';
 import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { useScopedInsightsReport } from 'src/lib/hooks/useScopedInsightsReport';
+import { usePreviousPeriodQuestions, usePreviousPeriodStats } from 'src/lib/hooks/usePreviousPeriod';
 import { useFeedbackMilestones } from 'src/lib/hooks/useFeedbackMilestones';
 import { MIN_FEEDBACKS_FOR_AI } from 'src/lib/utils/feedbackMilestones';
 import { getCatalogKindByKind } from 'src/lib/constants/catalog';
@@ -143,6 +144,9 @@ export default function Dashboard() {
 
   // Análise dos comentários (tom + resumo e recomendações da IA), filtrada por escopo.
   const { report, summary, loading: reportLoading } = useScopedInsightsReport({ withAnalysis: true });
+  // Comparação com o período anterior (parte C): `null` quando desligada.
+  const previousStats = usePreviousPeriodStats();
+  const previousQuestions = usePreviousPeriodQuestions();
   const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions, period });
   // Os marcos contam o histórico inteiro do escopo, então o texto deles não leva o período.
   const milestoneInScope = scopeText({ scope, catalogItemId, catalogItemOptions }).inScope;
@@ -266,9 +270,9 @@ export default function Dashboard() {
             <DashboardScopedSkeleton />
           ) : (
             <>
-              <SectionRatings stats={stats} />
+              <SectionRatings stats={stats} previous={previousStats} />
 
-              <SectionFormQuestions metrics={questions} />
+              <SectionFormQuestions metrics={questions} previous={previousQuestions} />
             </>
           )}
 
@@ -290,6 +294,7 @@ export default function Dashboard() {
               inScope={scopeInfo.inScope}
               ofScope={scopeInfo.ofScope}
               feedbacksUntilAnalysis={feedbacksUntilAnalysis}
+              previous={previousStats}
             />
 
             <div className="relative overflow-hidden rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6 glass-card">
