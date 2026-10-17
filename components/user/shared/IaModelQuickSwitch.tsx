@@ -61,11 +61,13 @@ export default function IaModelQuickSwitch({ onChanged, className = '' }: IaMode
 
   return (
     <div className={`space-y-2 ${className}`}>
-      <p className="text-xs text-(--text-tertiary)">Modelo atual: {currentModel}</p>
+      <p className="break-all text-xs text-(--text-tertiary)">Modelo atual: {currentModel}</p>
       <label htmlFor={selectId} className="sr-only">Escolher outro modelo de IA</label>
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+      {/* O seletor encolhe (min-w-0) para o nome longo do modelo não empurrar o botão para fora. */}
+      <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
         <Select
           id={selectId}
+          className="min-w-0 sm:flex-1"
           value={choice}
           onChange={setChoice}
           options={options}
@@ -81,12 +83,15 @@ export default function IaModelQuickSwitch({ onChanged, className = '' }: IaMode
           type="button"
           onClick={save}
           disabled={!choice || saving}
-          className="btn-primary font-poppins inline-flex shrink-0 items-center justify-center gap-1.5 px-4 py-2 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+          className="btn-primary font-poppins inline-flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap px-4 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60"
         >
           {saving ? <FaSpinner aria-hidden className="animate-spin" /> : <FaArrowsRotate aria-hidden />}
-          {saving ? `Trocando para ${choice || 'o novo modelo'}…` : 'Trocar modelo'}
+          {saving ? 'Trocando…' : 'Trocar modelo'}
         </button>
       </div>
+      {saving && choice && (
+        <p role="status" className="break-all text-xs text-(--text-tertiary)">Trocando para {choice}…</p>
+      )}
       <label className="flex w-fit cursor-pointer items-center gap-2 text-xs text-(--text-secondary)">
         <Checkbox
           checked={showPaid}
