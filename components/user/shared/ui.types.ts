@@ -5,6 +5,7 @@ import type { Interval } from 'lib/interfaces/domain/feedback.domain';
 import type { Precision, PrecisionKind } from 'src/lib/utils/precision';
 import type { MetricTermKey } from 'src/lib/constants/metricExplanations';
 import type { HelpTopicKey } from 'src/lib/constants/helpTopics';
+import type { ComparedValue } from 'src/lib/utils/periodComparison';
 
 /**
  * Props do cabeçalho padrão das telas logadas (PageHeader).
@@ -111,4 +112,24 @@ export type IaModelQuickSwitchProps = {
    */
   onChanged?: (model: string, questionsGeneration?: QuestionsGenerationResult) => void;
   className?: string;
+};
+
+/**
+ * Props da diferença para o período anterior (PeriodDelta, etapa 02 parte C).
+ * Usado em: components/user/shared/PeriodDelta.tsx.
+ */
+export type PeriodDeltaProps = {
+  /** Nome da métrica para leitores de tela: "Média". */
+  metricName: string;
+  current: ComparedValue;
+  /** `null` = sem dados no período anterior. */
+  previous: ComparedValue | null;
+  /** 'rating' = nota (+0,3); 'points' = pontos percentuais (+5 p.p.); 'nss' = tom (+8). */
+  kind: 'rating' | 'points' | 'nss';
+  /** Críticas: cair é melhorar. */
+  higherIsBetter?: boolean;
+  /** "30 dias anteriores". */
+  reference: string;
+  loading?: boolean;
+  failed?: boolean;
 };

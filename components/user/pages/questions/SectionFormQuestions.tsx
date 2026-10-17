@@ -5,7 +5,7 @@ import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { useFormQuestionsConfig } from 'src/lib/hooks/useFormQuestionsConfig';
 import { orderFormQuestions } from 'src/lib/utils/formQuestions';
 import { scopeText } from 'src/lib/utils/scopeText';
-import { QuestionScore } from './QuestionParts';
+import { QuestionDelta, QuestionScore } from './QuestionParts';
 import type { SectionFormQuestionsProps } from './ui.types';
 
 const KIND_SINGULAR = { PRODUCT: 'produto', SERVICE: 'serviço', DEPARTMENT: 'departamento' } as const;
@@ -16,7 +16,7 @@ const KIND_SINGULAR = { PRODUCT: 'produto', SERVICE: 'serviço', DEPARTMENT: 'de
  * satisfeitos e precisão — e o caminho para a página da pergunta. Toda pergunta
  * mostrada tem um dono claro: a empresa ou um item.
  */
-export default function SectionFormQuestions({ metrics }: SectionFormQuestionsProps) {
+export default function SectionFormQuestions({ metrics, previous = null }: SectionFormQuestionsProps) {
   const { scope, catalogItemId, catalogItemOptions, period, setCatalogItemId } = useInsightsControls();
   const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions, period });
   const config = useFormQuestionsConfig();
@@ -85,6 +85,11 @@ export default function SectionFormQuestions({ metrics }: SectionFormQuestionsPr
                 />
               ) : (
                 <p className="text-sm text-(--text-tertiary)">Ainda sem respostas {scopeInfo.inScope}.</p>
+              )}
+              {metric && previous && (
+                <div className="mt-2">
+                  <QuestionDelta metricName={`Pergunta ${question.order}`} metric={metric} previous={previous} />
+                </div>
               )}
             </div>
             <div className="mt-3 flex justify-end">

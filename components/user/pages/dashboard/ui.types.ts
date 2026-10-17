@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { LoaderUserDashboard } from 'src/routes/loaders/loaderUserDashboard';
 import type { FeedbackStats } from 'lib/interfaces/domain/feedback.domain';
 import type { FormQuestionConfig } from 'src/lib/utils/formQuestions';
+import type { PreviousPeriod } from 'src/lib/hooks/usePreviousPeriod';
 
 /**
  * Props da seção "Avaliação por estrelas" do dashboard.
@@ -9,6 +10,8 @@ import type { FormQuestionConfig } from 'src/lib/utils/formQuestions';
  */
 export interface SectionRatingsProps {
   stats: FeedbackStats | null;
+  /** Mesmo escopo no período anterior (comparação ligada); `null`/ausente = sem comparação. */
+  previous?: PreviousPeriod<FeedbackStats> | null;
   /** 'detail' (página de estrelas): inclui as neutras (3★) e omite o link "ver todas". */
   variant?: 'dashboard' | 'detail';
 }
@@ -18,6 +21,7 @@ export interface RatingCardsProps {
   total: number;
   ofScope: string;
   showNeutral: boolean;
+  previous?: PreviousPeriod<FeedbackStats> | null;
 }
 
 export interface ShareValueProps {

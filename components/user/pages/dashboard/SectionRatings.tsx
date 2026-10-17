@@ -4,6 +4,7 @@ import MetricCard from 'components/user/shared/cards/MetricCard';
 import MetricHelp from 'components/user/shared/MetricHelp';
 import PrecisionBadge from 'components/user/shared/PrecisionBadge';
 import ScopeTag from 'components/user/shared/ScopeTag';
+import PeriodDelta from 'components/user/shared/PeriodDelta';
 import { useInsightsControls } from 'src/lib/context/insightsControls';
 import {
   RATING_TONE_CLASS,
@@ -13,6 +14,7 @@ import {
   ratingTone,
 } from 'src/lib/utils/ratingLabel';
 import { scopeText } from 'src/lib/utils/scopeText';
+import { wilsonPctInterval } from 'src/lib/utils/periodComparison';
 import type { RatingCardsProps, SectionRatingsProps, ShareValueProps } from './ui.types';
 
 /**
@@ -20,7 +22,7 @@ import type { RatingCardsProps, SectionRatingsProps, ShareValueProps } from './u
  * Dashboard, 3 cards — média com parâmetro, positivas e críticas com %. Na página
  * "Todas as métricas de estrelas" (variant 'detail'), também as neutras.
  */
-export default function SectionRatings({ stats, variant = 'dashboard' }: SectionRatingsProps) {
+export default function SectionRatings({ stats, previous = null, variant = 'dashboard' }: SectionRatingsProps) {
   const { scope, catalogItemId, catalogItemOptions, period } = useInsightsControls();
   const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions, period });
   const total = stats?.totalFeedbacks ?? 0;
@@ -43,7 +45,13 @@ export default function SectionRatings({ stats, variant = 'dashboard' }: Section
           Ainda sem avaliações {scopeInfo.inScope}.
         </div>
       ) : (
-        <RatingCards stats={stats} total={total} ofScope={scopeInfo.ofScope} showNeutral={variant === 'detail'} />
+        <RatingCards
+          stats={stats}
+          total={total}
+          ofScope={scopeInfo.ofScope}
+          showNeutral={variant === 'detail'}
+          previous={previous}
+        />
       )}
 
       {variant === 'dashboard' && (
@@ -61,9 +69,26 @@ export default function SectionRatings({ stats, variant = 'dashboard' }: Section
   );
 }
 
-function RatingCards({ stats, total, ofScope, showNeutral }: RatingCardsProps) {
+function RatingCards({ stats, total, ofScope, showNeutral, previous }: RatingCardsProps) {
   const shares = ratingShares(stats.ratingDistribution, total);
   const average = stats.averageRating;
+
+  // Comparação com o período anterior (parte C): média, positivas e críticas.
+  const prevStats = previous?.data && previous.data.totalFeedbacks > 0 ? previous.data : null;
+  const prevTotal = prevStats?.totalFeedbacks ?? 0;
+  const prevShares = prevStats ? ratingShares(prevStats.ratingDistribution, prevTotal) : null;
+  const deltaState = { reference: previous?.reference ?? '', loading: previous?.loading, failed: previous?.failed };
+  const shareDelta = (metricName: string, key: 'positive' | 'critical') =>
+    previous ? (
+      <PeriodDelta
+        metricName={metricName}
+        kind="points"
+        higherIsBetter={key === 'positive'}
+        current={{ value: shares[key].pct, interval: wilsonPctInterval(shares[key].count, total) }}
+        previous={prevShares ? { value: prevShares[key].pct, interval: wilsonPctInterval(prevShares[key].count, prevTotal) } : null}
+        {...deltaState}
+      />
+    ) : null;
 
   return (
     <div className={`grid gap-4 sm:grid-cols-2 ${showNeutral ? 'xl:grid-cols-4' : 'xl:grid-cols-3'}`}>
@@ -86,16 +111,27 @@ function RatingCards({ stats, total, ofScope, showNeutral }: RatingCardsProps) {
           </span>
         }
         helper={
-          <span className="flex flex-wrap items-center gap-2">
-            <span>{total.toLocaleString('pt-BR')} avaliações</span>
-            <PrecisionBadge
-              metricName="Média de satisfação"
-              n={total}
-              unit="avaliações"
-              interval={stats.starMeanCI}
-              kind="mean"
-              ofScope={ofScope}
-            />
+          <span className="flex flex-col gap-1.5">
+            <span className="flex flex-wrap items-center gap-2">
+              <span>{total.toLocaleString('pt-BR')} avaliações</span>
+              <PrecisionBadge
+                metricName="Média de satisfação"
+                n={total}
+                unit="avaliações"
+                interval={stats.starMeanCI}
+                kind="mean"
+                ofScope={ofScope}
+              />
+            </span>
+            {previous && (
+              <PeriodDelta
+                metricName="Média"
+                kind="rating"
+                current={{ value: average, interval: stats.starMeanCI }}
+                previous={prevStats ? { value: prevStats.averageRating, interval: prevStats.starMeanCI } : null}
+                {...deltaState}
+              />
+            )}
           </span>
         }
         icon={FaStar}
@@ -107,7 +143,12 @@ function RatingCards({ stats, total, ofScope, showNeutral }: RatingCardsProps) {
           </span>
         }
         value={<ShareValue count={shares.positive.count} pct={shares.positive.pct} />}
-        helper="das avaliações"
+        helper={
+          <span className="flex flex-col gap-1.5">
+            <span>das avaliações</span>
+            {shareDelta('Positivas', 'positive')}
+          </span>
+        }
         icon={FaFaceSmile}
       />
       {showNeutral && (
@@ -121,7 +162,12 @@ function RatingCards({ stats, total, ofScope, showNeutral }: RatingCardsProps) {
       <MetricCard
         title="Críticas (1–2★)"
         value={<ShareValue count={shares.critical.count} pct={shares.critical.pct} />}
-        helper="das avaliações"
+        helper={
+          <span className="flex flex-col gap-1.5">
+            <span>das avaliações</span>
+            {shareDelta('Críticas', 'critical')}
+          </span>
+        }
         icon={FaFaceFrown}
       />
     </div>

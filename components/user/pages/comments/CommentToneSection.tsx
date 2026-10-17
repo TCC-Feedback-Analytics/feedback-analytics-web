@@ -1,5 +1,7 @@
 import MetricHelp from 'components/user/shared/MetricHelp';
 import PrecisionBadge from 'components/user/shared/PrecisionBadge';
+import PeriodDelta from 'components/user/shared/PeriodDelta';
+import { nssFromCounts, nssInterval } from 'src/lib/utils/periodComparison';
 import { commentToneShares, commentToneWord } from 'src/lib/utils/commentTone';
 import { formatNss } from 'src/lib/utils/statistics';
 import type { CommentToneSectionProps } from './ui.types';
@@ -15,7 +17,7 @@ const WORD_TONE = {
  * aparecia como distribuição de sentimentos, termômetro, clima e saldo, agora num
  * bloco só — barra positivo/neutro/negativo, resumo "+45 · Positivo" e precisão.
  */
-export default function CommentToneSection({ summary, inScope, ofScope, feedbacksUntilAnalysis = 0 }: CommentToneSectionProps) {
+export default function CommentToneSection({ summary, inScope, ofScope, feedbacksUntilAnalysis = 0, previous = null }: CommentToneSectionProps) {
   const total = summary?.totalAnalyzed ?? 0;
 
   return (
@@ -40,16 +42,27 @@ export default function CommentToneSection({ summary, inScope, ofScope, feedback
           )}
         </p>
       ) : (
-        <ToneBody summary={summary} ofScope={ofScope} />
+        <ToneBody summary={summary} ofScope={ofScope} previous={previous} />
       )}
     </section>
   );
 }
 
-function ToneBody({ summary, ofScope }: { summary: NonNullable<CommentToneSectionProps['summary']>; ofScope: string }) {
+function ToneBody({
+  summary,
+  ofScope,
+  previous,
+}: {
+  summary: NonNullable<CommentToneSectionProps['summary']>;
+  ofScope: string;
+  previous: CommentToneSectionProps['previous'];
+}) {
   const shares = commentToneShares(summary);
   const nss = summary.netSentimentScore ?? 0;
   const word = commentToneWord(nss);
+  // Tom do período anterior: contagens da IA no mesmo escopo (parte C).
+  const prevTone = previous?.data?.aiSentiment ?? null;
+  const prevNss = prevTone ? nssFromCounts(prevTone) : null;
 
   return (
     <div className="mt-4 space-y-4">
@@ -67,6 +80,17 @@ function ToneBody({ summary, ofScope }: { summary: NonNullable<CommentToneSectio
           kind="fraction"
           ofScope={ofScope}
         />
+        {previous && (
+          <PeriodDelta
+            metricName="Tom dos comentários"
+            kind="nss"
+            current={{ value: Math.round(nss), interval: nssInterval(summary.sentiments) }}
+            previous={prevTone && prevNss !== null ? { value: Math.round(prevNss), interval: nssInterval(prevTone) } : null}
+            reference={previous.reference}
+            loading={previous.loading}
+            failed={previous.failed}
+          />
+        )}
       </div>
 
       <div className="flex h-3 w-full overflow-hidden rounded-full bg-(--seventh-color)" aria-hidden>

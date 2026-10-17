@@ -26,6 +26,9 @@ export interface InsightsControlsContextValue {
   /** Período das métricas (stats, perguntas e análise); o pendente e a IA ignoram. */
   period: MetricsPeriod;
   setPeriod: (period: MetricsPeriod) => void;
+  /** Comparar com o período anterior, do mesmo tamanho (só com um período escolhido). */
+  compare: boolean;
+  setCompare: (compare: boolean) => void;
   analyzeRaw: () => void;
   regenerateInsights: (options?: { analyzePending?: boolean; force?: boolean }) => void;
   isAnalyzingRaw: boolean;

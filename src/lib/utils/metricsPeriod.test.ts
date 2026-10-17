@@ -5,7 +5,9 @@ import {
   metricsPeriodKey,
   metricsPeriodParams,
   periodText,
+  previousPeriodLabel,
   resolveMetricsPeriodRange,
+  resolvePreviousMetricsPeriodRange,
 } from './metricsPeriod';
 
 // 17/10/2026 no meio da tarde, no fuso do navegador.
@@ -65,5 +67,30 @@ describe('periodText', () => {
       label: '17/10/2026',
       inPeriod: 'em 17/10/2026',
     });
+  });
+});
+
+describe('período anterior', () => {
+  it('tem o mesmo tamanho e termina onde o escolhido começa', () => {
+    expect(resolvePreviousMetricsPeriodRange({ preset: 'LAST_7_DAYS' }, now)).toEqual({
+      start: new Date(2026, 9, 4),
+      end: new Date(2026, 9, 11),
+    });
+    expect(resolvePreviousMetricsPeriodRange({ preset: 'LAST_3_MONTHS' }, now)).toEqual({
+      start: new Date(2026, 3, 18),
+      end: new Date(2026, 6, 18),
+    });
+    expect(resolvePreviousMetricsPeriodRange({ preset: 'CUSTOM', from: '2026-10-01', to: '2026-10-17' }, now)).toEqual({
+      start: new Date(2026, 8, 14),
+      end: new Date(2026, 9, 1),
+    });
+    expect(resolvePreviousMetricsPeriodRange({ preset: 'ALL' }, now)).toBeNull();
+  });
+
+  it('nome do período anterior', () => {
+    expect(previousPeriodLabel({ preset: 'LAST_30_DAYS' }, now)).toBe('30 dias anteriores');
+    expect(previousPeriodLabel({ preset: 'LAST_6_MONTHS' }, now)).toBe('6 meses anteriores');
+    expect(previousPeriodLabel({ preset: 'CUSTOM', from: '2026-10-01', to: '2026-10-17' }, now)).toBe('14/09/2026 a 30/09/2026');
+    expect(previousPeriodLabel({ preset: 'ALL' }, now)).toBe('');
   });
 });
