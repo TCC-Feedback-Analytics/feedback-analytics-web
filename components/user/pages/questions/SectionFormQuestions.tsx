@@ -17,8 +17,8 @@ const KIND_SINGULAR = { PRODUCT: 'produto', SERVICE: 'serviço', DEPARTMENT: 'de
  * mostrada tem um dono claro: a empresa ou um item.
  */
 export default function SectionFormQuestions({ metrics }: SectionFormQuestionsProps) {
-  const { scope, catalogItemId, catalogItemOptions, setCatalogItemId } = useInsightsControls();
-  const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions });
+  const { scope, catalogItemId, catalogItemOptions, period, setCatalogItemId } = useInsightsControls();
+  const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions, period });
   const config = useFormQuestionsConfig();
   const { rows, removed } = orderFormQuestions(config.questions, metrics);
 

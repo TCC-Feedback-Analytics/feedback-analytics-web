@@ -21,8 +21,8 @@ import type { RatingCardsProps, SectionRatingsProps, ShareValueProps } from './u
  * "Todas as métricas de estrelas" (variant 'detail'), também as neutras.
  */
 export default function SectionRatings({ stats, variant = 'dashboard' }: SectionRatingsProps) {
-  const { scope, catalogItemId, catalogItemOptions } = useInsightsControls();
-  const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions });
+  const { scope, catalogItemId, catalogItemOptions, period } = useInsightsControls();
+  const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions, period });
   const total = stats?.totalFeedbacks ?? 0;
 
   return (

@@ -43,6 +43,7 @@ describe('[Unidade] Página Todas as métricas de estrelas', () => {
       scope: 'PRODUCT',
       catalogItemId: 'p1',
       catalogItemOptions: [{ id: 'p1', name: 'Pizza', kind: 'PRODUCT' }],
+      period: { preset: 'ALL' },
     });
     mocks.getFeedbackStats.mockResolvedValue(stats);
   });
@@ -56,6 +57,25 @@ describe('[Unidade] Página Todas as métricas de estrelas', () => {
     renderPage();
     await screen.findByRole('region', { name: 'Avaliação por estrelas' });
     expect(mocks.getFeedbackStats).toHaveBeenCalledWith({ scope_type: 'PRODUCT', catalog_item_id: 'p1' });
+  });
+
+  it('com período, busca as estatísticas do período e diz isso na etiqueta', async () => {
+    mocks.useInsightsControls.mockReturnValue({
+      scope: 'PRODUCT',
+      catalogItemId: 'p1',
+      catalogItemOptions: [{ id: 'p1', name: 'Pizza', kind: 'PRODUCT' }],
+      period: { preset: 'CUSTOM', from: '2026-10-01', to: '2026-10-17' },
+    });
+    renderPage();
+    const section = await screen.findByRole('region', { name: 'Avaliação por estrelas' });
+
+    expect(mocks.getFeedbackStats).toHaveBeenCalledWith({
+      scope_type: 'PRODUCT',
+      catalog_item_id: 'p1',
+      start_date: new Date(2026, 9, 1).toISOString(),
+      end_date: new Date(2026, 9, 18).toISOString(),
+    });
+    expect(within(section).getByRole('button', { name: /Produto · Pizza · 01\/10\/2026 a 17\/10\/2026/ })).toBeInTheDocument();
   });
 
   it('mostra média, positivas, neutras, críticas e a distribuição, sem o link "ver todas"', async () => {
