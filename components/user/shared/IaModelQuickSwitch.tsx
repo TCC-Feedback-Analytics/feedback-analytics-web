@@ -42,7 +42,7 @@ export default function IaModelQuickSwitch({ onChanged, className = '' }: IaMode
     submittedRef.current = null;
     if (result.ok) {
       setChoice('');
-      onChanged?.(model);
+      onChanged?.(model, result.iaConfig?.questionsGeneration);
     }
   }, [fetcher.state, fetcher.data, onChanged]);
 
