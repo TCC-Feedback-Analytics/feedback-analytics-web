@@ -157,7 +157,7 @@ export default function SimpleEditableField({
             <button
               type="submit"
               disabled={saveDisabled}
-              className={`px-4 py-2 bg-(--primary-color) text-white rounded-lg text-sm font-medium hover:shadow-md transition-all flex items-center gap-2 ${saveDisabled ? 'opacity-70 cursor-not-allowed' : ''}`}
+              className={`px-4 py-2 bg-(--primary-color) text-(--on-primary) rounded-lg text-sm font-medium hover:shadow-md transition-all flex items-center gap-2 ${saveDisabled ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
               {isSubmitting ? (
                 <>
@@ -210,7 +210,7 @@ export default function SimpleEditableField({
         </div>
 
         <div className={`ml-3 transition-all duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="bg-(--primary-color) text-white rounded-full w-8 h-8 flex items-center justify-center text-sm shadow-lg">
+          <div className="bg-(--primary-color) text-(--on-primary) rounded-full w-8 h-8 flex items-center justify-center text-sm shadow-lg">
             <FaPenToSquare aria-hidden="true" />
           </div>
         </div>

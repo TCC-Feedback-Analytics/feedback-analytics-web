@@ -147,7 +147,7 @@ export default function EditableField({
             <button
               type="submit"
               disabled={!hasChanged || isSubmitting}
-              className={`px-4 py-2 bg-(--primary-color) text-white rounded-lg text-sm font-medium hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2`}
+              className={`px-4 py-2 bg-(--primary-color) text-(--on-primary) rounded-lg text-sm font-medium hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2`}
             >
               {isSubmitting ? (
                 <>
@@ -197,7 +197,7 @@ export default function EditableField({
           )}
         </div>
 
-        <span className="ml-3 inline-flex items-center gap-1.5 rounded-lg bg-(--primary-color)/12 px-2.5 py-1.5 text-xs font-semibold text-(--primary-color) transition group-hover:bg-(--primary-color) group-hover:text-white">
+        <span className="ml-3 inline-flex items-center gap-1.5 rounded-lg bg-(--primary-color)/12 px-2.5 py-1.5 text-xs font-semibold text-(--primary-color) transition group-hover:bg-(--primary-color) group-hover:text-(--on-primary)">
             <FaPenToSquare aria-hidden="true" />
             <span>Editar</span>
         </span>
