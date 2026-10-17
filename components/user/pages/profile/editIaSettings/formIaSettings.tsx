@@ -14,6 +14,7 @@ import { Select, type SelectOption } from 'components/ui/select';
 import { Checkbox } from 'components/ui/checkbox';
 import { isFreeIaModel } from 'src/lib/utils/isFreeIaModel';
 import { startsWithFreeModelsOnly } from 'src/lib/utils/iaModelPriceFilter';
+import { useIaSlowNoticePreference } from 'src/lib/hooks/useIaSlowNoticePreference';
 import {
   FaCircleCheck,
   FaCircleExclamation,
@@ -36,6 +37,7 @@ export default function FormIaSettings() {
   const [showKey, setShowKey] = useState(false);
   const [modelOption, setModelOption] = useState<string | null>(null);
   const [onlyFreeModels, setOnlyFreeModels] = useState(() => startsWithFreeModelsOnly(loaderData?.iaConfig));
+  const [slowNoticeEnabled, setSlowNoticeEnabled] = useIaSlowNoticePreference();
   const [needsReload, setNeedsReload] = useState(false);
   const lastResult = useRef<IaSettingsActionResult | undefined>(undefined);
   const { catalog, loading, error: catalogError, reload: reloadModels } = useIaModels(iaConfig);
@@ -100,6 +102,8 @@ export default function FormIaSettings() {
     catalog.source !== (iaConfig?.hasKey ? 'user' : 'public') || catalog.currentModel !== activeModel
   ));
   const requiresReload = needsReload || configChanged;
+  // Sem chave salva nem digitada, o modelo não pode ser escolhido.
+  const needsApiKey = !iaConfig?.hasKey && apiKey.trim().length === 0;
   const selectedOutsideFreeFilter = Boolean(onlyFreeModels && effectiveModel && !isFreeIaModel(effectiveModel));
   const visibleModels = models.filter((model) =>
     model.id === effectiveModel || !onlyFreeModels || isFreeIaModel(model.id),
@@ -275,7 +279,7 @@ export default function FormIaSettings() {
                   setModelOption(effectiveModel || null);
                   setOnlyFreeModels(!event.target.checked);
                 }}
-                disabled={loading || isBusy || !catalog || requiresReload}
+                disabled={needsApiKey || loading || isBusy || !catalog || requiresReload}
                 aria-describedby="modelStatus"
               />
               Mostrar também modelos pagos
@@ -285,8 +289,8 @@ export default function FormIaSettings() {
               value={effectiveModel}
               onChange={(model) => setModelOption(model)}
               options={modelOptions}
-              placeholder={loading ? 'Carregando modelos...' : onlyFreeModels ? 'Selecione um modelo gratuito' : 'Selecione um modelo'}
-              disabled={loading || isBusy || !catalog || models.length === 0 || requiresReload}
+              placeholder={needsApiKey ? 'Informe a chave primeiro' : loading ? 'Carregando modelos...' : onlyFreeModels ? 'Selecione um modelo gratuito' : 'Selecione um modelo'}
+              disabled={needsApiKey || loading || isBusy || !catalog || models.length === 0 || requiresReload}
               aria-describedby="modelStatus modelHelp"
               searchable
               searchLabel="Buscar modelo"
@@ -298,6 +302,7 @@ export default function FormIaSettings() {
               dropdownClassName="border-(--primary-color)/25 shadow-[0_18px_45px_rgba(0,0,0,0.28)]"
             />
             <div id="modelStatus" role="status" className="space-y-2 text-xs text-(--text-secondary)">
+              {needsApiKey && <p>Informe a chave da API para escolher o modelo.</p>}
               {loading && <p>Carregando modelos compatíveis...</p>}
               {catalogError && <p>{catalogError}</p>}
               {catalog && models.length === 0 && <p>Nenhum modelo compatível está disponível neste catálogo. Confira as restrições da conta no OpenRouter ou tente atualizar a lista.</p>}
@@ -350,6 +355,24 @@ export default function FormIaSettings() {
             </button>
           </div>
       </form>
+
+      {iaConfig.hasKey && (
+        <div className="rounded-2xl border border-(--quaternary-color)/15 bg-(--seventh-color)/40 p-5">
+          <label className="flex cursor-pointer items-start gap-3">
+            <Checkbox
+              checked={slowNoticeEnabled}
+              onChange={(event) => setSlowNoticeEnabled(event.target.checked)}
+              aria-describedby="slowNoticeHelp"
+            />
+            <span>
+              <span className="block text-sm font-medium text-(--text-primary)">Avisar quando a IA demorar</span>
+              <span id="slowNoticeHelp" className="block text-xs text-(--text-tertiary)">
+                Depois de 40 segundos sem resposta, recomenda trocar de modelo durante as análises.
+              </span>
+            </span>
+          </label>
+        </div>
+      )}
     </div>
   );
 }
