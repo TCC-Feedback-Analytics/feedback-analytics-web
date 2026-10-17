@@ -209,7 +209,7 @@ export default function MobileMenuDrawer({
                 }`}
               >
                 <FaCommentDots className="h-5 w-5 text-cyan-400" />
-                <span className="text-xs font-bold truncate w-full">Feedback</span>
+                <span className="text-xs font-bold truncate w-full">Avaliação</span>
               </NavLink>
 
               <NavLink

@@ -23,7 +23,7 @@ type Props = { snapshot: MilestoneSnapshot; watching: boolean; refresh: () => vo
 
 function setup(initial: Props) {
   return renderHook(
-    (props: Props) => useFeedbackMilestones({ enterpriseId: 'ent-1', inScope: 'no QR geral da empresa', ...props }),
+    (props: Props) => useFeedbackMilestones({ enterpriseId: 'ent-1', inScope: 'na empresa (avaliação geral)', ...props }),
     { wrapper, initialProps: initial },
   );
 }
@@ -55,7 +55,7 @@ describe('useFeedbackMilestones', () => {
     rerender({ snapshot: { accountTotal: 10, scopeKey: 'COMPANY:', scopeTotal: 10 }, watching: false, refresh });
     expect(toast.success).toHaveBeenCalledWith(
       'A IA já pode analisar os comentários',
-      'Você chegou a 10 feedbacks no QR geral da empresa. Use Analisar comentários com IA, no topo.',
+      'Você chegou a 10 feedbacks na empresa (avaliação geral). Use Analisar comentários com IA, no topo.',
       expect.anything(),
     );
   });

@@ -33,7 +33,7 @@ export default function MobileBottomNav({
       isCentralButton: true,
     },
     {
-      label: 'Feedback',
+      label: 'Avaliação',
       to: '/user/edit/feedback-general',
       icon: FaCommentDots,
       tourAttr: 'mobile-nav-feedback',

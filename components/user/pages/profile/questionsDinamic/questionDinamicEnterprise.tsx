@@ -7,7 +7,7 @@ import GuidedQuestionsEditor from "components/user/pages/profile/questionsDinami
 import { normalizeCompanyFeedbackQuestions } from "components/user/pages/profile/questionsDinamic/companyQuestionUtils";
 
 /**
- * Perguntas do "Feedback geral" (escopo empresa). Fino wrapper do
+ * Perguntas da "Avaliação da empresa" (escopo empresa). Fino wrapper do
  * QuestionsEditor compartilhado, configurado para o escopo COMPANY
  * (3 perguntas obrigatórias, salvas via collecting_data).
  */

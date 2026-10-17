@@ -9,7 +9,7 @@ const base = {
   metricName: 'Média de satisfação',
   unit: 'avaliações',
   kind: 'mean' as const,
-  ofScope: 'do QR geral da empresa',
+  ofScope: 'da empresa (avaliação geral)',
 };
 
 describe('[Unidade] PrecisionBadge', () => {
@@ -25,7 +25,7 @@ describe('[Unidade] PrecisionBadge', () => {
     const dialog = screen.getByRole('dialog');
     expect(dialog).toHaveTextContent('Média de satisfação');
     expect(dialog).toHaveTextContent('O valor real deve estar entre 4,0 e 4,4');
-    expect(dialog).toHaveTextContent('Baseado em 128 avaliações do QR geral da empresa');
+    expect(dialog).toHaveTextContent('Baseado em 128 avaliações da empresa (avaliação geral)');
     expect(dialog).toHaveTextContent('não garante que quem respondeu represente todos os seus clientes');
 
     fireEvent.click(screen.getByRole('button', { name: 'Fechar' }));

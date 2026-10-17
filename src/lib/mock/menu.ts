@@ -42,7 +42,7 @@ export const menuData: MenuItem[] = [
     tourAttr: "nav-collecting",
     children: [
       {
-        label: "Feedback geral",
+        label: "Avaliação da empresa",
         to: "/user/edit/feedback-general",
         icon: FaCommentDots,
         tourAttr: "tour-feedback-general",
