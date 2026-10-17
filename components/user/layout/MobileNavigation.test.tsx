@@ -60,6 +60,7 @@ describe('[Unidade] navegação móvel', () => {
     expect(screen.getByRole('dialog', { name: 'Mapa de Navegação' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Recebidos' })).toHaveAttribute('href', '/user/feedbacks/all');
     expect(screen.getByRole('link', { name: 'Configuração de IA' })).toHaveAttribute('href', '/user/edit/ia-settings');
+    expect(screen.getByRole('link', { name: 'Comparar itens' })).toHaveAttribute('href', '/user/compare');
 
     await user.click(screen.getByRole('button', { name: 'Fechar menu' }));
     expect(onClose).toHaveBeenCalledOnce();
