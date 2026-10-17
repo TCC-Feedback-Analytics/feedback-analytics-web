@@ -6,6 +6,8 @@ export interface OnboardingContextValue {
   hasConfiguredAI: boolean;
   hasCompletedAISetup: boolean;
   isTourDismissed: boolean;
+  /** Guia ainda não concluído nem pulado, com a configuração inicial terminada: pode ser oferecido. */
+  isGuidePending: boolean;
   tourSaveError: string | null;
   /** A configuração inicial está em andamento (onboarding ou tela "Preparando sua conta"). */
   isInitialSetupRunning: boolean;

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor, cleanup, within } from '@testing-library/react';
+import { render, screen, waitFor, cleanup, within, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 const mocks = vi.hoisted(() => ({
@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   useInsightsControls: vi.fn(),
   useScopedInsightsReport: vi.fn(),
   revalidator: { revalidate: vi.fn(), state: 'idle' },
+  onboarding: { isGuidePending: false, isTourActive: false, startTour: vi.fn() },
 }));
 
 vi.mock('react-router-dom', async () => {
@@ -32,6 +33,10 @@ vi.mock('src/services/serviceFeedbacks', () => ({
 
 vi.mock('src/lib/context/insightsControls', () => ({
   useInsightsControls: mocks.useInsightsControls,
+}));
+
+vi.mock('src/lib/context/onboardingContext', () => ({
+  useOnboarding: () => mocks.onboarding,
 }));
 
 vi.mock('src/lib/hooks/useScopedInsightsReport', () => ({
@@ -123,6 +128,10 @@ describe('[Unidade] Dashboard Page', () => {
   afterEach(() => {
     vi.clearAllMocks();
     cleanup();
+    mocks.onboarding.isGuidePending = false;
+    mocks.onboarding.isTourActive = false;
+    window.localStorage.clear();
+    window.sessionStorage.clear();
   });
 
   it('renderiza título e saudação com dados do loader', async () => {
@@ -298,5 +307,75 @@ describe('[Unidade] Dashboard Page', () => {
     expect(within(tone).getByText('Positivo')).toBeInTheDocument();
     expect(within(tone).getByText('20 comentários analisados')).toBeInTheDocument();
     expect(within(tone).getByText('60%')).toBeInTheDocument();
+  });
+
+  describe('convite do guia', () => {
+    const renderDashboard = () => render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>,
+    );
+    const withAccount = (accountTotalFeedbacks: number) => {
+      vi.mocked(useLoaderData).mockReturnValue({
+        stats: feedbackStats, accountTotalFeedbacks, qrActive: true, dashboardError: null,
+      } as ReturnType<typeof useLoaderData>);
+    };
+
+    it('o guia não abre sozinho; com o primeiro feedback, convida e começa ao aceitar', async () => {
+      mocks.onboarding.isGuidePending = true;
+      withAccount(1);
+      renderDashboard();
+      expect(await screen.findByText('Seu primeiro feedback chegou! 🎉')).toBeInTheDocument();
+      expect(mocks.onboarding.startTour).not.toHaveBeenCalled();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Começar o guia' }));
+      expect(mocks.onboarding.startTour).toHaveBeenCalledOnce();
+      expect(screen.queryByText('Seu primeiro feedback chegou! 🎉')).not.toBeInTheDocument();
+    });
+
+    it('sem feedback, não convida na primeira sessão, só na próxima', async () => {
+      mocks.onboarding.isGuidePending = true;
+      withAccount(0);
+      const first = renderDashboard();
+      await screen.findByRole('region', { name: 'Seu painel está pronto. Falta o primeiro feedback.' });
+      expect(screen.queryByText('Quer conhecer o sistema?')).not.toBeInTheDocument();
+      first.unmount();
+
+      // Outra sessão do navegador (o app foi aberto de novo).
+      window.sessionStorage.clear();
+      renderDashboard();
+      expect(await screen.findByText('Quer conhecer o sistema?')).toBeInTheDocument();
+    });
+
+    it('"Depois" adia: volta na próxima sessão e para depois de 2 vezes', async () => {
+      mocks.onboarding.isGuidePending = true;
+      withAccount(1);
+      for (let round = 0; round < 2; round += 1) {
+        window.sessionStorage.clear();
+        const view = renderDashboard();
+        fireEvent.click(await screen.findByRole('button', { name: 'Depois' }));
+        expect(screen.queryByText('Seu primeiro feedback chegou! 🎉')).not.toBeInTheDocument();
+        view.unmount();
+      }
+      window.sessionStorage.clear();
+      renderDashboard();
+      await screen.findByText('Olá, Usuário Teste');
+      expect(screen.queryByText('Seu primeiro feedback chegou! 🎉')).not.toBeInTheDocument();
+      expect(mocks.onboarding.startTour).not.toHaveBeenCalled();
+    });
+
+    it('guia já concluído ou pulado: nada de convite', async () => {
+      withAccount(5);
+      renderDashboard();
+      await screen.findByText('Olá, Usuário Teste');
+      expect(screen.queryByRole('button', { name: 'Começar o guia' })).not.toBeInTheDocument();
+    });
+
+    it('na conta zerada, "Conhecer o sistema" abre o guia', async () => {
+      withAccount(0);
+      renderDashboard();
+      fireEvent.click(await screen.findByRole('button', { name: /Conhecer o sistema/ }));
+      expect(mocks.onboarding.startTour).toHaveBeenCalledOnce();
+    });
   });
 });

@@ -49,6 +49,16 @@ describe('useFeedbackMilestones', () => {
     );
   });
 
+  it('com o convite do guia ativo, não repete a comemoração do primeiro feedback', () => {
+    const refresh = vi.fn();
+    const { rerender } = renderHook(
+      (props: Props) => useFeedbackMilestones({ enterpriseId: 'ent-1', inScope: 'na empresa (avaliação geral)', celebrateFirst: false, ...props }),
+      { wrapper, initialProps: { snapshot: { accountTotal: 0, scopeKey: 'COMPANY:', scopeTotal: 0 }, watching: true, refresh } },
+    );
+    rerender({ snapshot: { accountTotal: 1, scopeKey: 'COMPANY:', scopeTotal: 1 }, watching: false, refresh });
+    expect(toast.success).not.toHaveBeenCalled();
+  });
+
   it('avisa quando o escopo chega a 10 feedbacks', () => {
     const refresh = vi.fn();
     const { rerender } = setup({ snapshot: { accountTotal: 9, scopeKey: 'COMPANY:', scopeTotal: 9 }, watching: true, refresh });
