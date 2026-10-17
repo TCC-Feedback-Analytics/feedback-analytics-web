@@ -95,7 +95,7 @@
   height: 50px;
   border-radius: 10px;
   background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
-  color: #f8fafc;
+  color: var(--on-primary);
   font-weight: 600;
   padding: 10px 14px;
   border: 1px solid color-mix(in srgb, var(--primary-color) 55%, transparent);

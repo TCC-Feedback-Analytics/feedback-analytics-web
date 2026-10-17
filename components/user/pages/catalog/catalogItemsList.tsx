@@ -102,7 +102,7 @@ export default function CatalogItemsList({ kindSlug }: CatalogItemsListProps) {
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-(--primary-color)/12 text-(--primary-color)"><FaBoxOpen aria-hidden /></div>
             <h2 className="font-montserrat text-lg font-semibold text-(--text-primary)">{config.plural}</h2>
           </div>
-          <button type="button" onClick={() => setDialogOpen(true)} className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-(--primary-color) px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-(--secondary-color)"><FaPlus aria-hidden /> Cadastrar {config.singular}</button>
+          <button type="button" onClick={() => setDialogOpen(true)} className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-(--primary-color) px-4 py-2.5 text-sm font-semibold text-(--on-primary) transition hover:bg-(--secondary-color)"><FaPlus aria-hidden /> Cadastrar {config.singular}</button>
         </div>
 
         {items.length > 0 && (
@@ -181,7 +181,7 @@ export default function CatalogItemsList({ kindSlug }: CatalogItemsListProps) {
               <div><label htmlFor="catalog-item-description" className="mb-2 block text-sm font-semibold text-(--text-primary)">Descrição <span className="font-normal text-(--text-tertiary)">(opcional)</span></label><textarea id="catalog-item-description" value={newDescription} onChange={(event) => setNewDescription(event.target.value)} rows={4} placeholder="Uma descrição curta para identificar este item" className="w-full resize-y rounded-xl border border-(--quaternary-color)/18 bg-(--seventh-color) px-4 py-3 text-sm text-(--text-primary) outline-none transition focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/20" /></div>
             </DialogBody>
           </form>
-          <DialogFooter><button type="button" onClick={() => setDialogOpen(false)} className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-(--text-secondary) transition hover:bg-(--seventh-color)"><FaXmark aria-hidden /> Cancelar</button><button type="submit" form="catalog-item-form" disabled={busy || !newName.trim()} className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-(--primary-color) px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-(--secondary-color) disabled:cursor-not-allowed disabled:opacity-50"><FaFloppyDisk aria-hidden /> {busy ? 'Salvando…' : 'Cadastrar'}</button></DialogFooter>
+          <DialogFooter><button type="button" onClick={() => setDialogOpen(false)} className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-(--text-secondary) transition hover:bg-(--seventh-color)"><FaXmark aria-hidden /> Cancelar</button><button type="submit" form="catalog-item-form" disabled={busy || !newName.trim()} className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-(--primary-color) px-4 py-2.5 text-sm font-semibold text-(--on-primary) transition hover:bg-(--secondary-color) disabled:cursor-not-allowed disabled:opacity-50"><FaFloppyDisk aria-hidden /> {busy ? 'Salvando…' : 'Cadastrar'}</button></DialogFooter>
         </DialogContent>
       </Dialog>
 

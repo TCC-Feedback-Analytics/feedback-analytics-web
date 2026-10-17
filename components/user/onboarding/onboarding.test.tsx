@@ -465,7 +465,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
 
     fireEvent.click(screen.getByText("Próximo"));
     expect(screen.getByText("Dados e configurações da empresa")).toBeInTheDocument();
-    expect(screen.getByText(/Essas escolhas definem o que seus clientes poderão avaliar/)).toBeInTheDocument();
+    expect(screen.getByText(/Os produtos, serviços e departamentos que seus clientes avaliam se ativam no Catálogo/)).toBeInTheDocument();
 
     // Pular tour
     fireEvent.click(screen.getByText("Pular"));

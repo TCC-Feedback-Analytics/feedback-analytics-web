@@ -38,10 +38,7 @@ function Detail({
   );
 }
 
-export default function CompanyProfileSection({
-  enterprise,
-  children,
-}: CompanyProfileSectionProps) {
+export default function CompanyProfileSection({ enterprise }: CompanyProfileSectionProps) {
   const document = formatDocument(enterprise.document ?? '', enterprise.account_type) || 'Não informado';
   const accountType = enterprise.account_type || 'Não informado';
   const subscription = SUBSCRIPTION_LABELS[enterprise.subscription_status] || 'Não informado';
@@ -68,36 +65,21 @@ export default function CompanyProfileSection({
         <a href="#dados-pessoais" className="text-sm font-semibold text-(--primary-color) transition hover:text-(--secondary-color)">Ver dados pessoais</a>
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <CardSimple>
-          <div className="w-full">
-            <div className="mb-5 flex items-center gap-2">
-              <FaFileLines className="text-(--primary-color)" aria-hidden />
-              <h3 className="font-montserrat text-base font-bold text-(--text-primary)">Cadastro da empresa</h3>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-              <Detail icon={<FaFileLines />} label="Documento" value={document} />
-              <Detail icon={<FaLayerGroup />} label="Tipo de cadastro" value={accountType} />
-              <Detail icon={<FaCalendarDays />} label="Conta criada em" value={getCreationDate(enterprise.created_at)} />
-              <Detail icon={<FaBuilding />} label="Status da conta" value={subscription} />
-            </div>
+      {/* Os tipos de avaliação (produtos, serviços, departamentos) ficam no Catálogo. */}
+      <CardSimple>
+        <div className="w-full">
+          <div className="mb-5 flex items-center gap-2">
+            <FaFileLines className="text-(--primary-color)" aria-hidden />
+            <h3 className="font-montserrat text-base font-bold text-(--text-primary)">Cadastro da empresa</h3>
           </div>
-        </CardSimple>
-
-        <CardSimple>
-          <div className="w-full">
-            <div className="mb-5 flex items-start gap-3">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--primary-color)/12 text-(--primary-color)" aria-hidden>
-                <FaLayerGroup />
-              </span>
-              <div>
-                <h3 className="font-montserrat text-base font-bold text-(--text-primary)">Escopos da operação</h3>
-              </div>
-            </div>
-            {children}
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <Detail icon={<FaFileLines />} label="Documento" value={document} />
+            <Detail icon={<FaLayerGroup />} label="Tipo de cadastro" value={accountType} />
+            <Detail icon={<FaCalendarDays />} label="Conta criada em" value={getCreationDate(enterprise.created_at)} />
+            <Detail icon={<FaBuilding />} label="Status da conta" value={subscription} />
           </div>
-        </CardSimple>
-      </div>
+        </div>
+      </CardSimple>
     </section>
   );
 }

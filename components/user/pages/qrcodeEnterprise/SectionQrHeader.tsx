@@ -36,7 +36,7 @@ const SectionQrHeader = memo(function SectionQrHeader({
             className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-colors ${
               qrActive
                 ? 'border-rose-500/30 bg-rose-500/10 text-rose-200 hover:bg-rose-500/15'
-                : 'border-(--primary-color) bg-(--primary-color) text-white hover:bg-(--secondary-color)'
+                : 'border-(--primary-color) bg-(--primary-color) text-(--on-primary) hover:bg-(--secondary-color)'
             } disabled:opacity-60`}>
             {qrLoading
               ? 'Atualizando…'
