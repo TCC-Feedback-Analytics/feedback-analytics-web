@@ -10,6 +10,7 @@ import {
   FaCommentDots,
   FaBoxesStacked,
   FaBrain,
+  FaScaleBalanced,
 } from 'react-icons/fa6';
 
 export const menuData: MenuItem[] = [
@@ -18,6 +19,12 @@ export const menuData: MenuItem[] = [
     to: "/user/dashboard",
     icon: FaChartPie,
     tourAttr: "nav-dashboard",
+  },
+  {
+    // Dois itens do mesmo tipo lado a lado, no mesmo período (etapa 02).
+    label: "Comparar itens",
+    to: "/user/compare",
+    icon: FaScaleBalanced,
   },
   {
     label: "Feedbacks",

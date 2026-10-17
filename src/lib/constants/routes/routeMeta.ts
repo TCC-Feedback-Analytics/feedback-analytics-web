@@ -41,7 +41,7 @@ const ROUTE_META: Record<string, RouteMeta> = {
   '/user/compare': {
     title: 'Comparar itens',
     description: 'Dois itens do mesmo tipo lado a lado, no mesmo período, nas métricas que os dois têm.',
-    breadcrumb: [{ label: 'Visão geral', to: '/user/dashboard' }, { label: 'Comparar itens' }],
+    breadcrumb: [{ label: 'Comparar itens' }],
   },
   '/user/profile': {
     title: 'Perfil',
