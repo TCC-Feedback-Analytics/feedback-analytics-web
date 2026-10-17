@@ -4,7 +4,7 @@ import { useToast } from 'components/public/forms/messages/useToast';
 
 /**
  * Link do formulário geral da empresa e o QR Code dele, com as ações de baixar,
- * copiar e compartilhar. Usado em Feedback geral e no bloco de boas-vindas do
+ * copiar e compartilhar. Usado em Avaliação da empresa e no bloco de boas-vindas do
  * Dashboard, para as duas telas oferecerem exatamente o mesmo link.
  */
 export function useEnterpriseFeedbackLink(enterprise: { id: string; full_name?: string | null }) {

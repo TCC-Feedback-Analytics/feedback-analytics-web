@@ -6,7 +6,7 @@ import { INTENT_QR_DISABLE, INTENT_QR_ENABLE } from 'src/lib/constants/routes/in
 const QR_INTENTS = new Set<string>([INTENT_QR_ENABLE, INTENT_QR_DISABLE]);
 
 /**
- * Action da tela "Feedback geral": despacha por intent.
+ * Action da tela "Avaliação da empresa": despacha por intent.
  * - Ativar/desativar QR geral → ActionQrCodeEnterprise.
  * - Salvar perguntas gerais (INTENT_FEEDBACK_SETTINGS_SAVE_COMPANY_QUESTIONS) → ActionFeedbackSettings.
  */

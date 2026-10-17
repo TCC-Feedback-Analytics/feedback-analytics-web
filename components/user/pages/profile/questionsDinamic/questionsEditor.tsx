@@ -157,7 +157,7 @@ function getLengthState(length: number, optional: boolean) {
 }
 
 /**
- * Editor de perguntas reutilizável — usado tanto no "Feedback geral" (escopo
+ * Editor de perguntas reutilizável — usado tanto na "Avaliação da empresa" (escopo
  * empresa) quanto na configuração de cada item do catálogo. Mantém o mesmo
  * visual e o seletor Editar | Prévia; o comportamento (3 obrigatórias x
  * opcionais, action/intent/payload, escopo da prévia) vem por props.

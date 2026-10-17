@@ -85,7 +85,7 @@ export default function InsightsActionBar() {
         </>}
 
         {isProcessing && <p role="status" className="text-xs text-(--text-secondary)">
-          {pollingWarning ? 'Reconectando ao progresso...' : isAnalyzingRaw ? 'Analisando feedbacks em segundo plano' : 'Escrevendo o resumo da IA em segundo plano'}
+          {pollingWarning ? 'Reconectando ao progresso...' : isAnalyzingRaw ? 'Analisando feedbacks em segundo plano' : 'Escrevendo o resumo dos comentários em segundo plano'}
           {progress && progress.total > 0 ? ` (${progress.done}/${progress.total})` : ''}
         </p>}
 

@@ -45,7 +45,7 @@ export default function DashboardWelcome({ enterprise, qrActive, totalFeedbacks 
   const { feedbackUrl, showCopied, download, copyLink, share } = useEnterpriseFeedbackLink(enterprise);
   const collected = Math.min(totalFeedbacks, MIN_FEEDBACKS_FOR_AI);
   const progressPct = Math.round((collected / MIN_FEEDBACKS_FOR_AI) * 100);
-  // Ativa o QR geral ali mesmo, pela action da tela Feedback geral. O passo fica
+  // Ativa o QR geral ali mesmo, pela action da tela Avaliação da empresa. O passo fica
   // na lista como concluído, para os números dos passos seguintes não mudarem.
   const qrFetcher = useFetcher<QrCodeEnterpriseActionResponse>();
   const activating = qrFetcher.state !== 'idle';

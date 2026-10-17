@@ -281,7 +281,7 @@ export default function GenerateInsightsDialog({
                 )}
               </div>
               <div>
-                <h5 className="text-xs font-bold text-(--text-primary)">2. Escrever o resumo e as recomendações</h5>
+                <h5 className="text-xs font-bold text-(--text-primary)">2. Escrever o resumo dos comentários e as recomendações</h5>
                 {isRegeneratingInsights && insightsProgress && insightsProgress.total > 0 && (
                   <p className="text-[11px] text-(--primary-color) font-medium">
                     Escrevendo o resumo ({insightsProgress.done} de {insightsProgress.total})...

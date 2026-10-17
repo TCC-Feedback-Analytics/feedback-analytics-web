@@ -56,25 +56,25 @@ export const HELP_TOPICS: Record<HelpTopicKey, HelpTopicContent> = {
     paragraphs: [
       'Este item é UM ponto específico da sua operação: um produto, um serviço ou um departamento. Tudo o que você configura aqui (nome, perguntas e QR Code) vale só para ele.',
       'Cada item tem o seu próprio QR Code e gera métricas separadas, então você compara o desempenho de cada um sem misturar as respostas.',
-      'É diferente do Feedback geral, que avalia a empresa como um todo. Use os itens para enxergar os detalhes; use o Feedback geral para a visão do conjunto.',
+      'É diferente da Avaliação da empresa, que avalia a empresa como um todo. Use os itens para enxergar os detalhes; use a Avaliação da empresa para a visão do conjunto.',
     ],
     example: 'Uma loja pode ter os itens Caixa, Estoque e Atendimento, cada um com QR Code e nota próprios.',
   },
   generalFeedback: {
-    title: 'O que é o Feedback geral',
+    title: 'O que é a Avaliação da empresa',
     paragraphs: [
-      'O Feedback geral é a avaliação da sua empresa COMO UM TODO, sem separar por produto, serviço ou departamento. É a visão ampla do seu negócio.',
+      'A Avaliação da empresa é a avaliação da sua empresa COMO UM TODO, sem separar por produto, serviço ou departamento. É a visão ampla do seu negócio.',
       'São 3 perguntas para manter essa avaliação comparável ao longo do tempo. Se você quiser a opinião sobre algo específico, configure as perguntas dentro do item correspondente, no Catálogo.',
-      'O que você salva aqui vale apenas para o Feedback geral e não altera as perguntas dos itens do Catálogo.',
+      'O que você salva aqui vale apenas para a Avaliação da empresa e não altera as perguntas dos itens do Catálogo.',
     ],
     example: '"Como foi sua experiência com nosso atendimento?" mede a empresa toda, não uma loja só.',
   },
   evaluationQuestions: {
     title: 'Perguntas de avaliação',
     paragraphs: [
-      'São as perguntas que o cliente responde ao escanear o QR Code deste item, além da nota em ESTRELAS. Servem para você entender o porquê da nota, não só o número.',
+      'São as perguntas que o cliente responde ao avaliar este item (pelo QR Code ou pelo link), além da nota em ESTRELAS. Servem para você entender o porquê da nota, não só o número.',
       'Você pode ter até 3 perguntas, cada uma com subperguntas opcionais. Quanto mais curto o formulário, maior a chance de o cliente responder até o fim; por isso o limite.',
-      'O que você salva aqui vale só para este item: não muda as perguntas dos outros itens nem as do Feedback geral.',
+      'O que você salva aqui vale só para este item: não muda as perguntas dos outros itens nem as da Avaliação da empresa.',
     ],
     example: 'Depois da nota, o cliente vê: "O que mais pesou na sua avaliação?".',
   },

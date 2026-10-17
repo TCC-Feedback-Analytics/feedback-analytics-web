@@ -150,8 +150,8 @@ describe('[Unidade] Dashboard Page', () => {
     );
 
     const section = await screen.findByRole('region', { name: 'Avaliação por estrelas' });
-    // Escopo explícito: "Geral" é só o QR geral da empresa.
-    expect(within(section).getByRole('button', { name: /QR geral da empresa/ })).toBeInTheDocument();
+    // Escopo explícito: "Geral" é só o Avaliação geral da empresa.
+    expect(within(section).getByRole('button', { name: /Avaliação geral da empresa/ })).toBeInTheDocument();
 
     // Média com parâmetro: escala, rótulo e quantidade de avaliações.
     expect(within(section).getByText('4,2')).toBeInTheDocument();
@@ -185,7 +185,7 @@ describe('[Unidade] Dashboard Page', () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByText('Ainda sem avaliações no QR geral da empresa.')).toBeInTheDocument();
+    expect(await screen.findByText('Ainda sem avaliações na empresa (avaliação geral).')).toBeInTheDocument();
     expect(screen.queryByText('0,0')).not.toBeInTheDocument();
   });
 
@@ -199,10 +199,12 @@ describe('[Unidade] Dashboard Page', () => {
     const section = await screen.findByRole('region', { name: /Análise dos comentários/ });
     expect(section).toHaveAttribute('data-tour', 'tour-dashboard-comments');
     expect(mocks.useScopedInsightsReport).toHaveBeenCalledWith({ withAnalysis: true });
-    expect(within(section).getByRole('button', { name: /QR geral da empresa/ })).toBeInTheDocument();
-    expect(within(section).getByText('Ainda sem comentários analisados pela IA no QR geral da empresa.')).toBeInTheDocument();
-    expect(within(section).getByText('Resumo e recomendações da IA')).toBeInTheDocument();
-    expect(within(section).getByText('Ainda não há resumo da IA para este escopo')).toBeInTheDocument();
+    expect(within(section).getByRole('button', { name: /Avaliação geral da empresa/ })).toBeInTheDocument();
+    expect(within(section).getByText('Ainda sem comentários analisados pela IA na empresa (avaliação geral).')).toBeInTheDocument();
+    expect(within(section).getByText('Resumo dos comentários e recomendações')).toBeInTheDocument();
+    // Diz de onde vêm os dados: só os comentários, com a nota e as respostas de cada um.
+    expect(within(section).getByText(/A IA lê os comentários analisados, junto com a nota e as respostas de cada um/)).toBeInTheDocument();
+    expect(within(section).getByText('Ainda não há resumo dos comentários para este escopo')).toBeInTheDocument();
     expect(within(section).getByRole('link', { name: /Ver a análise completa dos comentários/ }))
       .toHaveAttribute('href', '/user/insights/overview');
     expect(screen.queryByText('Relatório de Insights')).not.toBeInTheDocument();
@@ -250,7 +252,7 @@ describe('[Unidade] Dashboard Page', () => {
     expect(container.querySelector('[data-tour="tour-dashboard-comments"]')).toBeInTheDocument();
 
     // As seções vazias saem enquanto a conta não tem feedbacks.
-    expect(screen.queryByText('Ainda sem avaliações no QR geral da empresa.')).not.toBeInTheDocument();
+    expect(screen.queryByText('Ainda sem avaliações na empresa (avaliação geral).')).not.toBeInTheDocument();
     expect(screen.queryByRole('region', { name: /Tom dos comentários/ })).not.toBeInTheDocument();
   });
 
