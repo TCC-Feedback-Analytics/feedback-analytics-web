@@ -181,6 +181,7 @@ export default function SectionMovement({ variant = 'dashboard' }: SectionMoveme
     <section
       className="font-work-sans space-y-4 rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6"
       aria-labelledby="movement-section-title"
+      data-tour={variant === 'dashboard' ? 'tour-movement' : undefined}
     >
       <header className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="movement-section-title" className="flex items-center gap-1 font-montserrat text-lg font-semibold text-(--text-primary)">

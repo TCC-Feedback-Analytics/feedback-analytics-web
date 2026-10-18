@@ -14,6 +14,8 @@ import {
   FaSliders,
   FaCalendarDays,
   FaScaleBalanced,
+  FaChartColumn,
+  FaRankingStar,
 } from "react-icons/fa6";
 
 export interface AIContextDialogProps {
@@ -102,11 +104,18 @@ export const INTERACTIVE_STEPS: TourStepData[] = [
     description: "A nota de 1 a 5 que os clientes marcaram: a média, as avaliações positivas (4–5★) e as críticas (1–2★). A etiqueta no canto diz de qual escopo são os números; clique nela para trocar. Em \"Ver todas as métricas de estrelas\" ficam a distribuição completa e as neutras.",
   },
   {
+    selector: '[data-tour="tour-movement"]',
+    route: "/user/dashboard",
+    title: "Movimento das avaliações",
+    icon: FaChartColumn,
+    description: "As barras mostram quantas avaliações chegaram em cada dia, semana ou mês; a linha embaixo, a média das estrelas no mesmo intervalo. Dá para ver se as avaliações estão aumentando e se a nota vem subindo ou caindo.",
+  },
+  {
     selector: '[data-tour="tour-form-questions"]',
     route: "/user/dashboard",
     title: "Perguntas do formulário",
     icon: FaCircleQuestion,
-    description: "Cada pergunta do seu formulário aparece aqui, na ordem, com a nota, as respostas e o % de satisfeitos. Clique em \"Ver todas as métricas desta pergunta\" para ver as subperguntas. Usa as respostas dos clientes, mesmo sem a IA configurada.",
+    description: "Cada pergunta do seu formulário aparece aqui, na ordem, com a nota, as respostas e o % de satisfeitos. O selo \"Pesa muito na nota\" mostra as perguntas que mais mexem nas estrelas, e \"Melhore primeiro\" aponta, entre elas, a de nota mais baixa. Clique em \"Ver todas as métricas desta pergunta\" para ver as subperguntas. Usa as respostas dos clientes, mesmo sem a IA configurada.",
   },
   {
     selector: '[data-tour="tour-dashboard-comments"]',
@@ -135,6 +144,13 @@ export const INTERACTIVE_STEPS: TourStepData[] = [
     title: "Comparar itens",
     icon: FaScaleBalanced,
     description: "Coloque dois produtos, serviços ou departamentos lado a lado, no mesmo período, e veja quem está melhor na média, nas positivas, nas críticas e no tom dos comentários. Funciona a partir de 2 itens do mesmo tipo no Catálogo.",
+  },
+  {
+    selector: '[data-tour="tour-ratings-page"]',
+    route: "/user/ratings",
+    title: "Todas as métricas de estrelas",
+    icon: FaRankingStar,
+    description: "O detalhe da nota: a distribuição de 1 a 5 estrelas, o movimento no tempo, os dias e horários em que os clientes mais avaliam (e onde a nota cai) e os clientes que voltam, com a nota de quem volta comparada à de quem avalia pela primeira vez.",
   },
   {
     selector: '[data-tour="tour-feedback-general"]',
