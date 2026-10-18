@@ -51,7 +51,8 @@ export default function Ratings() {
   }, [scope, catalogItemId, period]);
 
   return (
-    <div className="font-work-sans space-y-6">
+    // Alvo do passo "Todas as métricas de estrelas" do guia.
+    <div className="font-work-sans space-y-6" data-tour="tour-ratings-page">
       <PageHeader />
 
       {failed ? (

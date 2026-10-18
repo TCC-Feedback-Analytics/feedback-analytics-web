@@ -22,8 +22,8 @@ function PreviewCard({ title, description, example = false, tourId, children }: 
 }
 
 /**
- * "O que vai aparecer aqui": as três seções do Dashboard em prévia enquanto a
- * conta não tem feedbacks. Estrelas e comentários usam dados de exemplo
+ * "O que vai aparecer aqui": as quatro seções do Dashboard em prévia enquanto a
+ * conta não tem feedbacks. Estrelas, movimento e comentários usam dados de exemplo
  * (apagados e com selo); as perguntas são as reais do formulário. Mantém as
  * âncoras do guia, que passa por estas seções logo após o cadastro.
  */
@@ -34,7 +34,7 @@ export default function WelcomePreview({ questions }: WelcomePreviewProps) {
         O que vai aparecer aqui
       </h2>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <PreviewCard
           title="Avaliação por estrelas"
           description="A média das estrelas e quantas avaliações foram positivas e críticas, no período que você escolher e comparadas com o período anterior."
@@ -62,6 +62,25 @@ export default function WelcomePreview({ questions }: WelcomePreviewProps) {
             <p className="col-span-3 inline-flex items-center gap-1 text-[11px] font-semibold text-(--positive)">
               <FaArrowUp className="text-[0.6rem]" /> +0,3 vs. 30 dias anteriores
             </p>
+          </div>
+        </PreviewCard>
+
+        <PreviewCard
+          title="Movimento das avaliações"
+          description="Quantas avaliações chegam por dia ou semana e se a nota vem subindo ou caindo."
+          example
+          tourId="tour-movement"
+        >
+          <div className="welcome-ghost space-y-1.5" aria-hidden>
+            <div className="flex h-14 items-end gap-1">
+              {[3, 5, 4, 7, 6, 9, 8].map((height, index) => (
+                <div key={index} className="flex-1 rounded-sm bg-(--primary-color)/55" style={{ height: `${height * 10}%` }} />
+              ))}
+            </div>
+            <svg viewBox="0 0 70 16" className="block h-4 w-full" preserveAspectRatio="none">
+              <polyline points="5,11 15,10 25,11 35,7 45,8 55,5 65,4" fill="none" stroke="var(--text-primary)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+            </svg>
+            <p className="text-[11px] text-(--text-tertiary)">Mais avaliações e média subindo</p>
           </div>
         </PreviewCard>
 
