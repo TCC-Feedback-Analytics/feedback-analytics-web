@@ -19,9 +19,9 @@ const STEPS = [
 // Dados de exemplo da prévia: apagados e com selo, para não parecerem reais.
 const EXAMPLE_ROWS = [
   { metric: 'Nº de avaliações', a: '128', b: '96', verdict: '—' },
-  { metric: 'Média', a: '4,5 /5 · Ótima', b: '3,9 /5 · Boa', verdict: 'Pizza (0,6 melhor)' },
-  { metric: 'Positivas (4–5★)', a: '82%', b: '61%', verdict: 'Pizza (21 p.p. melhor)' },
-  { metric: 'Críticas (1–2★)', a: '4%', b: '12%', verdict: 'Pizza (8 p.p. melhor)' },
+  { metric: 'Média', a: '4,5 /5 · Ótima', b: '3,9 /5 · Boa', verdict: 'Pizza (nota 0,6 maior)' },
+  { metric: 'Positivas (4–5★)', a: '82%', b: '61%', verdict: 'Pizza (21 pontos a mais)' },
+  { metric: 'Críticas (1–2★)', a: '4%', b: '12%', verdict: 'Pizza (8 pontos a menos)' },
   { metric: 'Tom dos comentários', a: '+52 · Positivo', b: '+44 · Positivo', verdict: 'Diferença incerta' },
 ];
 

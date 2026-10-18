@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { comparePeriods, nssFromCounts, nssInterval, wilsonPctInterval } from './periodComparison';
+import { comparePeriods, formatDelta, nssFromCounts, nssInterval, wilsonPctInterval } from './periodComparison';
 
 describe('comparePeriods', () => {
   it('sem referência no período anterior', () => {
@@ -55,5 +55,14 @@ describe('intervalos', () => {
     expect(interval.upper).toBeGreaterThan(40);
     expect(nssFromCounts({ positive: 0, neutral: 0, negative: 0 })).toBeNull();
     expect(nssInterval({ positive: 0, neutral: 0, negative: 0 })).toBeNull();
+  });
+});
+
+describe('formatDelta', () => {
+  it('porcentagem em pontos, sem "p.p."', () => {
+    expect(formatDelta(21, 'points')).toBe('+21 pontos');
+    expect(formatDelta(-1, 'points')).toBe('−1 ponto');
+    expect(formatDelta(0.3, 'rating')).toBe('+0,3');
+    expect(formatDelta(-8, 'nss')).toBe('−8');
   });
 });

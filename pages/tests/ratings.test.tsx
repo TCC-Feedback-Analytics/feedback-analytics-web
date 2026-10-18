@@ -124,8 +124,8 @@ describe('[Unidade] Página Todas as métricas de estrelas', () => {
 
       expect(await screen.findByLabelText('Média: −1,0 vs. 30 dias anteriores, piorou')).toBeInTheDocument();
       // Positivas 50% vs. 85%; críticas 25% vs. 5% (subir críticas é piorar).
-      expect(screen.getByLabelText('Positivas: −35 p.p. vs. 30 dias anteriores, piorou')).toBeInTheDocument();
-      expect(screen.getByLabelText('Críticas: +20 p.p. vs. 30 dias anteriores, piorou')).toBeInTheDocument();
+      expect(screen.getByLabelText('Positivas: −35 pontos vs. 30 dias anteriores, piorou')).toBeInTheDocument();
+      expect(screen.getByLabelText('Críticas: +20 pontos vs. 30 dias anteriores, piorou')).toBeInTheDocument();
       expect(mocks.getFeedbackStats).toHaveBeenCalledWith({ scope_type: 'PRODUCT', catalog_item_id: 'p1', ...previousParams });
     });
 
