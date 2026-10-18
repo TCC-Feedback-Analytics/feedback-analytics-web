@@ -449,6 +449,8 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
 
     // Tour começa apenas após a confirmação de pending pelo servidor.
     expect(await screen.findByText("Dashboard de Resultados")).toBeInTheDocument();
+    // Com 15 passos, o contador fica numa linha própria, ao lado dos pontos.
+    expect(screen.getByText("1 de 15")).toBeInTheDocument();
 
     // Escopo e período, as seções do Dashboard e depois cada página da Análise dos comentários.
     fireEvent.click(screen.getByText("Próximo"));
