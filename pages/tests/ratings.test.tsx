@@ -15,6 +15,7 @@ vi.mock('react-router-dom', async () => vi.importActual<typeof import('react-rou
 vi.mock('src/services/serviceFeedbacks', () => ({
   ServiceGetFeedbackStats: mocks.getFeedbackStats,
   ServiceGetFeedbackTimeline: mocks.getFeedbackTimeline,
+  ServiceGetFeedbackHeatmap: () => Promise.resolve({ tz: 'America/Sao_Paulo', total: 0, cells: [] }),
 }));
 
 vi.mock('src/lib/context/insightsControls', () => ({
