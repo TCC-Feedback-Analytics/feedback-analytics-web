@@ -16,6 +16,7 @@ vi.mock('src/services/serviceFeedbacks', () => ({
   ServiceGetFeedbackStats: mocks.getFeedbackStats,
   ServiceGetFeedbackTimeline: mocks.getFeedbackTimeline,
   ServiceGetFeedbackHeatmap: () => Promise.resolve({ tz: 'America/Sao_Paulo', total: 0, cells: [] }),
+  ServiceGetFeedbackCustomers: () => Promise.resolve({ identified: 0, unidentified: 0, firstTimeCount: 0, returningCount: 0, returningPct: null, returningPctCI: null, customers: 0, returningCustomers: 0, firstTime: null, returning: null }),
 }));
 
 vi.mock('src/lib/context/insightsControls', () => ({

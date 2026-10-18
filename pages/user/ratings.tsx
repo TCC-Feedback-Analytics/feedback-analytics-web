@@ -4,6 +4,7 @@ import SectionRatings from 'components/user/pages/dashboard/SectionRatings';
 import SectionEvaluationDistribution from 'components/user/pages/dashboard/SectionEvaluationDistribution';
 import SectionMovement from 'components/user/pages/dashboard/SectionMovement';
 import SectionPeakTimes from 'components/user/pages/dashboard/SectionPeakTimes';
+import SectionReturningCustomers from 'components/user/pages/dashboard/SectionReturningCustomers';
 import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { ServiceGetFeedbackStats } from 'src/services/serviceFeedbacks';
 import { metricsPeriodParams } from 'src/lib/utils/metricsPeriod';
@@ -13,8 +14,8 @@ import type { FeedbackStats } from 'lib/interfaces/domain/feedback.domain';
 /**
  * "Todas as métricas de estrelas": o detalhe da Avaliação por estrelas do
  * Dashboard, pelo escopo do cabeçalho — média, positivas, neutras e críticas, e a
- * distribuição de 1 a 5★, o movimento das avaliações no tempo e os dias e
- * horários de pico.
+ * distribuição de 1 a 5★, o movimento das avaliações no tempo, os dias e
+ * horários de pico e os clientes que voltam.
  */
 export default function Ratings() {
   const { scope, catalogItemId, period } = useInsightsControls();
@@ -65,6 +66,7 @@ export default function Ratings() {
           {stats && stats.totalFeedbacks > 0 && <SectionEvaluationDistribution stats={stats} />}
           <SectionMovement variant="detail" />
           <SectionPeakTimes />
+          <SectionReturningCustomers />
         </>
       )}
     </div>
