@@ -1,7 +1,8 @@
 import { Link, useLoaderData, useParams } from 'react-router-dom';
 import PageHeader from 'components/user/shared/PageHeader';
 import ScopeTag from 'components/user/shared/ScopeTag';
-import { AnswerDistribution, QuestionDelta, QuestionScore, QuestionStatusTag } from 'components/user/pages/questions/QuestionParts';
+import { AnswerDistribution, QuestionDelta, QuestionScore, QuestionStatusTag, QuestionWeightTag } from 'components/user/pages/questions/QuestionParts';
+import MetricHelp from 'components/user/shared/MetricHelp';
 import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { useFormQuestionsConfig } from 'src/lib/hooks/useFormQuestionsConfig';
 import { useScopedFeedbackQuestions } from 'src/lib/hooks/useScopedFeedbackQuestions';
@@ -77,6 +78,10 @@ export default function QuestionPage() {
                   <QuestionDelta metricName={title} metric={main} previous={previous} />
                 </div>
               )}
+              <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                <QuestionWeightTag metric={main} />
+                <MetricHelp term="ratingWeight" />
+              </div>
             </div>
             <div className="mt-4">
               <AnswerDistribution distribution={main.distribution} total={main.count} showLegend />

@@ -88,6 +88,24 @@ describe('[Unidade] SectionFormQuestions', () => {
     expect(screen.getByText('Sem dados no período anterior')).toBeInTheDocument();
   });
 
+  it('mostra o peso de cada pergunta na nota e o que melhorar primeiro', () => {
+    const espera = { ...metric('q1', 'Como foi o atendimento?', 3.1), ratingWeight: { r: 0.62, ci: { lower: 0.4, upper: 0.78 }, n: 64 } };
+    const qualidade = { ...metric('q2', 'O que achou da qualidade?', 2.8), ratingWeight: { r: 0.12, ci: { lower: -0.1, upper: 0.35 }, n: 64 } };
+    renderSection([espera, qualidade] as QuestionMetric[]);
+
+    const [first, second] = screen.getAllByRole('listitem');
+    expect(within(first).getByText('Pesa muito na nota')).toBeInTheDocument();
+    expect(within(second).getByText('Pesa pouco na nota')).toBeInTheDocument();
+    // A qualidade tem a menor nota, mas pesa pouco: o destaque vai para o atendimento.
+    expect(screen.getByText(/Melhore primeiro:/).parentElement).toHaveTextContent('Pergunta 1, “Como foi o atendimento?”. Pesa muito na nota e tem a menor nota entre as que mais pesam (3,1).');
+  });
+
+  it('sem peso calculado, diz que ainda há poucas respostas e não sugere prioridade', () => {
+    renderSection([metric('q1', 'Como foi o atendimento?', 3.1)]);
+    expect(screen.getByText('Poucas respostas para saber o peso')).toBeInTheDocument();
+    expect(screen.queryByText(/Melhore primeiro/)).not.toBeInTheDocument();
+  });
+
   it('pergunta sem respostas diz isso, com o escopo', () => {
     renderSection([metric('q1', 'Como foi o atendimento?', 3.1)]);
     expect(screen.getByText('Ainda sem respostas na empresa (avaliação geral).')).toBeInTheDocument();
