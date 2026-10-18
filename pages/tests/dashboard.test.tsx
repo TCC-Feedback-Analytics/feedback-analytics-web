@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   useRouteLoaderData: vi.fn(),
   getFeedbackStats: vi.fn(),
   getFeedbackQuestions: vi.fn(),
+  getFeedbackTimeline: vi.fn(() => Promise.resolve({ bucket: 'week', tz: 'America/Sao_Paulo', total: 0, points: [] })),
   useInsightsControls: vi.fn(),
   useScopedInsightsReport: vi.fn(),
   revalidator: { revalidate: vi.fn(), state: 'idle' },
@@ -29,6 +30,7 @@ vi.mock('react-router-dom', async () => {
 vi.mock('src/services/serviceFeedbacks', () => ({
   ServiceGetFeedbackStats: mocks.getFeedbackStats,
   ServiceGetFeedbackQuestions: mocks.getFeedbackQuestions,
+  ServiceGetFeedbackTimeline: mocks.getFeedbackTimeline,
 }));
 
 vi.mock('src/lib/context/insightsControls', () => ({
@@ -281,10 +283,11 @@ describe('[Unidade] Dashboard Page', () => {
     // As perguntas são as reais do formulário, só as ativas e na ordem.
     const questions = within(preview).getAllByText(/^\d\. /).map((node) => node.textContent);
     expect(questions).toEqual(['1. Como foi sua experiência?', '2. O atendimento foi rápido?']);
-    expect(within(preview).getAllByText('Exemplo')).toHaveLength(2);
+    expect(within(preview).getAllByText('Exemplo')).toHaveLength(3);
 
     // O guia passa pelas seções do Dashboard logo após o cadastro.
     expect(container.querySelector('[data-tour="tour-star-ratings"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-tour="tour-movement"]')).toBeInTheDocument();
     expect(container.querySelector('[data-tour="tour-form-questions"]')).toBeInTheDocument();
     expect(container.querySelector('[data-tour="tour-dashboard-comments"]')).toBeInTheDocument();
 

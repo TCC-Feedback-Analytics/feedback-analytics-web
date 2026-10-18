@@ -9,6 +9,7 @@ import type {
   FeedbackStatsOptions,
   FeedbackQuestionsOptions,
   FeedbackQuestionsResponse,
+  Interval,
 } from 'lib/interfaces/domain/feedback.domain';
 import type {
   IaAnalyzeRawRunRequest,
@@ -18,6 +19,7 @@ import type {
 } from 'lib/interfaces/contracts/ia-analyze/run.contract';
 import { getJson, postJson } from 'src/lib/utils/http';
 import type { MetricsPeriodParams } from 'src/lib/utils/metricsPeriod';
+import type { TimelineBucket } from 'src/lib/utils/timeline';
 
 /** Período das métricas (etapa 02): `[start_date, end_date)`; ausente = histórico inteiro. */
 function appendPeriod(searchParams: URLSearchParams, params?: MetricsPeriodParams) {
@@ -85,6 +87,71 @@ export function ServiceGetFeedbackAnalysis(params?: FeedbackAnalysisOptions & Me
   }`;
 
   return getJson<FeedbackAnalysisResponse>(url);
+}
+
+/** Movimento no tempo: um ponto por dia, semana ou mês (sem avaliação → `count` 0 e `mean` null). */
+export type FeedbackTimelinePoint = { start: string; count: number; mean: number | null };
+
+export type FeedbackTimelineResponse = {
+  bucket: TimelineBucket;
+  tz: string;
+  total: number;
+  points: FeedbackTimelinePoint[];
+};
+
+export type FeedbackTimelineOptions = FeedbackStatsOptions & MetricsPeriodParams & { bucket: TimelineBucket; tz: string };
+
+export function ServiceGetFeedbackTimeline(params: FeedbackTimelineOptions) {
+  const searchParams = new URLSearchParams();
+  if (params.scope_type) searchParams.append('scope_type', params.scope_type);
+  if (params.catalog_item_id) searchParams.append('catalog_item_id', params.catalog_item_id);
+  appendPeriod(searchParams, params);
+  searchParams.append('bucket', params.bucket);
+  searchParams.append('tz', params.tz);
+
+  return getJson<FeedbackTimelineResponse>(`/api/protected/user/feedbacks/timeline?${searchParams.toString()}`);
+}
+
+/** Dias e horários de pico: dia da semana (0 domingo … 6 sábado) × faixa do dia (0 madrugada … 3 noite). */
+export type FeedbackHeatmapCell = { weekday: number; band: number; count: number; mean: number | null };
+
+export type FeedbackHeatmapResponse = { tz: string; total: number; cells: FeedbackHeatmapCell[] };
+
+export function ServiceGetFeedbackHeatmap(params: FeedbackStatsOptions & MetricsPeriodParams & { tz: string }) {
+  const searchParams = new URLSearchParams();
+  if (params.scope_type) searchParams.append('scope_type', params.scope_type);
+  if (params.catalog_item_id) searchParams.append('catalog_item_id', params.catalog_item_id);
+  appendPeriod(searchParams, params);
+  searchParams.append('tz', params.tz);
+
+  return getJson<FeedbackHeatmapResponse>(`/api/protected/user/feedbacks/heatmap?${searchParams.toString()}`);
+}
+
+/** Média de um grupo de avaliações (quem volta ou primeira vez), com a margem de erro. */
+export type FeedbackCustomerGroup = { n: number; mean: number; ci: Interval };
+
+/** Clientes que voltam: "cliente" é o aparelho que avaliou, então o número é aproximado. */
+export type FeedbackCustomersResponse = {
+  identified: number;
+  unidentified: number;
+  firstTimeCount: number;
+  returningCount: number;
+  returningPct: number | null;
+  returningPctCI: Interval | null;
+  customers: number;
+  returningCustomers: number;
+  firstTime: FeedbackCustomerGroup | null;
+  returning: FeedbackCustomerGroup | null;
+};
+
+export function ServiceGetFeedbackCustomers(params: FeedbackStatsOptions & MetricsPeriodParams) {
+  const searchParams = new URLSearchParams();
+  if (params.scope_type) searchParams.append('scope_type', params.scope_type);
+  if (params.catalog_item_id) searchParams.append('catalog_item_id', params.catalog_item_id);
+  appendPeriod(searchParams, params);
+  const queryString = searchParams.toString();
+
+  return getJson<FeedbackCustomersResponse>(`/api/protected/user/feedbacks/customers${queryString ? `?${queryString}` : ''}`);
 }
 
 export function ServiceGetFeedbackQuestions(params?: FeedbackQuestionsOptions & MetricsPeriodParams) {

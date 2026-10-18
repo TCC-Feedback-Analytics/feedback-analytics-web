@@ -24,4 +24,4 @@ export interface OnboardingContextValue {
   goToStep: (step: number) => void;
 }
 
-export const TOUR_STEPS_COUNT = 13;
+export const TOUR_STEPS_COUNT = 15;
