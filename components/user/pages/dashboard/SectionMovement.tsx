@@ -4,13 +4,17 @@ import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { useScopedTimeline } from 'src/lib/hooks/useScopedTimeline';
 import { formatRating } from 'src/lib/utils/ratingLabel';
 import { scopeText } from 'src/lib/utils/scopeText';
-import { BUCKET_WORD, formatBucketLabel } from 'src/lib/utils/timeline';
+import { BUCKET_PLURAL, BUCKET_WORD, formatBucketLabel } from 'src/lib/utils/timeline';
 import type { MovementChartProps, SectionMovementProps } from './ui.types';
 
 /** Abaixo disso, a média do intervalo é pouco confiável (bolinha vazada). */
 const FEW_RATINGS = 5;
 
 const WIDTH = 600;
+/** Largura máxima da barra: com poucos intervalos, uma barra não ocupa o gráfico inteiro. */
+const MAX_BAR_WIDTH = 36;
+/** Abaixo disso, não há tendência para mostrar: aparece um aviso no lugar do gráfico. */
+const MIN_INTERVALS_WITH_RATINGS = 2;
 
 function MovementChart({ points, bucket, compact }: MovementChartProps) {
   const barsHeight = compact ? 80 : 130;
@@ -20,7 +24,7 @@ function MovementChart({ points, bucket, compact }: MovementChartProps) {
 
   const maxCount = Math.max(1, ...points.map((point) => point.count));
   const band = WIDTH / points.length;
-  const barWidth = Math.max(1, band * 0.7);
+  const barWidth = Math.max(1, Math.min(band * 0.7, MAX_BAR_WIDTH));
   const centerX = (index: number) => index * band + band / 2;
   // Média de 1 a 5, com uma folga em cima e embaixo para as bolinhas não cortarem.
   const meanY = (mean: number) => barsHeight + gap + 6 + ((5 - mean) / 4) * (lineHeight - 12);
@@ -141,6 +145,23 @@ export default function SectionMovement({ variant = 'dashboard' }: SectionMoveme
     body = <p className="text-sm text-(--text-tertiary)">Carregando o movimento…</p>;
   } else if (data.total === 0 || data.points.length === 0) {
     body = <p className="text-sm text-(--text-tertiary)">Ainda sem avaliações {scopeInfo.inScope}.</p>;
+  } else if (data.points.filter((point) => point.count > 0).length < MIN_INTERVALS_WITH_RATINGS) {
+    // Uma avaliação (ou todas no mesmo intervalo) não mostra movimento: em vez de
+    // uma barra solitária, explica quando o gráfico passa a fazer sentido.
+    const only = data.points.find((point) => point.count > 0);
+    body = (
+      <div className="rounded-xl bg-(--seventh-color) p-4 text-sm text-(--text-secondary)">
+        <p>
+          <strong className="text-(--text-primary)">{data.total.toLocaleString('pt-BR')}</strong>{' '}
+          {data.total === 1 ? 'avaliação' : 'avaliações'}
+          {only && <> em {formatBucketLabel(only.start, data.bucket)}</>}
+          {only?.mean != null && <>, média {formatRating(only.mean)}</>}.
+        </p>
+        <p className="mt-1 text-xs text-(--text-tertiary)">
+          Com avaliações em pelo menos 2 {BUCKET_PLURAL[data.bucket]}, o gráfico mostra se o movimento e a nota sobem ou caem.
+        </p>
+      </div>
+    );
   } else {
     body = (
       <div className="space-y-4">

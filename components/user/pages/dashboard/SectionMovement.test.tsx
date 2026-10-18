@@ -61,6 +61,21 @@ describe('SectionMovement', () => {
     );
   });
 
+  it('com avaliações em um só intervalo, mostra um aviso em vez de uma barra solitária', async () => {
+    mocks.getFeedbackTimeline.mockResolvedValue(
+      week([
+        ['2026-10-12', 0, null],
+        ['2026-10-13', 1, 5],
+        ['2026-10-14', 0, null],
+      ]),
+    );
+    render(<SectionMovement />);
+
+    expect(await screen.findByText(/Com avaliações em pelo menos 2 dias/)).toBeInTheDocument();
+    expect(screen.getByText(/em 13\/10, média 5,0/)).toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+  });
+
   it('sem avaliações, diz isso com o escopo e o período', async () => {
     mocks.getFeedbackTimeline.mockResolvedValue(week([['2026-10-15', 0, null]]));
     render(<SectionMovement />);
