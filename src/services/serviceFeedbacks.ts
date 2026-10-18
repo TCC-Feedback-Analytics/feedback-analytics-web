@@ -9,6 +9,7 @@ import type {
   FeedbackStatsOptions,
   FeedbackQuestionsOptions,
   FeedbackQuestionsResponse,
+  Interval,
 } from 'lib/interfaces/domain/feedback.domain';
 import type {
   IaAnalyzeRawRunRequest,
@@ -124,6 +125,33 @@ export function ServiceGetFeedbackHeatmap(params: FeedbackStatsOptions & Metrics
   searchParams.append('tz', params.tz);
 
   return getJson<FeedbackHeatmapResponse>(`/api/protected/user/feedbacks/heatmap?${searchParams.toString()}`);
+}
+
+/** Média de um grupo de avaliações (quem volta ou primeira vez), com a margem de erro. */
+export type FeedbackCustomerGroup = { n: number; mean: number; ci: Interval };
+
+/** Clientes que voltam: "cliente" é o aparelho que avaliou, então o número é aproximado. */
+export type FeedbackCustomersResponse = {
+  identified: number;
+  unidentified: number;
+  firstTimeCount: number;
+  returningCount: number;
+  returningPct: number | null;
+  returningPctCI: Interval | null;
+  customers: number;
+  returningCustomers: number;
+  firstTime: FeedbackCustomerGroup | null;
+  returning: FeedbackCustomerGroup | null;
+};
+
+export function ServiceGetFeedbackCustomers(params: FeedbackStatsOptions & MetricsPeriodParams) {
+  const searchParams = new URLSearchParams();
+  if (params.scope_type) searchParams.append('scope_type', params.scope_type);
+  if (params.catalog_item_id) searchParams.append('catalog_item_id', params.catalog_item_id);
+  appendPeriod(searchParams, params);
+  const queryString = searchParams.toString();
+
+  return getJson<FeedbackCustomersResponse>(`/api/protected/user/feedbacks/customers${queryString ? `?${queryString}` : ''}`);
 }
 
 export function ServiceGetFeedbackQuestions(params?: FeedbackQuestionsOptions & MetricsPeriodParams) {

@@ -35,7 +35,7 @@ const ROUTE_META: Record<string, RouteMeta> = {
   },
   '/user/ratings': {
     title: 'Todas as métricas de estrelas',
-    description: 'Média, positivas, neutras, críticas, a distribuição de 1 a 5 estrelas, o movimento no tempo e os dias e horários de pico.',
+    description: 'Média, positivas, neutras, críticas, a distribuição de 1 a 5 estrelas, o movimento no tempo, os dias e horários de pico e os clientes que voltam.',
     breadcrumb: [{ label: 'Visão geral', to: '/user/dashboard' }, { label: 'Avaliação por estrelas' }],
   },
   '/user/compare': {
