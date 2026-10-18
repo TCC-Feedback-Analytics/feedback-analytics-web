@@ -10,6 +10,7 @@ export type MetricTermKey =
   | 'ratingShares'
   | 'ratingMovement'
   | 'ratingWeight'
+  | 'peakTimes'
   | 'commentTone';
 
 export type MetricExplanation = {
@@ -62,6 +63,15 @@ export const METRIC_EXPLANATIONS: Record<MetricTermKey, MetricExplanation> = {
       'Mostra o que anda junto com a nota, não prova que uma coisa causa a outra.',
     ],
     example: 'Tempo de espera · Pesa muito na nota · 3,1 /5 = melhorar a espera tende a subir as estrelas.',
+  },
+  peakTimes: {
+    title: 'Dias e horários de pico',
+    paragraphs: [
+      'Mostra em que dia da semana e em que parte do dia os clientes mais avaliam. Quanto mais forte a cor, mais avaliações chegaram ali.',
+      'O número em cada quadrado é a média das estrelas naquela faixa. Quadrados apagados tiveram menos de 5 avaliações: a média ali ainda é pouco confiável.',
+      'Horários com média baixa costumam ser os de mais movimento ou com equipe menor. Vale olhar a escala e o atendimento nessas faixas.',
+    ],
+    example: 'Sexta à tarde · média 3,4 = a nota cai nas tardes de sexta.',
   },
   commentTone: {
     title: 'Tom dos comentários',

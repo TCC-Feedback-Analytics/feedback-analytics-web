@@ -111,6 +111,21 @@ export function ServiceGetFeedbackTimeline(params: FeedbackTimelineOptions) {
   return getJson<FeedbackTimelineResponse>(`/api/protected/user/feedbacks/timeline?${searchParams.toString()}`);
 }
 
+/** Dias e horários de pico: dia da semana (0 domingo … 6 sábado) × faixa do dia (0 madrugada … 3 noite). */
+export type FeedbackHeatmapCell = { weekday: number; band: number; count: number; mean: number | null };
+
+export type FeedbackHeatmapResponse = { tz: string; total: number; cells: FeedbackHeatmapCell[] };
+
+export function ServiceGetFeedbackHeatmap(params: FeedbackStatsOptions & MetricsPeriodParams & { tz: string }) {
+  const searchParams = new URLSearchParams();
+  if (params.scope_type) searchParams.append('scope_type', params.scope_type);
+  if (params.catalog_item_id) searchParams.append('catalog_item_id', params.catalog_item_id);
+  appendPeriod(searchParams, params);
+  searchParams.append('tz', params.tz);
+
+  return getJson<FeedbackHeatmapResponse>(`/api/protected/user/feedbacks/heatmap?${searchParams.toString()}`);
+}
+
 export function ServiceGetFeedbackQuestions(params?: FeedbackQuestionsOptions & MetricsPeriodParams) {
   const searchParams = new URLSearchParams();
 
