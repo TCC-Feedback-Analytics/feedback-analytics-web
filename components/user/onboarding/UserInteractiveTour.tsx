@@ -263,27 +263,32 @@ export default function UserInteractiveTour({
           )}
         </div>
 
-        {/* Rodapé Compacto */}
-        <div className="flex items-center justify-between border-t border-(--quaternary-color)/10 pt-2.5">
+        {/* Rodapé: os pontos ficam numa linha própria, para caberem com muitos passos. */}
+        <div className="space-y-2.5 border-t border-(--quaternary-color)/10 pt-2.5">
           {/* Contador por pontos */}
-          <div className="flex items-center gap-1">
-            {INTERACTIVE_STEPS.map((_, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => goToStep(index)}
-                aria-label={`Ir para passo ${index + 1}`}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  index === currentTourStep
-                    ? "w-4 bg-(--primary-color)"
-                    : "w-1.5 bg-(--quaternary-color)/25 hover:bg-(--quaternary-color)/50"
-                }`}
-              />
-            ))}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex min-w-0 flex-wrap items-center gap-1">
+              {INTERACTIVE_STEPS.map((_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => goToStep(index)}
+                  aria-label={`Ir para passo ${index + 1}`}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    index === currentTourStep
+                      ? "w-4 bg-(--primary-color)"
+                      : "w-1.5 bg-(--quaternary-color)/25 hover:bg-(--quaternary-color)/50"
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="shrink-0 text-[11px] text-(--text-tertiary)">
+              {currentTourStep + 1} de {TOUR_STEPS_COUNT}
+            </span>
           </div>
 
           {/* Botões de Ação Diretos */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center justify-end gap-1.5">
             <button
               type="button"
               onClick={prevTourStep}

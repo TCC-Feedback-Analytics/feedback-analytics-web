@@ -32,6 +32,7 @@ export function browserTimeZone(): string {
 }
 
 export const BUCKET_WORD: Record<TimelineBucket, string> = { day: 'dia', week: 'semana', month: 'mês' };
+export const BUCKET_PLURAL: Record<TimelineBucket, string> = { day: 'dias', week: 'semanas', month: 'meses' };
 
 /** "15/10", "sem. de 12/10", "out. de 2026". */
 export function formatBucketLabel(start: string, bucket: TimelineBucket): string {
