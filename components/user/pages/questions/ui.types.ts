@@ -50,6 +50,14 @@ export interface SectionFormQuestionsProps {
 }
 
 /**
+ * Props do selo "o que mais pesa na nota" de uma pergunta (métricas novas, 2).
+ * Usado em: components/user/pages/questions/QuestionParts.tsx.
+ */
+export interface QuestionWeightTagProps {
+  metric: QuestionMetric;
+}
+
+/**
  * Props da diferença da nota de uma pergunta para o período anterior.
  * Usado em: components/user/pages/questions/QuestionParts.tsx.
  */

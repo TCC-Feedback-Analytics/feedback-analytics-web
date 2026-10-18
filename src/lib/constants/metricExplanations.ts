@@ -9,6 +9,7 @@ export type MetricTermKey =
   | 'ratingAverage'
   | 'ratingShares'
   | 'ratingMovement'
+  | 'ratingWeight'
   | 'commentTone';
 
 export type MetricExplanation = {
@@ -51,6 +52,16 @@ export const METRIC_EXPLANATIONS: Record<MetricTermKey, MetricExplanation> = {
       'Uma bolinha vazada quer dizer que o intervalo teve menos de 5 avaliações: a média ali ainda é pouco confiável.',
     ],
     example: 'Barras subindo e linha caindo = mais clientes avaliando, mas mais insatisfeitos.',
+  },
+  ratingWeight: {
+    title: 'O que mais pesa na nota',
+    paragraphs: [
+      'Compara a nota de cada pergunta com as estrelas que o mesmo cliente deu. Se, quando a pergunta vai bem, as estrelas também sobem, ela pesa muito na nota geral.',
+      '"Pesa muito", "Pesa" e "Pesa pouco" vêm dessa comparação. Com menos de 30 respostas ainda não dá para saber.',
+      '"Melhore primeiro" aponta, entre as perguntas que pesam, a de nota mais baixa: é onde uma melhora tende a mexer mais na avaliação geral.',
+      'Mostra o que anda junto com a nota, não prova que uma coisa causa a outra.',
+    ],
+    example: 'Tempo de espera · Pesa muito na nota · 3,1 /5 = melhorar a espera tende a subir as estrelas.',
   },
   commentTone: {
     title: 'Tom dos comentários',

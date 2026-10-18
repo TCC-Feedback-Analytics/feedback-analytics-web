@@ -1,7 +1,21 @@
 import PrecisionBadge from 'components/user/shared/PrecisionBadge';
 import PeriodDelta from 'components/user/shared/PeriodDelta';
+import { RATING_WEIGHT_LABEL, ratingWeightLevel, ratingWeightOf } from 'src/lib/utils/ratingWeight';
 import { RATING_TONE_CLASS, formatRating, ratingLabel, ratingTone } from 'src/lib/utils/ratingLabel';
-import type { AnswerDistributionProps, QuestionDeltaProps, QuestionScoreProps, QuestionStatusTagProps } from './ui.types';
+import type {
+  AnswerDistributionProps,
+  QuestionDeltaProps,
+  QuestionScoreProps,
+  QuestionStatusTagProps,
+  QuestionWeightTagProps,
+} from './ui.types';
+
+const WEIGHT_TONE = {
+  strong: 'border-(--primary-color)/40 bg-(--primary-color)/12 text-(--primary-color)',
+  medium: 'border-(--primary-color)/25 bg-(--primary-color)/6 text-(--text-secondary)',
+  weak: 'border-(--quaternary-color)/20 text-(--text-tertiary)',
+  few: 'border-(--quaternary-color)/15 text-(--text-tertiary)',
+} as const;
 
 const DIST_ORDER = [
   { key: 'OTIMA', label: 'Ótimo', cls: 'bg-(--positive)/70' },
@@ -88,5 +102,19 @@ export function QuestionDelta({ metricName, metric, previous }: QuestionDeltaPro
       loading={previous.loading}
       failed={previous.failed}
     />
+  );
+}
+
+/** Selo "Pesa muito / Pesa / Pesa pouco na nota" (métricas novas, 2). */
+export function QuestionWeightTag({ metric }: QuestionWeightTagProps) {
+  const weight = ratingWeightOf(metric);
+  const level = ratingWeightLevel(weight);
+  return (
+    <span
+      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${WEIGHT_TONE[level]}`}
+      title={weight ? `Comparado com as estrelas em ${weight.n.toLocaleString('pt-BR')} respostas` : undefined}
+    >
+      {RATING_WEIGHT_LABEL[level]}
+    </span>
   );
 }
