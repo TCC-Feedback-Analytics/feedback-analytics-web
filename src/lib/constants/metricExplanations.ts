@@ -8,6 +8,7 @@ export type MetricTermKey =
   | 'aspects'
   | 'ratingAverage'
   | 'ratingShares'
+  | 'ratingMovement'
   | 'commentTone';
 
 export type MetricExplanation = {
@@ -41,6 +42,15 @@ export const METRIC_EXPLANATIONS: Record<MetricTermKey, MetricExplanation> = {
       'O percentual mostra quantas, de cada 100 avaliações, foram positivas ou críticas.',
     ],
     example: '82 · 64% = 82 avaliações positivas, 64 de cada 100.',
+  },
+  ratingMovement: {
+    title: 'Movimento das avaliações',
+    paragraphs: [
+      'As barras mostram quantas avaliações chegaram em cada dia, semana ou mês. A linha embaixo mostra a média das estrelas nesse mesmo intervalo.',
+      'Assim dá para ver se as avaliações estão aumentando ou diminuindo e se a nota vem subindo ou caindo. O intervalo muda com o período: dia para 7 e 30 dias, semana para 3 e 6 meses.',
+      'Uma bolinha vazada quer dizer que o intervalo teve menos de 5 avaliações: a média ali ainda é pouco confiável.',
+    ],
+    example: 'Barras subindo e linha caindo = mais clientes avaliando, mas mais insatisfeitos.',
   },
   commentTone: {
     title: 'Tom dos comentários',

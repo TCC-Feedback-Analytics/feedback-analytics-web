@@ -11,6 +11,7 @@ import {
   FaArrowRight,
 } from 'react-icons/fa';
 import SectionRatings from 'components/user/pages/dashboard/SectionRatings';
+import SectionMovement from 'components/user/pages/dashboard/SectionMovement';
 import ShareQrCard from 'components/user/pages/dashboard/ShareQrCard';
 import SectionFormQuestions from 'components/user/pages/questions/SectionFormQuestions';
 import DashboardScopedSkeleton from 'components/user/pages/dashboard/DashboardScopedSkeleton';
@@ -271,6 +272,8 @@ export default function Dashboard() {
           ) : (
             <>
               <SectionRatings stats={stats} previous={previousStats} />
+
+              <SectionMovement />
 
               <SectionFormQuestions metrics={questions} previous={previousQuestions} />
             </>
