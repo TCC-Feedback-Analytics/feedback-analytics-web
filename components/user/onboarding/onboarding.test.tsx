@@ -388,6 +388,40 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     });
   });
 
+  it("no celular, o balão fica preso embaixo da tela, com os botões à vista", async () => {
+    systemGuide.get.mockResolvedValue({
+      tourKey: "system-guide", version: 1, status: "pending", finishedAt: null,
+    });
+    const originalMatchMedia = window.matchMedia;
+    window.matchMedia = ((query: string) => ({
+      matches: true,
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    })) as unknown as typeof window.matchMedia;
+
+    try {
+      render(
+        <MemoryRouter initialEntries={["/user/dashboard"]}>
+          <OnboardingProvider
+            collecting={{ business_summary: "Resumo", company_objective: "Objetivo", analytics_goal: "Analítico" } as CollectingDataEnterprise}
+            sessionKey="user-1"
+          >
+            <UserInteractiveTour />
+            <StartWhenPending />
+          </OnboardingProvider>
+        </MemoryRouter>,
+      );
+
+      const card = (await screen.findByText("Dashboard de Resultados")).closest("[style]") as HTMLElement;
+      expect(card.style.bottom).toContain("16px");
+      expect(card.className).toContain("max-h-[60dvh]");
+      expect(screen.getByText("Próximo")).toBeInTheDocument();
+    } finally {
+      window.matchMedia = originalMatchMedia;
+    }
+  });
+
   it("o total de passos do tour acompanha a lista de passos", () => {
     expect(INTERACTIVE_STEPS).toHaveLength(TOUR_STEPS_COUNT);
   });

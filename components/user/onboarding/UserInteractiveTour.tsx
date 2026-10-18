@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useOnboarding } from "src/lib/context/onboardingContext";
 import { TOUR_STEPS_COUNT } from "src/lib/context/onboardingContext.types";
@@ -30,6 +30,22 @@ export default function UserInteractiveTour({
   // Os estilos-base de botão têm alturas diferentes; esta medida compartilhada
   // garante consistência visual entre voltar, avançar e concluir o guia.
   const navigationButtonStyle = { width: "6rem", height: "50px", flex: "0 0 6rem" };
+
+  // Altura real do balão: muda com o texto de cada passo e com a largura da tela.
+  // Posicionar por uma altura fixa cortava os botões em telas baixas.
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const [popoverHeight, setPopoverHeight] = useState(260);
+
+  useLayoutEffect(() => {
+    const el = popoverRef.current;
+    if (!el) return;
+    const measure = () => setPopoverHeight(el.offsetHeight || 260);
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [isTourActive, currentTourStep]);
 
   useEffect(() => {
     const media = window.matchMedia?.("(max-width: 767px)");
@@ -66,8 +82,15 @@ export default function UserInteractiveTour({
       const el = document.querySelector(targetSelector);
       if (el) {
         // A etapa deve chegar pronta para leitura: a rolagem é feita pelo tour,
-        // sem exigir que a pessoa procure manualmente o destaque.
-        el.scrollIntoView({ behavior: "auto", block: "center", inline: "nearest" });
+        // sem exigir que a pessoa procure manualmente o destaque. No celular o
+        // balão fica preso embaixo, então o destaque sobe para o topo (abaixo do
+        // cabeçalho fixo de 64px), em vez de ficar no meio, atrás do balão.
+        if (isMobile && !stepData.openMobileDrawer) {
+          el.scrollIntoView({ behavior: "auto", block: "start", inline: "nearest" });
+          window.scrollBy(0, -80);
+        } else {
+          el.scrollIntoView({ behavior: "auto", block: "center", inline: "nearest" });
+        }
         return;
       }
 
@@ -127,6 +150,20 @@ export default function UserInteractiveTour({
 
   // Cálculo de posição inteligente do balão flutuante (mais compacto e sem cobrir a tela)
   const popoverStyle: React.CSSProperties = (() => {
+    const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+
+    // Celular: o balão fica preso embaixo, com os botões sempre à vista; se o
+    // destaque estiver na metade de baixo (ex.: o menu que abre de baixo), em cima.
+    if (isMobile) {
+      const dockTop = rect ? rect.top + rect.height / 2 > viewportHeight / 2 : false;
+      return {
+        position: "fixed",
+        left: "50%",
+        transform: "translateX(-50%)",
+        ...(dockTop ? { top: "16px" } : { bottom: "calc(16px + env(safe-area-inset-bottom))" }),
+      };
+    }
+
     if (!rect) {
       return {
         position: "fixed",
@@ -137,13 +174,12 @@ export default function UserInteractiveTour({
     }
 
     const popoverWidth = Math.min(360, window.innerWidth - 32);
-    const popoverHeight = 220;
     const padding = 16;
     const offset = 12;
-    const spaceBelow = window.innerHeight - (rect.top + rect.height) - padding;
+    const spaceBelow = viewportHeight - (rect.top + rect.height) - padding;
     const spaceAbove = rect.top - padding;
     const showBelow = spaceBelow >= popoverHeight || spaceBelow >= spaceAbove;
-    const maxTop = Math.max(padding, window.innerHeight - popoverHeight - padding);
+    const maxTop = Math.max(padding, viewportHeight - popoverHeight - padding);
 
     let top = showBelow ? rect.top + rect.height + offset : rect.top - popoverHeight - offset;
     let left = Math.max(padding, rect.left + rect.width / 2 - popoverWidth / 2);
@@ -225,11 +261,14 @@ export default function UserInteractiveTour({
 
       {/* Balão Simplificado, Direto e Intuitivo */}
       <div
+        ref={popoverRef}
         style={popoverStyle}
-        className="pointer-events-auto z-50 max-h-[calc(100dvh-32px)] w-[calc(100vw-32px)] max-w-[360px] overflow-y-auto rounded-2xl border border-(--primary-color)/30 bg-(--bg-secondary) p-4 shadow-xl backdrop-blur-md transition-all duration-200"
+        className={`pointer-events-auto z-50 flex w-[calc(100vw-32px)] max-w-[360px] flex-col rounded-2xl border border-(--primary-color)/30 bg-(--bg-secondary) p-4 shadow-xl backdrop-blur-md transition-all duration-200 ${
+          isMobile ? "max-h-[60dvh]" : "max-h-[calc(100dvh-32px)]"
+        }`}
       >
         {/* Topo do Balão */}
-        <div className="flex items-center justify-between border-b border-(--quaternary-color)/10 pb-2.5">
+        <div className="flex shrink-0 items-center justify-between border-b border-(--quaternary-color)/10 pb-2.5">
           <div className="flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-(--primary-color)/15 text-(--primary-color) ring-1 ring-(--primary-color)/30 text-xs font-bold">
               <IconComponent className="text-xs" />
@@ -251,8 +290,8 @@ export default function UserInteractiveTour({
           </button>
         </div>
 
-        {/* Descrição Concisa (1 linha de orientação direta) */}
-        <div className="py-3">
+        {/* Descrição: rola dentro do balão, para o topo e os botões ficarem sempre à vista. */}
+        <div className="min-h-0 flex-1 overflow-y-auto py-3">
           <p className="font-inter text-xs leading-relaxed text-(--text-secondary)">
             {description}
           </p>
@@ -264,7 +303,7 @@ export default function UserInteractiveTour({
         </div>
 
         {/* Rodapé: os pontos ficam numa linha própria, para caberem com muitos passos. */}
-        <div className="space-y-2.5 border-t border-(--quaternary-color)/10 pt-2.5">
+        <div className="shrink-0 space-y-2.5 border-t border-(--quaternary-color)/10 pt-2.5">
           {/* Contador por pontos */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 flex-wrap items-center gap-1">
