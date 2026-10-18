@@ -1,10 +1,11 @@
 import { Link, useLoaderData, useParams } from 'react-router-dom';
 import PageHeader from 'components/user/shared/PageHeader';
 import ScopeTag from 'components/user/shared/ScopeTag';
-import { AnswerDistribution, QuestionScore, QuestionStatusTag } from 'components/user/pages/questions/QuestionParts';
+import { AnswerDistribution, QuestionDelta, QuestionScore, QuestionStatusTag } from 'components/user/pages/questions/QuestionParts';
 import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { useFormQuestionsConfig } from 'src/lib/hooks/useFormQuestionsConfig';
 import { useScopedFeedbackQuestions } from 'src/lib/hooks/useScopedFeedbackQuestions';
+import { usePreviousPeriodQuestions } from 'src/lib/hooks/usePreviousPeriod';
 import { questionEntries } from 'src/lib/utils/formQuestions';
 import { scopeText } from 'src/lib/utils/scopeText';
 import type { LoaderFormQuestions } from 'src/routes/loaders/loaderFormQuestions';
@@ -18,9 +19,10 @@ export default function QuestionPage() {
   const { questionId = '' } = useParams();
   const initialData = useLoaderData<Awaited<ReturnType<typeof LoaderFormQuestions>>>();
   const { questions: metrics, loading, error } = useScopedFeedbackQuestions(initialData);
-  const { scope, catalogItemId, catalogItemOptions } = useInsightsControls();
-  const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions });
+  const { scope, catalogItemId, catalogItemOptions, period } = useInsightsControls();
+  const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions, period });
   const config = useFormQuestionsConfig();
+  const previous = usePreviousPeriodQuestions();
 
   const { main, history } = questionEntries(metrics, questionId);
   const order = config.questions.find((question) => question.id === questionId)?.order;
@@ -70,6 +72,11 @@ export default function QuestionPage() {
                 ci={main.ci}
                 ofScope={scopeInfo.ofScope}
               />
+              {previous && (
+                <div className="mt-2">
+                  <QuestionDelta metricName={title} metric={main} previous={previous} />
+                </div>
+              )}
             </div>
             <div className="mt-4">
               <AnswerDistribution distribution={main.distribution} total={main.count} showLegend />

@@ -8,6 +8,7 @@ import type {
   InsightsControlsContextValue,
   InsightsControlsInitialData,
 } from './insightsControls.types';
+import { ALL_TIME_PERIOD, type MetricsPeriod } from 'src/lib/utils/metricsPeriod';
 
 const InsightsControlsContext = createContext<InsightsControlsContextValue | null>(null);
 
@@ -43,6 +44,10 @@ export function useInsightsControlsState(initial?: InsightsControlsInitialData) 
     initial?.availableScopes ?? ['COMPANY'],
   );
   const [canAnalyze, setCanAnalyze] = useState(initial?.canAnalyze ?? false);
+  // Período das métricas (etapa 02): vale para todos os escopos até o gestor trocar.
+  const [period, setPeriod] = useState<MetricsPeriod>(ALL_TIME_PERIOD);
+  // "Comparar com o período anterior" (parte C): só vale com um período escolhido.
+  const [compare, setCompare] = useState(false);
 
   return {
     scope, setScope,
@@ -50,5 +55,7 @@ export function useInsightsControlsState(initial?: InsightsControlsInitialData) 
     catalogItemOptions, setCatalogItemOptions,
     availableScopes, setAvailableScopes,
     canAnalyze, setCanAnalyze,
+    period, setPeriod,
+    compare, setCompare,
   };
 }

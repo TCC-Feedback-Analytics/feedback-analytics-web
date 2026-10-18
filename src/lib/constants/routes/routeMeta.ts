@@ -38,6 +38,11 @@ const ROUTE_META: Record<string, RouteMeta> = {
     description: 'Média, positivas, neutras, críticas e a distribuição das avaliações de 1 a 5 estrelas.',
     breadcrumb: [{ label: 'Visão geral', to: '/user/dashboard' }, { label: 'Avaliação por estrelas' }],
   },
+  '/user/compare': {
+    title: 'Comparar itens',
+    description: 'Dois itens do mesmo tipo lado a lado, no mesmo período, nas métricas que os dois têm.',
+    breadcrumb: [{ label: 'Comparar itens' }],
+  },
   '/user/profile': {
     title: 'Perfil',
     breadcrumb: [{ label: 'Perfil' }],

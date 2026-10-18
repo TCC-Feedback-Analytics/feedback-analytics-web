@@ -115,6 +115,7 @@ describe('[Unidade] Dashboard Page', () => {
       scope: 'COMPANY',
       catalogItemId: '',
       catalogItemOptions: [],
+      period: { preset: 'ALL' },
     });
     mocks.useScopedInsightsReport.mockReturnValue({
       report: null,
@@ -181,6 +182,33 @@ describe('[Unidade] Dashboard Page', () => {
 
     expect(within(section).getByRole('link', { name: /Ver todas as métricas de estrelas/ }))
       .toHaveAttribute('href', '/user/ratings');
+  });
+
+  it('oferece comparar dois itens só quando há 2 do mesmo tipo', async () => {
+    const { unmount } = render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>,
+    );
+    await screen.findByRole('region', { name: 'Avaliação por estrelas' });
+    expect(screen.queryByRole('link', { name: /Comparar dois itens/ })).not.toBeInTheDocument();
+    unmount();
+
+    mocks.useInsightsControls.mockReturnValue({
+      scope: 'COMPANY',
+      catalogItemId: '',
+      catalogItemOptions: [
+        { id: 'p1', name: 'Pizza', kind: 'PRODUCT' },
+        { id: 'p2', name: 'Refrigerante', kind: 'PRODUCT' },
+      ],
+      period: { preset: 'ALL' },
+    });
+    render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>,
+    );
+    expect(await screen.findByRole('link', { name: /Comparar dois itens/ })).toHaveAttribute('href', '/user/compare');
   });
 
   it('sem avaliações diz isso no lugar de mostrar "0,0"', async () => {
@@ -279,6 +307,71 @@ describe('[Unidade] Dashboard Page', () => {
     const tone = await screen.findByRole('region', { name: /Tom dos comentários/ });
     expect(within(tone).getByText(/Faltam 3 feedbacks para a IA analisar\./)).toBeInTheDocument();
     expect(screen.queryByRole('region', { name: 'O que vai aparecer aqui' })).not.toBeInTheDocument();
+  });
+
+  it('com período, as seções seguem o período e o aviso de pendentes e o mínimo da IA, o histórico inteiro', async () => {
+    mocks.useInsightsControls.mockReturnValue({
+      scope: 'COMPANY',
+      catalogItemId: '',
+      catalogItemOptions: [],
+      period: { preset: 'LAST_7_DAYS' },
+    });
+    const inPeriod = { ...feedbackStats, totalFeedbacks: 2, pendingCount: 0 };
+    const allTime = { ...feedbackStats, totalFeedbacks: 12, pendingCount: 4 };
+    mocks.getFeedbackStats.mockImplementation((params: { start_date?: string }) =>
+      Promise.resolve(params.start_date ? inPeriod : allTime),
+    );
+
+    render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>,
+    );
+
+    // O seed do loader é do histórico inteiro: não aparece com o período escolhido.
+    expect(screen.getByLabelText('Carregando métricas do escopo')).toBeInTheDocument();
+    expect(await screen.findByText('4 feedbacks aguardando análise neste escopo.')).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByLabelText('Carregando métricas do escopo')).not.toBeInTheDocument());
+    const periodCall = mocks.getFeedbackStats.mock.calls.find(([params]) => params.start_date);
+    expect(periodCall?.[0]).toEqual(expect.objectContaining({ scope_type: 'COMPANY', end_date: expect.any(String) }));
+    expect(mocks.getFeedbackStats).toHaveBeenCalledWith({ scope_type: 'COMPANY', catalog_item_id: undefined });
+    expect(mocks.getFeedbackQuestions).toHaveBeenCalledWith(expect.objectContaining({ start_date: expect.any(String) }));
+
+    expect(screen.getAllByRole('button', { name: /Avaliação geral da empresa · Últimos 7 dias/ }).length).toBeGreaterThan(0);
+    expect(screen.getByText('O resumo considera todos os comentários analisados.')).toBeInTheDocument();
+    // 12 no histórico: já passou do mínimo, então não pede mais feedbacks para a IA.
+    expect(screen.queryByText(/para a IA analisar\./)).not.toBeInTheDocument();
+  });
+
+  it('outro escopo ao voltar ao Dashboard: esqueleto em vez dos números do seed', async () => {
+    mocks.useInsightsControls.mockReturnValue({
+      scope: 'PRODUCT',
+      catalogItemId: 'p1',
+      catalogItemOptions: [{ id: 'p1', name: 'Pizza', kind: 'PRODUCT' }],
+      period: { preset: 'ALL' },
+    });
+
+    render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByLabelText('Carregando métricas do escopo')).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByLabelText('Carregando métricas do escopo')).not.toBeInTheDocument());
+    expect(mocks.getFeedbackStats).toHaveBeenCalledWith({ scope_type: 'PRODUCT', catalog_item_id: 'p1' });
+  });
+
+  it('sem período, não mostra o aviso do resumo nem busca as stats duas vezes', async () => {
+    render(
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>,
+    );
+
+    expect(screen.queryByLabelText('Carregando métricas do escopo')).not.toBeInTheDocument();
+    await waitFor(() => expect(mocks.getFeedbackStats).toHaveBeenCalledTimes(1));
+    expect(screen.queryByText('O resumo considera todos os comentários analisados.')).not.toBeInTheDocument();
   });
 
   it('mostra o tom dos comentários num bloco só, com o resumo em palavras', async () => {

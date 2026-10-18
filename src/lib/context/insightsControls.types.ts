@@ -3,6 +3,7 @@ import type {
   InsightsCatalogItemOption,
 } from 'components/user/pages/feedbacksInsightsReport/ui.types';
 import type { IaAnalysisJob } from 'src/services/serviceFeedbacks';
+import type { MetricsPeriod } from 'src/lib/utils/metricsPeriod';
 
 export interface AnalysisProgress {
   done: number;
@@ -22,6 +23,12 @@ export interface InsightsControlsContextValue {
   setAvailableScopes: (scopes: InsightScopeOption[]) => void;
   canAnalyze: boolean;
   setCanAnalyze: (can: boolean) => void;
+  /** Período das métricas (stats, perguntas e análise); o pendente e a IA ignoram. */
+  period: MetricsPeriod;
+  setPeriod: (period: MetricsPeriod) => void;
+  /** Comparar com o período anterior, do mesmo tamanho (só com um período escolhido). */
+  compare: boolean;
+  setCompare: (compare: boolean) => void;
   analyzeRaw: () => void;
   regenerateInsights: (options?: { analyzePending?: boolean; force?: boolean }) => void;
   isAnalyzingRaw: boolean;

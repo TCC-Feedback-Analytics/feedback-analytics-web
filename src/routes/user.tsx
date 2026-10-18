@@ -1,6 +1,7 @@
 import ErrorPage from "components/user/shared/handling/errorPage";
 import Dashboard from "pages/user/dashboard";
 import Ratings from "pages/user/ratings";
+import CompareItems from "pages/user/compare";
 import EditCustomer from "pages/user/edit/editCustomers";
 import FeedbacksAll from "pages/user/feedbacks/feedbacksAll";
 import Feedbacks from "pages/user/feedbacks/feedbacks";
@@ -56,6 +57,7 @@ export function RouteUser() {
         element={<Dashboard />}
       />
       <Route path="ratings" element={<Ratings />} />
+      <Route path="compare" element={<CompareItems />} />
       <Route
         path="profile"
         element={<Profile />}

@@ -4,6 +4,8 @@ import SectionRatings from 'components/user/pages/dashboard/SectionRatings';
 import SectionEvaluationDistribution from 'components/user/pages/dashboard/SectionEvaluationDistribution';
 import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { ServiceGetFeedbackStats } from 'src/services/serviceFeedbacks';
+import { metricsPeriodParams } from 'src/lib/utils/metricsPeriod';
+import { usePreviousPeriodStats } from 'src/lib/hooks/usePreviousPeriod';
 import type { FeedbackStats } from 'lib/interfaces/domain/feedback.domain';
 
 /**
@@ -12,10 +14,11 @@ import type { FeedbackStats } from 'lib/interfaces/domain/feedback.domain';
  * distribuição de 1 a 5★. Futuramente, a evolução da nota no tempo.
  */
 export default function Ratings() {
-  const { scope, catalogItemId } = useInsightsControls();
+  const { scope, catalogItemId, period } = useInsightsControls();
   const [stats, setStats] = useState<FeedbackStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
+  const previous = usePreviousPeriodStats();
 
   useEffect(() => {
     let cancelled = false;
@@ -23,6 +26,7 @@ export default function Ratings() {
     ServiceGetFeedbackStats({
       scope_type: scope,
       catalog_item_id: scope !== 'COMPANY' ? catalogItemId || undefined : undefined,
+      ...metricsPeriodParams(period),
     })
       .then((data) => {
         if (cancelled) return;
@@ -40,7 +44,7 @@ export default function Ratings() {
     return () => {
       cancelled = true;
     };
-  }, [scope, catalogItemId]);
+  }, [scope, catalogItemId, period]);
 
   return (
     <div className="font-work-sans space-y-6">
@@ -54,7 +58,7 @@ export default function Ratings() {
         <p className="text-sm text-(--text-tertiary)">Carregando avaliações…</p>
       ) : (
         <>
-          <SectionRatings stats={stats} variant="detail" />
+          <SectionRatings stats={stats} previous={previous} variant="detail" />
           {stats && stats.totalFeedbacks > 0 && <SectionEvaluationDistribution stats={stats} />}
         </>
       )}

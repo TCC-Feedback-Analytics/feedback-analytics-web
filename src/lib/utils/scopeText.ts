@@ -2,6 +2,7 @@ import type {
   InsightScopeOption,
   InsightsCatalogItemOption,
 } from 'components/user/pages/feedbacksInsightsReport/ui.types';
+import { periodText, type MetricsPeriod } from 'src/lib/utils/metricsPeriod';
 
 /**
  * Texto que diz DE QUEM é o número (decisão de 16/10/2026): descreve exatamente o
@@ -37,7 +38,32 @@ export type ScopeText = {
   ofScope: string;
 };
 
+/**
+ * Com um período escolhido (etapa 02), ele entra no texto: "Produto · Pizza · Últimos
+ * 30 dias" e "no produto Pizza nos últimos 30 dias". Sem período, nada muda.
+ */
 export function scopeText({
+  scope,
+  catalogItemId,
+  catalogItemOptions,
+  period,
+}: {
+  scope: InsightScopeOption;
+  catalogItemId: string;
+  catalogItemOptions: InsightsCatalogItemOption[];
+  period?: MetricsPeriod;
+}): ScopeText {
+  const text = scopeOnlyText({ scope, catalogItemId, catalogItemOptions });
+  const { label, inPeriod } = period ? periodText(period) : { label: '', inPeriod: '' };
+  if (!inPeriod) return text;
+  return {
+    label: `${text.label} · ${label}`,
+    inScope: `${text.inScope} ${inPeriod}`,
+    ofScope: `${text.ofScope} ${inPeriod}`,
+  };
+}
+
+function scopeOnlyText({
   scope,
   catalogItemId,
   catalogItemOptions,

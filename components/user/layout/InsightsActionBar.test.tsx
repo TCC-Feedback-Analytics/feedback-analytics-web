@@ -6,7 +6,7 @@ import { IA_SLOW_AFTER_MS, isIaSlowNoticeEnabled } from 'src/lib/utils/iaSlowNot
 vi.mock('react-router-dom', async () => vi.importActual('react-router-dom'));
 const m = vi.hoisted(() => ({ running: true }));
 vi.mock('src/lib/context/insightsControls', () => ({ useInsightsControls: () => ({
-  scope: 'COMPANY', catalogItemId: '', catalogItemOptions: [],
+  scope: 'COMPANY', catalogItemId: '', catalogItemOptions: [], period: { preset: 'ALL' }, setPeriod: () => {},
   isAnalyzingRaw: m.running, isRegeneratingInsights: false,
   rawStatus: m.running ? 'running' : 'idle', insightsStatus: 'idle', rawProgress: { done: 20, total: 105 },
 }) }));

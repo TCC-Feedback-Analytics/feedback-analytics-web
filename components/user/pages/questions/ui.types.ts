@@ -4,6 +4,7 @@ import type {
   QuestionMetric,
   QuestionMetricStatus,
 } from 'lib/interfaces/domain/feedback.domain';
+import type { PreviousPeriod } from 'src/lib/hooks/usePreviousPeriod';
 
 /**
  * Props do selo de estado de uma redação (desativada / antiga).
@@ -44,4 +45,16 @@ export interface QuestionScoreProps {
 export interface SectionFormQuestionsProps {
   /** Métricas por pergunta do escopo (`/feedbacks/questions`). */
   metrics: QuestionMetric[];
+  /** Mesmas métricas no período anterior (comparação ligada). */
+  previous?: PreviousPeriod<QuestionMetric[]> | null;
+}
+
+/**
+ * Props da diferença da nota de uma pergunta para o período anterior.
+ * Usado em: components/user/pages/questions/QuestionParts.tsx.
+ */
+export interface QuestionDeltaProps {
+  metricName: string;
+  metric: QuestionMetric;
+  previous: PreviousPeriod<QuestionMetric[]>;
 }

@@ -1,4 +1,5 @@
 import type { FeedbackInsightsReport } from 'lib/interfaces/domain/feedback.domain';
+import type { MetricsPeriod } from 'src/lib/utils/metricsPeriod';
 
 export type InsightScopeOption = 'COMPANY' | 'PRODUCT' | 'SERVICE' | 'DEPARTMENT';
 
@@ -118,4 +119,11 @@ export interface NotificationBellDropdownProps {
   onOpenGenerateDialog: () => void;
 }
 
-
+/**
+ * Props do seletor de período das métricas (etapa 02).
+ * Usado em: components/user/pages/feedbacksInsightsReport/PeriodSelectorDropdown.tsx.
+ */
+export interface PeriodSelectorDropdownProps {
+  value: MetricsPeriod;
+  onChange: (period: MetricsPeriod) => void;
+}

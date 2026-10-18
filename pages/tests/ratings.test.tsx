@@ -20,6 +20,7 @@ vi.mock('src/lib/context/insightsControls', () => ({
 }));
 
 import Ratings from '../user/ratings';
+import { previousMetricsPeriodParams } from 'src/lib/utils/metricsPeriod';
 
 const stats = {
   totalFeedbacks: 20,
@@ -43,6 +44,7 @@ describe('[Unidade] Página Todas as métricas de estrelas', () => {
       scope: 'PRODUCT',
       catalogItemId: 'p1',
       catalogItemOptions: [{ id: 'p1', name: 'Pizza', kind: 'PRODUCT' }],
+      period: { preset: 'ALL' },
     });
     mocks.getFeedbackStats.mockResolvedValue(stats);
   });
@@ -56,6 +58,25 @@ describe('[Unidade] Página Todas as métricas de estrelas', () => {
     renderPage();
     await screen.findByRole('region', { name: 'Avaliação por estrelas' });
     expect(mocks.getFeedbackStats).toHaveBeenCalledWith({ scope_type: 'PRODUCT', catalog_item_id: 'p1' });
+  });
+
+  it('com período, busca as estatísticas do período e diz isso na etiqueta', async () => {
+    mocks.useInsightsControls.mockReturnValue({
+      scope: 'PRODUCT',
+      catalogItemId: 'p1',
+      catalogItemOptions: [{ id: 'p1', name: 'Pizza', kind: 'PRODUCT' }],
+      period: { preset: 'CUSTOM', from: '2026-10-01', to: '2026-10-17' },
+    });
+    renderPage();
+    const section = await screen.findByRole('region', { name: 'Avaliação por estrelas' });
+
+    expect(mocks.getFeedbackStats).toHaveBeenCalledWith({
+      scope_type: 'PRODUCT',
+      catalog_item_id: 'p1',
+      start_date: new Date(2026, 9, 1).toISOString(),
+      end_date: new Date(2026, 9, 18).toISOString(),
+    });
+    expect(within(section).getByRole('button', { name: /Produto · Pizza · 01\/10\/2026 a 17\/10\/2026/ })).toBeInTheDocument();
   });
 
   it('mostra média, positivas, neutras, críticas e a distribuição, sem o link "ver todas"', async () => {
@@ -73,6 +94,76 @@ describe('[Unidade] Página Todas as métricas de estrelas', () => {
 
     expect(screen.getByText('Distribuição das avaliações')).toBeInTheDocument();
     expect(screen.getByText('Percentual de avaliações em cada nota, no escopo selecionado')).toBeInTheDocument();
+  });
+
+  describe('comparação com o período anterior', () => {
+    const previousParams = previousMetricsPeriodParams({ preset: 'LAST_30_DAYS' });
+
+    function compareWith(previous: unknown) {
+      mocks.useInsightsControls.mockReturnValue({
+        scope: 'PRODUCT',
+        catalogItemId: 'p1',
+        catalogItemOptions: [{ id: 'p1', name: 'Pizza', kind: 'PRODUCT' }],
+        period: { preset: 'LAST_30_DAYS' },
+        compare: true,
+      });
+      mocks.getFeedbackStats.mockImplementation((params: { start_date?: string }) =>
+        Promise.resolve(params.start_date === previousParams.start_date ? previous : stats),
+      );
+    }
+
+    it('busca o período anterior do mesmo escopo e mostra quanto mudou', async () => {
+      compareWith({
+        ...stats,
+        totalFeedbacks: 200,
+        averageRating: 4.4,
+        starMeanCI: { lower: 4.3, upper: 4.5 },
+        ratingDistribution: { 1: 5, 2: 5, 3: 20, 4: 70, 5: 100 },
+      });
+      renderPage();
+
+      expect(await screen.findByLabelText('Média: −1,0 vs. 30 dias anteriores, piorou')).toBeInTheDocument();
+      // Positivas 50% vs. 85%; críticas 25% vs. 5% (subir críticas é piorar).
+      expect(screen.getByLabelText('Positivas: −35 p.p. vs. 30 dias anteriores, piorou')).toBeInTheDocument();
+      expect(screen.getByLabelText('Críticas: +20 p.p. vs. 30 dias anteriores, piorou')).toBeInTheDocument();
+      expect(mocks.getFeedbackStats).toHaveBeenCalledWith({ scope_type: 'PRODUCT', catalog_item_id: 'p1', ...previousParams });
+    });
+
+    it('com margens que se sobrepõem, diz que a diferença é incerta', async () => {
+      compareWith({
+        ...stats,
+        totalFeedbacks: 18,
+        averageRating: 3.0,
+        starMeanCI: { lower: 2.4, upper: 3.6 },
+        ratingDistribution: { 1: 3, 2: 3, 3: 6, 4: 3, 5: 3 },
+      });
+      renderPage();
+
+      expect(await screen.findByLabelText('Média: +0,4 vs. 30 dias anteriores, diferença incerta')).toBeInTheDocument();
+      expect(screen.getAllByText('· Diferença incerta').length).toBeGreaterThan(0);
+    });
+
+    it('sem avaliações no período anterior, diz isso', async () => {
+      compareWith({ ...stats, totalFeedbacks: 0, ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } });
+      renderPage();
+
+      expect(await screen.findAllByText('Sem dados no período anterior')).toHaveLength(3);
+    });
+
+    it('com a comparação desligada, não busca o período anterior', async () => {
+      mocks.useInsightsControls.mockReturnValue({
+        scope: 'PRODUCT',
+        catalogItemId: 'p1',
+        catalogItemOptions: [{ id: 'p1', name: 'Pizza', kind: 'PRODUCT' }],
+        period: { preset: 'LAST_30_DAYS' },
+        compare: false,
+      });
+      renderPage();
+
+      await screen.findByRole('region', { name: 'Avaliação por estrelas' });
+      expect(mocks.getFeedbackStats).toHaveBeenCalledTimes(1);
+      expect(screen.queryByText(/vs\. 30 dias anteriores/)).not.toBeInTheDocument();
+    });
   });
 
   it('avisa quando não consegue carregar', async () => {

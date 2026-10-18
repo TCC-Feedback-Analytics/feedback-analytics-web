@@ -1,6 +1,7 @@
 import PrecisionBadge from 'components/user/shared/PrecisionBadge';
+import PeriodDelta from 'components/user/shared/PeriodDelta';
 import { RATING_TONE_CLASS, formatRating, ratingLabel, ratingTone } from 'src/lib/utils/ratingLabel';
-import type { AnswerDistributionProps, QuestionScoreProps, QuestionStatusTagProps } from './ui.types';
+import type { AnswerDistributionProps, QuestionDeltaProps, QuestionScoreProps, QuestionStatusTagProps } from './ui.types';
 
 const DIST_ORDER = [
   { key: 'OTIMA', label: 'Ótimo', cls: 'bg-(--positive)/70' },
@@ -71,5 +72,21 @@ export function QuestionScore({ metricName, mean, count, satisfiedPct, ci, ofSco
       </span>
       <PrecisionBadge metricName={metricName} n={count} unit="respostas" interval={ci} kind="mean" ofScope={ofScope} />
     </div>
+  );
+}
+
+/** Diferença da nota da pergunta para o período anterior (etapa 02, parte C). */
+export function QuestionDelta({ metricName, metric, previous }: QuestionDeltaProps) {
+  const prev = previous.data?.find((item) => item.question_id === metric.question_id && item.count > 0) ?? null;
+  return (
+    <PeriodDelta
+      metricName={metricName}
+      kind="rating"
+      current={{ value: metric.mean, interval: metric.ci }}
+      previous={prev ? { value: prev.mean, interval: prev.ci } : null}
+      reference={previous.reference}
+      loading={previous.loading}
+      failed={previous.failed}
+    />
   );
 }

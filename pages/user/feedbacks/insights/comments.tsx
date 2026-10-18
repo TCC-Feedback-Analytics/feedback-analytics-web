@@ -23,8 +23,8 @@ import type { LoaderCommentsAnalysis } from 'src/routes/loaders/loaderCommentsAn
 export default function CommentsPage() {
   const initialData = useLoaderData<Awaited<ReturnType<typeof LoaderCommentsAnalysis>>>();
   const { items, loading, error } = useScopedFeedbackAnalysis(initialData);
-  const { scope, catalogItemId, catalogItemOptions } = useInsightsControls();
-  const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions });
+  const { scope, catalogItemId, catalogItemOptions, period } = useInsightsControls();
+  const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions, period });
   const [searchParams, setSearchParams] = useSearchParams();
   const filter = parseCommentFilter(searchParams.get('filtro'));
   const visible = filterComments(items, filter);
