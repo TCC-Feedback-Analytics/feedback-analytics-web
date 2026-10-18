@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   useRouteLoaderData: vi.fn(),
   getFeedbackStats: vi.fn(),
   getFeedbackQuestions: vi.fn(),
+  getFeedbackTimeline: vi.fn(() => Promise.resolve({ bucket: 'week', tz: 'America/Sao_Paulo', total: 0, points: [] })),
   useInsightsControls: vi.fn(),
   useScopedInsightsReport: vi.fn(),
   revalidator: { revalidate: vi.fn(), state: 'idle' },
@@ -29,6 +30,7 @@ vi.mock('react-router-dom', async () => {
 vi.mock('src/services/serviceFeedbacks', () => ({
   ServiceGetFeedbackStats: mocks.getFeedbackStats,
   ServiceGetFeedbackQuestions: mocks.getFeedbackQuestions,
+  ServiceGetFeedbackTimeline: mocks.getFeedbackTimeline,
 }));
 
 vi.mock('src/lib/context/insightsControls', () => ({

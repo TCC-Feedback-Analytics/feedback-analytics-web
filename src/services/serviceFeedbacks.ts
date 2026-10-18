@@ -18,6 +18,7 @@ import type {
 } from 'lib/interfaces/contracts/ia-analyze/run.contract';
 import { getJson, postJson } from 'src/lib/utils/http';
 import type { MetricsPeriodParams } from 'src/lib/utils/metricsPeriod';
+import type { TimelineBucket } from 'src/lib/utils/timeline';
 
 /** Período das métricas (etapa 02): `[start_date, end_date)`; ausente = histórico inteiro. */
 function appendPeriod(searchParams: URLSearchParams, params?: MetricsPeriodParams) {
@@ -85,6 +86,29 @@ export function ServiceGetFeedbackAnalysis(params?: FeedbackAnalysisOptions & Me
   }`;
 
   return getJson<FeedbackAnalysisResponse>(url);
+}
+
+/** Movimento no tempo: um ponto por dia, semana ou mês (sem avaliação → `count` 0 e `mean` null). */
+export type FeedbackTimelinePoint = { start: string; count: number; mean: number | null };
+
+export type FeedbackTimelineResponse = {
+  bucket: TimelineBucket;
+  tz: string;
+  total: number;
+  points: FeedbackTimelinePoint[];
+};
+
+export type FeedbackTimelineOptions = FeedbackStatsOptions & MetricsPeriodParams & { bucket: TimelineBucket; tz: string };
+
+export function ServiceGetFeedbackTimeline(params: FeedbackTimelineOptions) {
+  const searchParams = new URLSearchParams();
+  if (params.scope_type) searchParams.append('scope_type', params.scope_type);
+  if (params.catalog_item_id) searchParams.append('catalog_item_id', params.catalog_item_id);
+  appendPeriod(searchParams, params);
+  searchParams.append('bucket', params.bucket);
+  searchParams.append('tz', params.tz);
+
+  return getJson<FeedbackTimelineResponse>(`/api/protected/user/feedbacks/timeline?${searchParams.toString()}`);
 }
 
 export function ServiceGetFeedbackQuestions(params?: FeedbackQuestionsOptions & MetricsPeriodParams) {

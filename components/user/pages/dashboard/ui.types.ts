@@ -3,6 +3,8 @@ import type { LoaderUserDashboard } from 'src/routes/loaders/loaderUserDashboard
 import type { FeedbackStats } from 'lib/interfaces/domain/feedback.domain';
 import type { FormQuestionConfig } from 'src/lib/utils/formQuestions';
 import type { PreviousPeriod } from 'src/lib/hooks/usePreviousPeriod';
+import type { FeedbackTimelinePoint } from 'src/services/serviceFeedbacks';
+import type { TimelineBucket } from 'src/lib/utils/timeline';
 
 /**
  * Props da seção "Avaliação por estrelas" do dashboard.
@@ -101,3 +103,21 @@ export interface WelcomePreviewCardProps {
   children: ReactNode;
 }
 
+/**
+ * Props da seção "Movimento das avaliações" (métricas novas, 1).
+ * Usado em: components/user/pages/dashboard/SectionMovement.tsx.
+ */
+export interface SectionMovementProps {
+  /** 'dashboard' = gráfico mais baixo; 'detail' = página de todas as métricas de estrelas. */
+  variant?: 'dashboard' | 'detail';
+}
+
+/**
+ * Props do gráfico do movimento: barras com a quantidade e linha com a média.
+ * Usado em: components/user/pages/dashboard/SectionMovement.tsx.
+ */
+export interface MovementChartProps {
+  points: FeedbackTimelinePoint[];
+  bucket: TimelineBucket;
+  compact: boolean;
+}
