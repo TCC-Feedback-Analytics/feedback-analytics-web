@@ -19,12 +19,20 @@ export type PeriodDeltaResult =
 
 const Z = 1.96;
 
-/** Diferença no formato da tela: nota "+0,3", pontos "+5 p.p.", tom "+8". */
+/** "1 ponto", "21 pontos". */
+export function pointsText(value: number): string {
+  return `${value} ${value === 1 ? 'ponto' : 'pontos'}`;
+}
+
+/**
+ * Diferença no formato da tela: nota "+0,3", porcentagem "+5 pontos", tom "+8".
+ * "Pontos" e não "p.p.": de 61% para 82% são 21 pontos, em palavras simples.
+ */
 export function formatDelta(delta: number, kind: 'rating' | 'points' | 'nss'): string {
   const sign = delta > 0 ? '+' : '−';
   const abs = Math.abs(delta);
   if (kind === 'rating') return `${sign}${abs.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`;
-  if (kind === 'points') return `${sign}${abs} p.p.`;
+  if (kind === 'points') return `${sign}${pointsText(abs)}`;
   return `${sign}${abs}`;
 }
 

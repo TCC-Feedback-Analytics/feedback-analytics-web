@@ -34,7 +34,7 @@ function stats(overrides: Record<string, unknown>) {
 
 const byItem: Record<string, unknown> = {
   p1: stats({ averageRating: 4.6, starMeanCI: { lower: 4.5, upper: 4.7 }, aiSentiment: { positive: 80, neutral: 10, negative: 10, netSentimentScore: 70, confidenceTier: 'good' } }),
-  p2: stats({ averageRating: 4.0, starMeanCI: { lower: 3.9, upper: 4.1 } }),
+  p2: stats({ averageRating: 4.0, starMeanCI: { lower: 3.9, upper: 4.1 }, ratingDistribution: { 1: 15, 2: 15, 3: 20, 4: 25, 5: 25 } }),
   s1: stats({ totalFeedbacks: 12, averageRating: 3.8, starMeanCI: { lower: 3.2, upper: 4.4 } }),
   s2: stats({ totalFeedbacks: 9, averageRating: 3.5, starMeanCI: { lower: 2.8, upper: 4.2 } }),
 };
@@ -78,7 +78,13 @@ describe('[Unidade] Comparar itens', () => {
 
     const mean = within(table).getByRole('row', { name: /^Média/ });
     expect(within(mean).getByText('4,6')).toBeInTheDocument();
-    expect(within(mean).getByText(/0,6 melhor/)).toBeInTheDocument();
+    expect(within(mean).getByText(/nota 0,6 maior/)).toBeInTheDocument();
+    // Porcentagens em pontos, sem "p.p.": quem tem menos críticas está melhor.
+    const positive = within(table).getByRole('row', { name: /^Positivas/ });
+    expect(within(positive).getByText('(30 pontos a mais)')).toBeInTheDocument();
+    const critical = within(table).getByRole('row', { name: /^Críticas/ });
+    expect(within(critical).getByText('(20 pontos a menos)')).toBeInTheDocument();
+    expect(within(table).queryByText(/p\.p\./)).not.toBeInTheDocument();
 
     const tone = within(table).getByRole('row', { name: /^Tom dos comentários/ });
     expect(within(tone).getByText('Sem comentários analisados')).toBeInTheDocument();

@@ -66,7 +66,7 @@ function PrecisionInfoModal({
   }, [onClose]);
 
   const limits = kind === 'mean' ? PRECISION_LIMITS.mean : PRECISION_LIMITS.pct;
-  const unitShort = kind === 'mean' ? '' : ' p.p.';
+  const unitShort = kind === 'mean' ? '' : ' pontos';
   const fmt = (value: number) => value.toLocaleString('pt-BR');
 
   return (
