@@ -124,7 +124,7 @@ export type PeriodDeltaProps = {
   current: ComparedValue;
   /** `null` = sem dados no período anterior. */
   previous: ComparedValue | null;
-  /** 'rating' = nota (+0,3); 'points' = pontos percentuais (+5 p.p.); 'nss' = tom (+8). */
+  /** 'rating' = nota (+0,3); 'points' = porcentagem, em pontos (+5 pontos); 'nss' = tom (+8). */
   kind: 'rating' | 'points' | 'nss';
   /** Críticas: cair é melhorar. */
   higherIsBetter?: boolean;

@@ -30,6 +30,8 @@ export type CompareItemsRow = {
   /** Sem veredito (ex.: nº de avaliações): a coluna mostra "—". */
   result: PeriodDeltaResult | null;
   kind: 'rating' | 'points' | 'nss';
+  /** Críticas: quem tem menos está melhor ("8 pontos a menos"). */
+  lowerIsBetter?: boolean;
 };
 
 /** Tipo de item comparável (produto, serviço ou departamento). */

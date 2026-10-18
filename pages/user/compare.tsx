@@ -9,7 +9,7 @@ import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { commentToneWord } from 'src/lib/utils/commentTone';
 import { comparableKinds } from 'src/lib/utils/compareItems';
 import { metricsPeriodKey, metricsPeriodParams, periodText } from 'src/lib/utils/metricsPeriod';
-import { comparePeriods, formatDelta, nssFromCounts, nssInterval, wilsonPctInterval } from 'src/lib/utils/periodComparison';
+import { comparePeriods, nssFromCounts, nssInterval, pointsText, wilsonPctInterval } from 'src/lib/utils/periodComparison';
 import { formatRating, ratingLabel, ratingShares } from 'src/lib/utils/ratingLabel';
 import { formatNss } from 'src/lib/utils/statistics';
 import { ServiceGetFeedbackStats } from 'src/services/serviceFeedbacks';
@@ -95,6 +95,7 @@ function buildRows(stats: CompareItemsStats): CompareItemsRow[] {
       b: pct(b, 'critical'),
       result: verdict(a && shareOf(a, 'critical'), b && shareOf(b, 'critical'), { higherIsBetter: false }),
       kind: 'points',
+      lowerIsBetter: true,
     },
     {
       metric: 'Tom dos comentários',
@@ -119,7 +120,12 @@ function Verdict({ row, nameA, nameB }: { row: CompareItemsRow; nameA: string; n
   if (result.status === 'no-reference') return <span className="text-(--text-tertiary)">Sem dados para comparar</span>;
   if (result.status === 'same') return <span className="text-(--text-secondary)">Iguais</span>;
   const winner = result.improved ? nameA : nameB;
-  const amount = formatDelta(Math.abs(result.delta), row.kind).replace(/^[+−]/, '');
+  // Em palavras simples: "nota 0,6 maior", "21 pontos a mais", "8 pontos a menos".
+  const abs = Math.abs(result.delta);
+  const amount =
+    row.kind === 'rating'
+      ? `nota ${abs.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} maior`
+      : `${pointsText(abs)} ${row.lowerIsBetter ? 'a menos' : 'a mais'}`;
   if (result.uncertain) {
     return (
       <span className="text-(--text-tertiary)" title="As margens de erro dos dois itens se sobrepõem: a diferença pode ser só acaso.">
@@ -129,7 +135,7 @@ function Verdict({ row, nameA, nameB }: { row: CompareItemsRow; nameA: string; n
   }
   return (
     <span className="font-semibold text-(--positive)">
-      {winner} <span className="font-normal text-(--text-secondary)">({amount} melhor)</span>
+      {winner} <span className="font-normal text-(--text-secondary)">({amount})</span>
     </span>
   );
 }
