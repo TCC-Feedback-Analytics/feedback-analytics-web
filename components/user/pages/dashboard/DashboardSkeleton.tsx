@@ -22,7 +22,7 @@ export default function DashboardSkeleton() {
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
           <div
             key={`dashboard-metric-skeleton-${index}`}
@@ -35,7 +35,7 @@ export default function DashboardSkeleton() {
         ))}
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <section className="rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6">
           <SkeletonBlock className="h-6 w-52" />
           <SkeletonBlock className="mt-2 h-4 w-72 max-w-full" />

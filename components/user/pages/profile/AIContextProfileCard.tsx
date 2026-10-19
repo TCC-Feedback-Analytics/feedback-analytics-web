@@ -25,14 +25,15 @@ export default function AIContextProfileCard() {
   const isComplete = hasCompleteContext && hasConfiguredLlm;
 
   return (
-    <div className="font-work-sans rounded-2xl border border-(--quaternary-color)/12 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6 shadow-md transition-all duration-200 hover:border-(--quaternary-color)/20">
+    <div className="font-work-sans rounded-2xl border border-(--quaternary-color)/12 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-4 shadow-md transition-all duration-200 hover:border-(--quaternary-color)/20 sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-(--quaternary-color)/10 pb-5">
         <div className="flex items-center gap-3.5">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-(--primary-color)/15 text-(--primary-color) ring-1 ring-(--primary-color)/30 shadow-inner">
             <FaWandMagicSparkles className="text-xl" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
+          <div className="min-w-0">
+            {/* O selo desce para a linha de baixo quando o título não cabe ao lado. */}
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <h3 className="font-montserrat text-base font-bold text-(--text-primary)">
                 Contexto e LLM da empresa
               </h3>
@@ -61,7 +62,7 @@ export default function AIContextProfileCard() {
         </button>
       </div>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-xl border border-(--quaternary-color)/10 bg-(--seventh-color)/40 p-4">
           <span className="text-[11px] font-semibold text-(--primary-color) uppercase tracking-wider">
             1. Resumo do Negócio

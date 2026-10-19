@@ -5,7 +5,7 @@ function PreviewCard({ title, description, example = false, tourId, children }: 
   return (
     <section
       data-tour={tourId}
-      className="flex flex-col gap-4 rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-5"
+      className="flex min-w-0 flex-col gap-4 rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-5"
     >
       <header className="flex items-start justify-between gap-3">
         <h3 className="font-montserrat text-base font-semibold text-(--text-primary)">{title}</h3>
@@ -34,7 +34,8 @@ export default function WelcomePreview({ questions }: WelcomePreviewProps) {
         O que vai aparecer aqui
       </h2>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      {/* grid-cols-1 no celular: sem colunas definidas, a coluna crescia até o conteúdo e cortava os cards. */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         <PreviewCard
           title="Avaliação por estrelas"
           description="A média das estrelas e quantas avaliações foram positivas e críticas, no período que você escolher e comparadas com o período anterior."

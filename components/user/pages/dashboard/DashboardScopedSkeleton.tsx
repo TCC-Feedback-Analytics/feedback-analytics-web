@@ -8,7 +8,7 @@ import SkeletonBlock from 'components/user/shared/skeletons/SkeletonBlock';
 export default function DashboardScopedSkeleton() {
   return (
     <div aria-label="Carregando métricas do escopo" className="space-y-6">
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[0, 1, 2, 3].map((i) => (
           <div
             key={i}
@@ -21,7 +21,7 @@ export default function DashboardScopedSkeleton() {
         ))}
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {[0, 1].map((i) => (
           <section
             key={i}

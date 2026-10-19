@@ -3,7 +3,9 @@ import ScopeTag from 'components/user/shared/ScopeTag';
 import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { useScopedHeatmap } from 'src/lib/hooks/useScopedHeatmap';
 import {
+  BAND_HOURS,
   BAND_LABEL,
+  BAND_NAME,
   PEAK_FEW_RATINGS,
   WEEKDAY_SHORT,
   cellPhrase,
@@ -19,15 +21,16 @@ function PeakTimesGrid({ cells }: PeakTimesGridProps) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[420px] table-fixed border-separate border-spacing-1 text-center text-xs">
+      {/* Cabe em 320px: coluna das faixas estreita, nome e horas em duas linhas e espaçamento menor no celular. */}
+      <table className="w-full min-w-[17rem] table-fixed border-separate border-spacing-0.5 text-center text-xs sm:border-spacing-1">
         <caption className="sr-only">Avaliações e média por dia da semana e faixa do dia</caption>
         <thead>
           <tr>
-            <th scope="col" className="w-28 text-left font-medium text-(--text-tertiary)">
+            <th scope="col" className="w-16 text-left font-medium text-(--text-tertiary) sm:w-28">
               <span className="sr-only">Faixa do dia</span>
             </th>
             {WEEKDAY_SHORT.map((day) => (
-              <th key={day} scope="col" className="font-medium text-(--text-tertiary)">
+              <th key={day} scope="col" className="text-[10px] font-medium text-(--text-tertiary) sm:text-xs">
                 {day}
               </th>
             ))}
@@ -36,8 +39,9 @@ function PeakTimesGrid({ cells }: PeakTimesGridProps) {
         <tbody>
           {BAND_LABEL.map((label, band) => (
             <tr key={label}>
-              <th scope="row" className="pr-1 text-left text-[11px] font-medium text-(--text-tertiary)">
-                {label}
+              <th scope="row" className="pr-1 text-left text-[10px] leading-tight font-medium text-(--text-tertiary) sm:text-[11px]">
+                <span className="block">{BAND_NAME[band]}</span>
+                <span className="block opacity-80">{BAND_HOURS[band]}</span>
               </th>
               {WEEKDAY_SHORT.map((day, weekday) => {
                 const cell = cellAt(weekday, band);
@@ -50,7 +54,7 @@ function PeakTimesGrid({ cells }: PeakTimesGridProps) {
                   <td
                     key={day}
                     title={description}
-                    className="h-10 rounded-md"
+                    className="h-9 rounded-md sm:h-10"
                     style={{
                       backgroundColor:
                         count > 0
@@ -118,7 +122,7 @@ export default function SectionPeakTimes() {
 
   return (
     <section
-      className="font-work-sans space-y-4 rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6"
+      className="font-work-sans space-y-4 rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-4 sm:p-6"
       aria-labelledby="peak-times-title"
     >
       <header className="flex flex-wrap items-center justify-between gap-3">

@@ -102,7 +102,7 @@ function RatingCards({ stats, total, ofScope, showNeutral, previous }: RatingCar
     ) : null;
 
   return (
-    <div className={`grid gap-4 sm:grid-cols-2 ${showNeutral ? 'xl:grid-cols-4' : 'xl:grid-cols-3'}`}>
+    <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${showNeutral ? 'xl:grid-cols-4' : 'xl:grid-cols-3'}`}>
       <MetricCard
         title={
           <span className="inline-flex items-center gap-1">

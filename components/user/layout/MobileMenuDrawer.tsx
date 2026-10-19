@@ -59,7 +59,10 @@ export default function MobileMenuDrawer({
 
   if (!rendered) return null;
 
+  // O portal fica fora do layout logado: a classe do tema traz as cores dele
+  // (sem ela, o tema claro usava o cinza escuro genérico do site).
   return createPortal(
+    <div className="private-user-theme">
     <div
       id="mobile-navigation-drawer"
       role="dialog"
@@ -285,6 +288,7 @@ export default function MobileMenuDrawer({
           )}
         </div>
       </div>
+    </div>
     </div>,
     document.body,
   );
