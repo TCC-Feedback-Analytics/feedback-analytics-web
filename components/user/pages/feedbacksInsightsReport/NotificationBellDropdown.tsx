@@ -71,7 +71,8 @@ export function NotificationBellDropdown({
         aria-expanded={open}
         aria-label={notificationLabel}
         title={notificationLabel}
-        className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-(--quaternary-color)/16 bg-(--bg-secondary) text-(--text-secondary) shadow-xs transition-all hover:border-(--primary-color)/40 hover:bg-(--seventh-color) hover:text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--primary-color)/40"
+        // Mesma altura, borda e fundo do menu da conta, ao lado dele no cabeçalho.
+        className="relative inline-flex h-10 w-10 items-center justify-center rounded-lg border border-(--quaternary-color)/14 bg-(--seventh-color) text-(--text-secondary) transition-colors hover:border-(--quaternary-color)/22 hover:bg-(--bg-tertiary) hover:text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--primary-color)/40"
       >
         <FaRegBell aria-hidden className="h-4 w-4" />
         {pendingCount > 0 && (
@@ -86,8 +87,12 @@ export function NotificationBellDropdown({
         <div
           role="dialog"
           aria-label="Status de Notificações de Feedbacks"
-          className={`absolute top-full z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-2xl ${
-            align === "right" ? "right-0 origin-top-right" : "left-0 origin-top-left"
+          // No cabeçalho (align right), no celular o painel ocupa a largura da tela
+          // logo abaixo do cabeçalho: ancorado no sino, ele passava da borda esquerda.
+          className={`z-50 max-h-[calc(100dvh-6rem)] overflow-y-auto rounded-2xl ${
+            align === "right"
+              ? "fixed inset-x-4 top-[4.5rem] origin-top sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 sm:origin-top-right"
+              : "absolute left-0 top-full mt-2 w-[min(20rem,calc(100vw-2rem))] origin-top-left"
           } border border-(--quaternary-color)/16 bg-(--bg-secondary) p-4 shadow-2xl backdrop-blur-md animate-in fade-in-50 zoom-in-95`}
         >
           {/* Cabeçalho */}

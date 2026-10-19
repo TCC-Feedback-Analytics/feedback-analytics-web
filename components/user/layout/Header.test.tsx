@@ -59,4 +59,23 @@ describe('Header', () => {
     fireEvent.click(analyze!);
     expect(mocks.setGenerateDialogOpen).toHaveBeenCalledWith(true);
   });
+
+  it('no celular, o painel do sino ocupa a largura da tela; sino e conta com a mesma altura', () => {
+    render(
+      <MemoryRouter>
+        <Header isSidebarOpen={false} onToggleSidebar={vi.fn()} enterprise={enterprise} onSignOut={vi.fn()} />
+      </MemoryRouter>,
+    );
+
+    const bell = screen.getByText('12').closest('button')!;
+    const account = screen.getByRole('button', { expanded: false, name: /avatar/ });
+    expect(bell.className).toContain('h-10');
+    expect(account.className).toContain('h-10');
+
+    fireEvent.click(bell);
+    // Ancorado no sino, o painel passava da borda esquerda no celular.
+    const panel = screen.getByRole('dialog', { name: 'Status de Notificações de Feedbacks' });
+    expect(panel.className).toContain('fixed inset-x-4');
+    expect(panel.className).toContain('sm:absolute');
+  });
 });
