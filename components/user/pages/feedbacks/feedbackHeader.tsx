@@ -1,4 +1,5 @@
 import { formatRating, ratingShares } from 'src/lib/utils/ratingLabel';
+import { countLabel } from 'src/lib/utils/plural';
 import type { FeedbackHeaderProps } from './ui.types';
 
 export default function FeedbackHeader({ stats }: FeedbackHeaderProps) {
@@ -13,7 +14,7 @@ export default function FeedbackHeader({ stats }: FeedbackHeaderProps) {
           </h1>
           {stats && (
             <div className="mt-1.5 text-sm text-[var(--text-tertiary)]">
-              Total: {stats.totalFeedbacks} feedbacks | Média das estrelas:{' '}
+              Total: {countLabel(stats.totalFeedbacks, 'feedbacks')} | Média das estrelas:{' '}
               {stats.totalFeedbacks > 0 ? `${formatRating(stats.averageRating)}/5` : '—'}
             </div>
           )}

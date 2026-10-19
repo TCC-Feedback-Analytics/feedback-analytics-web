@@ -1,3 +1,4 @@
+import { countLabel } from 'src/lib/utils/plural';
 import type { FeedbackPaginationProps } from './ui.types';
 
 export default function FeedbackPagination({
@@ -14,7 +15,7 @@ export default function FeedbackPagination({
             pagination.currentPage * pagination.itemsPerPage,
             pagination.totalItems,
           )}{' '}
-          de {pagination.totalItems} feedbacks
+          de {countLabel(pagination.totalItems, 'feedbacks')}
         </div>
 
         <div className="flex items-center gap-2">
