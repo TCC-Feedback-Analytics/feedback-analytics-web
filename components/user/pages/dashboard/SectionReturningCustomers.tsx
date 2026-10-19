@@ -47,7 +47,7 @@ export default function SectionReturningCustomers() {
 
     body = (
       <div className="space-y-4">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="rounded-xl bg-(--seventh-color) p-4">
             <p className="text-3xl font-semibold text-(--text-primary)">{Math.round(data.returningPct ?? 0)}%</p>
             <p className="mt-1 text-sm text-(--text-secondary)">

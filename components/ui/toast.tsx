@@ -19,7 +19,8 @@ export function ToastViewport({
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={`fixed top-4 right-4 z-50 flex max-h-screen w-full flex-col-reverse gap-2 sm:max-w-[380px] ${className}`}
+      // No celular, encaixa entre as margens (antes `w-full` + `right-4` saía pela esquerda).
+      className={`fixed top-4 left-4 right-4 z-50 flex max-h-screen flex-col-reverse gap-2 sm:left-auto sm:w-full sm:max-w-[380px] ${className}`}
       {...props}
     >
       {children}

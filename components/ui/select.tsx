@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 import { FaCheck, FaChevronDown, FaMagnifyingGlass, FaXmark } from 'react-icons/fa6';
+import { themeClassOf, type PortalThemeClass } from 'src/lib/utils/portalTheme';
 import type {
   SelectOption,
   SelectProps,
@@ -39,6 +40,8 @@ export function Select<T extends string | number = string | number>({
     maxHeight: number;
   } | null>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
+  // A lista abre num portal fora do layout: leva junto o tema de quem a abriu.
+  const [themeClass, setThemeClass] = React.useState<PortalThemeClass>('');
   const dropdownRef = React.useRef<HTMLDivElement>(null);
   const listboxId = React.useId();
   const controlId = id ?? listboxId;
@@ -79,6 +82,7 @@ export function Select<T extends string | number = string | number>({
         : bounds.bottom + gap;
 
       setDropdownPosition({ top, left, width, maxHeight });
+      setThemeClass(themeClassOf(containerRef.current));
     }
 
     function handleClickOutside(event: MouseEvent) {
@@ -174,6 +178,7 @@ export function Select<T extends string | number = string | number>({
       </button>
 
       {open && dropdownPosition && createPortal(
+        <div className={themeClass}>
         <div
           ref={dropdownRef}
           role="dialog"
@@ -247,6 +252,7 @@ export function Select<T extends string | number = string | number>({
               <p className="px-3 py-4 text-center text-sm text-(--text-tertiary)">{emptyMessage}</p>
             )}
           </div>
+        </div>
         </div>,
         document.body,
       )}

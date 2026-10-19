@@ -72,7 +72,7 @@ export default function CompanyProfileSection({ enterprise }: CompanyProfileSect
             <FaFileLines className="text-(--primary-color)" aria-hidden />
             <h3 className="font-montserrat text-base font-bold text-(--text-primary)">Cadastro da empresa</h3>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <Detail icon={<FaFileLines />} label="Documento" value={document} />
             <Detail icon={<FaLayerGroup />} label="Tipo de cadastro" value={accountType} />
             <Detail icon={<FaCalendarDays />} label="Conta criada em" value={getCreationDate(enterprise.created_at)} />

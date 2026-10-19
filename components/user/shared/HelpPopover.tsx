@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { HelpPopoverProps } from './ui.types';
+import { themeClassOf, type PortalThemeClass } from 'src/lib/utils/portalTheme';
 
 /**
  * Apresentação compartilhada do ícone "?" + modal de ajuda. Não conhece nenhum
@@ -16,6 +17,7 @@ export default function HelpPopover({
   className = '',
 }: HelpPopoverProps) {
   const [open, setOpen] = useState(false);
+  const [themeClass, setThemeClass] = useState<PortalThemeClass>('');
 
   useEffect(() => {
     if (!open) return;
@@ -32,6 +34,7 @@ export default function HelpPopover({
         type="button"
         onClick={(event) => {
           event.stopPropagation();
+          setThemeClass(themeClassOf(event.currentTarget));
           setOpen(true);
         }}
         aria-haspopup="dialog"
@@ -43,6 +46,7 @@ export default function HelpPopover({
       </button>
 
       {open && createPortal(
+        <div className={themeClass}>
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
           onClick={() => setOpen(false)}
@@ -85,6 +89,7 @@ export default function HelpPopover({
               </p>
             )}
           </div>
+        </div>
         </div>,
         document.body,
       )}
