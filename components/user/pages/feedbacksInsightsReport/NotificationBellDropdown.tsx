@@ -20,6 +20,7 @@ export function NotificationBellDropdown({
   catalogItemId,
   catalogItemOptions,
   onOpenGenerateDialog,
+  align = "left",
 }: NotificationBellDropdownProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -85,7 +86,9 @@ export function NotificationBellDropdown({
         <div
           role="dialog"
           aria-label="Status de Notificações de Feedbacks"
-          className="absolute left-0 top-full z-50 mt-2 w-80 origin-top-left rounded-2xl border border-(--quaternary-color)/16 bg-(--bg-secondary) p-4 shadow-2xl backdrop-blur-md animate-in fade-in-50 zoom-in-95"
+          className={`absolute top-full z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-2xl ${
+            align === "right" ? "right-0 origin-top-right" : "left-0 origin-top-left"
+          } border border-(--quaternary-color)/16 bg-(--bg-secondary) p-4 shadow-2xl backdrop-blur-md animate-in fade-in-50 zoom-in-95`}
         >
           {/* Cabeçalho */}
           <div className="flex items-center justify-between border-b border-(--quaternary-color)/10 pb-3">
