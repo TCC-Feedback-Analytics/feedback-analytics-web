@@ -25,6 +25,11 @@ export default function UserInteractiveTour({
   const stepData = INTERACTIVE_STEPS[currentTourStep] || INTERACTIVE_STEPS[0];
   const targetSelector = isMobile && stepData.mobileSelector ? stepData.mobileSelector : stepData.selector;
   const description = isMobile ? stepData.mobileDescription ?? stepData.description : stepData.description;
+  // Celular: texto curto no balão compacto; o completo abre no "Ver mais".
+  const mobileSummary = stepData.mobileSummary ?? description;
+  const hasMoreText = mobileSummary !== description;
+  const [expandedStep, setExpandedStep] = useState<number | null>(null);
+  const expanded = expandedStep === currentTourStep;
   const IconComponent = stepData.icon;
   const isLast = currentTourStep === TOUR_STEPS_COUNT - 1;
   // Os estilos-base de botão têm alturas diferentes; esta medida compartilhada
@@ -263,94 +268,181 @@ export default function UserInteractiveTour({
       <div
         ref={popoverRef}
         style={popoverStyle}
-        className={`pointer-events-auto z-50 flex w-[calc(100vw-32px)] max-w-[360px] flex-col rounded-2xl border border-(--primary-color)/30 bg-(--bg-secondary) p-4 shadow-xl backdrop-blur-md transition-all duration-200 ${
-          isMobile ? "max-h-[60dvh]" : "max-h-[calc(100dvh-32px)]"
+        className={`pointer-events-auto z-50 flex w-[calc(100vw-32px)] max-w-[360px] flex-col rounded-2xl border border-(--primary-color)/30 bg-(--bg-secondary) shadow-xl backdrop-blur-md transition-all duration-200 ${
+          isMobile ? "max-h-[45dvh] p-3" : "max-h-[calc(100dvh-32px)] p-4"
         }`}
       >
-        {/* Topo do Balão */}
-        <div className="flex shrink-0 items-center justify-between border-b border-(--quaternary-color)/10 pb-2.5">
-          <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-(--primary-color)/15 text-(--primary-color) ring-1 ring-(--primary-color)/30 text-xs font-bold">
-              <IconComponent className="text-xs" />
-            </span>
-            <h3 className="font-montserrat text-sm font-bold text-(--text-primary)">
-              {stepData.title}
-            </h3>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => finishTour(skipTour)}
-            disabled={isTourSaving}
-            className="flex items-center gap-1 rounded-lg p-1 text-xs text-(--text-tertiary) hover:bg-(--seventh-color) hover:text-(--text-primary) transition-colors"
-            title="Pular introdução"
-          >
-            <span className="text-[11px] font-medium">Pular</span>
-            <FaXmark className="text-xs" />
-          </button>
-        </div>
-
-        {/* Descrição: rola dentro do balão, para o topo e os botões ficarem sempre à vista. */}
-        <div className="min-h-0 flex-1 overflow-y-auto py-3">
-          <p className="font-inter text-xs leading-relaxed text-(--text-secondary)">
-            {description}
-          </p>
-          {tourSaveError && (
-            <p role="alert" className="mt-2 text-xs font-medium text-red-600">
-              {tourSaveError}
-            </p>
-          )}
-        </div>
-
-        {/* Rodapé: os pontos ficam numa linha própria, para caberem com muitos passos. */}
-        <div className="shrink-0 space-y-2.5 border-t border-(--quaternary-color)/10 pt-2.5">
-          {/* Contador por pontos */}
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex min-w-0 flex-wrap items-center gap-1">
-              {INTERACTIVE_STEPS.map((_, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() => goToStep(index)}
-                  aria-label={`Ir para passo ${index + 1}`}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    index === currentTourStep
-                      ? "w-4 bg-(--primary-color)"
-                      : "w-1.5 bg-(--quaternary-color)/25 hover:bg-(--quaternary-color)/50"
-                  }`}
-                />
-              ))}
+        {/* Celular: balão compacto (~150px) para não cobrir a tela. Texto curto,
+            "Ver mais" para o completo, progresso numa barra e botões menores. */}
+        {isMobile && (
+          <div className="flex min-h-0 flex-col gap-2">
+            <div className="flex shrink-0 items-center gap-2">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-(--primary-color)/15 text-(--primary-color) ring-1 ring-(--primary-color)/30 text-xs font-bold">
+                <IconComponent className="text-xs" />
+              </span>
+              <h3 className="min-w-0 flex-1 truncate font-montserrat text-sm font-bold text-(--text-primary)">
+                {stepData.title}
+              </h3>
+              <span className="shrink-0 text-[11px] text-(--text-tertiary)">
+                {currentTourStep + 1}/{TOUR_STEPS_COUNT}
+              </span>
+              <button
+                type="button"
+                onClick={() => finishTour(skipTour)}
+                disabled={isTourSaving}
+                aria-label="Pular o guia"
+                title="Pular introdução"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-(--text-tertiary) transition-colors hover:bg-(--seventh-color) hover:text-(--text-primary)"
+              >
+                <FaXmark className="text-xs" />
+              </button>
             </div>
-            <span className="shrink-0 text-[11px] text-(--text-tertiary)">
-              {currentTourStep + 1} de {TOUR_STEPS_COUNT}
-            </span>
+
+            <div className="min-h-0 overflow-y-auto">
+              <p className="font-inter text-xs leading-relaxed text-(--text-secondary)">
+                {expanded ? description : mobileSummary}
+              </p>
+              {hasMoreText && (
+                <button
+                  type="button"
+                  aria-expanded={expanded}
+                  onClick={() => setExpandedStep(expanded ? null : currentTourStep)}
+                  className="mt-1 text-[11px] font-semibold text-(--primary-color)"
+                >
+                  {expanded ? "Ver menos" : "Ver mais"}
+                </button>
+              )}
+              {tourSaveError && (
+                <p role="alert" className="mt-2 text-xs font-medium text-red-600">
+                  {tourSaveError}
+                </p>
+              )}
+            </div>
+
+            <div className="flex shrink-0 items-center gap-2">
+              <div
+                role="progressbar"
+                aria-label="Progresso do guia"
+                aria-valuemin={1}
+                aria-valuemax={TOUR_STEPS_COUNT}
+                aria-valuenow={currentTourStep + 1}
+                className="h-1 min-w-0 flex-1 overflow-hidden rounded-full bg-(--quaternary-color)/20"
+              >
+                <div
+                  className="h-full rounded-full bg-(--primary-color) transition-all duration-300"
+                  style={{ width: `${((currentTourStep + 1) / TOUR_STEPS_COUNT) * 100}%` }}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={prevTourStep}
+                disabled={currentTourStep === 0}
+                aria-label="Anterior"
+                className="btn-ghost flex h-9 w-9 shrink-0 items-center justify-center disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                <FaChevronLeft className="text-[10px]" />
+              </button>
+              <button
+                type="button"
+                onClick={handleActionClick}
+                disabled={isTourSaving}
+                className="btn-primary font-poppins flex h-9 shrink-0 items-center justify-center gap-1 px-4 text-xs font-semibold shadow-xs"
+              >
+                <span>{isTourSaving ? "Salvando..." : isLast ? "Entendi" : "Próximo"}</span>
+                {!isLast && <FaChevronRight className="text-[9px]" />}
+              </button>
+            </div>
           </div>
+        )}
 
-          {/* Botões de Ação Diretos */}
-          <div className="flex items-center justify-end gap-1.5">
+        {!isMobile && (
+          <>
+          {/* Topo do Balão */}
+          <div className="flex shrink-0 items-center justify-between border-b border-(--quaternary-color)/10 pb-2.5">
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-(--primary-color)/15 text-(--primary-color) ring-1 ring-(--primary-color)/30 text-xs font-bold">
+                <IconComponent className="text-xs" />
+              </span>
+              <h3 className="font-montserrat text-sm font-bold text-(--text-primary)">
+                {stepData.title}
+              </h3>
+            </div>
+
             <button
               type="button"
-              onClick={prevTourStep}
-              disabled={currentTourStep === 0}
-              style={navigationButtonStyle}
-              className="btn-ghost font-poppins flex items-center justify-center gap-1 px-3 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-30"
-            >
-              <FaChevronLeft className="text-[9px]" />
-              Anterior
-            </button>
-
-            <button
-              type="button"
-              onClick={handleActionClick}
+              onClick={() => finishTour(skipTour)}
               disabled={isTourSaving}
-              style={navigationButtonStyle}
-              className="btn-primary font-poppins flex items-center justify-center gap-1 px-3 text-xs font-semibold shadow-xs"
+              className="flex items-center gap-1 rounded-lg p-1 text-xs text-(--text-tertiary) hover:bg-(--seventh-color) hover:text-(--text-primary) transition-colors"
+              title="Pular introdução"
             >
-              <span>{isTourSaving ? "Salvando..." : isLast ? "Entendi" : "Próximo"}</span>
-              {!isLast && <FaChevronRight className="text-[9px]" />}
+              <span className="text-[11px] font-medium">Pular</span>
+              <FaXmark className="text-xs" />
             </button>
           </div>
-        </div>
+
+          {/* Descrição: rola dentro do balão, para o topo e os botões ficarem sempre à vista. */}
+          <div className="min-h-0 flex-1 overflow-y-auto py-3">
+            <p className="font-inter text-xs leading-relaxed text-(--text-secondary)">
+              {description}
+            </p>
+            {tourSaveError && (
+              <p role="alert" className="mt-2 text-xs font-medium text-red-600">
+                {tourSaveError}
+              </p>
+            )}
+          </div>
+
+          {/* Rodapé: os pontos ficam numa linha própria, para caberem com muitos passos. */}
+          <div className="shrink-0 space-y-2.5 border-t border-(--quaternary-color)/10 pt-2.5">
+            {/* Contador por pontos */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex min-w-0 flex-wrap items-center gap-1">
+                {INTERACTIVE_STEPS.map((_, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => goToStep(index)}
+                    aria-label={`Ir para passo ${index + 1}`}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      index === currentTourStep
+                        ? "w-4 bg-(--primary-color)"
+                        : "w-1.5 bg-(--quaternary-color)/25 hover:bg-(--quaternary-color)/50"
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="shrink-0 text-[11px] text-(--text-tertiary)">
+                {currentTourStep + 1} de {TOUR_STEPS_COUNT}
+              </span>
+            </div>
+
+            {/* Botões de Ação Diretos */}
+            <div className="flex items-center justify-end gap-1.5">
+              <button
+                type="button"
+                onClick={prevTourStep}
+                disabled={currentTourStep === 0}
+                style={navigationButtonStyle}
+                className="btn-ghost font-poppins flex items-center justify-center gap-1 px-3 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-30"
+              >
+                <FaChevronLeft className="text-[9px]" />
+                Anterior
+              </button>
+
+              <button
+                type="button"
+                onClick={handleActionClick}
+                disabled={isTourSaving}
+                style={navigationButtonStyle}
+                className="btn-primary font-poppins flex items-center justify-center gap-1 px-3 text-xs font-semibold shadow-xs"
+              >
+                <span>{isTourSaving ? "Salvando..." : isLast ? "Entendi" : "Próximo"}</span>
+                {!isLast && <FaChevronRight className="text-[9px]" />}
+              </button>
+            </div>
+          </div>
+          </>
+        )}
       </div>
     </div>
   );
