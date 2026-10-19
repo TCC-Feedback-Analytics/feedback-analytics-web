@@ -388,7 +388,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     });
   });
 
-  it("no celular, o balão fica preso embaixo da tela, com os botões à vista", async () => {
+  it("no celular, o balão compacto fica preso embaixo da tela, com texto curto e os botões à vista", async () => {
     systemGuide.get.mockResolvedValue({
       tourKey: "system-guide", version: 1, status: "pending", finishedAt: null,
     });
@@ -415,8 +415,20 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
 
       const card = (await screen.findByText("Dashboard de Resultados")).closest("[style]") as HTMLElement;
       expect(card.style.bottom).toContain("16px");
-      expect(card.className).toContain("max-h-[60dvh]");
+      expect(card.className).toContain("max-h-[45dvh]");
       expect(screen.getByText("Próximo")).toBeInTheDocument();
+
+      // Balão compacto: texto curto, contador e barra de progresso no lugar dos 15 pontos.
+      expect(screen.getByText("Na barra de baixo, toque em Visão geral para ver os principais números.")).toBeInTheDocument();
+      expect(screen.getByText("1/15")).toBeInTheDocument();
+      expect(screen.getByRole("progressbar", { name: "Progresso do guia" })).toHaveAttribute("aria-valuenow", "1");
+      expect(screen.queryByRole("button", { name: "Ir para passo 2" })).not.toBeInTheDocument();
+
+      // "Ver mais" mostra o texto completo do passo.
+      fireEvent.click(screen.getByRole("button", { name: "Ver mais" }));
+      expect(screen.getByText(/acompanhar os indicadores principais da sua empresa/)).toBeInTheDocument();
+      fireEvent.click(screen.getByRole("button", { name: "Ver menos" }));
+      expect(screen.getByText("Na barra de baixo, toque em Visão geral para ver os principais números.")).toBeInTheDocument();
     } finally {
       window.matchMedia = originalMatchMedia;
     }
@@ -424,6 +436,11 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
 
   it("o total de passos do tour acompanha a lista de passos", () => {
     expect(INTERACTIVE_STEPS).toHaveLength(TOUR_STEPS_COUNT);
+    // No celular, cada passo tem um texto curto (até ~2 linhas) para o balão compacto.
+    for (const step of INTERACTIVE_STEPS) {
+      expect(step.mobileSummary?.length ?? 0).toBeGreaterThan(0);
+      expect(step.mobileSummary!.length).toBeLessThanOrEqual(110);
+    }
   });
 
   it("o guia só fica pendente depois da configuração inicial e não abre sozinho", async () => {
