@@ -10,6 +10,9 @@ export const WEEKDAY_SHORT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const WEEKDAY_NAME = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
 
 export const BAND_LABEL = ['Madrugada (0–6h)', 'Manhã (6–12h)', 'Tarde (12–18h)', 'Noite (18–24h)'];
+/** Nome e horas separados, para a faixa caber em duas linhas curtas no celular. */
+export const BAND_NAME = ['Madrugada', 'Manhã', 'Tarde', 'Noite'];
+export const BAND_HOURS = ['0–6h', '6–12h', '12–18h', '18–24h'];
 const BAND_PHRASE = ['de madrugada', 'de manhã', 'à tarde', 'à noite'];
 
 /** Abaixo disso, a média da faixa fica apagada (pouco confiável). */

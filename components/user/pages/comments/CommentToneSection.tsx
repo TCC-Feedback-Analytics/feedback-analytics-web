@@ -4,6 +4,7 @@ import PeriodDelta from 'components/user/shared/PeriodDelta';
 import { nssFromCounts, nssInterval } from 'src/lib/utils/periodComparison';
 import { commentToneShares, commentToneWord } from 'src/lib/utils/commentTone';
 import { formatNss } from 'src/lib/utils/statistics';
+import { countLabel } from 'src/lib/utils/plural';
 import type { CommentToneSectionProps } from './ui.types';
 
 const WORD_TONE = {
@@ -70,7 +71,7 @@ function ToneBody({
         <span className={`text-3xl font-semibold ${WORD_TONE[word]}`}>{formatNss(nss)}</span>
         <span className={`text-base font-semibold ${WORD_TONE[word]}`}>{word}</span>
         <span className="text-sm text-(--text-secondary)">
-          {summary.totalAnalyzed.toLocaleString('pt-BR')} comentários analisados
+          {countLabel(summary.totalAnalyzed, 'comentários analisados')}
         </span>
         <PrecisionBadge
           metricName="Tom dos comentários"

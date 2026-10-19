@@ -148,14 +148,14 @@ export default function RegisterEmailPendingNotice({
         </div>
 
         {/* Links secundários */}
-        <div className="flex flex-wrap items-center justify-center gap-3">
+        <div className="flex flex-col items-center justify-center gap-2 sm:flex-row sm:gap-3">
           <Link
             to="/forgot-password"
             className="font-work-sans text-sm text-(--secondary-color) transition-opacity hover:opacity-80"
           >
             Esqueceu a senha?
           </Link>
-          <span className="text-(--text-tertiary) text-xs">·</span>
+          <span className="hidden text-xs text-(--text-tertiary) sm:inline" aria-hidden>·</span>
           <Link
             to="/login"
             className="font-work-sans text-sm text-(--text-tertiary) transition-opacity hover:opacity-80"

@@ -8,6 +8,7 @@ import {
   getPrecision,
   precisionReason,
 } from 'src/lib/utils/precision';
+import { pluralWord } from 'src/lib/utils/plural';
 import type { PrecisionBadgeProps, PrecisionInfoModalProps } from './ui.types';
 
 /**
@@ -102,7 +103,7 @@ function PrecisionInfoModal({
             </li>
           )}
           <li>
-            Baseado em <strong className="text-(--text-primary)">{fmt(n)} {unit}</strong>
+            Baseado em <strong className="text-(--text-primary)">{fmt(n)} {pluralWord(n, unit)}</strong>
             {ofScope ? ` ${ofScope}` : ''}.
           </li>
           <li>{precisionReason({ n, interval, kind })}</li>

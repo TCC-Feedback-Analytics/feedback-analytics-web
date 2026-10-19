@@ -1,6 +1,7 @@
 import PrecisionBadge from 'components/user/shared/PrecisionBadge';
 import PeriodDelta from 'components/user/shared/PeriodDelta';
 import { RATING_WEIGHT_LABEL, ratingWeightLevel, ratingWeightOf } from 'src/lib/utils/ratingWeight';
+import { countLabel } from 'src/lib/utils/plural';
 import { RATING_TONE_CLASS, formatRating, ratingLabel, ratingTone } from 'src/lib/utils/ratingLabel';
 import type {
   AnswerDistributionProps,
@@ -82,7 +83,7 @@ export function QuestionScore({ metricName, mean, count, satisfiedPct, ci, ofSco
       </span>
       <span className={`text-sm font-semibold ${RATING_TONE_CLASS[ratingTone(mean)]}`}>{ratingLabel(mean)}</span>
       <span className="text-sm text-(--text-secondary)">
-        {count.toLocaleString('pt-BR')} respostas · {Math.round(satisfiedPct)}% satisfeitos
+        {countLabel(count, 'respostas')} · {Math.round(satisfiedPct)}% satisfeitos
       </span>
       <PrecisionBadge metricName={metricName} n={count} unit="respostas" interval={ci} kind="mean" ofScope={ofScope} />
     </div>
@@ -112,7 +113,7 @@ export function QuestionWeightTag({ metric }: QuestionWeightTagProps) {
   return (
     <span
       className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${WEIGHT_TONE[level]}`}
-      title={weight ? `Comparado com as estrelas em ${weight.n.toLocaleString('pt-BR')} respostas` : undefined}
+      title={weight ? `Comparado com as estrelas em ${countLabel(weight.n, 'respostas')}` : undefined}
     >
       {RATING_WEIGHT_LABEL[level]}
     </span>

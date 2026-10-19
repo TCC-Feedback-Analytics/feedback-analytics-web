@@ -376,7 +376,7 @@ export default function AIContextDialog({
           )}
         </div>
 
-        <div className="relative z-10 my-5 grid min-w-0 gap-2 sm:grid-cols-2">
+        <div className="relative z-10 my-5 grid grid-cols-1 min-w-0 gap-2 sm:grid-cols-2">
           {CONTEXT_STEPS.map((stepItem, index) => {
             const contextStep = index;
             const filled = values[stepItem.key].trim().length > 0;

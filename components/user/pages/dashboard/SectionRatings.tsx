@@ -14,6 +14,7 @@ import {
   ratingTone,
 } from 'src/lib/utils/ratingLabel';
 import { scopeText } from 'src/lib/utils/scopeText';
+import { countLabel } from 'src/lib/utils/plural';
 import { wilsonPctInterval } from 'src/lib/utils/periodComparison';
 import { comparableKinds } from 'src/lib/utils/compareItems';
 import type { RatingCardsProps, SectionRatingsProps, ShareValueProps } from './ui.types';
@@ -101,7 +102,7 @@ function RatingCards({ stats, total, ofScope, showNeutral, previous }: RatingCar
     ) : null;
 
   return (
-    <div className={`grid gap-4 sm:grid-cols-2 ${showNeutral ? 'xl:grid-cols-4' : 'xl:grid-cols-3'}`}>
+    <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${showNeutral ? 'xl:grid-cols-4' : 'xl:grid-cols-3'}`}>
       <MetricCard
         title={
           <span className="inline-flex items-center gap-1">
@@ -123,7 +124,7 @@ function RatingCards({ stats, total, ofScope, showNeutral, previous }: RatingCar
         helper={
           <span className="flex flex-col gap-1.5">
             <span className="flex flex-wrap items-center gap-2">
-              <span>{total.toLocaleString('pt-BR')} avaliações</span>
+              <span>{countLabel(total, 'avaliações')}</span>
               <PrecisionBadge
                 metricName="Média de satisfação"
                 n={total}
