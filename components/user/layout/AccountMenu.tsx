@@ -88,7 +88,7 @@ export default function AccountMenu({ enterprise, onSignOut, isSigningOut = fals
         data-tour="account-menu-trigger"
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex items-center gap-2 rounded-md border border-(--quaternary-color)/14 bg-(--seventh-color) px-2 py-1.5 text-sm text-(--text-primary) transition-colors hover:border-(--quaternary-color)/22 hover:bg-(--bg-tertiary)">
+        className="flex h-10 items-center gap-2 rounded-lg border border-(--quaternary-color)/14 bg-(--seventh-color) px-2 text-sm text-(--text-primary) transition-colors hover:border-(--quaternary-color)/22 hover:bg-(--bg-tertiary)">
         <span className="h-7 w-7 overflow-hidden rounded-full">
           <Avatar />
         </span>
