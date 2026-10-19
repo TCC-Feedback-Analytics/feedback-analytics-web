@@ -5,12 +5,19 @@ import InsightsActionBar from './InsightsActionBar';
 import { IA_SLOW_AFTER_MS, isIaSlowNoticeEnabled } from 'src/lib/utils/iaSlowNotice';
 vi.mock('react-router-dom', async () => vi.importActual('react-router-dom'));
 const m = vi.hoisted(() => ({ running: true }));
-vi.mock('src/lib/context/insightsControls', () => ({ useInsightsControls: () => ({
-  scope: 'COMPANY', catalogItemId: '', catalogItemOptions: [], period: { preset: 'ALL' }, setPeriod: () => {},
-  isAnalyzingRaw: m.running, isRegeneratingInsights: false,
-  rawStatus: m.running ? 'running' : 'idle', insightsStatus: 'idle', rawProgress: { done: 20, total: 105 },
-}) }));
-vi.mock('src/lib/hooks/useScopedPendingCount', () => ({ useScopedPendingCount: () => ({ pendingCount: 85, totalFeedbacks: 105 }) }));
+// A janela de análise agora abre pelo contexto (botão da barra e sino do cabeçalho).
+vi.mock('src/lib/context/insightsControls', async () => {
+  const { useState } = await import('react');
+  return { useInsightsControls: () => {
+    const [isGenerateDialogOpen, setGenerateDialogOpen] = useState(false);
+    return {
+      scope: 'COMPANY', catalogItemId: '', catalogItemOptions: [], period: { preset: 'ALL' }, setPeriod: () => {},
+      isAnalyzingRaw: m.running, isRegeneratingInsights: false,
+      rawStatus: m.running ? 'running' : 'idle', insightsStatus: 'idle', rawProgress: { done: 20, total: 105 },
+      isGenerateDialogOpen, setGenerateDialogOpen,
+    };
+  } };
+});
 vi.mock('components/user/pages/feedbacksInsightsReport/GenerateInsightsDialog', () => ({
   default: ({ open }: { open: boolean }) => open ? <div role="dialog">Acompanhamento</div> : null,
 }));
