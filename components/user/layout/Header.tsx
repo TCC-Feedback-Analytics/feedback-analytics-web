@@ -18,7 +18,7 @@ export default function Header({
         type="button"
         aria-label={isSidebarOpen ? 'Fechar menu lateral' : 'Abrir menu lateral'}
         title={isSidebarOpen ? 'Fechar menu lateral' : 'Abrir menu lateral'}
-        className="h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md border border-(--quaternary-color)/14 bg-(--seventh-color) text-(--text-primary) transition-colors hover:border-(--quaternary-color)/22 hover:bg-(--bg-tertiary) hidden md:inline-flex"
+        className="h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-(--quaternary-color)/14 bg-(--seventh-color) text-(--text-primary) transition-colors hover:border-(--quaternary-color)/22 hover:bg-(--bg-tertiary) hidden md:inline-flex"
         onClick={onToggleSidebar}>
         <FaBars className="h-4 w-4" />
       </button>
@@ -31,7 +31,7 @@ export default function Header({
         aria-label="Ir para a Visão geral"
         className="flex min-w-0 flex-1 items-center gap-2.5 sm:hidden"
       >
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-(--primary-color) to-(--tertiary-color) text-(--on-primary) shadow-sm">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-(--primary-color) to-(--tertiary-color) text-(--on-primary) shadow-sm">
           <FaChartSimple className="h-4 w-4" aria-hidden />
         </span>
         <span className="min-w-0 leading-tight">
