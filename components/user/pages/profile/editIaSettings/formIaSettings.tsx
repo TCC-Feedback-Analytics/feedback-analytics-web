@@ -174,13 +174,14 @@ export default function FormIaSettings() {
   return (
     <div data-tour="ia-settings-form" className="space-y-6">
       {/* Badge de Status e Info Atual */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-(--quaternary-color)/15 bg-(--seventh-color)/40 p-5 shadow-xs">
-        <div className="flex items-center gap-3.5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-(--quaternary-color)/15 bg-(--seventh-color)/40 p-4 shadow-xs sm:p-5">
+        <div className="flex min-w-0 items-center gap-3.5">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--primary-color)/15 text-(--primary-color) ring-1 ring-(--primary-color)/25">
             <FaWandMagicSparkles className="text-xl" />
           </div>
-          <div>
-            <div className="flex items-center gap-2.5">
+          <div className="min-w-0">
+            {/* O selo desce para a linha de baixo quando o título não cabe ao lado. */}
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
               <h2 className="font-montserrat text-base font-bold text-(--text-primary)">
                 Provedor de IA da Empresa
               </h2>
@@ -196,7 +197,7 @@ export default function FormIaSettings() {
                 </span>
               )}
             </div>
-            <p className="mt-1 text-xs leading-relaxed text-(--text-secondary)">
+            <p className="mt-1 text-xs leading-relaxed break-words text-(--text-secondary)">
               {iaConfig.hasKey
                 ? `Modelo ativo: ${iaConfig.model || 'openrouter/auto'} • Chave final: sk-or-…${iaConfig.keyHint || '****'}`
                 : 'Configure uma chave OpenRouter para habilitar as análises de feedback da empresa.'}

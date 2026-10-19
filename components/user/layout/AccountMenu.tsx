@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaChevronDown, FaRightFromBracket, FaUser, FaCompass } from 'react-icons/fa6';
 import Avatar from 'components/user/shared/avatar';
@@ -56,12 +56,32 @@ function getSubscriptionBadge(enterprise: EnterpriseContext) {
  */
 export default function AccountMenu({ enterprise, onSignOut, isSigningOut = false }: AccountMenuProps) {
   const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const { startTour } = useOnboarding();
+
+  // Fecha ao tocar ou clicar fora e com Esc. Antes era uma camada `fixed inset-0`,
+  // mas o cabeçalho usa backdrop-blur e prende elementos `fixed` dentro dele: a
+  // camada só cobria o cabeçalho, e tocar na página não fechava o menu.
+  useEffect(() => {
+    if (!open) return;
+    const handlePointerDown = (event: PointerEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) setOpen(false);
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [open]);
   const name = enterprise.full_name ?? enterprise.email ?? 'Minha conta';
   const { display } = useTruncatedText(name, 22);
 
   return (
-    <div className="relative">
+    <div ref={containerRef} className="relative">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -80,7 +100,6 @@ export default function AccountMenu({ enterprise, onSignOut, isSigningOut = fals
 
       {open && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div
             role="menu"
             className="absolute right-0 top-full z-50 mt-2 w-64 rounded-lg border border-(--quaternary-color)/12 bg-(--bg-secondary) p-2 shadow-lg ring-1 ring-(--quaternary-color)/10">

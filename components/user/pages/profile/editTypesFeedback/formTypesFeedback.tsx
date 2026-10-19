@@ -38,7 +38,7 @@ export default function FormTypesFeedback() {
         </button>
       </div>
 
-      <div className="grid gap-3 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
         {FEEDBACK_TYPES.map((type) => {
           const enabled = localState[type.name];
           const savedEnabled = collecting?.[type.savedKey] ?? false;

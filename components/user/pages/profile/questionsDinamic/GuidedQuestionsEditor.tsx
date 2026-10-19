@@ -278,7 +278,7 @@ export default function GuidedQuestionsEditor({
         <DialogBody>
           {step === 0 && (
             <div className="space-y-5">
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 {availableCounts.map((count) => <button key={count} type="button" onClick={() => setSelectedQuestionCount(count)} className={`cursor-pointer rounded-2xl border p-4 text-left transition ${questionCount === count ? 'border-(--primary-color) bg-(--primary-color)/10 ring-2 ring-(--primary-color)/20' : 'border-(--quaternary-color)/12 bg-(--bg-secondary) hover:border-(--primary-color)/40'}`}><span className="text-2xl font-bold text-(--primary-color)">{count}</span><span className="mt-1 block text-sm font-semibold text-(--text-primary)">{count === 0 ? 'Somente nota' : count === 1 ? 'Essencial' : count === 2 ? 'Equilibrado' : 'Completo'}</span><span className="mt-1 block text-xs leading-relaxed text-(--text-secondary)">{count === 0 ? 'Use apenas a avaliação por estrelas.' : count === 1 ? 'Uma pergunta direta para respostas rápidas.' : count === 2 ? 'Duas perspectivas sem alongar o formulário.' : 'Uma visão mais completa da experiência.'}</span></button>)}
               </div>
               <div className="rounded-2xl border border-(--quaternary-color)/12 bg-(--bg-secondary)/70 p-4 text-sm text-(--text-secondary)"><strong className="text-(--text-primary)">{questionCount === 0 ? 'Somente a nota será exibida' : `${questionCount} ${questionCount === 1 ? 'pergunta será exibida' : 'perguntas serão exibidas'}`}</strong> no formulário do QR Code. Você poderá alterar essa escolha depois.</div>
@@ -316,7 +316,7 @@ export default function GuidedQuestionsEditor({
                 </div>
                 {questionCount < 3 && <button type="button" onClick={addQuestion} className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-(--primary-color)/25 px-3 py-2 text-xs font-semibold text-(--primary-color) transition hover:bg-(--primary-color)/10"><FaPlus aria-hidden /> Adicionar pergunta</button>}
               </div>
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 {questions.map((question, index) => (
                   <div key={question.question_order} className="min-w-0 rounded-2xl border border-(--quaternary-color)/12 bg-(--bg-secondary) p-4">
                     <div className="mb-3 flex items-center justify-between gap-2 text-xs font-semibold text-(--primary-color)">

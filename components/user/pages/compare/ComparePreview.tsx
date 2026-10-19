@@ -52,7 +52,7 @@ export default function ComparePreview() {
           </div>
         </div>
 
-        <ol className="mt-5 grid gap-3 md:grid-cols-3">
+        <ol className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
           {STEPS.map((step, index) => (
             <li key={step.title} className="flex gap-3 rounded-xl border border-(--quaternary-color)/10 bg-(--bg-primary)/45 p-4">
               <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-(--primary-color)/15 text-xs font-bold text-(--primary-color)">

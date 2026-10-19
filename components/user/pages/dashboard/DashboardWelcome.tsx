@@ -126,7 +126,7 @@ export default function DashboardWelcome({ enterprise, qrActive, totalFeedbacks,
 
       <div className="space-y-3">
         <h3 className="font-montserrat text-base font-semibold text-(--text-primary)">Primeiros passos</h3>
-        <ol className="grid gap-3 md:grid-cols-2">
+        <ol className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {showActivateStep && (
             <WelcomeStep
               number={1}

@@ -80,7 +80,7 @@ export default function CollectionChannelsSection({
         </div>
         {qrError && <p className="mt-2 text-xs text-rose-300">{qrError}</p>}
 
-        <div className="mt-4 grid gap-5 md:grid-cols-[auto_minmax(0,1fr)]">
+        <div className="mt-4 grid grid-cols-1 gap-5 md:grid-cols-[auto_minmax(0,1fr)]">
           <div className="flex justify-center md:block">
             {qrActive ? (
               <div className="rounded-xl bg-white p-2 shadow-sm">
@@ -121,7 +121,7 @@ export default function CollectionChannelsSection({
               </button>
             </div>
 
-            <ol className="grid gap-1.5 text-xs text-(--text-secondary) sm:grid-cols-3">
+            <ol className="grid grid-cols-1 gap-1.5 text-xs text-(--text-secondary) sm:grid-cols-3">
               {STEPS.map((step, index) => (
                 <li key={step} className="flex gap-2">
                   <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-(--primary-color)/12 text-[10px] font-bold text-(--primary-color)">
