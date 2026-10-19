@@ -117,6 +117,8 @@ export interface NotificationBellDropdownProps {
   catalogItemId: string;
   catalogItemOptions: Array<{ id: string; name: string; kind: string }>;
   onOpenGenerateDialog: () => void;
+  /** De que lado o painel abre: no cabeçalho, à direita, para não sair da tela. */
+  align?: 'left' | 'right';
 }
 
 /**

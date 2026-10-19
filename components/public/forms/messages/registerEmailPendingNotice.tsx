@@ -64,7 +64,9 @@ export default function RegisterEmailPendingNotice({
     <section
       role="status"
       aria-live="polite"
-      className="rounded-xl flex flex-col place-items-center border border-(--positive)/24 bg-(--positive)/8 p-6 gap-6 text-center"
+      // No celular, sem caixa própria: o card da página já emoldura (eram três caixas
+      // uma dentro da outra, e o texto ficava espremido numa coluna estreita).
+      className="flex flex-col place-items-center gap-5 text-center sm:gap-6 sm:rounded-xl sm:border sm:border-(--positive)/24 sm:bg-(--positive)/8 sm:p-6"
     >
       <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-(--positive)/35 bg-(--positive)/15">
         <svg
@@ -97,7 +99,13 @@ export default function RegisterEmailPendingNotice({
       </h2>
 
       <p className="font-work-sans text-sm leading-relaxed text-(--text-secondary)">
-        Enviamos um e-mail de confirmação{email ? ` para ${email}` : ''}. Acesse sua caixa de entrada,
+        Enviamos um e-mail de confirmação
+        {email ? (
+          <>
+            {' '}para <strong className="break-all text-(--text-primary)">{email}</strong>
+          </>
+        ) : null}
+        . Acesse sua caixa de entrada,
         aprove o e-mail recebido e depois realize o login para entrar na plataforma.
       </p>
 
@@ -112,7 +120,8 @@ export default function RegisterEmailPendingNotice({
         </div>
 
       {/* Bloco de ajuda para quem não encontrou o e-mail */}
-      <div className="w-full rounded-lg border border-(--quaternary-color)/20 bg-(--sixth-color)/60 p-4 flex flex-col gap-3">
+      {/* No celular, uma seção separada por linha; a partir de sm, uma caixa. */}
+      <div className="flex w-full flex-col gap-3 border-t border-(--quaternary-color)/20 pt-5 sm:rounded-lg sm:border sm:bg-(--sixth-color)/60 sm:p-4">
         <p className="font-work-sans text-sm font-semibold text-(--text-secondary) text-center">
           Não recebeu o e-mail?
         </p>
@@ -123,7 +132,7 @@ export default function RegisterEmailPendingNotice({
           onClick={handleResend}
           disabled={isResending || remainingSeconds > 0}
           aria-busy={isResending}
-          className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-(--primary-color)/40 bg-(--primary-color)/8 px-5 font-poppins text-sm font-semibold text-(--primary-color) transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex min-h-10 w-full items-center justify-center rounded-lg border border-(--primary-color)/40 bg-(--primary-color)/8 px-3 py-2 font-poppins text-sm font-semibold text-(--primary-color) transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5"
         >
           {isResending
             ? 'Reenviando...'

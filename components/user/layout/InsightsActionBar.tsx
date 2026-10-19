@@ -3,22 +3,20 @@ import { useLocation } from "react-router-dom";
 import { FaWandMagicSparkles, FaSpinner } from "react-icons/fa6";
 import { useInsightsControls } from "src/lib/context/insightsControls";
 import { isMatch } from "src/lib/utils/navMatch";
-import { useScopedPendingCount } from "src/lib/hooks/useScopedPendingCount";
 import InsightsControlsBar from "components/user/pages/feedbacksInsightsReport/InsightsControlsBar";
 import GenerateInsightsDialog from "components/user/pages/feedbacksInsightsReport/GenerateInsightsDialog";
-import { NotificationBellDropdown } from "components/user/pages/feedbacksInsightsReport/NotificationBellDropdown";
 import IaModelQuickSwitch from "components/user/shared/IaModelQuickSwitch";
 import { useIaSlowNoticePreference } from "src/lib/hooks/useIaSlowNoticePreference";
 import { IA_SLOW_AFTER_MS } from "src/lib/utils/iaSlowNotice";
 
 /**
  * Barra de controles de Insights no layout (abaixo do header): seletor de
- * escopo + contador de feedbacks novos (com sino interativo) + Botão unificado "Analisar comentários com IA".
+ * escopo e período + botão "Analisar comentários com IA". O sino dos feedbacks
+ * novos fica no cabeçalho (HeaderNotifications) e abre a mesma janela.
  * Os controles aparecem em Dashboard/Insights; o progresso acompanha todas as rotas.
  */
 export default function InsightsActionBar() {
   const { pathname } = useLocation();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Rotas cujas métricas seguem o escopo do cabeçalho (o ScopeTag delas abre este seletor).
   const isScopeRoute =
@@ -28,9 +26,6 @@ export default function InsightsActionBar() {
     isMatch("/user/insights", pathname);
 
   const {
-    scope,
-    catalogItemId,
-    catalogItemOptions,
     isAnalyzingRaw,
     isRegeneratingInsights,
     rawStatus,
@@ -38,9 +33,9 @@ export default function InsightsActionBar() {
     rawProgress,
     insightsProgress,
     pollingWarning,
+    isGenerateDialogOpen,
+    setGenerateDialogOpen,
   } = useInsightsControls();
-
-  const { pendingCount, totalFeedbacks } = useScopedPendingCount(isScopeRoute);
 
   const isProcessing = isAnalyzingRaw || isRegeneratingInsights || rawStatus === 'running' || insightsStatus === 'running';
   const progress = isAnalyzingRaw ? rawProgress : insightsProgress;
@@ -72,16 +67,6 @@ export default function InsightsActionBar() {
       {(isScopeRoute || isProcessing) && <div className="relative z-20 mb-5 flex w-full max-w-full flex-wrap items-center gap-3 rounded-xl border border-(--quaternary-color)/12 bg-(--bg-secondary) p-3">
         {isScopeRoute && <>
         <InsightsControlsBar />
-
-        {/* Sino de Notificação Interativo */}
-        <NotificationBellDropdown
-          pendingCount={pendingCount}
-          totalFeedbacks={totalFeedbacks}
-          scope={scope}
-          catalogItemId={catalogItemId}
-          catalogItemOptions={catalogItemOptions}
-          onOpenGenerateDialog={() => setIsDialogOpen(true)}
-        />
         </>}
 
         {isProcessing && <p role="status" className="text-xs text-(--text-secondary)">
@@ -92,7 +77,7 @@ export default function InsightsActionBar() {
         <div className="sm:ml-auto flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => setIsDialogOpen(true)}
+            onClick={() => setGenerateDialogOpen(true)}
             className="btn-primary font-poppins inline-flex items-center gap-2 px-4 py-2 text-[13px] font-semibold shadow-md transition-all hover:scale-[1.02]"
           >
             {isProcessing ? (
@@ -139,8 +124,8 @@ export default function InsightsActionBar() {
       )}
 
       <GenerateInsightsDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
+        open={isGenerateDialogOpen}
+        onOpenChange={setGenerateDialogOpen}
       />
     </>
   );

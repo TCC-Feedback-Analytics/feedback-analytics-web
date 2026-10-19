@@ -29,6 +29,9 @@ export interface InsightsControlsContextValue {
   /** Comparar com o período anterior, do mesmo tamanho (só com um período escolhido). */
   compare: boolean;
   setCompare: (compare: boolean) => void;
+  /** Janela "Analisar comentários com IA" (aberta pela barra de controles ou pelo sino do cabeçalho). */
+  isGenerateDialogOpen: boolean;
+  setGenerateDialogOpen: (open: boolean) => void;
   analyzeRaw: () => void;
   regenerateInsights: (options?: { analyzePending?: boolean; force?: boolean }) => void;
   isAnalyzingRaw: boolean;

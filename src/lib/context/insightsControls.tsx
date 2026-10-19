@@ -48,6 +48,8 @@ export function useInsightsControlsState(initial?: InsightsControlsInitialData) 
   const [period, setPeriod] = useState<MetricsPeriod>(ALL_TIME_PERIOD);
   // "Comparar com o período anterior" (parte C): só vale com um período escolhido.
   const [compare, setCompare] = useState(false);
+  // Janela "Analisar comentários com IA": abre pelo botão da barra e pelo sino do cabeçalho.
+  const [isGenerateDialogOpen, setGenerateDialogOpen] = useState(false);
 
   return {
     scope, setScope,
@@ -57,5 +59,6 @@ export function useInsightsControlsState(initial?: InsightsControlsInitialData) 
     canAnalyze, setCanAnalyze,
     period, setPeriod,
     compare, setCompare,
+    isGenerateDialogOpen, setGenerateDialogOpen,
   };
 }
