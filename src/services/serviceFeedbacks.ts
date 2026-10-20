@@ -204,7 +204,7 @@ export type IaAnalysisJobStatus =
   | 'completed'
   | 'failed';
 
-export type IaAnalysisJobType = 'analyze_raw' | 'regenerate_insights';
+export type IaAnalysisJobType = 'analyze_raw' | 'regenerate_insights' | 'generate_scope_diagnosis';
 
 export interface IaAnalysisJob {
   id: string;
@@ -216,7 +216,9 @@ export interface IaAnalysisJob {
   done: number;
   errorCode: string | null;
   updatedAt: string | null;
-  phase?: 'analyzing' | 'generating' | 'synthesizing';
+  phase?: 'analyzing' | 'generating' | 'synthesizing' | 'diagnosing';
+  /** Diagnóstico do escopo concluído: o id do resultado. */
+  diagnosisId?: string | null;
 }
 
 export type FeedbackIaAsyncResponse = {

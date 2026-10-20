@@ -5,6 +5,10 @@ import type { FormQuestionConfig } from 'src/lib/utils/formQuestions';
 import type { PreviousPeriod } from 'src/lib/hooks/usePreviousPeriod';
 import type { FeedbackHeatmapCell, FeedbackTimelinePoint } from 'src/services/serviceFeedbacks';
 import type { TimelineBucket } from 'src/lib/utils/timeline';
+import type {
+  ScopeDiagnosis,
+  ScopeDiagnosisFinding,
+} from 'lib/interfaces/contracts/ia-analyze/scope-diagnosis.contract';
 
 /**
  * Props da seção "Avaliação por estrelas" do dashboard.
@@ -128,4 +132,29 @@ export interface MovementChartProps {
  */
 export interface PeakTimesGridProps {
   cells: FeedbackHeatmapCell[];
+}
+
+/**
+ * Props do bloco "Diagnóstico do escopo ✨ IA" do dashboard.
+ * Usado em: components/user/pages/dashboard/SectionScopeDiagnosis.tsx.
+ */
+export interface SectionScopeDiagnosisProps {
+  /** Chave e modelo da empresa configurados. */
+  hasConfiguredAI: boolean;
+  /** Objetivo, meta e resumo da empresa preenchidos. */
+  hasCompanyContext: boolean;
+  /** Avaliações no escopo e no período do cabeçalho; `null` enquanto carrega. */
+  periodTotal: number | null;
+  /** Modelo da empresa, para o aviso de falha. */
+  model: string | null;
+}
+
+export interface DiagnosisResultProps {
+  diagnosis: ScopeDiagnosis;
+}
+
+export interface DiagnosisFindingListProps {
+  title: string;
+  items: ScopeDiagnosisFinding[];
+  empty: string;
 }
