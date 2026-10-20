@@ -5,10 +5,6 @@ import type { FormQuestionConfig } from 'src/lib/utils/formQuestions';
 import type { PreviousPeriod } from 'src/lib/hooks/usePreviousPeriod';
 import type { FeedbackHeatmapCell, FeedbackTimelinePoint } from 'src/services/serviceFeedbacks';
 import type { TimelineBucket } from 'src/lib/utils/timeline';
-import type {
-  ScopeDiagnosis,
-  ScopeDiagnosisFinding,
-} from 'lib/interfaces/contracts/ia-analyze/scope-diagnosis.contract';
 
 /**
  * Props da seção "Avaliação por estrelas" do dashboard.
@@ -104,6 +100,8 @@ export interface WelcomePreviewCardProps {
   /** Mostra o selo "Exemplo" (dados ilustrativos). */
   example?: boolean;
   tourId?: string;
+  /** Classes extras do card (ex.: ocupar a linha inteira da grade). */
+  className?: string;
   children: ReactNode;
 }
 
@@ -149,12 +147,3 @@ export interface SectionScopeDiagnosisProps {
   model: string | null;
 }
 
-export interface DiagnosisResultProps {
-  diagnosis: ScopeDiagnosis;
-}
-
-export interface DiagnosisFindingListProps {
-  title: string;
-  items: ScopeDiagnosisFinding[];
-  empty: string;
-}
