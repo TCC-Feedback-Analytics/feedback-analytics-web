@@ -8,6 +8,7 @@ const SINGULAR: Record<string, string> = {
   feedbacks: 'feedback',
   comentários: 'comentário',
   'comentários analisados': 'comentário analisado',
+  'avaliações novas': 'avaliação nova',
 };
 
 /** A palavra certa para a quantidade: `pluralWord(1, 'respostas')` → "resposta". */

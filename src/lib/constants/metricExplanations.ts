@@ -12,7 +12,8 @@ export type MetricTermKey =
   | 'ratingWeight'
   | 'peakTimes'
   | 'returningCustomers'
-  | 'commentTone';
+  | 'commentTone'
+  | 'scopeDiagnosis';
 
 export type MetricExplanation = {
   title: string;
@@ -90,5 +91,14 @@ export const METRIC_EXPLANATIONS: Record<MetricTermKey, MetricExplanation> = {
       'O resumo é o percentual de positivos menos o de negativos (de −100 a +100), dito também em palavras: Positivo, Neutro (entre −5 e +5) ou Atenção.',
     ],
     example: '60% positivos e 15% negativos → +45 · Positivo.',
+  },
+  scopeDiagnosis: {
+    title: 'Diagnóstico do escopo',
+    paragraphs: [
+      'A IA lê, de uma vez, todos os números do escopo no período escolhido: estrelas, perguntas do formulário, tom dos comentários, movimento, horários de pico e clientes que voltam. Depois diz o que vai bem, o que preocupa e o que fazer primeiro.',
+      'Com um período escolhido, ela compara com o período anterior do mesmo tamanho e conta o que melhorou ou piorou. Cada ponto traz o número que o sustenta, para você conferir.',
+      'Os números são calculados pelo sistema; a IA só interpreta. Com poucas avaliações, ela avisa onde os dados ainda não bastam para concluir.',
+    ],
+    example: '1. Corrigir: rever o tempo de espera · a pergunta sobre espera caiu de 4,1 para 3,4.',
   },
 };

@@ -7,6 +7,7 @@ const IA_SERVICE_UNAVAILABLE_CODES = new Set<string>([
   'failed_ia_request',
   'invalid_ai_response',
   'ia_service_unavailable',
+  'scope_diagnosis_service_unavailable',
 ]);
 
 // Também usado na action síncrona: não perder a causa ao receber HTTP 502.
