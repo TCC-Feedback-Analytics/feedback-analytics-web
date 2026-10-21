@@ -7,6 +7,7 @@ import {
   formatResendCountdown,
   useResendConfirmationCooldown,
 } from 'src/hooks/useResendConfirmationCooldown';
+import { emailProviderOf } from 'src/lib/utils/emailProvider';
 
 const GENERIC_SUCCESS_MESSAGE =
   'Se existir uma conta pendente para este e-mail, enviaremos uma nova confirmação.';
@@ -60,13 +61,15 @@ export default function RegisterEmailPendingNotice({
     }
   }, [email, remainingSeconds, startCooldown, toast]);
 
+  // Uma ação principal, à vista no celular: abrir a caixa de entrada. O resto é
+  // ajuda pequena embaixo (o texto longo de antes ocupava a tela e ninguém lia).
+  const provider = emailProviderOf(email);
+
   return (
     <section
       role="status"
       aria-live="polite"
-      // No celular, sem caixa própria: o card da página já emoldura (eram três caixas
-      // uma dentro da outra, e o texto ficava espremido numa coluna estreita).
-      className="flex flex-col place-items-center gap-5 text-center sm:gap-6 sm:rounded-xl sm:border sm:border-(--positive)/24 sm:bg-(--positive)/8 sm:p-6"
+      className="flex flex-col place-items-center gap-5 text-center sm:rounded-xl sm:border sm:border-(--positive)/24 sm:bg-(--positive)/8 sm:p-6"
     >
       <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-(--positive)/35 bg-(--positive)/15">
         <svg
@@ -94,45 +97,37 @@ export default function RegisterEmailPendingNotice({
         </svg>
       </div>
 
-      <h2 className="font-montserrat text-xl font-semibold text-(--text-primary)">
-        Cadastro realizado com sucesso!
-      </h2>
-
-      <p className="font-work-sans text-sm leading-relaxed text-(--text-secondary)">
-        Enviamos um e-mail de confirmação
-        {email ? (
-          <>
-            {' '}para <strong className="break-all text-(--text-primary)">{email}</strong>
-          </>
-        ) : null}
-        . Acesse sua caixa de entrada,
-        aprove o e-mail recebido e depois realize o login para entrar na plataforma.
-      </p>
-
-      <p className="font-work-sans text-sm text-(--text-tertiary)">
-        Se não encontrar, verifique também a pasta de spam ou promoções.
-      </p>
-
-      <div className='bg-(--negative)/40 border border-(--negative) rounded-md p-2 w-full flex items-center justify-center'>
-          <span className="font-work-sans text-sm md:text-md font-bold text-(--negative)">
-            Atenção! O acesso só será liberado após a confirmação do e-mail.
-          </span>
-        </div>
-
-      {/* Bloco de ajuda para quem não encontrou o e-mail */}
-      {/* No celular, uma seção separada por linha; a partir de sm, uma caixa. */}
-      <div className="flex w-full flex-col gap-3 border-t border-(--quaternary-color)/20 pt-5 sm:rounded-lg sm:border sm:bg-(--sixth-color)/60 sm:p-4">
-        <p className="font-work-sans text-sm font-semibold text-(--text-secondary) text-center">
-          Não recebeu o e-mail?
+      <div className="space-y-2">
+        <h2 className="font-montserrat text-xl font-semibold text-(--text-primary)">
+          Confirme seu e-mail
+        </h2>
+        <p className="font-work-sans text-sm leading-relaxed text-(--text-secondary)">
+          Enviamos um link para{' '}
+          {email ? <strong className="break-all text-(--text-primary)">{email}</strong> : 'o seu e-mail'}. Abra e
+          toque em <strong className="text-(--text-primary)">Confirmar</strong> para entrar.
         </p>
+      </div>
 
-        {/* Reenviar confirmação */}
+      {provider && (
+        <a
+          href={provider.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-primary font-poppins inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg px-5 text-base font-semibold"
+        >
+          Abrir o {provider.name}
+          <span aria-hidden>↗</span>
+        </a>
+      )}
+
+      <div className="flex w-full flex-col items-center gap-2 font-work-sans text-sm text-(--text-tertiary)">
+        <p>Não chegou? Veja a pasta de spam ou promoções.</p>
         <button
           type="button"
           onClick={handleResend}
           disabled={isResending || remainingSeconds > 0}
           aria-busy={isResending}
-          className="inline-flex min-h-10 w-full items-center justify-center rounded-lg border border-(--primary-color)/40 bg-(--primary-color)/8 px-3 py-2 font-poppins text-sm font-semibold text-(--primary-color) transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5"
+          className="font-medium text-(--primary-color) transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isResending
             ? 'Reenviando...'
@@ -140,40 +135,10 @@ export default function RegisterEmailPendingNotice({
               ? `Solicitar novamente em ${formatResendCountdown(remainingSeconds)}`
               : 'Reenviar e-mail de confirmação'}
         </button>
-        {remainingSeconds > 0 ? (
-          <p
-            aria-live="polite"
-            className="text-center font-work-sans text-xs text-(--text-tertiary)"
-          >
-            Aguarde {formatResendCountdown(remainingSeconds)} para fazer outra solicitação.
-          </p>
-        ) : null}
-
-        {/* Linha divisória com texto */}
-        <div className="flex items-center gap-2">
-          <div className="h-px flex-1 bg-(--quaternary-color)/20" />
-          <span className="font-work-sans text-xs text-(--text-tertiary)">ou</span>
-          <div className="h-px flex-1 bg-(--quaternary-color)/20" />
-        </div>
-
-        {/* Links secundários */}
-        <div className="flex flex-col items-center justify-center gap-2 sm:flex-row sm:gap-3">
-          <Link
-            to="/forgot-password"
-            className="font-work-sans text-sm text-(--secondary-color) transition-opacity hover:opacity-80"
-          >
-            Esqueceu a senha?
-          </Link>
-          <span className="hidden text-xs text-(--text-tertiary) sm:inline" aria-hidden>·</span>
-          <Link
-            to="/login"
-            className="font-work-sans text-sm text-(--text-tertiary) transition-opacity hover:opacity-80"
-          >
-            Ir para login
-          </Link>
-        </div>
+        <Link to="/login" className="text-xs text-(--text-tertiary) transition-opacity hover:opacity-80">
+          Já confirmei · Ir para login
+        </Link>
       </div>
-
     </section>
   );
 }

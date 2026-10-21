@@ -40,7 +40,8 @@ describe('FormRegister', () => {
     render(<FormRegister />);
     fill('Palavra123palavra');
 
-    const alert = await screen.findByText(/Senha fácil de adivinhar/);
+    // O dicionário do zxcvbn carrega na primeira senha: com a suíte inteira rodando, passa de 1 s.
+    const alert = await screen.findByText(/Senha fácil de adivinhar/, {}, { timeout: 5000 });
     expect(alert.tagName).toBe('P');
     expect(alert.className).not.toContain('absolute');
     expect(mocks.submit).not.toHaveBeenCalled();
@@ -50,7 +51,7 @@ describe('FormRegister', () => {
     render(<FormRegister />);
     fill('Gato!Verde!Pulou');
 
-    await waitFor(() => expect(mocks.submit).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(mocks.submit).toHaveBeenCalledTimes(1), { timeout: 5000 });
     const formData = mocks.submit.mock.calls[0][0] as FormData;
     expect(formData.get('fullName')).toBe('Padaria Bom Pão');
     expect(formData.get('document')).toBeNull();
@@ -61,7 +62,7 @@ describe('FormRegister', () => {
     render(<FormRegister />);
     fireEvent.change(screen.getByLabelText('Senha'), { target: { value: 'sol azul de manha' } });
     fireEvent.change(screen.getByLabelText('Confirmar senha'), { target: { value: 'sol azul de manha' } });
-    expect(await screen.findByText('Forte')).toBeInTheDocument();
+    expect(await screen.findByText('Forte', {}, { timeout: 5000 })).toBeInTheDocument();
     expect(screen.getAllByText('Força da senha')).toHaveLength(1);
   });
 });
