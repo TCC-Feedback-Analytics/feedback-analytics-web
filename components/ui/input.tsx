@@ -7,10 +7,12 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const hasStartIcon = Boolean(startIcon);
     const hasEndIcon = Boolean(loading || endIcon);
 
+    // 16px no celular: com fonte menor, o Safari do iPhone dá zoom ao tocar no campo,
+    // a tela pula e o toque seguinte cai no lugar errado (ex.: no olho da senha).
     const inputElement = (
       <input
         type={type}
-        className={`flex h-12 w-full rounded-xl border bg-(--seventh-color) font-poppins text-sm text-(--text-primary) shadow-xs transition-all duration-200 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-(--text-tertiary) outline-hidden focus:outline-hidden focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`flex h-12 w-full rounded-xl border bg-(--seventh-color) font-poppins text-base md:text-sm text-(--text-primary) shadow-xs transition-all duration-200 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-(--text-tertiary) outline-hidden focus:outline-hidden focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 ${
           hasStartIcon ? 'pl-9' : 'px-4'
         } ${hasEndIcon ? 'pr-9' : ''} ${
           error
