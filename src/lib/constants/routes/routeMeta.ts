@@ -38,6 +38,10 @@ const ROUTE_META: Record<string, RouteMeta> = {
     description: 'Média, positivas, neutras, críticas, a distribuição de 1 a 5 estrelas, o movimento no tempo, os dias e horários de pico e os clientes que voltam.',
     breadcrumb: [{ label: 'Visão geral', to: '/user/dashboard' }, { label: 'Avaliação por estrelas' }],
   },
+  '/user/openrouter/callback': {
+    title: 'Conectando ao OpenRouter',
+    breadcrumb: [{ label: 'Configuração de IA', to: '/user/edit/ia-settings' }, { label: 'Conectar' }],
+  },
   '/user/diagnosis': {
     title: 'Histórico de diagnósticos',
     description: 'Os diagnósticos da IA já gerados para o escopo, cada um com o seu período.',

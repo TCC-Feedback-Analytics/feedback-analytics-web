@@ -12,6 +12,8 @@ import { Checkbox } from "components/ui/checkbox";
 import { isFreeIaModel } from "src/lib/utils/isFreeIaModel";
 import { filterIaModelsByPrice, startsWithFreeModelsOnly } from "src/lib/utils/iaModelPriceFilter";
 import HelpHint from "components/user/shared/HelpHint";
+import ConnectOpenRouterButton from "components/user/shared/ConnectOpenRouterButton";
+import { saveOnboardingDraft, takeOnboardingDraft } from "src/lib/utils/onboardingDraft";
 import {
   FaWandMagicSparkles,
   FaCheck,
@@ -137,6 +139,12 @@ export default function AIContextDialog({
     setSelectedModelId("");
     setShowPaidModels(!startsWithFreeModelsOnly(routeData?.iaConfig));
     setStep(0);
+    // Voltando do OpenRouter: o contexto digitado antes de sair volta, já na etapa da IA.
+    const draft = takeOnboardingDraft(sessionKey);
+    if (draft) {
+      setValues(draft);
+      setStep(LLM_STEP_INDEX);
+    }
     contextSubmitPendingRef.current = false;
     iaSubmitPendingRef.current = false;
     allowCloseRef.current = false;
@@ -444,7 +452,7 @@ export default function AIContextDialog({
                   <HelpHint topic="aiContextFields" />
                 </h4>
                 <p className="mt-1 break-words text-xs text-(--text-secondary)">
-                  Escolha a chave e o modelo que serão usados nas análises. Com a IA configurada, criamos automaticamente as 3 perguntas do seu feedback geral a partir do contexto da empresa. Você também pode salvar o contexto e configurar a IA depois no seu perfil.
+                  Conecte sua conta do OpenRouter e escolha o modelo que será usado nas análises. Com a IA configurada, criamos automaticamente as 3 perguntas do seu feedback geral a partir do contexto da empresa. Você também pode salvar o contexto e configurar a IA depois no seu perfil.
                 </p>
               </div>
 
@@ -455,7 +463,17 @@ export default function AIContextDialog({
                       <strong className="text-emerald-400">Chave OpenRouter configurada.</strong> Escolha ou atualize o modelo sem informar a chave novamente.
                     </div>
                   ) : (
-                    <div className="space-y-2">
+                    <div className="space-y-3">
+                      {/* Sem copiar e colar chave: entra no OpenRouter e volta conectado. */}
+                      <ConnectOpenRouterButton
+                        returnTo={typeof window === "undefined" ? "/user/dashboard" : window.location.pathname}
+                        model={selectedModelId || undefined}
+                        onBeforeRedirect={() => saveOnboardingDraft(sessionKey, values)}
+                        disabled={isSaving}
+                      />
+                      <details className="rounded-xl border border-(--quaternary-color)/15 px-3 py-2">
+                        <summary className="cursor-pointer text-xs font-medium text-(--text-secondary)">Já tenho uma chave</summary>
+                        <div className="mt-3 space-y-2">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <label htmlFor="onboarding-api-key" className="flex min-w-0 items-center gap-2 text-sm font-medium text-(--text-primary)">
                           <FaKey className="text-xs text-(--primary-color)" />
@@ -491,6 +509,8 @@ export default function AIContextDialog({
                         </button>
                       </div>
                       <p className="text-xs text-(--text-tertiary)">A chave é armazenada com criptografia e validada antes de ser salva.</p>
+                        </div>
+                      </details>
                     </div>
                   )}
 
@@ -510,7 +530,7 @@ export default function AIContextDialog({
                       value={selectedModel}
                       onChange={setSelectedModelId}
                       options={modelOptions}
-                      placeholder={needsApiKey ? "Informe a chave primeiro" : isLoadingModels ? "Carregando modelos..." : showPaidModels ? "Selecione um modelo" : "Selecione um modelo gratuito"}
+                      placeholder={needsApiKey ? "Conecte o OpenRouter primeiro" : isLoadingModels ? "Carregando modelos..." : showPaidModels ? "Selecione um modelo" : "Selecione um modelo gratuito"}
                       disabled={needsApiKey || isLoadingModels || models.length === 0 || isSaving}
                       aria-describedby="onboarding-model-status"
                       searchable

@@ -133,3 +133,17 @@ export type PeriodDeltaProps = {
   loading?: boolean;
   failed?: boolean;
 };
+
+/**
+ * Props do botão "Conectar com OpenRouter" (OAuth PKCE).
+ * Usado em: components/user/shared/ConnectOpenRouterButton.tsx.
+ */
+export type ConnectOpenRouterButtonProps = {
+  /** Para onde voltar depois de conectar (a tela atual). */
+  returnTo: string;
+  /** Modelo já escolhido, para manter depois de conectar. */
+  model?: string;
+  /** Antes de sair para o OpenRouter (ex.: guardar o que já foi digitado). */
+  onBeforeRedirect?: () => void;
+  disabled?: boolean;
+};

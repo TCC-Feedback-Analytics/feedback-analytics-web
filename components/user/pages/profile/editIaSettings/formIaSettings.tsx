@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import ConnectOpenRouterButton from 'components/user/shared/ConnectOpenRouterButton';
 import { useFetcher, useLoaderData, useRevalidator } from 'react-router-dom';
 import { useToast } from 'components/public/forms/messages/useToast';
 import {
@@ -221,7 +222,12 @@ export default function FormIaSettings() {
       <form onSubmit={handleSave} className="space-y-6" aria-busy={isBusy}>
           {/* A troca de modelo não exige nem recebe a chave novamente. */}
           {!iaConfig.hasKey && (
-          <div className="space-y-2">
+          <div className="space-y-3">
+            {/* Sem copiar e colar chave: entra no OpenRouter e volta conectado. */}
+            <ConnectOpenRouterButton returnTo="/user/edit/ia-settings" model={effectiveModel || undefined} disabled={isBusy} />
+            <details className="rounded-xl border border-(--quaternary-color)/15 px-3 py-2">
+              <summary className="cursor-pointer text-xs font-medium text-(--text-secondary)">Já tenho uma chave</summary>
+              <div className="mt-3 space-y-2">
             <div className="flex items-center justify-between">
               <label htmlFor="apiKey" className="flex items-center gap-2 text-sm font-medium text-(--text-primary)">
                 <FaKey className="text-xs text-(--primary-color)" />
@@ -263,6 +269,8 @@ export default function FormIaSettings() {
             <p className="text-xs text-(--text-tertiary)">
               A chave é armazenada de forma segura com criptografia AES-256-GCM e testada antes de salvar.
             </p>
+              </div>
+            </details>
           </div>
           )}
 
