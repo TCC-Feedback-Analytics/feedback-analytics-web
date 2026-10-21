@@ -27,6 +27,7 @@ export default function FieldPassword({
           type={show ? 'text' : 'password'}
           id={id}
           name={name}
+          autoComplete="current-password"
           error={!!error}
           aria-invalid={error ? true : undefined}
           className="pl-4 pr-12"

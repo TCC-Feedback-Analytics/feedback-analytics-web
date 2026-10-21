@@ -1,4 +1,4 @@
-import { requestApi } from 'src/lib/utils/http';
+import { requestApi, requestPublicApi } from 'src/lib/utils/http';
 
 export type LoginPayload =
   { email: string; password: string; remember: boolean };
@@ -221,7 +221,8 @@ export async function ServiceResendConfirmation(
   email: string,
 ): Promise<ResendConfirmationResult> {
   try {
-    const res = await requestApi('/api/public/auth/resend-confirmation', {
+    // Direto no gateway: o limite de reenvio conta por IP do cliente.
+    const res = await requestPublicApi('/api/public/auth/resend-confirmation', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email }),

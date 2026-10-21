@@ -25,7 +25,13 @@ npm test                # unitários (Vitest); use `npm run test -- run` para si
 npm run lint
 ```
 
-> Em produção na Vercel, configure `VITE_API_BASE_URL` com a URL pública do API Gateway. O frontend não deriva o endereço da API a partir do hostname.
+> **Em produção na Vercel**, a Web repassa `/api/*` ao API Gateway (`rewrites` do `vercel.json`). Assim, o cookie de sessão é do próprio site: Safari e Samsung Internet bloqueiam cookie de outro domínio, e o login não se mantinha. As variáveis ficam assim:
+>
+> - `VITE_API_BASE_URL` **vazia**, para chamar `/api` no próprio site.
+> - `VITE_PUBLIC_API_BASE_URL` com a URL pública do gateway. É usada nas rotas públicas que contam por IP: o formulário do cliente e o reenvio da confirmação.
+> - No gateway, `COOKIE_CROSS_SITE=false` e `BETTER_AUTH_URL` com a URL da Web.
+>
+> Trocar o endereço do gateway é mudar o `vercel.json` e a `VITE_PUBLIC_API_BASE_URL`.
 
 > Os casos de uso (UC-01…UC-12), antes cobertos por e2e Playwright, agora têm um **runbook de teste manual** na documentação central: `feedback-analytics/docs/guias/testes/manuais-web.md`.
 

@@ -1,12 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { requestApi } from 'src/lib/utils/http';
+import { requestApi, requestPublicApi } from 'src/lib/utils/http';
 import { ServiceResendConfirmation } from './serviceAuth';
 
 vi.mock('src/lib/utils/http', () => ({
   requestApi: vi.fn(),
+  requestPublicApi: vi.fn(),
 }));
 
-const mockedRequestApi = vi.mocked(requestApi);
+// O reenvio vai direto ao gateway (o limite conta por IP), não pelo repasse da Web.
+const mockedRequestApi = vi.mocked(requestPublicApi);
 
 function jsonResponse(
   status: number,
@@ -83,5 +85,12 @@ describe('ServiceResendConfirmation', () => {
       status: 0,
       error: 'network_error',
     });
+  });
+
+  it('vai direto ao gateway, sem passar pelo repasse da Web', async () => {
+    mockedRequestApi.mockResolvedValue(jsonResponse(200, { ok: true, message: 'Solicitação recebida.' }));
+    await ServiceResendConfirmation('pessoa@empresa.com');
+    expect(requestPublicApi).toHaveBeenCalledWith('/api/public/auth/resend-confirmation', expect.objectContaining({ method: 'POST' }));
+    expect(requestApi).not.toHaveBeenCalled();
   });
 });

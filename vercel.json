@@ -11,6 +11,15 @@
   ],
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "has": [{ "type": "host", "value": "feedback-analytics-web-developer.vercel.app" }],
+      "destination": "https://feedback-analytics-api-developer.vercel.app/api/$1"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "https://feedback-analytics-api-gateway.vercel.app/api/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
