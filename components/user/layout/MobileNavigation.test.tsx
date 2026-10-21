@@ -61,6 +61,7 @@ describe('[Unidade] navegação móvel', () => {
     expect(screen.getByRole('link', { name: 'Recebidos' })).toHaveAttribute('href', '/user/feedbacks/all');
     expect(screen.getByRole('link', { name: 'Configuração de IA' })).toHaveAttribute('href', '/user/edit/ia-settings');
     expect(screen.getByRole('link', { name: 'Comparar itens' })).toHaveAttribute('href', '/user/compare');
+    expect(screen.getByRole('link', { name: 'Diagnósticos ✨' })).toHaveAttribute('href', '/user/diagnosis');
     // O menu abre num portal fora do layout: leva a classe do tema para não cair nas cores genéricas.
     expect(screen.getByRole('dialog', { name: 'Mapa de Navegação' }).closest('.private-user-theme')).not.toBeNull();
 
