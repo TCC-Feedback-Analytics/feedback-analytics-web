@@ -30,10 +30,10 @@ export async function ActionPublicQrCodeFeedback({
   const customer_gender_raw = String(form.get('customer_gender') ?? '').trim();
   const answers = parsePublicQrAnswersInput(answersRaw);
   const subanswers = parsePublicQrSubanswersInput(subanswersRaw);
+  // O comentário é opcional: o cliente pode só dar as estrelas e responder às perguntas.
   const baseValidationError = getPublicQrFeedbackBaseValidationError({
     enterprise_id,
     rating,
-    message,
   });
 
   if (baseValidationError) {

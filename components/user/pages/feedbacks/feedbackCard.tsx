@@ -111,7 +111,7 @@ export default function FeedbackCard({ feedback, onClick }: FeedbackCardProps) {
       {/* Mensagem do feedback */}
       <div className="mb-5">
         <p className="text-[var(--text-primary)] leading-relaxed">
-          {feedback.message}
+          {feedback.message?.trim() ? feedback.message : <span className="italic text-(--text-tertiary)">Sem comentário</span>}
         </p>
       </div>
 

@@ -58,6 +58,16 @@ function buildRows(stats: CompareItemsStats): CompareItemsRow[] {
       </span>
     );
   };
+  const participation = (s: FeedbackStats | null) => {
+    const p = s?.commentParticipation;
+    if (!p || p.total === 0) return EMPTY;
+    return (
+      <span>
+        <span className="font-semibold">{Math.round(p.pct)}%</span>
+        <span className="text-(--text-tertiary)"> · {p.withComment.toLocaleString('pt-BR')} de {p.total.toLocaleString('pt-BR')}</span>
+      </span>
+    );
+  };
   const precision = (s: FeedbackStats | null, name: string) =>
     s ? <PrecisionBadge metricName={`Média · ${name}`} n={s.totalFeedbacks} unit="avaliações" interval={s.starMeanCI} kind="mean" /> : EMPTY;
 
@@ -103,6 +113,14 @@ function buildRows(stats: CompareItemsStats): CompareItemsRow[] {
       b: tone(stats.b),
       result: verdict(toneA, toneB),
       kind: 'nss',
+    },
+    {
+      // Comentar mais não é melhor nem pior: só mostra o quanto o tom representa cada item.
+      metric: 'Escreveram comentário',
+      a: participation(stats.a),
+      b: participation(stats.b),
+      result: null,
+      kind: 'points',
     },
     {
       metric: 'Precisão da média',
