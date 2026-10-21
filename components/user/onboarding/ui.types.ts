@@ -16,6 +16,7 @@ import {
   FaScaleBalanced,
   FaChartColumn,
   FaRankingStar,
+  FaClipboardCheck,
 } from "react-icons/fa6";
 
 export interface AIContextDialogProps {
@@ -99,6 +100,14 @@ export const INTERACTIVE_STEPS: TourStepData[] = [
     mobileSummary: "Escolha de quem são os números e o período. Ligue a comparação para ver se melhorou ou piorou.",
     icon: FaCalendarDays,
     description: "Aqui você escolhe de quem são os números (a empresa ou um item do catálogo) e de quando: todo o período, os últimos 7 ou 30 dias, 3 ou 6 meses, ou as datas que quiser. Com um período escolhido, ligue \"Comparar com o período anterior\" para ver em cada métrica se melhorou (▲ verde) ou piorou (▼ vermelho). \"Diferença incerta\" quer dizer que ainda há poucas avaliações para ter certeza.",
+  },
+  {
+    selector: '[data-tour="tour-dashboard-diagnosis"]',
+    route: "/user/dashboard",
+    title: "Diagnóstico do escopo ✨ IA",
+    mobileSummary: "A IA junta todos os números do período e diz o que fazer primeiro, com a prova de cada ponto.",
+    icon: FaClipboardCheck,
+    description: "A IA lê de uma vez os números do escopo no período escolhido: estrelas, perguntas, comentários, movimento, horários de pico e clientes que voltam. Depois diz o que vai bem, o que preocupa, o que mudou em relação ao período anterior e o que fazer primeiro, sempre com o número que sustenta cada ponto. Precisa da IA configurada e de 10 avaliações no período. Os diagnósticos anteriores ficam no histórico.",
   },
   {
     selector: '[data-tour="tour-star-ratings"]',

@@ -12,6 +12,7 @@ import {
 } from 'react-icons/fa';
 import SectionRatings from 'components/user/pages/dashboard/SectionRatings';
 import SectionMovement from 'components/user/pages/dashboard/SectionMovement';
+import SectionScopeDiagnosis from 'components/user/pages/dashboard/SectionScopeDiagnosis';
 import ShareQrCard from 'components/user/pages/dashboard/ShareQrCard';
 import SectionFormQuestions from 'components/user/pages/questions/SectionFormQuestions';
 import DashboardScopedSkeleton from 'components/user/pages/dashboard/DashboardScopedSkeleton';
@@ -59,7 +60,7 @@ export default function Dashboard() {
   const dashboardLoaderData = useLoaderData<DashboardLoaderData>();
   const [searchParams, setSearchParams] = useSearchParams();
   const toast = useToast();
-  const { scope, catalogItemId, catalogItemOptions, period } = useInsightsControls();
+  const { scope, catalogItemId, catalogItemOptions, period, canAnalyze } = useInsightsControls();
   const { isGuidePending, isTourActive, startTour } = useOnboarding();
 
   const toastShownRef = useRef(false);
@@ -267,6 +268,14 @@ export default function Dashboard() {
         </>
       ) : (
         <>
+          {/* Visão do conjunto no topo: o que está acontecendo e o que fazer. */}
+          <SectionScopeDiagnosis
+            hasConfiguredAI={Boolean(userLoaderData?.iaConfig?.hasKey && userLoaderData.iaConfig.model)}
+            hasCompanyContext={canAnalyze}
+            periodTotal={scopedLoading ? null : stats?.totalFeedbacks ?? null}
+            model={userLoaderData?.iaConfig?.model ?? null}
+          />
+
           {scopedLoading ? (
             <DashboardScopedSkeleton />
           ) : (

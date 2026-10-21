@@ -100,6 +100,8 @@ export interface WelcomePreviewCardProps {
   /** Mostra o selo "Exemplo" (dados ilustrativos). */
   example?: boolean;
   tourId?: string;
+  /** Classes extras do card (ex.: ocupar a linha inteira da grade). */
+  className?: string;
   children: ReactNode;
 }
 
@@ -129,3 +131,19 @@ export interface MovementChartProps {
 export interface PeakTimesGridProps {
   cells: FeedbackHeatmapCell[];
 }
+
+/**
+ * Props do bloco "Diagnóstico do escopo ✨ IA" do dashboard.
+ * Usado em: components/user/pages/dashboard/SectionScopeDiagnosis.tsx.
+ */
+export interface SectionScopeDiagnosisProps {
+  /** Chave e modelo da empresa configurados. */
+  hasConfiguredAI: boolean;
+  /** Objetivo, meta e resumo da empresa preenchidos. */
+  hasCompanyContext: boolean;
+  /** Avaliações no escopo e no período do cabeçalho; `null` enquanto carrega. */
+  periodTotal: number | null;
+  /** Modelo da empresa, para o aviso de falha. */
+  model: string | null;
+}
+

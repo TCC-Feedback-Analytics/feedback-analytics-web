@@ -9,4 +9,9 @@ describe('menu lateral', () => {
     // Página de topo: sem abas de seção, como a Visão geral.
     expect(getSectionSiblings('/user/compare')).toEqual([]);
   });
+
+  it("o histórico de diagnósticos vem depois de Comparar itens, também como página própria", () => {
+    expect(menuData[2]).toMatchObject({ label: 'Diagnósticos ✨', to: '/user/diagnosis' });
+    expect(getSectionSiblings('/user/diagnosis')).toEqual([]);
+  });
 });

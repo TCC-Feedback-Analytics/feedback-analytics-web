@@ -38,6 +38,11 @@ const ROUTE_META: Record<string, RouteMeta> = {
     description: 'Média, positivas, neutras, críticas, a distribuição de 1 a 5 estrelas, o movimento no tempo, os dias e horários de pico e os clientes que voltam.',
     breadcrumb: [{ label: 'Visão geral', to: '/user/dashboard' }, { label: 'Avaliação por estrelas' }],
   },
+  '/user/diagnosis': {
+    title: 'Histórico de diagnósticos',
+    description: 'Os diagnósticos da IA já gerados para o escopo, cada um com o seu período.',
+    breadcrumb: [{ label: 'Visão geral', to: '/user/dashboard' }, { label: 'Histórico de diagnósticos' }],
+  },
   '/user/compare': {
     title: 'Comparar itens',
     description: 'Dois itens do mesmo tipo lado a lado, no mesmo período, nas métricas que os dois têm.',
