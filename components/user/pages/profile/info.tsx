@@ -1,6 +1,5 @@
 import CardSimple from 'components/user/shared/cards/cardSimple';
 import type { EnterpriseAndCollectingData } from 'lib/interfaces/entities/enterprise.entity';
-import { formatDocument } from 'src/lib/utils/formatDocument';
 import { formatPhone } from 'src/lib/utils/formatPhone';
 
 export default function Info({
@@ -24,17 +23,6 @@ export default function Info({
                 <p className="text-xs text-(--text-tertiary)">Telefone</p>
                 <p className="mt-1 font-medium text-(--text-primary)">
                   {formatPhone(enterprise?.phone ?? '') ?? ''}
-                </p>
-              </div>
-              <div className="rounded-xl border border-(--quaternary-color)/10 bg-(--seventh-color) p-4">
-                <p className="text-xs text-(--text-tertiary)">
-                  {enterprise?.account_type ?? 'Documento'}
-                </p>
-                <p className="mt-1 font-medium text-(--text-primary)">
-                  {formatDocument(
-                    enterprise?.document || '',
-                    enterprise?.account_type,
-                  ) ?? ''}
                 </p>
               </div>
               <div className="rounded-xl border border-(--quaternary-color)/10 bg-(--seventh-color) p-4">

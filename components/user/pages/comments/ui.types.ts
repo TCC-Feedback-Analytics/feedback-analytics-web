@@ -35,3 +35,24 @@ export interface CommentTopicsSectionProps {
 export interface CommentListProps {
   items: FeedbackAnalysisItem[];
 }
+
+/**
+ * Props do bloco "Quem escreve comentário" (o comentário é opcional).
+ * Usado em: components/user/pages/comments/CommentParticipationSection.tsx.
+ */
+export interface CommentParticipationSectionProps {
+  stats: FeedbackStats | null;
+  loading?: boolean;
+  /** Complemento de escopo para vazios e precisão (scopeText). */
+  inScope: string;
+  ofScope: string;
+  /** Mesmo escopo no período anterior (comparação ligada). */
+  previous?: PreviousPeriod<FeedbackStats> | null;
+  /** `compact`: uma linha no bloco de comentários do Dashboard. */
+  variant?: 'full' | 'compact';
+}
+
+export interface LowParticipationNoticeProps {
+  pct: number;
+  total: number;
+}

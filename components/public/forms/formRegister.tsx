@@ -6,9 +6,7 @@ import {
 } from 'lib/schemas/public/registerSchema';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { useActionData, useNavigation, useSubmit } from 'react-router-dom';
-import FieldAccountTypeRegister from './fields/fieldsRegister/fieldAccountType';
 import FieldText from './fields/fieldsRegister/fieldText';
-import FieldDocument from './fields/fieldsRegister/fieldDocument';
 import FieldPhoneRegister from './fields/fieldsRegister/fieldPhone';
 import FieldPasswordRegister from './fields/fieldsRegister/fieldPassword';
 import FieldTermsRegister from './fields/fieldsRegister/fieldTerms';
@@ -16,17 +14,17 @@ import type { ActionData } from 'lib/interfaces/contracts/action-data.contract';
 import { FaSpinner } from 'react-icons/fa6';
 import { useToast } from 'components/public/forms/messages/useToast';
 import RegisterEmailPendingNotice from './messages/registerEmailPendingNotice';
+import { PASSWORD_TOO_WEAK_MESSAGE } from 'lib/schemas/public/passwordPolicy';
+import { getPasswordStrength, loadPasswordScorer, userInputTokens } from 'src/lib/utils/passwordStrength';
 import type { RegisterErrorMessage, RegisterIssue } from './ui.types';
 
 const REGISTER_ISSUE_FIELD_PRIORITY = [
-  'document',
   'email',
   'phone',
   'confirmPassword',
   'password',
   'fullName',
   'terms',
-  'accountType',
 ] as const;
 
 function normalizeText(value: string) {
@@ -85,16 +83,6 @@ function inferRegisterErrorByMessage(rawMessage?: string): RegisterErrorMessage 
     };
   }
 
-  if (
-    (normalized.includes('document') || normalized.includes('cpf') || normalized.includes('cnpj')) &&
-    isAlreadyRegistered
-  ) {
-    return {
-      message: 'Documento ja cadastrado.',
-      description: 'Verifique o CPF/CNPJ informado ou entre com sua conta.',
-    };
-  }
-
   if (normalized.includes('email') && isInvalid) {
     return {
       message: 'E-mail invalido.',
@@ -106,27 +94,6 @@ function inferRegisterErrorByMessage(rawMessage?: string): RegisterErrorMessage 
     return {
       message: 'Telefone invalido.',
       description: 'Use o formato +55DDXXXXXXXXX para continuar.',
-    };
-  }
-
-  if (normalized.includes('cpf') && isInvalid) {
-    return {
-      message: 'CPF invalido.',
-      description: 'Confira os 11 digitos do CPF e tente novamente.',
-    };
-  }
-
-  if (normalized.includes('cnpj') && isInvalid) {
-    return {
-      message: 'CNPJ invalido.',
-      description: 'Confira os 14 digitos do CNPJ e tente novamente.',
-    };
-  }
-
-  if (normalized.includes('document') && normalized.includes('required')) {
-    return {
-      message: 'Documento obrigatorio.',
-      description: 'Preencha o CPF/CNPJ para concluir o cadastro.',
     };
   }
 
@@ -156,7 +123,7 @@ function inferRegisterErrorByMessage(rawMessage?: string): RegisterErrorMessage 
   ) {
     return {
       message: 'Senha fraca.',
-      description: 'Use uma senha com no minimo 8 caracteres e combine letras, numeros e simbolos.',
+      description: PASSWORD_TOO_WEAK_MESSAGE,
     };
   }
 
@@ -235,7 +202,6 @@ function getInvalidPayloadErrorMessage(actionData: ActionData): RegisterErrorMes
     if (!issue) continue;
 
     const issueMessage = issue.message;
-    const normalizedIssue = normalizeText(issueMessage);
 
     if (field === 'email') {
       return {
@@ -251,27 +217,6 @@ function getInvalidPayloadErrorMessage(actionData: ActionData): RegisterErrorMes
       };
     }
 
-    if (field === 'document') {
-      if (normalizedIssue.includes('cnpj')) {
-        return {
-          message: 'CNPJ invalido.',
-          description: issueMessage || 'Confira os 14 digitos do CNPJ e tente novamente.',
-        };
-      }
-
-      if (normalizedIssue.includes('cpf')) {
-        return {
-          message: 'CPF invalido.',
-          description: issueMessage || 'Confira os 11 digitos do CPF e tente novamente.',
-        };
-      }
-
-      return {
-        message: 'Documento invalido.',
-        description: issueMessage || 'Revise o CPF/CNPJ informado e tente novamente.',
-      };
-    }
-
     if (field === 'confirmPassword') {
       return {
         message: 'As senhas nao conferem.',
@@ -282,7 +227,7 @@ function getInvalidPayloadErrorMessage(actionData: ActionData): RegisterErrorMes
     if (field === 'password') {
       return {
         message: 'Senha invalida.',
-        description: issueMessage || 'A senha deve ter ao menos 8 caracteres.',
+        description: issueMessage || 'A senha deve ter ao menos 10 caracteres.',
       };
     }
 
@@ -300,12 +245,6 @@ function getInvalidPayloadErrorMessage(actionData: ActionData): RegisterErrorMes
       };
     }
 
-    if (field === 'accountType') {
-      return {
-        message: 'Tipo de conta invalido.',
-        description: issueMessage || 'Selecione CPF ou CNPJ para continuar.',
-      };
-    }
   }
 
   const inferredByMessage = inferRegisterErrorByMessage(actionData.message);
@@ -377,17 +316,10 @@ function getRegisterErrorMessage(actionData: ActionData): RegisterErrorMessage {
     };
   }
 
-  if (actionData.error === 'document_taken') {
+  if (actionData.error === 'password_too_weak') {
     return {
-      message: 'Documento ja cadastrado.',
-      description: 'Verifique o CPF/CNPJ informado ou entre com sua conta.',
-    };
-  }
-
-  if (actionData.error === 'document_required') {
-    return {
-      message: 'Documento obrigatorio.',
-      description: 'Preencha o CPF/CNPJ para concluir o cadastro.',
+      message: 'Senha fraca.',
+      description: actionData.message ?? PASSWORD_TOO_WEAK_MESSAGE,
     };
   }
 
@@ -444,23 +376,23 @@ export default function FormRegister() {
     handleSubmit,
     formState: { errors },
     watch,
+    setError,
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     mode: 'onSubmit',
     reValidateMode: 'onChange',
     defaultValues: {
-      accountType: 'CPF',
       terms: false,
       email: '',
       phone: '',
       password: '',
       confirmPassword: '',
-      document: '',
       fullName: '',
     },
   });
 
-  const accountType = watch('accountType') ?? 'CPF';
+  // Dados que não podem compor a senha: entram no medidor e na checagem do envio.
+  const passwordUserInputs = [watch('fullName'), watch('email'), watch('email')?.split('@')[0], watch('phone')];
   const actionData = useActionData() as ActionData | undefined;
   const lastActionDataRef = useRef<ActionData | undefined>(undefined);
 
@@ -478,13 +410,22 @@ export default function FormRegister() {
     toast.error(message, description);
   }, [actionData, toast]);
 
-  const onSubmit: SubmitHandler<RegisterFormValues> = (data) => {
+  const onSubmit: SubmitHandler<RegisterFormValues> = async (data) => {
+    // O tamanho já passou no schema; a força usa a mesma régua do gateway (zxcvbn).
+    try {
+      const score = await loadPasswordScorer();
+      const check = score(data.password, userInputTokens([data.fullName, data.email, data.email.split('@')[0], data.phone]));
+      if (!getPasswordStrength(data.password, check).meetsPolicy) {
+        setError('password', { type: 'weak', message: PASSWORD_TOO_WEAK_MESSAGE }, { shouldFocus: true });
+        return;
+      }
+    } catch {
+      // Sem o medidor (falha ao carregar), o gateway confere a força.
+    }
+
     setSubmittedEmail(data.email);
 
     const formData = new FormData();
-    formData.set('accountType', data.accountType);
-    formData.set('document', data.document);
-
     formData.set('fullName', data.fullName ?? '');
     formData.set('email', data.email);
     formData.set('phone', data.phone);
@@ -509,17 +450,10 @@ export default function FormRegister() {
         onSubmit={handleSubmit(onSubmit)}
         noValidate
         className="space-y-5">
-        <FieldAccountTypeRegister
-          id="accountType"
-          name="accountType"
-          value={accountType}
-          register={register('accountType')}
-          error={errors.accountType?.message as string | undefined}
-        />
         <FieldText
           id="fullName"
           name="fullName"
-          label={accountType === 'CPF' ? 'Nome Completo' : 'Nome da Empresa'}
+          label="Nome do negócio"
           register={register('fullName')}
           error={errors.fullName?.message as string | undefined}
         />
@@ -530,19 +464,6 @@ export default function FormRegister() {
           label="E-mail"
           register={register('email')}
           error={errors.email?.message as string | undefined}
-        />
-        <FieldDocument
-          id="document"
-          name="document"
-          label={accountType === 'CNPJ' ? 'CNPJ' : 'CPF'}
-          docType={accountType}
-          register={register('document', {
-            setValueAs: (v) => {
-              const s = typeof v === 'string' ? v : '';
-              return s.replace(/\D+/g, '').slice(0, 14);
-            },
-          })}
-          error={errors.document?.message as string | undefined}
         />
         <FieldPhoneRegister
           id="phone"
@@ -564,6 +485,7 @@ export default function FormRegister() {
             id="password"
             name="password"
             label="Senha"
+            userInputs={passwordUserInputs}
             register={register('password')}
             error={errors.password?.message as string | undefined}
           />
@@ -571,6 +493,7 @@ export default function FormRegister() {
             id="confirmPassword"
             name="confirmPassword"
             label="Confirmar senha"
+            showStrength={false}
             register={register('confirmPassword')}
             error={errors.confirmPassword?.message as string | undefined}
           />

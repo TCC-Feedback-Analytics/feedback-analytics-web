@@ -7,7 +7,8 @@ export default function FieldMessage({ message, onMessageChange }: FieldMessageP
       <label
         htmlFor="message"
         className="font-work-sans block text-sm font-medium text-(--text-primary) mb-2">
-        Conte-nos mais sobre sua experiência
+        Conte-nos mais sobre sua experiência{' '}
+        <span className="font-normal text-(--text-secondary)">(opcional)</span>
       </label>
       <textarea
         id="message"
@@ -15,8 +16,8 @@ export default function FieldMessage({ message, onMessageChange }: FieldMessageP
         onChange={(e) => onMessageChange(e.target.value)}
         placeholder="Descreva sua experiência, sugestões ou comentários..."
         rows={4}
-        className="font-work-sans w-full resize-none rounded-lg border border-(--bg-tertiary) bg-(--seventh-color) px-4 py-3 text-(--text-primary) placeholder-(--text-secondary) focus:border-transparent focus:outline-none focus:ring-2 focus:ring-(--primary-color)"
-        required
+        maxLength={5000}
+        className="font-work-sans w-full resize-none rounded-lg border border-(--bg-tertiary) bg-(--seventh-color) px-4 py-3 text-base md:text-sm text-(--text-primary) placeholder-(--text-secondary) focus:border-transparent focus:outline-none focus:ring-2 focus:ring-(--primary-color)"
       />
     </div>
   );

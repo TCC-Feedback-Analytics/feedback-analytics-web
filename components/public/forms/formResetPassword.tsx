@@ -70,7 +70,7 @@ export default function FormResetPassword() {
             id="password"
             type="password"
             autoComplete="new-password"
-            placeholder="Mínimo 6 caracteres"
+            placeholder="Mínimo 10 caracteres"
             error={!!errors.password}
             {...register('password')}
             className="pl-9 pr-4"

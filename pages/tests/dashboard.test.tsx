@@ -61,9 +61,7 @@ const loaderData = {
   },
   enterprise: {
     id: 'enterprise-1',
-    document: '12345678900',
     created_at: new Date().toISOString(),
-    account_type: 'CPF',
     email: 'enterprise@example.com',
     phone: '+5511988887777',
     full_name: 'Empresa XPTO',

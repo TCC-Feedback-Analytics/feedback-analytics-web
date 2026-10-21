@@ -140,7 +140,6 @@ export function useQrCodeFeedbackController({
     const baseValidationError = getPublicQrFeedbackBaseValidationError({
       enterprise_id: formData.enterprise_id,
       rating: formData.rating,
-      message: formData.message,
     });
 
     if (baseValidationError) {

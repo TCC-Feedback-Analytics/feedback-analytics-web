@@ -4,6 +4,7 @@ import { FaArrowRight } from 'react-icons/fa6';
 import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { useScopedInsightsReport } from 'src/lib/hooks/useScopedInsightsReport';
 import { usePreviousPeriodStats } from 'src/lib/hooks/usePreviousPeriod';
+import { useScopedStats } from 'src/lib/hooks/useScopedStats';
 import { scopeText } from 'src/lib/utils/scopeText';
 import { hasMetricsPeriod } from 'src/lib/utils/metricsPeriod';
 import { COMMENTS_SUMMARY_PERIOD_NOTE } from 'src/lib/constants/commentsSummary';
@@ -12,6 +13,7 @@ import InsightsReportErrorState from 'components/user/pages/feedbacksInsightsRep
 import InsightsReportHeaderSection from 'components/user/pages/feedbacksInsightsReport/InsightsReportHeaderSection';
 import InsightsReportContent from 'components/user/pages/feedbacksInsightsReport/InsightsReportContent';
 import CommentToneSection from 'components/user/pages/comments/CommentToneSection';
+import CommentParticipationSection from 'components/user/pages/comments/CommentParticipationSection';
 import CommentTopicsSection from 'components/user/pages/comments/CommentTopicsSection';
 import PageHeader from 'components/user/shared/PageHeader';
 import ScopeTag from 'components/user/shared/ScopeTag';
@@ -29,6 +31,7 @@ export default function CommentsOverview() {
 
   const { report, summary, loading, error: fetchError } = useScopedInsightsReport({ withAnalysis: true });
   const previousStats = usePreviousPeriodStats();
+  const scopedStats = useScopedStats();
 
   const refreshing = isRegeneratingInsights || loading;
   const errorKey = fetchError ? `fetch:${fetchError}` : null;
@@ -61,6 +64,15 @@ export default function CommentsOverview() {
         </div>
 
         <div className="relative space-y-6">
+          {/* Primeiro, quanto os comentários representam: o comentário é opcional. */}
+          <CommentParticipationSection
+            stats={scopedStats.data}
+            loading={scopedStats.loading}
+            inScope={scopeInfo.inScope}
+            ofScope={scopeInfo.ofScope}
+            previous={previousStats}
+          />
+
           <CommentToneSection summary={summary} inScope={scopeInfo.inScope} ofScope={scopeInfo.ofScope} previous={previousStats} />
 
           {summary && summary.totalAnalyzed > 0 && <CommentTopicsSection summary={summary} />}
