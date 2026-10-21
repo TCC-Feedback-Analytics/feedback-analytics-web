@@ -8,6 +8,7 @@ vi.mock('react-router-dom', () => ({
   useSubmit: () => mocks.submit,
   useNavigation: () => ({ state: 'idle' }),
   useActionData: () => undefined,
+  useSearchParams: () => [new URLSearchParams()],
 }));
 vi.mock('components/public/forms/messages/useToast', () => ({ useToast: () => ({ error: vi.fn(), success: vi.fn() }) }));
 

@@ -1,5 +1,5 @@
 import type { AuthUser } from 'lib/interfaces/entities/auth-user.entity';
-import { getJson } from 'src/lib/utils/http';
+import { getJson, postJson } from 'src/lib/utils/http';
 
 type MetadadosResponse = {
   user: {
@@ -47,4 +47,9 @@ export function ServiceVerifyPhone(token: string) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ token }),
   });
+}
+
+/** Primeira entrada com Google: nome do negócio, telefone e aceite dos termos. */
+export function ServiceCompleteSignup(payload: { fullName: string; phone: string; terms: true }) {
+  return postJson<OkResponse>('/api/protected/user/complete-signup', payload);
 }

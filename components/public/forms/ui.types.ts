@@ -15,3 +15,30 @@ export type ResendActionData = ActionData & {
   retryAfterSeconds?: number;
   submittedEmail?: string;
 };
+
+/**
+ * Props do botão "Continuar com Google".
+ * Usado em: components/public/forms/GoogleSignInButton.tsx.
+ */
+export type GoogleSignInButtonProps = {
+  label?: string;
+};
+
+/**
+ * Valores do formulário "Complete seu cadastro" (primeira entrada com Google).
+ * Usado em: components/public/forms/formCompleteSignup.tsx.
+ */
+export type FormCompleteSignupValues = {
+  fullName: string;
+  phone: string;
+  terms: boolean;
+};
+
+/**
+ * Props do formulário "Complete seu cadastro".
+ * Usado em: components/public/forms/formCompleteSignup.tsx.
+ */
+export type FormCompleteSignupProps = {
+  /** Nome vindo do Google, só como sugestão para o "Nome do negócio". */
+  defaultFullName?: string | null;
+};
