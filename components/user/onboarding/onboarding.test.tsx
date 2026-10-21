@@ -363,10 +363,11 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
   });
 
   it("mapeia o guia móvel para a barra inferior e o menu central", () => {
-    expect(INTERACTIVE_STEPS.map((step) => step.mobileSelector ?? step.selector).slice(0, 12)).toEqual([
+    expect(INTERACTIVE_STEPS.map((step) => step.mobileSelector ?? step.selector).slice(0, 13)).toEqual([
       '[data-tour="mobile-nav-dashboard"]',
       // As seções do Dashboard e as abas da Análise dos comentários aparecem também no celular.
       '[data-tour="tour-period"]',
+      '[data-tour="tour-dashboard-diagnosis"]',
       '[data-tour="tour-star-ratings"]',
       '[data-tour="tour-movement"]',
       '[data-tour="tour-form-questions"]',
@@ -378,11 +379,11 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
       '[data-tour="mobile-nav-feedback"]',
       '[data-tour="mobile-nav-catalog"]',
     ]);
-    expect(INTERACTIVE_STEPS[12]).toMatchObject({
+    expect(INTERACTIVE_STEPS[13]).toMatchObject({
       mobileSelector: '[data-tour="mobile-nav-ia-settings"]',
       openMobileDrawer: true,
     });
-    expect(INTERACTIVE_STEPS[13]).toMatchObject({
+    expect(INTERACTIVE_STEPS[14]).toMatchObject({
       mobileSelector: '[data-tour="mobile-nav-profile"]',
       openMobileDrawer: true,
     });
@@ -418,9 +419,9 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
       expect(card.className).toContain("max-h-[45dvh]");
       expect(screen.getByText("Próximo")).toBeInTheDocument();
 
-      // Balão compacto: texto curto, contador e barra de progresso no lugar dos 15 pontos.
+      // Balão compacto: texto curto, contador e barra de progresso no lugar dos 16 pontos.
       expect(screen.getByText("Na barra de baixo, toque em Visão geral para ver os principais números.")).toBeInTheDocument();
-      expect(screen.getByText("1/15")).toBeInTheDocument();
+      expect(screen.getByText("1/16")).toBeInTheDocument();
       expect(screen.getByRole("progressbar", { name: "Progresso do guia" })).toHaveAttribute("aria-valuenow", "1");
       expect(screen.queryByRole("button", { name: "Ir para passo 2" })).not.toBeInTheDocument();
 
@@ -500,13 +501,18 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
 
     // Tour começa apenas após a confirmação de pending pelo servidor.
     expect(await screen.findByText("Dashboard de Resultados")).toBeInTheDocument();
-    // Com 15 passos, o contador fica numa linha própria, ao lado dos pontos.
-    expect(screen.getByText("1 de 15")).toBeInTheDocument();
+    // Com 16 passos, o contador fica numa linha própria, ao lado dos pontos.
+    expect(screen.getByText("1 de 16")).toBeInTheDocument();
 
     // Escopo e período, as seções do Dashboard e depois cada página da Análise dos comentários.
     fireEvent.click(screen.getByText("Próximo"));
     expect(screen.getByText("Escopo e período")).toBeInTheDocument();
     expect(screen.getByText(/Comparar com o período anterior/)).toBeInTheDocument();
+
+    // A visão do conjunto vem logo depois: o diagnóstico fica no topo do Dashboard.
+    fireEvent.click(screen.getByText("Próximo"));
+    expect(screen.getByText("Diagnóstico do escopo ✨ IA")).toBeInTheDocument();
+    expect(screen.getByText(/o que fazer primeiro, sempre com o número/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("Próximo"));
     expect(screen.getByText("Avaliação por estrelas")).toBeInTheDocument();

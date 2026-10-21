@@ -94,6 +94,7 @@ describe('SectionScopeDiagnosis', () => {
     expect(within(section).getByText(/Todo o período · 42 avaliações · gerado em/)).toBeInTheDocument();
     expect(within(section).getByText('Sem avaliações novas desde então.')).toBeInTheDocument();
     expect(within(section).getByRole('button', { name: /Gerar de novo/ })).toBeInTheDocument();
+    expect(within(section).getByRole('link', { name: /Ver o histórico de diagnósticos/ })).toHaveAttribute('href', '/user/diagnosis');
     expect(mocks.getLatest).toHaveBeenCalledWith({ scope_type: 'COMPANY', catalog_item_id: undefined });
   });
 

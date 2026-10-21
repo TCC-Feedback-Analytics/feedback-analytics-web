@@ -283,9 +283,10 @@ describe('[Unidade] Dashboard Page', () => {
     // As perguntas são as reais do formulário, só as ativas e na ordem.
     const questions = within(preview).getAllByText(/^\d\. /).map((node) => node.textContent);
     expect(questions).toEqual(['1. Como foi sua experiência?', '2. O atendimento foi rápido?']);
-    expect(within(preview).getAllByText('Exemplo')).toHaveLength(3);
+    expect(within(preview).getAllByText('Exemplo')).toHaveLength(4);
 
     // O guia passa pelas seções do Dashboard logo após o cadastro.
+    expect(container.querySelector('[data-tour="tour-dashboard-diagnosis"]')).toBeInTheDocument();
     expect(container.querySelector('[data-tour="tour-star-ratings"]')).toBeInTheDocument();
     expect(container.querySelector('[data-tour="tour-movement"]')).toBeInTheDocument();
     expect(container.querySelector('[data-tour="tour-form-questions"]')).toBeInTheDocument();
