@@ -1,7 +1,6 @@
-import { FaBuilding, FaCalendarDays, FaFileLines, FaLayerGroup } from 'react-icons/fa6';
+import { FaBuilding, FaCalendarDays, FaFileLines } from 'react-icons/fa6';
 import type { ReactNode } from 'react';
 import CardSimple from 'components/user/shared/cards/cardSimple';
-import { formatDocument } from 'src/lib/utils/formatDocument';
 import type { CompanyProfileSectionProps } from './ui.types';
 
 const SUBSCRIPTION_LABELS = {
@@ -39,8 +38,6 @@ function Detail({
 }
 
 export default function CompanyProfileSection({ enterprise }: CompanyProfileSectionProps) {
-  const document = formatDocument(enterprise.document ?? '', enterprise.account_type) || 'Não informado';
-  const accountType = enterprise.account_type || 'Não informado';
   const subscription = SUBSCRIPTION_LABELS[enterprise.subscription_status] || 'Não informado';
 
   return (
@@ -72,9 +69,8 @@ export default function CompanyProfileSection({ enterprise }: CompanyProfileSect
             <FaFileLines className="text-(--primary-color)" aria-hidden />
             <h3 className="font-montserrat text-base font-bold text-(--text-primary)">Cadastro da empresa</h3>
           </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <Detail icon={<FaFileLines />} label="Documento" value={document} />
-            <Detail icon={<FaLayerGroup />} label="Tipo de cadastro" value={accountType} />
+          {/* Sem CPF/CNPJ: o sistema não usa esse dado e não o guarda (LGPD). */}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Detail icon={<FaCalendarDays />} label="Conta criada em" value={getCreationDate(enterprise.created_at)} />
             <Detail icon={<FaBuilding />} label="Status da conta" value={subscription} />
           </div>

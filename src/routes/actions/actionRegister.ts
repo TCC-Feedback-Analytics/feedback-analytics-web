@@ -37,22 +37,18 @@ export async function ActionRegister({ request }: ActionFunctionArgs) {
   const form = await request.formData();
 
   // Extraindo os valores dos campos do formulário, convertendo-os para string.
-  const accountType = String(form.get('accountType') ?? 'CPF');
   const email = String(form.get('email') ?? '');
   const phone = String(form.get('phone') ?? '');
   const password = String(form.get('password') ?? '');
   const confirmPassword = String(form.get('confirmPassword') ?? '');
   const terms = String(form.get('terms') ?? 'false') === 'true';
 
-  // Campos condicionais
+  // Nome do negócio (pessoa física ou jurídica); o CPF/CNPJ não é mais pedido.
   const fullName = String(form.get('fullName') ?? '');
-  const document = String(form.get('document') ?? '');
 
   // Enviando os valores para o servidor.
   const payload = {
-    accountType,
     fullName,
-    document,
     email,
     phone,
     password,

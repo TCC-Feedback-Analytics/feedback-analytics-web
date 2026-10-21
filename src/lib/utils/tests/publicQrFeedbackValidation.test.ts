@@ -11,7 +11,6 @@ describe('[Unidade] publicQrFeedbackValidation', () => {
     const error = getPublicQrFeedbackBaseValidationError({
       enterprise_id: '',
       rating: 5,
-      message: 'Mensagem válida',
     });
 
     expect(error).toBe(PUBLIC_QR_FEEDBACK_ERRORS.missingEnterpriseId);
@@ -21,27 +20,24 @@ describe('[Unidade] publicQrFeedbackValidation', () => {
     const error = getPublicQrFeedbackBaseValidationError({
       enterprise_id: '11111111-1111-4111-8111-111111111111',
       rating: 0,
-      message: 'Mensagem válida',
     });
 
     expect(error).toBe(PUBLIC_QR_FEEDBACK_ERRORS.missingRating);
   });
 
-  it('retorna erro de validação base quando mensagem está ausente', () => {
+  it('aceita feedback sem comentário (o comentário é opcional)', () => {
     const error = getPublicQrFeedbackBaseValidationError({
       enterprise_id: '11111111-1111-4111-8111-111111111111',
       rating: 5,
-      message: '   ',
     });
 
-    expect(error).toBe(PUBLIC_QR_FEEDBACK_ERRORS.missingMessage);
+    expect(error).toBeNull();
   });
 
   it('retorna null na validação base com payload válido', () => {
     const error = getPublicQrFeedbackBaseValidationError({
       enterprise_id: '11111111-1111-4111-8111-111111111111',
       rating: 5,
-      message: 'Mensagem válida',
     });
 
     expect(error).toBeNull();

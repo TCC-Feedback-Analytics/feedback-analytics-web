@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Input } from 'components/ui/input';
 import { Label } from 'components/ui/label';
-import { getPasswordStrength } from 'src/lib/utils/passwordStrength';
-import type { FieldFormProps } from '../ui.types';
+import { usePasswordStrength } from 'src/lib/hooks/usePasswordStrength';
+import type { FieldPasswordRegisterProps } from '../ui.types';
 
 export default function FieldPasswordRegister({
   id,
@@ -11,16 +11,16 @@ export default function FieldPasswordRegister({
   icon,
   register,
   error,
-}: FieldFormProps) {
+  showStrength = true,
+  userInputs = [],
+}: FieldPasswordRegisterProps) {
   const [show, setShow] = useState(false);
   const [value, setValue] = useState('');
 
-  const strength = useMemo(() => {
-    return getPasswordStrength(value);
-  }, [value]);
+  const strength = usePasswordStrength(showStrength ? value : '', userInputs);
 
   return (
-    <div className="space-y-1 relative mb-10">
+    <div className="space-y-1">
       <Label
         htmlFor={name}
         className="flex items-center gap-2 pl-2 text-sm text-(--text-secondary) font-work-sans font-normal"
@@ -70,8 +70,8 @@ export default function FieldPasswordRegister({
           )}
         </button>
       </div>
-      {strength.showBar && (
-        <div className="mt-2">
+      {showStrength && strength.showBar && (
+        <div className="mt-2" aria-live="polite">
           <div className="h-2 w-full overflow-hidden rounded-full bg-(--seventh-color)">
             <div
               className={`h-full ${strength.color}`}
@@ -80,17 +80,21 @@ export default function FieldPasswordRegister({
           </div>
           <div className="mt-1 flex items-center justify-between text-(--text-tertiary) font-work-sans text-[11px]">
             <span>Força da senha</span>
-            <span className="text-(--text-secondary)">{strength.label}</span>
+            <span className="text-(--text-secondary)">{strength.label || 'Calculando…'}</span>
           </div>
+          {strength.hint && !error && (
+            <p className="mt-1 font-work-sans text-[11px] text-(--text-tertiary)">{strength.hint}</p>
+          )}
         </div>
       )}
       {error && (
-        <span
+        // No fluxo, abaixo do campo: posicionada solta, a mensagem longa invadia o campo.
+        <p
           role="alert"
-          className="font-work-sans absolute -right-1 -bottom-5 text-(--negative)/70 text-sm font-medium"
+          className="font-work-sans text-right text-(--negative)/80 text-sm font-medium"
         >
           {error}
-        </span>
+        </p>
       )}
     </div>
   );

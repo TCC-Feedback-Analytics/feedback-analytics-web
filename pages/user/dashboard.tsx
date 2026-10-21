@@ -18,6 +18,7 @@ import SectionFormQuestions from 'components/user/pages/questions/SectionFormQue
 import DashboardScopedSkeleton from 'components/user/pages/dashboard/DashboardScopedSkeleton';
 import InsightsReportContent from 'components/user/pages/feedbacksInsightsReport/InsightsReportContent';
 import CommentToneSection from 'components/user/pages/comments/CommentToneSection';
+import CommentParticipationSection from 'components/user/pages/comments/CommentParticipationSection';
 import ScopeTag from 'components/user/shared/ScopeTag';
 import DashboardWelcome from 'components/user/pages/dashboard/DashboardWelcome';
 import WelcomePreview from 'components/user/pages/dashboard/WelcomePreview';
@@ -300,6 +301,14 @@ export default function Dashboard() {
               </h2>
               <ScopeTag />
             </header>
+
+            {/* Quanto os comentários representam (o comentário é opcional): uma linha só. */}
+            <CommentParticipationSection
+              stats={scopedLoading ? null : stats}
+              inScope={scopeInfo.inScope}
+              ofScope={scopeInfo.ofScope}
+              variant="compact"
+            />
 
             <CommentToneSection
               summary={summary}

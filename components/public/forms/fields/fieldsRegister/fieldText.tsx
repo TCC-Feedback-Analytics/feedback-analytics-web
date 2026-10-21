@@ -13,7 +13,7 @@ export default function FieldText({
   register,
 }: FieldFormProps) {
   return (
-    <div className="space-y-1 relative">
+    <div className="space-y-1">
       <Label
         htmlFor={name}
         className="flex items-center gap-2 pl-2 text-sm text-(--text-secondary) font-work-sans font-normal"
@@ -32,12 +32,12 @@ export default function FieldText({
         {...register}
       />
       {error && (
-        <span
+        <p
           role="alert"
-          className="font-work-sans absolute -right-1 -bottom-5 text-(--negative)/70 text-sm font-medium"
+          className="font-work-sans text-right text-(--negative)/80 text-sm font-medium"
         >
           {error}
-        </span>
+        </p>
       )}
     </div>
   );

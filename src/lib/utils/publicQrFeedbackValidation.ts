@@ -10,7 +10,6 @@ export const MAX_SUBANSWER_COUNT = 9;
 export const PUBLIC_QR_FEEDBACK_ERRORS = {
   missingEnterpriseId: 'ID da empresa não encontrado. Verifique o QR Code.',
   missingRating: 'Por favor, selecione uma avaliação.',
-  missingMessage: 'Por favor, escreva seu feedback.',
   questionsNotConfigured:
     'Perguntas de feedback ainda não configuradas para este QR Code.',
   missingAnswers: 'Responda todas as perguntas antes de enviar.',
@@ -28,7 +27,6 @@ export const ALLOWED_ANSWER_VALUES: FeedbackAnswerValue[] = [
 type PublicQrFeedbackBaseValidationInput = {
   enterprise_id: string;
   rating: number;
-  message: string;
 };
 
 function normalizeAnswerValue(value: unknown) {
@@ -42,7 +40,6 @@ function normalizeEntityId(value: unknown) {
 export function getPublicQrFeedbackBaseValidationError({
   enterprise_id,
   rating,
-  message,
 }: PublicQrFeedbackBaseValidationInput): string | null {
   if (!enterprise_id.trim()) {
     return PUBLIC_QR_FEEDBACK_ERRORS.missingEnterpriseId;
@@ -50,10 +47,6 @@ export function getPublicQrFeedbackBaseValidationError({
 
   if (!rating) {
     return PUBLIC_QR_FEEDBACK_ERRORS.missingRating;
-  }
-
-  if (!message.trim()) {
-    return PUBLIC_QR_FEEDBACK_ERRORS.missingMessage;
   }
 
   return null;

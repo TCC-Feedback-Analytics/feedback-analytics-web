@@ -34,7 +34,6 @@ export async function loadUserContextData() {
       }
     : {
         id: '',
-        document: '',
         created_at: '',
         trial_ends_at: null,
         subscription_status: 'TRIAL',

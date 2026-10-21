@@ -14,21 +14,17 @@ export interface FieldFormProps {
   placeholder?: string;
   register?: UseFormRegisterReturn;
   error?: string;
-  value?: TypeRegisterDocument;
 }
 
 /**
- * Tipos de documento aceitos no cadastro público.
- * Usado em: components/public/forms/fields/fieldsRegister/fieldDocument.tsx.
+ * Props do campo de senha do cadastro.
+ * Usado em: components/public/forms/fields/fieldsRegister/fieldPassword.tsx.
  */
-export type TypeRegisterDocument = 'CPF' | 'CNPJ';
-
-/**
- * Props específicas do campo de documento no cadastro.
- * Usado em: components/public/forms/fields/fieldsRegister/fieldDocument.tsx.
- */
-export interface RegisterFieldDocumentProps extends FieldFormProps {
-  docType: TypeRegisterDocument;
+export interface FieldPasswordRegisterProps extends FieldFormProps {
+  /** Mostra a barra de força (só no campo "Senha"; no "Confirmar senha", não). */
+  showStrength?: boolean;
+  /** Dados da pessoa que não podem compor a senha (nome do negócio, e-mail, telefone). */
+  userInputs?: Array<string | null | undefined>;
 }
 
 /**

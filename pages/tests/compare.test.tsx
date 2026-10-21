@@ -90,6 +90,10 @@ describe('[Unidade] Comparar itens', () => {
     expect(within(tone).getByText('Sem comentários analisados')).toBeInTheDocument();
     expect(within(tone).getByText('Sem dados para comparar')).toBeInTheDocument();
 
+    // Sem a participação nos comentários nos dados, a linha aparece com "—" (sem veredito).
+    const participation = within(table).getByRole('row', { name: /^Escreveram comentário/ });
+    expect(within(participation).getAllByText('—').length).toBeGreaterThan(0);
+
     // Departamento com 1 item não dá para comparar: fica fora dos tipos.
     expect(screen.getByRole('button', { name: 'Produtos' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.queryByRole('button', { name: 'Departamentos' })).not.toBeInTheDocument();

@@ -13,7 +13,8 @@ export type MetricTermKey =
   | 'peakTimes'
   | 'returningCustomers'
   | 'commentTone'
-  | 'scopeDiagnosis';
+  | 'scopeDiagnosis'
+  | 'commentParticipation';
 
 export type MetricExplanation = {
   title: string;
@@ -91,6 +92,15 @@ export const METRIC_EXPLANATIONS: Record<MetricTermKey, MetricExplanation> = {
       'O resumo é o percentual de positivos menos o de negativos (de −100 a +100), dito também em palavras: Positivo, Neutro (entre −5 e +5) ou Atenção.',
     ],
     example: '60% positivos e 15% negativos → +45 · Positivo.',
+  },
+  commentParticipation: {
+    title: 'Quem escreve comentário',
+    paragraphs: [
+      'O comentário é opcional: o cliente pode só dar as estrelas e responder às perguntas. Este número mostra quantas avaliações trazem um comentário escrito.',
+      'Ele diz o quanto o tom dos comentários e o resumo da IA representam os clientes. Se poucos escrevem, esses resultados falam de uma parte pequena; as estrelas e as perguntas continuam contando todo mundo.',
+      'Também compara a nota de quem comenta com a de quem não comenta. Se quem comenta dá nota bem menor, os comentários vêm mais de quem está insatisfeito, e o contrário também vale.',
+    ],
+    example: '25% escreveram um comentário · Quem comenta dá 3,1; quem só dá as estrelas, 4,5.',
   },
   scopeDiagnosis: {
     title: 'Diagnóstico do escopo',

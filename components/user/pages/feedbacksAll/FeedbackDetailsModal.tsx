@@ -74,7 +74,7 @@ export default function FeedbackDetailsModal({
               )}
             </div>
             <p className="whitespace-pre-wrap leading-relaxed text-(--text-primary)">
-              {selectedFeedback.message}
+              {selectedFeedback.message?.trim() ? selectedFeedback.message : <span className="italic text-(--text-tertiary)">Sem comentário</span>}
             </p>
           </div>
 
