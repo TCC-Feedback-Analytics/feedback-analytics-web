@@ -3,6 +3,7 @@ import Dashboard from "pages/user/dashboard";
 import Ratings from "pages/user/ratings";
 import CompareItems from "pages/user/compare";
 import DiagnosisHistory from "pages/user/diagnosis";
+import OpenRouterCallback from "pages/user/openrouterCallback";
 import EditCustomer from "pages/user/edit/editCustomers";
 import FeedbacksAll from "pages/user/feedbacks/feedbacksAll";
 import Feedbacks from "pages/user/feedbacks/feedbacks";
@@ -60,6 +61,7 @@ export function RouteUser() {
       <Route path="ratings" element={<Ratings />} />
       <Route path="compare" element={<CompareItems />} />
       <Route path="diagnosis" element={<DiagnosisHistory />} />
+      <Route path="openrouter/callback" element={<OpenRouterCallback />} />
       <Route
         path="profile"
         element={<Profile />}

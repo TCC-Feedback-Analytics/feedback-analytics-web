@@ -5,6 +5,7 @@ import "@testing-library/jest-dom";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { OnboardingProvider, useOnboarding } from "src/lib/context/onboardingContext";
 import AIContextDialog from "./AIContextDialog";
+import { saveOnboardingDraft } from "src/lib/utils/onboardingDraft";
 import UserInteractiveTour from "./UserInteractiveTour";
 import { INTERACTIVE_STEPS } from "./ui.types";
 import { TOUR_STEPS_COUNT } from "src/lib/context/onboardingContext.types";
@@ -304,6 +305,40 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     expect(screen.getByPlaceholderText(/Rede de clínicas odontológicas/)).toHaveValue(
       "Resumo editado e ainda não salvo",
     );
+  });
+
+  it("sem chave, oferece Conectar com OpenRouter e volta do OpenRouter com o contexto digitado, já na etapa da IA", () => {
+    routeData.collecting = null;
+    routeData.iaConfig = { hasKey: true, provider: "openrouter", model: "openrouter/free", keyHint: "5678" };
+    saveOnboardingDraft("user-1", {
+      business_summary: "Padaria de bairro digitada antes de sair",
+      company_objective: "Crescer",
+      analytics_goal: "Entender os clientes",
+    });
+
+    render(
+      <MemoryRouter>
+        <AIContextDialog open={true} onOpenChange={() => {}} />
+      </MemoryRouter>,
+    );
+
+    // Voltou na etapa da IA, já conectado, e o contexto de antes continua lá.
+    expect(screen.getByText(/Chave OpenRouter configurada/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "1. Resumo do Negócio" }));
+    expect(screen.getByPlaceholderText(/Rede de clínicas odontológicas/)).toHaveValue("Padaria de bairro digitada antes de sair");
+  });
+
+  it("sem chave, o botão Conectar com OpenRouter vem antes de colar a chave", () => {
+    routeData.collecting = null;
+    routeData.iaConfig = { hasKey: false, provider: null, model: null, keyHint: null };
+    render(
+      <MemoryRouter>
+        <AIContextDialog open={true} onOpenChange={() => {}} />
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "4. Modelo LLM" }));
+    expect(screen.getByRole("button", { name: /Conectar com OpenRouter/ })).toBeInTheDocument();
+    expect(screen.getByText("Já tenho uma chave")).toBeInTheDocument();
   });
 
   it("reinicia etapa, contexto e chave quando a sessão do usuário muda", () => {
