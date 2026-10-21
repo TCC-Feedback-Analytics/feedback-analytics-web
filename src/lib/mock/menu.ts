@@ -11,6 +11,7 @@ import {
   FaBoxesStacked,
   FaBrain,
   FaScaleBalanced,
+  FaClipboardCheck,
 } from 'react-icons/fa6';
 
 export const menuData: MenuItem[] = [
@@ -25,6 +26,12 @@ export const menuData: MenuItem[] = [
     label: "Comparar itens",
     to: "/user/compare",
     icon: FaScaleBalanced,
+  },
+  {
+    // Os diagnósticos da IA já gerados para o escopo, cada um com o seu período.
+    label: "Diagnósticos ✨",
+    to: "/user/diagnosis",
+    icon: FaClipboardCheck,
   },
   {
     label: "Feedbacks",

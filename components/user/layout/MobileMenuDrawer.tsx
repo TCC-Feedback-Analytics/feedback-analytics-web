@@ -17,6 +17,7 @@ import {
   FaWandMagicSparkles,
   FaBrain,
   FaScaleBalanced,
+  FaClipboardCheck,
 } from 'react-icons/fa6';
 import { isMatch } from 'src/lib/utils/navMatch';
 import type { MobileMenuDrawerProps } from './ui.types';
@@ -146,6 +147,20 @@ export default function MobileMenuDrawer({
                 <FaScaleBalanced className="h-5 w-5" />
               </div>
               <span className="text-sm font-bold text-(--text-primary)">Comparar itens</span>
+            </NavLink>
+            <NavLink
+              to="/user/diagnosis"
+              onClick={onClose}
+              className={`group mt-2 flex items-center gap-3 rounded-2xl border p-3.5 transition-all duration-150 active:scale-98 ${
+                isMatch('/user/diagnosis', pathname)
+                  ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--primary-color) font-bold shadow-xs'
+                  : 'border-(--quaternary-color)/12 bg-(--seventh-color)/40 text-(--text-secondary) hover:bg-(--seventh-color)'
+              }`}
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--primary-color)/15 text-(--primary-color)">
+                <FaClipboardCheck className="h-5 w-5" />
+              </div>
+              <span className="text-sm font-bold text-(--text-primary)">Diagnósticos ✨</span>
             </NavLink>
           </div>
 
