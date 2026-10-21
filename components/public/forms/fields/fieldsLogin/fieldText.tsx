@@ -19,10 +19,17 @@ export default function FieldText({
         {icon && <span className="inline-flex items-center text-sm">{icon}</span>}
         <span className="text-sm">{label}</span>
       </Label>
+      {/* E-mail do login: "username" deixa o Safari e o Samsung Pass preencherem o par
+          e-mail + senha certo; sem maiúscula nem correção automática no celular. */}
       <Input
         type="text"
         id={id}
         name={name}
+        autoComplete="username"
+        inputMode="email"
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck={false}
         error={!!error}
         aria-invalid={error ? true : undefined}
         className="px-4"
