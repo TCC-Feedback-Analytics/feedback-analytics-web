@@ -4,6 +4,29 @@ import type { DialogChildrenProps, DialogContextValue, DialogProps } from './ui.
 
 const DialogContext = React.createContext<DialogContextValue | null>(null);
 
+/**
+ * Trava a rolagem da página enquanto houver ALGUM diálogo aberto. Com contador:
+ * dois diálogos ao mesmo tempo (ex.: "Testar o formulário" e o convite do guia
+ * no primeiro feedback) fechando fora de ordem não deixam a página sem rolagem.
+ */
+let openDialogs = 0;
+let overflowBeforeDialogs = '';
+
+function lockBodyScroll(): () => void {
+  if (openDialogs === 0) {
+    overflowBeforeDialogs = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+  }
+  openDialogs += 1;
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    openDialogs = Math.max(0, openDialogs - 1);
+    if (openDialogs === 0) document.body.style.overflow = overflowBeforeDialogs;
+  };
+}
+
 export function Dialog({
   open,
   onOpenChange,
@@ -45,11 +68,7 @@ export function DialogContent({
 
   React.useEffect(() => {
     if (!context?.open) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
+    return lockBodyScroll();
   }, [context?.open]);
 
   if (!context?.open) return null;
