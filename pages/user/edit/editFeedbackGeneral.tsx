@@ -8,6 +8,7 @@ import { INTENT_QR_DISABLE, INTENT_QR_ENABLE } from 'src/lib/constants/routes/in
 import PageHeader from 'components/user/shared/PageHeader';
 import QuestionDinamicEnterprise from 'components/user/pages/profile/questionsDinamic/questionDinamicEnterprise';
 import CollectionChannelsSection from 'components/user/pages/qrcodeEnterprise/CollectionChannelsSection';
+import CommentFieldSettings from 'components/user/pages/commentField/CommentFieldSettings';
 import type { QrCodeEnterpriseActionResponse } from 'pages/user/qrcodes/ui.types';
 import { FaCircleCheck, FaPenToSquare, FaSpinner } from 'react-icons/fa6';
 import { useCompanyQuestionsGenerationPhase } from 'src/lib/context/companyQuestionsGenerationContext';
@@ -93,6 +94,8 @@ export default function EditFeedbackGeneral() {
           <QuestionDinamicEnterprise />
         </div>
       </section>
+
+      <CommentFieldSettings scopeType="COMPANY" catalogItemId={null} ofTarget="da empresa" />
 
       <CollectionChannelsSection
         ofTarget="da empresa"

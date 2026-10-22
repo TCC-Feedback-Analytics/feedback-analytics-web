@@ -2,6 +2,7 @@ import type {
   FeedbackQuestionPublic,
 } from 'lib/interfaces/contracts/qrcode/question.contract';
 import type { PublicQrFeedbackFormViewModel } from 'components/public/forms/fields/fieldsQRCode/ui.types';
+import type { CommentFieldSettings } from 'lib/schemas/public/commentField';
 
 /**
  * Resultado da action de envio de feedback por QR Code.
@@ -22,6 +23,7 @@ export type QrCodeFeedbackControllerParams = {
   catalogItemId: string;
   initialError: string;
   questions: FeedbackQuestionPublic[];
+  commentField?: CommentFieldSettings;
 };
 
 /**

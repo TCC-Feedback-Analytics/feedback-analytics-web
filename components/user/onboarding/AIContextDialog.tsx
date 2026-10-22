@@ -28,35 +28,58 @@ import {
 } from "react-icons/fa6";
 import type { AIContextDialogProps } from "./ui.types";
 
+// Perguntas simples no lugar de termos de consultoria; as sugestões entram no
+// campo com um toque. Os campos guardados (e o que a IA recebe) não mudam.
 const CONTEXT_STEPS = [
   {
     key: "business_summary",
-    tab: "Resumo do Negócio",
-    title: "Resumo do Negócio",
-    hint: "Descreva o que sua empresa faz e para quem. É o contexto primário que a IA usa em todas as análises.",
-    aiImpact: "Com base neste texto, a IA compreende sua área de atuação e ajusta o tom dos diagnósticos aos seus produtos e serviços.",
+    tab: "Seu negócio",
+    title: "O que seu negócio faz e para quem?",
+    hint: "Em uma ou duas frases: o que você vende ou oferece e quem são seus clientes.",
+    aiImpact: "Ela entende do que os clientes estão falando e usa a língua do seu negócio nas análises.",
     placeholder:
-      "Ex: Rede de clínicas odontológicas focada em tratamentos estéticos e ortodontia de alta tecnologia.",
+      "Ex: Padaria de bairro com pães artesanais, cafés e salgados. Atendemos famílias e quem trabalha perto.",
+    examples: [],
   },
   {
     key: "company_objective",
-    tab: "Objetivo da Empresa",
-    title: "Objetivo da Empresa",
-    hint: "Seu foco estratégico atual. A IA priorizará pontos alinhados a esta meta.",
-    aiImpact: "A IA prioriza a filtragem dos pontos fortes e fracos alinhados aos seus objetivos estratégicos.",
-    placeholder:
-      "Ex: Oferecer a melhor experiência de atendimento e aumentar a fidelização de clientes.",
+    tab: "Sua meta",
+    title: "O que você mais quer melhorar nos próximos meses?",
+    hint: "Sua meta do momento. Toque numa sugestão ou escreva com as suas palavras.",
+    aiImpact: "Ela dá mais atenção ao que ajuda ou atrapalha essa meta.",
+    placeholder: "Ex: Quero que os clientes voltem mais vezes e indiquem a padaria.",
+    examples: [
+      "Fidelizar os clientes",
+      "Atender mais rápido",
+      "Vender mais",
+      "Melhorar a qualidade",
+      "Receber mais indicações",
+    ],
   },
   {
     key: "analytics_goal",
-    tab: "Objetivo Analítico",
-    title: "Objetivo Analítico",
-    hint: "O que você deseja descobrir investigando os feedbacks recebidos.",
-    aiImpact: "Direciona as perguntas e padrões específicos que a inteligência artificial buscará identificar nas avaliações.",
-    placeholder:
-      "Ex: Identificar os principais motivos de reclamação no atendimento presencial e pós-venda.",
+    tab: "O que descobrir",
+    title: "O que você gostaria de saber pela opinião dos clientes?",
+    hint: "Uma dúvida que os comentários podem responder. Toque numa sugestão ou escreva a sua.",
+    aiImpact: "Ela procura nos comentários a resposta para essa dúvida.",
+    placeholder: "Ex: Quero saber por que alguns clientes reclamam da demora no fim de semana.",
+    examples: [
+      "Por que alguns clientes não voltam",
+      "O que os clientes mais elogiam",
+      "Do que os clientes mais reclamam",
+      "Se o preço está justo",
+      "Se a espera incomoda",
+    ],
   },
 ] as const;
+
+/** Junta a sugestão ao que já foi escrito, sem repetir. */
+const appendExample = (current: string, example: string) => {
+  const text = current.trim();
+  if (!text) return example;
+  if (text.toLowerCase().includes(example.toLowerCase())) return current;
+  return `${text.replace(/[.;,]+$/, "")}; ${example}`;
+};
 
 const LLM_STEP_INDEX = CONTEXT_STEPS.length;
 const TOTAL_STEPS = CONTEXT_STEPS.length + 1;
@@ -581,10 +604,36 @@ export default function AIContextDialog({
                 <div className="flex min-w-0 items-start gap-2.5 rounded-xl border border-(--primary-color)/20 bg-(--seventh-color)/40 p-3 text-xs text-(--text-secondary)">
                   <FaCircleInfo className="mt-0.5 shrink-0 text-(--primary-color)" />
                   <span className="min-w-0 break-words">
-                    <strong className="text-(--text-primary)">Como a IA usará: </strong>
+                    <strong className="text-(--text-primary)">Para que serve: </strong>
                     {stepItem.aiImpact}
                   </span>
                 </div>
+
+                {stepItem.examples.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-(--text-tertiary)">Sugestões</p>
+                    <div className="flex flex-wrap gap-2">
+                      {stepItem.examples.map((example) => {
+                        const used = values[stepItem.key].toLowerCase().includes(example.toLowerCase());
+                        return (
+                          <button
+                            key={example}
+                            type="button"
+                            aria-pressed={used}
+                            onClick={() => setValue(stepItem.key, appendExample(values[stepItem.key], example))}
+                            className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                              used
+                                ? "border-(--primary-color)/50 bg-(--primary-color)/15 text-(--primary-color)"
+                                : "border-(--quaternary-color)/20 bg-(--seventh-color)/50 text-(--text-secondary) hover:border-(--primary-color)/35 hover:text-(--text-primary)"
+                            }`}
+                          >
+                            {used ? "✓ " : "+ "}{example}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 <div className="space-y-1.5">
                   <textarea

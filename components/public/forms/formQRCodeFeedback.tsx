@@ -6,6 +6,7 @@ import FieldCustomerEmail from './fields/fieldsQRCode/fieldCustomerEmail';
 import FieldCustomerGender from './fields/fieldsQRCode/fieldCustomerGender';
 import type { FormQRCodeFeedbackProps } from './fields/fieldsQRCode/ui.types';
 import { FaSpinner } from 'react-icons/fa6';
+import { DEFAULT_COMMENT_FIELD, commentFieldLabel } from 'lib/schemas/public/commentField';
 
 export default function FormQRCodeFeedback({
   model,
@@ -17,7 +18,10 @@ export default function FormQRCodeFeedback({
     showOptionalFields,
     error,
     isSubmitting,
+    commentField,
   } = model.state;
+  // Convite padrão, pergunta própria do escopo ou nenhum campo (oculto).
+  const commentLabel = commentFieldLabel(commentField ?? DEFAULT_COMMENT_FIELD);
 
   const {
     updateFormData,
@@ -43,10 +47,13 @@ export default function FormQRCodeFeedback({
         onSubanswerChange={updateSubanswer}
       />
 
-      <FieldMessage
-        message={formData.message}
-        onMessageChange={(message) => updateFormData({ message })}
-      />
+      {commentLabel && (
+        <FieldMessage
+          label={commentLabel}
+          message={formData.message}
+          onMessageChange={(message) => updateFormData({ message })}
+        />
+      )}
 
       <div className="border-t border-(--bg-tertiary) pt-4">
         <button

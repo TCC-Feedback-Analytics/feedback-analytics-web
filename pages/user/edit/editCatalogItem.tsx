@@ -29,6 +29,7 @@ import CardSimple from "components/user/shared/cards/cardSimple";
 import HelpHint from "components/user/shared/HelpHint";
 import GuidedQuestionsEditor from "components/user/pages/profile/questionsDinamic/GuidedQuestionsEditor";
 import CollectionChannelsSection from "components/user/pages/qrcodeEnterprise/CollectionChannelsSection";
+import CommentFieldSettings from "components/user/pages/commentField/CommentFieldSettings";
 
 /**
  * Tela de configuração de UM item do catálogo (produto/serviço/departamento).
@@ -360,6 +361,12 @@ function CatalogItemConfig() {
           idPrefix={`preview-${itemId}`}
         />
       </section>
+
+      <CommentFieldSettings
+        scopeType={config.kind}
+        catalogItemId={itemId}
+        ofTarget={`deste ${config.singular}`}
+      />
 
       <CollectionChannelsSection
         ofTarget={`deste ${config.singular}`}

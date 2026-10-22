@@ -103,8 +103,8 @@ export default function PhoneEditableField({ currentPhone, className = '' }: Pho
         className={`group relative w-full rounded-lg border border-(--quaternary-color)/20 bg-(--bg-secondary)/30 p-4 text-left transition-all hover:border-(--primary-color)/30 hover:bg-(--primary-color)/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color) ${className}`}
         onClick={handleEdit}
       >
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-sm font-medium text-(--text-secondary)">Telefone</span>
               <span className="text-lg opacity-70 transition-transform group-hover:scale-110">
@@ -116,7 +116,7 @@ export default function PhoneEditableField({ currentPhone, className = '' }: Pho
             </p>
           </div>
 
-          <span className="ml-3 inline-flex items-center gap-1.5 rounded-lg bg-(--primary-color)/12 px-2.5 py-1.5 text-xs font-semibold text-(--primary-color) transition group-hover:bg-(--primary-color) group-hover:text-(--on-primary)">
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-(--primary-color)/12 px-2.5 py-1.5 text-xs font-semibold text-(--primary-color) transition group-hover:bg-(--primary-color) group-hover:text-(--on-primary)">
               <FaPenToSquare aria-hidden="true" />
               <span>Editar</span>
           </span>

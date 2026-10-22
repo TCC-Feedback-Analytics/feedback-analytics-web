@@ -152,17 +152,17 @@ describe('[Unidade] Profile Page', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Editar contexto e LLM' }));
 
-    fireEvent.change(screen.getByPlaceholderText(/Rede de clínicas odontológicas/), {
+    fireEvent.change(screen.getByPlaceholderText(/Padaria de bairro com pães artesanais/), {
       target: { value: 'Resumo da empresa' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Próximo Passo' }));
 
-    fireEvent.change(screen.getByPlaceholderText(/Oferecer a melhor experiência/), {
+    fireEvent.change(screen.getByPlaceholderText(/Quero que os clientes voltem mais vezes/), {
       target: { value: 'Objetivo da empresa' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Próximo Passo' }));
 
-    fireEvent.change(screen.getByPlaceholderText(/Identificar os principais motivos/), {
+    fireEvent.change(screen.getByPlaceholderText(/Quero saber por que alguns clientes reclamam/), {
       target: { value: 'Objetivo analítico da empresa' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Próximo Passo' }));

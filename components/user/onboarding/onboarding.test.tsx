@@ -176,27 +176,52 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole("button", { name: "1. Resumo do Negócio" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "1. Seu negócio" })).toBeInTheDocument();
     expect(screen.getByRole("dialog").querySelector("form")).toHaveAttribute("novalidate");
 
-    expect(screen.getByRole("heading", { name: /Resumo do Negócio/ })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /O que seu negócio faz e para quem/ })).toBeInTheDocument();
     const nextButton = screen.getByRole("button", { name: "Próximo Passo" });
     expect(nextButton).toBeDisabled();
 
-    fireEvent.change(screen.getByPlaceholderText(/Rede de clínicas odontológicas/), { target: { value: "Resumo da empresa" } });
+    fireEvent.change(screen.getByPlaceholderText(/Padaria de bairro com pães artesanais/), { target: { value: "Resumo da empresa" } });
     expect(nextButton).toBeEnabled();
     fireEvent.click(nextButton);
-    expect(screen.getByRole("heading", { name: /Objetivo da Empresa/ })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /O que você mais quer melhorar/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Próximo Passo" })).toBeDisabled();
 
-    fireEvent.change(screen.getByPlaceholderText(/Oferecer a melhor experiência/), { target: { value: "Objetivo da empresa" } });
+    fireEvent.change(screen.getByPlaceholderText(/Quero que os clientes voltem mais vezes/), { target: { value: "Objetivo da empresa" } });
     fireEvent.click(screen.getByRole("button", { name: "Próximo Passo" }));
-    expect(screen.getByRole("heading", { name: /Objetivo Analítico/ })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /O que você gostaria de saber/ })).toBeInTheDocument();
 
-    fireEvent.change(screen.getByPlaceholderText(/Identificar os principais motivos/), { target: { value: "Analisar os principais motivos das reclamações" } });
+    fireEvent.change(screen.getByPlaceholderText(/Quero saber por que alguns clientes reclamam/), { target: { value: "Analisar os principais motivos das reclamações" } });
     fireEvent.click(screen.getByRole("button", { name: "Próximo Passo" }));
     expect(screen.getByRole("button", { name: "4. Modelo LLM" })).toBeInTheDocument();
     expect(screen.getByText(/Passo 4 de 4/)).toBeInTheDocument();
+  });
+
+  it("as sugestões entram no campo com um toque, sem repetir", () => {
+    render(
+      <MemoryRouter>
+        <OnboardingProvider collecting={null} sessionKey="user-1">
+          <AIContextDialog open={true} onOpenChange={() => {}} isMandatory={false} />
+        </OnboardingProvider>
+      </MemoryRouter>
+    );
+
+    fireEvent.change(screen.getByPlaceholderText(/Padaria de bairro com pães artesanais/), { target: { value: "Padaria" } });
+    fireEvent.click(screen.getByRole("button", { name: "Próximo Passo" }));
+
+    const goal = screen.getByPlaceholderText(/Quero que os clientes voltem mais vezes/);
+    fireEvent.click(screen.getByRole("button", { name: "+ Fidelizar os clientes" }));
+    expect(goal).toHaveValue("Fidelizar os clientes");
+    expect(screen.getByRole("button", { name: "Próximo Passo" })).toBeEnabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "+ Atender mais rápido" }));
+    expect(goal).toHaveValue("Fidelizar os clientes; Atender mais rápido");
+    const used = screen.getByRole("button", { name: "✓ Fidelizar os clientes" });
+    expect(used).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(used);
+    expect(goal).toHaveValue("Fidelizar os clientes; Atender mais rápido");
   });
 
   describe("escolha do modelo na etapa da LLM", () => {
@@ -286,7 +311,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
       </MemoryRouter>,
     );
 
-    const summary = screen.getByPlaceholderText(/Rede de clínicas odontológicas/);
+    const summary = screen.getByPlaceholderText(/Padaria de bairro com pães artesanais/);
     fireEvent.change(summary, { target: { value: "Resumo editado e ainda não salvo" } });
     fireEvent.click(screen.getByRole("button", { name: "Próximo Passo" }));
     fireEvent.click(screen.getByRole("button", { name: "Anterior" }));
@@ -302,7 +327,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByPlaceholderText(/Rede de clínicas odontológicas/)).toHaveValue(
+    expect(screen.getByPlaceholderText(/Padaria de bairro com pães artesanais/)).toHaveValue(
       "Resumo editado e ainda não salvo",
     );
   });
@@ -324,8 +349,8 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
 
     // Voltou na etapa da IA, já conectado, e o contexto de antes continua lá.
     expect(screen.getByText(/Chave OpenRouter configurada/)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "1. Resumo do Negócio" }));
-    expect(screen.getByPlaceholderText(/Rede de clínicas odontológicas/)).toHaveValue("Padaria de bairro digitada antes de sair");
+    fireEvent.click(screen.getByRole("button", { name: "1. Seu negócio" }));
+    expect(screen.getByPlaceholderText(/Padaria de bairro com pães artesanais/)).toHaveValue("Padaria de bairro digitada antes de sair");
   });
 
   it("sem chave, o botão Conectar com OpenRouter vem antes de colar a chave", () => {
@@ -364,8 +389,8 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     fireEvent.change(screen.getByLabelText("Chave da API OpenRouter"), {
       target: { value: "sk-chave-da-empresa-a" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "1. Resumo do Negócio" }));
-    fireEvent.change(screen.getByPlaceholderText(/Rede de clínicas odontológicas/), {
+    fireEvent.click(screen.getByRole("button", { name: "1. Seu negócio" }));
+    fireEvent.change(screen.getByPlaceholderText(/Padaria de bairro com pães artesanais/), {
       target: { value: "Edição da empresa A" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Próximo Passo" }));
@@ -393,8 +418,8 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     expect(screen.getByText(/Passo 1 de 4/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "4. Modelo LLM" }));
     expect(screen.getByLabelText("Chave da API OpenRouter")).toHaveValue("");
-    fireEvent.click(screen.getByRole("button", { name: "1. Resumo do Negócio" }));
-    expect(screen.getByPlaceholderText(/Rede de clínicas odontológicas/)).toHaveValue("Empresa B");
+    fireEvent.click(screen.getByRole("button", { name: "1. Seu negócio" }));
+    expect(screen.getByPlaceholderText(/Padaria de bairro com pães artesanais/)).toHaveValue("Empresa B");
   });
 
   it("mapeia o guia móvel para a barra inferior e o menu central", () => {

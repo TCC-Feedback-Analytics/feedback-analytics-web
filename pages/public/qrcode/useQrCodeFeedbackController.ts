@@ -30,6 +30,7 @@ export function useQrCodeFeedbackController({
   catalogItemId,
   initialError,
   questions,
+  commentField,
 }: QrCodeFeedbackControllerParams): QrCodeFeedbackControllerResult {
   const toast = useToast();
   const fetcher = useFetcher<QrcodeEnterpriseActionData>();
@@ -172,7 +173,8 @@ export function useQrCodeFeedbackController({
         enterprise_id: formData.enterprise_id,
         collection_point_id: formData.collection_point_id ?? '',
         catalog_item_id: formData.catalog_item_id ?? '',
-        message: formData.message.trim(),
+        // Campo oculto no escopo: não manda texto (o gateway também descarta).
+        message: commentField?.mode === 'HIDDEN' ? '' : formData.message.trim(),
         rating: String(formData.rating),
         answers: JSON.stringify(orderedAnswers),
         subanswers: JSON.stringify(orderedSubanswers),
@@ -192,6 +194,7 @@ export function useQrCodeFeedbackController({
       showOptionalFields,
       error,
       isSubmitting,
+      commentField,
     },
     actions: {
       updateFormData: handleFormDataChange,

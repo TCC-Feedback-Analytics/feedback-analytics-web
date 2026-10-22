@@ -21,6 +21,7 @@ import CommentToneSection from 'components/user/pages/comments/CommentToneSectio
 import CommentParticipationSection from 'components/user/pages/comments/CommentParticipationSection';
 import ScopeTag from 'components/user/shared/ScopeTag';
 import DashboardWelcome from 'components/user/pages/dashboard/DashboardWelcome';
+import FirstSteps from 'components/user/pages/dashboard/FirstSteps';
 import WelcomePreview from 'components/user/pages/dashboard/WelcomePreview';
 import GuideInviteDialog from 'components/user/onboarding/GuideInviteDialog';
 import { useOnboarding } from 'src/lib/context/onboardingContext';
@@ -38,8 +39,9 @@ import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { useScopedInsightsReport } from 'src/lib/hooks/useScopedInsightsReport';
 import { usePreviousPeriodQuestions, usePreviousPeriodStats } from 'src/lib/hooks/usePreviousPeriod';
 import { useFeedbackMilestones } from 'src/lib/hooks/useFeedbackMilestones';
+import { useFirstSteps } from 'src/lib/hooks/useFirstSteps';
 import { MIN_FEEDBACKS_FOR_AI } from 'src/lib/utils/feedbackMilestones';
-import { getCatalogKindByKind } from 'src/lib/constants/catalog';
+import { commentFieldConfigPath, formConfigPath } from 'src/lib/utils/formConfigPath';
 import { scopeText } from 'src/lib/utils/scopeText';
 import {
   COMMENTS_SUMMARY_PERIOD_NOTE,
@@ -158,13 +160,7 @@ export default function Dashboard() {
   // O link de compartilhar segue o escopo selecionado no header: empresa → QR
   // geral; produto/serviço/departamento com item escolhido → QR do item; tipo
   // selecionado sem item → catálogo do tipo, para o gestor escolher o item.
-  const shareFormPath = (() => {
-    if (scope === 'COMPANY') return '/user/edit/feedback-general';
-    const config = getCatalogKindByKind(scope);
-    if (!config) return '/user/edit/feedback-general';
-    if (!catalogItemId) return config.listPath;
-    return `/user/edit/feedback/${config.slug}/${catalogItemId}`;
-  })();
+  const shareFormPath = formConfigPath(scope, catalogItemId);
 
   const displayName =
     user?.user_metadata?.full_name || enterprise?.full_name || user?.email || 'Dashboard';
@@ -195,6 +191,14 @@ export default function Dashboard() {
 
   // Convite do guia: no primeiro feedback da conta ou numa próxima sessão.
   const accountTotalFeedbacks = dashboardLoaderData?.accountTotalFeedbacks ?? null;
+
+  // Primeiros passos no topo enquanto a conta é nova e falta algum passo.
+  const firstSteps = useFirstSteps({
+    enterpriseId: enterprise?.id,
+    qrActive: dashboardLoaderData?.qrActive ?? null,
+    accountTotal: accountTotalFeedbacks,
+  });
+  const showFirstSteps = Boolean(enterprise) && firstSteps.visible;
   const enterpriseId = enterprise?.id;
   const [guideInvite, setGuideInvite] = useState<GuideInviteVariant | null>(null);
   useEffect(() => {
@@ -229,7 +233,9 @@ export default function Dashboard() {
             {pendingCount > 0 && (
               <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-(--primary-color)" />
             )}
-            {isAccountEmpty
+            {showFirstSteps && !firstSteps.allDone
+              ? `Faltam ${firstSteps.remaining} ${firstSteps.remaining === 1 ? 'passo' : 'passos'} para começar a receber feedbacks.`
+              : isAccountEmpty
               ? 'Vamos coletar os primeiros feedbacks.'
               : totalFeedbacks === 0
               ? 'Compartilhe o formulário pelo QR Code para começar a coletar feedbacks.'
@@ -244,9 +250,12 @@ export default function Dashboard() {
             <FaArrowRight className="text-[0.6rem]" />
           </Link>
         </div>
-        <div className="md:self-center">
-          <ShareQrCard to={shareFormPath} />
-        </div>
+        {/* Na conta nova, o compartilhar está nos Primeiros passos logo abaixo. */}
+        {!showFirstSteps && (
+          <div className="md:self-center">
+            <ShareQrCard to={shareFormPath} />
+          </div>
+        )}
       </CardSimple>
 
       {error ? (
@@ -255,12 +264,21 @@ export default function Dashboard() {
         </div>
       ) : null}
 
+      {showFirstSteps && enterprise && (
+        <FirstSteps
+          enterprise={enterprise}
+          steps={firstSteps}
+          onFeedbackSent={() => {
+            revalidator.revalidate();
+            void fetchScopedData(true);
+          }}
+        />
+      )}
+
       {isAccountEmpty ? (
         <>
           {enterprise && (
             <DashboardWelcome
-              enterprise={enterprise}
-              qrActive={dashboardLoaderData?.qrActive ?? null}
               totalFeedbacks={0}
               onStartGuide={isTourActive ? undefined : startTour}
             />
@@ -308,6 +326,7 @@ export default function Dashboard() {
               inScope={scopeInfo.inScope}
               ofScope={scopeInfo.ofScope}
               variant="compact"
+              configPath={commentFieldConfigPath(scope, catalogItemId)}
             />
 
             <CommentToneSection
@@ -316,6 +335,7 @@ export default function Dashboard() {
               ofScope={scopeInfo.ofScope}
               feedbacksUntilAnalysis={feedbacksUntilAnalysis}
               previous={previousStats}
+              commentsHidden={!scopedLoading && stats?.commentField?.hidden === 'all'}
             />
 
             <div className="relative overflow-hidden rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6 glass-card">
