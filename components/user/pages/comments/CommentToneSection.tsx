@@ -18,7 +18,7 @@ const WORD_TONE = {
  * aparecia como distribuição de sentimentos, termômetro, clima e saldo, agora num
  * bloco só — barra positivo/neutro/negativo, resumo "+45 · Positivo" e precisão.
  */
-export default function CommentToneSection({ summary, inScope, ofScope, feedbacksUntilAnalysis = 0, previous = null }: CommentToneSectionProps) {
+export default function CommentToneSection({ summary, inScope, ofScope, feedbacksUntilAnalysis = 0, previous = null, commentsHidden = false }: CommentToneSectionProps) {
   const total = summary?.totalAnalyzed ?? 0;
 
   return (
@@ -30,7 +30,11 @@ export default function CommentToneSection({ summary, inScope, ofScope, feedback
         Tom dos comentários <MetricHelp term="commentTone" />
       </h3>
 
-      {!summary || total === 0 ? (
+      {commentsHidden && total === 0 ? (
+        <p className="mt-3 text-sm text-(--text-tertiary)">
+          O campo de comentário está oculto no formulário {inScope}: aqui não há comentários para a IA ler.
+        </p>
+      ) : !summary || total === 0 ? (
         <p className="mt-3 text-sm text-(--text-tertiary)">
           Ainda sem comentários analisados pela IA {inScope}.
           {feedbacksUntilAnalysis > 0 && (

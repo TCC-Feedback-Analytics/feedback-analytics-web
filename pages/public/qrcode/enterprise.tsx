@@ -23,6 +23,7 @@ export default function FeedbackQRCodeEnterprise() {
   const enterpriseName = loaderData?.enterpriseName ?? '';
   const itemName = loaderData?.itemName ?? '';
   const itemKind = loaderData?.itemKind ?? null;
+  const commentField = loaderData?.commentField;
   const questions = useMemo(
     () => loaderData?.questions ?? [],
     [loaderData?.questions],
@@ -48,6 +49,7 @@ export default function FeedbackQRCodeEnterprise() {
     catalogItemId,
     initialError,
     questions,
+    commentField,
   });
 
   // Aberto dentro do Dashboard: avisa a tela de cima para ela se atualizar e fechar.

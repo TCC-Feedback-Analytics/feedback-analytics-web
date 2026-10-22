@@ -1,5 +1,6 @@
 import { ServiceGetEnterprisePublic } from 'src/services/serviceEnterprise';
 import type { FeedbackQuestionPublic } from 'lib/interfaces/contracts/qrcode/question.contract';
+import { DEFAULT_COMMENT_FIELD, type CommentFieldSettings } from 'lib/schemas/public/commentField';
 
 export type PublicQrCodeEnterpriseLoadData = {
   enterpriseId: string | null;
@@ -9,6 +10,7 @@ export type PublicQrCodeEnterpriseLoadData = {
   itemName: string | null;
   itemKind: 'PRODUCT' | 'SERVICE' | 'DEPARTMENT' | null;
   questions: FeedbackQuestionPublic[];
+  commentField: CommentFieldSettings;
   error: string;
 };
 
@@ -30,6 +32,7 @@ export async function loadPublicQrCodeEnterpriseData(
       itemName: null,
       itemKind: null,
       questions: [],
+      commentField: DEFAULT_COMMENT_FIELD,
       error: 'ID da empresa não encontrado na URL. Verifique o QR Code.',
     };
   }
@@ -55,6 +58,7 @@ export async function loadPublicQrCodeEnterpriseData(
         itemName: null,
         itemKind: null,
         questions: [],
+        commentField: DEFAULT_COMMENT_FIELD,
         error:
           'QR Code indisponível: não há ponto de coleta ativo para este código. Verifique o QR Code ou contate a empresa.',
       };
@@ -68,6 +72,7 @@ export async function loadPublicQrCodeEnterpriseData(
       itemName: enterprise.item_name ?? null,
       itemKind: enterprise.item_kind ?? null,
       questions: enterprise.questions ?? [],
+      commentField: enterprise.comment ?? DEFAULT_COMMENT_FIELD,
       error: '',
     };
   } catch (err) {
@@ -81,6 +86,7 @@ export async function loadPublicQrCodeEnterpriseData(
       itemName: null,
       itemKind: null,
       questions: [],
+      commentField: DEFAULT_COMMENT_FIELD,
       error: 'Empresa não encontrada. Verifique se o QR Code é válido.',
     };
   }

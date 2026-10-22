@@ -1,9 +1,13 @@
 import { cleanup, render, screen, within } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';
 import type { CommentParticipation, FeedbackStats } from 'lib/interfaces/domain/feedback.domain';
 import CommentParticipationSection from './CommentParticipationSection';
 import { commentGroupsVerdict, isLowParticipation } from 'src/lib/utils/commentParticipation';
+
+// O aviso do campo de comentário tem um link: aqui usamos o roteador real.
+vi.unmock('react-router-dom');
 
 afterEach(() => cleanup());
 
@@ -53,6 +57,36 @@ describe('Quem escreve comentário', () => {
     expect(line).toHaveTextContent('20% das avaliações trazem um comentário (10 de 50) · Quem comenta está menos satisfeito');
     expect(within(line).getByRole('note')).toBeInTheDocument();
     expect(screen.queryByRole('region')).not.toBeInTheDocument();
+  });
+
+  it('poucos comentam: sugere mudar o campo e leva à configuração', () => {
+    render(
+      <MemoryRouter>
+        <CommentParticipationSection stats={stats({ withComment: 5, pct: 10 })} {...scope} configPath="/user/edit/feedback/products/p1#campo-comentario" />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole('note')).toHaveTextContent('Só 10% dos clientes comentam aqui. Uma pergunta própria do escopo');
+    expect(screen.getByRole('link', { name: 'Configurar o comentário' })).toHaveAttribute('href', '/user/edit/feedback/products/p1#campo-comentario');
+  });
+
+  it('comentários quase sempre curtos: sugere uma pergunta própria', () => {
+    render(
+      <MemoryRouter>
+        <CommentParticipationSection stats={stats({ withComment: 30, pct: 60, shortComments: 24 })} {...scope} variant="compact" configPath="/x" />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole('note')).toHaveTextContent('80% dos comentários são curtos ("bom", "ok") e dizem pouco.');
+  });
+
+  it('com o campo oculto, diz isso no lugar da taxa', () => {
+    const hidden = { ...stats({ withComment: 0, pct: 0, withCommentRating: null }), commentField: { hidden: 'all', prompt: null } } as FeedbackStats;
+    render(
+      <MemoryRouter>
+        <CommentParticipationSection stats={hidden} {...scope} configPath="/x" />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole('note')).toHaveTextContent('O campo de comentário está oculto no formulário no produto Pizza');
+    expect(screen.queryByText('0%')).not.toBeInTheDocument();
   });
 
   it('no Dashboard, sem avaliações não mostra nada', () => {

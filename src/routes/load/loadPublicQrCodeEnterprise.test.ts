@@ -34,6 +34,7 @@ describe('[Integração] loadPublicQrCodeEnterpriseData', () => {
       itemName: null,
       itemKind: null,
       questions: [],
+      commentField: { mode: 'DEFAULT', prompt: null },
       error: 'ID da empresa não encontrado na URL. Verifique o QR Code.',
     });
 
@@ -48,6 +49,7 @@ describe('[Integração] loadPublicQrCodeEnterpriseData', () => {
       catalog_item_id: 'item-1',
       item_name: 'Produto X',
       item_kind: 'PRODUCT',
+      comment: { mode: 'CUSTOM', prompt: 'O que mudaria neste produto?' },
     });
 
     const result = await loadPublicQrCodeEnterpriseData(
@@ -67,6 +69,7 @@ describe('[Integração] loadPublicQrCodeEnterpriseData', () => {
       itemName: 'Produto X',
       itemKind: 'PRODUCT',
       questions: [],
+      commentField: { mode: 'CUSTOM', prompt: 'O que mudaria neste produto?' },
       error: '',
     });
   });
@@ -94,6 +97,7 @@ describe('[Integração] loadPublicQrCodeEnterpriseData', () => {
       itemName: null,
       itemKind: null,
       questions: [],
+      commentField: { mode: 'DEFAULT', prompt: null },
       error:
         'QR Code indisponível: não há ponto de coleta ativo para este código. Verifique o QR Code ou contate a empresa.',
     });
@@ -114,6 +118,7 @@ describe('[Integração] loadPublicQrCodeEnterpriseData', () => {
       itemName: null,
       itemKind: null,
       questions: [],
+      commentField: { mode: 'DEFAULT', prompt: null },
       error: 'Empresa não encontrada. Verifique se o QR Code é válido.',
     });
   });

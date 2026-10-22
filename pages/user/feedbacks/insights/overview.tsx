@@ -6,6 +6,7 @@ import { useScopedInsightsReport } from 'src/lib/hooks/useScopedInsightsReport';
 import { usePreviousPeriodStats } from 'src/lib/hooks/usePreviousPeriod';
 import { useScopedStats } from 'src/lib/hooks/useScopedStats';
 import { scopeText } from 'src/lib/utils/scopeText';
+import { commentFieldConfigPath } from 'src/lib/utils/formConfigPath';
 import { hasMetricsPeriod } from 'src/lib/utils/metricsPeriod';
 import { COMMENTS_SUMMARY_PERIOD_NOTE } from 'src/lib/constants/commentsSummary';
 import InsightsReportSkeleton from 'components/user/pages/feedbacks/insights/InsightsReportSkeleton';
@@ -71,9 +72,16 @@ export default function CommentsOverview() {
             inScope={scopeInfo.inScope}
             ofScope={scopeInfo.ofScope}
             previous={previousStats}
+            configPath={commentFieldConfigPath(scope, catalogItemId)}
           />
 
-          <CommentToneSection summary={summary} inScope={scopeInfo.inScope} ofScope={scopeInfo.ofScope} previous={previousStats} />
+          <CommentToneSection
+            summary={summary}
+            inScope={scopeInfo.inScope}
+            ofScope={scopeInfo.ofScope}
+            previous={previousStats}
+            commentsHidden={scopedStats.data?.commentField?.hidden === 'all'}
+          />
 
           {summary && summary.totalAnalyzed > 0 && <CommentTopicsSection summary={summary} />}
 
