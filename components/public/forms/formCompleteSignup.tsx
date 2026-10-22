@@ -76,7 +76,6 @@ export default function FormCompleteSignup({ defaultFullName }: FormCompleteSign
       <FieldTermsRegister
         id="terms"
         name="terms"
-        label="Concordo com os Termos de Serviço e a Política de Privacidade"
         register={register('terms')}
         error={errors.terms?.message as string | undefined}
       />
