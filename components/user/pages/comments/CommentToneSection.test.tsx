@@ -23,6 +23,13 @@ function previousStats(aiSentiment: FeedbackStats['aiSentiment']) {
   };
 }
 
+describe('CommentToneSection — campo oculto', () => {
+  it('sem comentários porque o campo está oculto, explica isso', () => {
+    render(<CommentToneSection summary={null} inScope="no produto Pizza" ofScope="do produto Pizza" commentsHidden />);
+    expect(screen.getByText('O campo de comentário está oculto no formulário no produto Pizza: aqui não há comentários para a IA ler.')).toBeInTheDocument();
+  });
+});
+
 describe('CommentToneSection — comparação com o período anterior', () => {
   it('mostra quanto o tom mudou', () => {
     render(

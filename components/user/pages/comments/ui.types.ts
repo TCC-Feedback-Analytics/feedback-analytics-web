@@ -18,6 +18,8 @@ export interface CommentToneSectionProps {
   feedbacksUntilAnalysis?: number;
   /** Stats do mesmo escopo no período anterior (comparação ligada): o tom vem de `aiSentiment`. */
   previous?: PreviousPeriod<FeedbackStats> | null;
+  /** Campo de comentário oculto em todo o escopo: não há o que analisar. */
+  commentsHidden?: boolean;
 }
 
 /**
@@ -50,6 +52,8 @@ export interface CommentParticipationSectionProps {
   previous?: PreviousPeriod<FeedbackStats> | null;
   /** `compact`: uma linha no bloco de comentários do Dashboard. */
   variant?: 'full' | 'compact';
+  /** Tela que configura o formulário do escopo (o aviso leva ao campo de comentário). */
+  configPath?: string;
 }
 
 export interface LowParticipationNoticeProps {

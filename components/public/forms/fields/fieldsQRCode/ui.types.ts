@@ -6,6 +6,7 @@ import type {
   CustomerData,
   FeedbackData,
 } from 'lib/interfaces/contracts/qrcode/feedback.contract';
+import type { CommentFieldSettings } from 'lib/schemas/public/commentField';
 
 /**
  * Props do campo de gênero opcional do cliente.
@@ -32,6 +33,8 @@ export interface FieldCustomerNameProps {
 export interface FieldMessageProps {
   message: string;
   onMessageChange: (message: string) => void;
+  /** O convite padrão ou a pergunta própria do escopo. */
+  label: string;
 }
 
 /**
@@ -69,6 +72,8 @@ export interface PublicQrFeedbackFormViewState {
   showOptionalFields: boolean;
   error: string;
   isSubmitting: boolean;
+  /** Campo de comentário do escopo; ausente = convite padrão (ex.: na prévia). */
+  commentField?: CommentFieldSettings;
 }
 
 /**

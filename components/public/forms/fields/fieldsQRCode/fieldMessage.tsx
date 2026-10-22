@@ -1,13 +1,13 @@
 import type { FieldMessageProps } from './ui.types';
 
 
-export default function FieldMessage({ message, onMessageChange }: FieldMessageProps) {
+export default function FieldMessage({ message, onMessageChange, label }: FieldMessageProps) {
   return (
     <div>
       <label
         htmlFor="message"
         className="font-work-sans block text-sm font-medium text-(--text-primary) mb-2">
-        Conte-nos mais sobre sua experiência{' '}
+        {label}{' '}
         <span className="font-normal text-(--text-secondary)">(opcional)</span>
       </label>
       <textarea

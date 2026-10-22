@@ -39,7 +39,7 @@ import { useScopedInsightsReport } from 'src/lib/hooks/useScopedInsightsReport';
 import { usePreviousPeriodQuestions, usePreviousPeriodStats } from 'src/lib/hooks/usePreviousPeriod';
 import { useFeedbackMilestones } from 'src/lib/hooks/useFeedbackMilestones';
 import { MIN_FEEDBACKS_FOR_AI } from 'src/lib/utils/feedbackMilestones';
-import { getCatalogKindByKind } from 'src/lib/constants/catalog';
+import { commentFieldConfigPath, formConfigPath } from 'src/lib/utils/formConfigPath';
 import { scopeText } from 'src/lib/utils/scopeText';
 import {
   COMMENTS_SUMMARY_PERIOD_NOTE,
@@ -158,13 +158,7 @@ export default function Dashboard() {
   // O link de compartilhar segue o escopo selecionado no header: empresa → QR
   // geral; produto/serviço/departamento com item escolhido → QR do item; tipo
   // selecionado sem item → catálogo do tipo, para o gestor escolher o item.
-  const shareFormPath = (() => {
-    if (scope === 'COMPANY') return '/user/edit/feedback-general';
-    const config = getCatalogKindByKind(scope);
-    if (!config) return '/user/edit/feedback-general';
-    if (!catalogItemId) return config.listPath;
-    return `/user/edit/feedback/${config.slug}/${catalogItemId}`;
-  })();
+  const shareFormPath = formConfigPath(scope, catalogItemId);
 
   const displayName =
     user?.user_metadata?.full_name || enterprise?.full_name || user?.email || 'Dashboard';
@@ -308,6 +302,7 @@ export default function Dashboard() {
               inScope={scopeInfo.inScope}
               ofScope={scopeInfo.ofScope}
               variant="compact"
+              configPath={commentFieldConfigPath(scope, catalogItemId)}
             />
 
             <CommentToneSection
@@ -316,6 +311,7 @@ export default function Dashboard() {
               ofScope={scopeInfo.ofScope}
               feedbacksUntilAnalysis={feedbacksUntilAnalysis}
               previous={previousStats}
+              commentsHidden={!scopedLoading && stats?.commentField?.hidden === 'all'}
             />
 
             <div className="relative overflow-hidden rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6 glass-card">
