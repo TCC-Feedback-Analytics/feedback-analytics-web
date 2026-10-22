@@ -9,6 +9,8 @@ import { ActionLogin } from './actions/actionLogin';
 import { ActionRegister } from './actions/actionRegister';
 import AuthSuccess from 'pages/public/authSuccess';
 import AuthLinkExpired from 'pages/public/authLinkExpired';
+import Privacy from 'pages/public/privacy';
+import Terms from 'pages/public/terms';
 import CompleteSignup from 'pages/public/completeSignup';
 import { LoaderCompleteSignup } from './loaders/loaderCompleteSignup';
 import ErrorPage from 'components/globals/handling/errorPage';
@@ -69,6 +71,14 @@ export function RoutePublic() {
       <Route
         path="auth/link-expired"
         element={<AuthLinkExpired />}
+      />
+      <Route
+        path="privacidade"
+        element={<Privacy />}
+      />
+      <Route
+        path="termos"
+        element={<Terms />}
       />
       <Route
         path="auth/complete-signup"
