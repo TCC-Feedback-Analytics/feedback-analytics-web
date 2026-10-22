@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useLoaderData } from 'react-router-dom';
 import Card from 'components/public/shared/card';
 import SVGImageProfile from 'components/svg/imageProfile';
@@ -10,6 +10,7 @@ import StateSubmitted from 'components/public/qrcode/enterprise/stateSubmitted';
 import PublicQrFeedbackTemplateRenderer from 'components/public/qrcode/enterprise/PublicQrFeedbackTemplateRenderer';
 import type { LoaderPublicQrCodeEnterprise } from 'src/routes/loaders/loaderPublicQrCodeEnterprise';
 import { useQrCodeFeedbackController } from './useQrCodeFeedbackController';
+import { isEmbeddedForm, notifyEmbeddedFormResult } from 'src/lib/utils/embeddedForm';
 
 export default function FeedbackQRCodeEnterprise() {
   const loaderData =
@@ -50,6 +51,13 @@ export default function FeedbackQRCodeEnterprise() {
     questions,
     commentField,
   });
+
+  // Aberto dentro do Dashboard: avisa a tela de cima para ela se atualizar e fechar.
+  useEffect(() => {
+    if (!isEmbeddedForm()) return;
+    if (isSubmitted) notifyEmbeddedFormResult('sent');
+    else if (hasAlreadySubmitted) notifyEmbeddedFormResult('already');
+  }, [isSubmitted, hasAlreadySubmitted]);
 
   // Estado quando já enviou feedback anteriormente
   if (hasAlreadySubmitted) {

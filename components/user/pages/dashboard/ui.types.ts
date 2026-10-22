@@ -5,6 +5,8 @@ import type { FormQuestionConfig } from 'src/lib/utils/formQuestions';
 import type { PreviousPeriod } from 'src/lib/hooks/usePreviousPeriod';
 import type { FeedbackHeatmapCell, FeedbackTimelinePoint } from 'src/services/serviceFeedbacks';
 import type { TimelineBucket } from 'src/lib/utils/timeline';
+import type { FirstStepsState } from 'src/lib/hooks/useFirstSteps';
+import type { EmbeddedFormResult } from 'src/lib/utils/embeddedForm';
 
 /**
  * Props da seção "Avaliação por estrelas" do dashboard.
@@ -60,9 +62,6 @@ export interface QrGlyphProps {
  * Usado em: components/user/pages/dashboard/DashboardWelcome.tsx.
  */
 export interface DashboardWelcomeProps {
-  enterprise: { id: string; full_name?: string | null };
-  /** Status do QR geral; null quando não foi possível consultar (o passo de ativar some). */
-  qrActive: boolean | null;
   /** Feedbacks da conta inteira, para o progresso até a análise da IA. */
   totalFeedbacks: number;
   /** Abre o guia do sistema (atalho "Conhecer o sistema"). */
@@ -70,15 +69,38 @@ export interface DashboardWelcomeProps {
 }
 
 /**
- * Props de um passo da lista "Primeiros passos".
- * Usado em: components/user/pages/dashboard/DashboardWelcome.tsx.
+ * Props do cartão "Primeiros passos" do Dashboard.
+ * Usado em: components/user/pages/dashboard/FirstSteps.tsx.
  */
-export interface WelcomeStepProps {
+export interface FirstStepsProps {
+  enterprise: { id: string; full_name?: string | null };
+  steps: FirstStepsState;
+  /** Chamado quando a resposta do teste foi enviada (o Dashboard se atualiza). */
+  onFeedbackSent?: () => void;
+}
+
+/**
+ * Props de um passo da lista "Primeiros passos".
+ * Usado em: components/user/pages/dashboard/FirstSteps.tsx.
+ */
+export interface FirstStepItemProps {
   number: number;
   title: string;
   description: string;
-  children: ReactNode;
+  done: boolean;
+  children?: ReactNode;
   note?: string;
+}
+
+/**
+ * Props da janela "Testar o formulário".
+ * Usado em: components/user/pages/dashboard/TestFormDialog.tsx.
+ */
+export interface TestFormDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  feedbackUrl: string;
+  onResult: (result: EmbeddedFormResult) => void;
 }
 
 /**
