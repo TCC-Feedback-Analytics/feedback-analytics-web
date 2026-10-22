@@ -18,6 +18,9 @@ import type { QrCodeEnterpriseActionResponse } from 'pages/user/qrcodes/ui.types
 
 const actionClass =
   'inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-(--primary-color)/30 bg-(--primary-color)/10 px-3 py-1.5 text-xs font-semibold text-(--primary-color) transition-colors hover:bg-(--primary-color)/18 disabled:cursor-not-allowed disabled:opacity-60';
+/** Tempo do "Tudo pronto" antes de o cartão sair do Dashboard. */
+const CLOSE_AFTER_DONE_MS = 4000;
+
 const primaryActionClass =
   'inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-(--primary-color) px-3.5 py-2 text-xs font-semibold text-(--on-primary) transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60';
 
@@ -61,7 +64,16 @@ export default function FirstSteps({ enterprise, steps, onFeedbackSent }: FirstS
   const { feedbackUrl, showCopied, download, copyLink, share } = useEnterpriseFeedbackLink(enterprise);
   const revalidator = useRevalidator();
   const [testing, setTesting] = useState(false);
-  const { status, done, total, allDone, mark, markQrActivated } = steps;
+  const { status, done, total, allDone, mark, markQrActivated, close } = steps;
+
+  // Tudo concluído: mostra o "Tudo pronto" por um instante e sai sozinho, sem recarregar.
+  useEffect(() => {
+    if (!allDone) return;
+    const id = setTimeout(close, CLOSE_AFTER_DONE_MS);
+    return () => clearTimeout(id);
+    // close muda a cada render; basta reagir à conclusão.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allDone]);
 
   // Ativa o QR geral ali mesmo, pela action da tela Avaliação da empresa.
   const qrFetcher = useFetcher<QrCodeEnterpriseActionResponse>();
@@ -110,6 +122,11 @@ export default function FirstSteps({ enterprise, steps, onFeedbackSent }: FirstS
             ? 'Seu formulário está no ar. Agora é esperar as respostas dos clientes.'
             : 'Faça estes passos para começar a receber a opinião dos seus clientes.'}
         </p>
+        {allDone && (
+          <button type="button" onClick={close} className={primaryActionClass}>
+            Ver o painel
+          </button>
+        )}
         <div className="space-y-1">
           <p className="text-xs font-semibold text-(--text-primary)">
             {done} de {total} concluídos
