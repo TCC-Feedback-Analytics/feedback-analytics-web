@@ -65,7 +65,7 @@ export default function AIContextProfileCard() {
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-xl border border-(--quaternary-color)/10 bg-(--seventh-color)/40 p-4">
           <span className="text-[11px] font-semibold text-(--primary-color) uppercase tracking-wider">
-            1. Resumo do Negócio
+            1. Seu negócio
           </span>
           <p className="mt-2 text-xs leading-relaxed text-(--text-secondary) line-clamp-3">
             {businessSummary || <span className="italic text-(--text-tertiary)">Não preenchido</span>}
@@ -74,7 +74,7 @@ export default function AIContextProfileCard() {
 
         <div className="rounded-xl border border-(--quaternary-color)/10 bg-(--seventh-color)/40 p-4">
           <span className="text-[11px] font-semibold text-(--primary-color) uppercase tracking-wider">
-            2. Objetivo da Empresa
+            2. Sua meta
           </span>
           <p className="mt-2 text-xs leading-relaxed text-(--text-secondary) line-clamp-3">
             {companyObjective || <span className="italic text-(--text-tertiary)">Não preenchido</span>}
@@ -83,7 +83,7 @@ export default function AIContextProfileCard() {
 
         <div className="rounded-xl border border-(--quaternary-color)/10 bg-(--seventh-color)/40 p-4">
           <span className="text-[11px] font-semibold text-(--primary-color) uppercase tracking-wider">
-            3. Objetivo Analítico
+            3. O que descobrir
           </span>
           <p className="mt-2 text-xs leading-relaxed text-(--text-secondary) line-clamp-3">
             {analyticsGoal || <span className="italic text-(--text-tertiary)">Não preenchido</span>}

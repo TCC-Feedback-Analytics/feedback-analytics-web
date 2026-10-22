@@ -1,70 +1,21 @@
-import { useFetcher } from 'react-router-dom';
-import {
-  FaArrowUpRightFromSquare,
-  FaCheck,
-  FaCompass,
-  FaDownload,
-  FaLink,
-  FaPlay,
-  FaShareNodes,
-  FaSpinner,
-} from 'react-icons/fa6';
-import { INTENT_QR_ENABLE } from 'src/lib/constants/routes/intents';
-import { useEnterpriseFeedbackLink } from 'src/lib/hooks/useEnterpriseFeedbackLink';
+import { FaCompass } from 'react-icons/fa6';
 import { MIN_FEEDBACKS_FOR_AI } from 'src/lib/utils/feedbackMilestones';
 import QrGlyph from './QrGlyph';
-import type { DashboardWelcomeProps, WelcomeStepProps } from './ui.types';
-import type { QrCodeEnterpriseActionResponse } from 'pages/user/qrcodes/ui.types';
-
-const actionClass =
-  'inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-(--primary-color)/30 bg-(--primary-color)/10 px-3 py-1.5 text-xs font-semibold text-(--primary-color) transition-colors hover:bg-(--primary-color)/18';
-
-function WelcomeStep({ number, title, description, note, children }: WelcomeStepProps) {
-  return (
-    <li className="flex gap-3 rounded-xl border border-(--quaternary-color)/10 bg-(--bg-primary)/45 p-4">
-      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-(--primary-color)/15 text-xs font-bold text-(--primary-color)">
-        {number}
-      </span>
-      <div className="min-w-0 space-y-2">
-        <div>
-          <h3 className="text-sm font-semibold text-(--text-primary)">{title}</h3>
-          <p className="text-xs text-(--text-secondary)">{description}</p>
-        </div>
-        <div className="flex flex-wrap gap-2">{children}</div>
-        {note && <p className="text-[11px] text-(--text-tertiary)">{note}</p>}
-      </div>
-    </li>
-  );
-}
+import type { DashboardWelcomeProps } from './ui.types';
 
 /**
  * Boas-vindas da conta que ainda não tem nenhum feedback: no lugar de três
- * seções vazias, uma animação "aguardando", os passos para começar a coletar e
- * o progresso até a IA poder analisar os comentários.
+ * seções vazias, uma animação "aguardando" e o progresso até a IA poder analisar
+ * os comentários. Os passos para começar ficam acima, em "Primeiros passos".
  */
-export default function DashboardWelcome({ enterprise, qrActive, totalFeedbacks, onStartGuide }: DashboardWelcomeProps) {
-  const { feedbackUrl, showCopied, download, copyLink, share } = useEnterpriseFeedbackLink(enterprise);
+export default function DashboardWelcome({ totalFeedbacks, onStartGuide }: DashboardWelcomeProps) {
   const collected = Math.min(totalFeedbacks, MIN_FEEDBACKS_FOR_AI);
   const progressPct = Math.round((collected / MIN_FEEDBACKS_FOR_AI) * 100);
-  // Ativa o QR geral ali mesmo, pela action da tela Avaliação da empresa. O passo fica
-  // na lista como concluído, para os números dos passos seguintes não mudarem.
-  const qrFetcher = useFetcher<QrCodeEnterpriseActionResponse>();
-  const activating = qrFetcher.state !== 'idle';
-  const activatedHere = qrFetcher.data?.ok === true && qrFetcher.data.active === true;
-  const activateError = qrFetcher.data?.error ?? null;
-  const showActivateStep = qrActive === false || activatedHere;
-  const qrInactive = qrActive === false && !activatedHere;
-  const firstShareStep = showActivateStep ? 2 : 1;
-  const inactiveNote = qrInactive ? 'Ative o QR Code para os clientes conseguirem responder.' : undefined;
-
-  const activateQr = () => {
-    qrFetcher.submit({ intent: INTENT_QR_ENABLE }, { method: 'post', action: '/user/edit/feedback-general' });
-  };
 
   return (
     <section
       aria-labelledby="dashboard-welcome-title"
-      className="font-work-sans space-y-6 rounded-3xl border border-(--primary-color)/18 bg-linear-to-br from-(--primary-color)/10 via-(--bg-secondary) to-(--sixth-color) p-5 sm:p-7"
+      className="font-work-sans rounded-3xl border border-(--primary-color)/18 bg-linear-to-br from-(--primary-color)/10 via-(--bg-secondary) to-(--sixth-color) p-5 sm:p-7"
     >
       <div className="flex flex-col items-center gap-6 md:flex-row md:items-center">
         <figure className="flex shrink-0 flex-col items-center gap-3">
@@ -122,65 +73,6 @@ export default function DashboardWelcome({ enterprise, qrActive, totalFeedbacks,
             </p>
           </div>
         </div>
-      </div>
-
-      <div className="space-y-3">
-        <h3 className="font-montserrat text-base font-semibold text-(--text-primary)">Primeiros passos</h3>
-        <ol className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          {showActivateStep && (
-            <WelcomeStep
-              number={1}
-              title={activatedHere ? 'QR Code ativado' : 'Ativar o QR Code geral'}
-              description={activatedHere
-                ? 'Pronto: os clientes já conseguem responder pelo QR Code e pelo link.'
-                : 'Ele está desativado, então os clientes ainda não conseguem responder.'}
-              note={activateError ?? undefined}
-            >
-              {activatedHere ? (
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-(--positive)">
-                  <FaCheck aria-hidden /> Ativado
-                </span>
-              ) : (
-                <button type="button" onClick={activateQr} disabled={activating} className={`${actionClass} disabled:cursor-not-allowed disabled:opacity-60`}>
-                  {activating ? <FaSpinner aria-hidden className="animate-spin" /> : <FaPlay aria-hidden />} {activating ? 'Ativando…' : 'Ativar QR Code'}
-                </button>
-              )}
-            </WelcomeStep>
-          )}
-          <WelcomeStep
-            number={firstShareStep}
-            title="Baixar o QR Code"
-            description="Imprima e coloque no balcão, na mesa ou na embalagem."
-            note={inactiveNote}
-          >
-            <button type="button" onClick={download} className={actionClass}>
-              <FaDownload aria-hidden /> Baixar QR Code
-            </button>
-          </WelcomeStep>
-          <WelcomeStep
-            number={firstShareStep + 1}
-            title="Compartilhar o link do formulário"
-            description="Mande por WhatsApp, e-mail ou redes sociais."
-            note={inactiveNote}
-          >
-            <button type="button" onClick={copyLink} className={actionClass}>
-              {showCopied ? <FaCheck aria-hidden /> : <FaLink aria-hidden />} {showCopied ? 'Link copiado!' : 'Copiar link'}
-            </button>
-            <button type="button" onClick={share} className={actionClass}>
-              <FaShareNodes aria-hidden /> Compartilhar
-            </button>
-          </WelcomeStep>
-          <WelcomeStep
-            number={firstShareStep + 2}
-            title="Ver o formulário como o cliente"
-            description="Confira como seus clientes vão responder."
-            note={inactiveNote ?? 'Se você enviar uma resposta, ela conta como um feedback real.'}
-          >
-            <a href={feedbackUrl} target="_blank" rel="noopener noreferrer" className={actionClass}>
-              <FaArrowUpRightFromSquare aria-hidden /> Abrir formulário
-            </a>
-          </WelcomeStep>
-        </ol>
       </div>
     </section>
   );

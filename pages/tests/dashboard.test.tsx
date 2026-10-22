@@ -275,7 +275,11 @@ describe('[Unidade] Dashboard Page', () => {
     );
 
     expect(await screen.findByRole('region', { name: 'Seu painel está pronto. Falta o primeiro feedback.' })).toBeInTheDocument();
-    expect(screen.getByText('Vamos coletar os primeiros feedbacks.')).toBeInTheDocument();
+    // Os Primeiros passos vêm logo abaixo do cabeçalho, e o atalho do QR do cabeçalho sai.
+    expect(screen.getByText('Faltam 3 passos para começar a receber feedbacks.')).toBeInTheDocument();
+    const firstSteps = screen.getByRole('region', { name: 'Primeiros passos' });
+    expect(firstSteps.compareDocumentPosition(screen.getByRole('region', { name: 'Seu painel está pronto. Falta o primeiro feedback.' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByRole('link', { name: /Compartilhar o formulário de feedback pelo QR Code/ })).not.toBeInTheDocument();
 
     const preview = screen.getByRole('region', { name: 'O que vai aparecer aqui' });
     // As perguntas são as reais do formulário, só as ativas e na ordem.
