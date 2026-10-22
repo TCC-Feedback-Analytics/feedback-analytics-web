@@ -1,4 +1,4 @@
-import { getJson, putJson, patchJson, deleteJson } from 'src/lib/utils/http';
+import { getJson, putJson, patchJson, deleteJson, postJson } from 'src/lib/utils/http';
 import type { QuestionsGenerationResult } from 'src/services/serviceFeedbacks';
 
 export interface IaConfigResponse {
@@ -54,4 +54,9 @@ export function ServiceUpdateIaConfig(
 
 export function ServiceDeleteIaConfig(): Promise<IaConfigResponse> {
   return deleteJson<IaConfigResponse>('/api/protected/user/ia-config');
+}
+
+/** "Conectar com OpenRouter": manda o código do OAuth e o verificador; o gateway troca pela chave. */
+export function ServiceConnectOpenRouter(payload: { code: string; codeVerifier: string; model?: string }): Promise<IaConfigResponse> {
+  return postJson<IaConfigResponse>('/api/protected/user/ia-config/openrouter/connect', payload);
 }

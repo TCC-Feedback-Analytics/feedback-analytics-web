@@ -5,6 +5,7 @@ const messages: Record<string, string> = {
   ia_models_forbidden: 'O OpenRouter bloqueou a consulta de modelos. Confira as permissões e restrições da sua chave na conta OpenRouter.',
   ia_config_required: 'É necessário configurar uma chave OpenRouter. Recarregue a configuração antes de continuar.',
   ia_config_changed: 'A configuração foi alterada em outra operação. Recarregue antes de tentar novamente.',
+  openrouter_connect_failed: 'O OpenRouter não confirmou a conexão (o pedido pode ter expirado). Tente conectar de novo.',
   enterprise_not_found: 'Empresa não encontrada.',
   unauthorized: 'Sua sessão expirou. Entre novamente para configurar a IA.',
 };

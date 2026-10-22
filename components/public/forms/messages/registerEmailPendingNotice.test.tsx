@@ -90,3 +90,27 @@ describe('reenvio após o cadastro', () => {
     );
   });
 });
+
+describe('tela depois do cadastro', () => {
+  it('e-mail do Gmail: botão que abre a caixa de entrada numa aba nova, sem o aviso longo', () => {
+    render(
+      <MemoryRouter>
+        <RegisterEmailPendingNotice email="pessoa@gmail.com" />
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole('heading', { name: 'Confirme seu e-mail' })).toBeInTheDocument();
+    const open = screen.getByRole('link', { name: /Abrir o Gmail/ });
+    expect(open).toHaveAttribute('href', 'https://mail.google.com/mail/u/0/#inbox');
+    expect(open).toHaveAttribute('target', '_blank');
+    expect(open).toHaveAttribute('rel', 'noopener noreferrer');
+    expect(screen.queryByText(/Atenção!/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Esqueceu a senha?' })).not.toBeInTheDocument();
+  });
+
+  it('e-mail de empresa: sem botão de provedor, com o reenvio e o login', () => {
+    showNotice();
+    expect(screen.queryByRole('link', { name: /Abrir o/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Reenviar e-mail de confirmação' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Ir para login/ })).toHaveAttribute('href', '/login');
+  });
+});

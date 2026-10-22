@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import GoogleSignInButton from './GoogleSignInButton';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import {
@@ -283,6 +284,10 @@ export default function FormLogin() {
   };
 
   return (
+    <>
+    <div className="mb-6">
+      <GoogleSignInButton />
+    </div>
     <form
       onSubmit={handleSubmit(onSubmit)}
       className="space-y-6 font-work-sans"
@@ -400,5 +405,6 @@ export default function FormLogin() {
         </Dialog>
       </div>
     </form>
+    </>
   );
 }

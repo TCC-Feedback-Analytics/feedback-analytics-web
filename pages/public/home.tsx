@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { PRIVACY_PATH, TERMS_PATH } from 'src/lib/constants/legal';
 
 export default function Home() {
   const [showVideo, setShowVideo] = useState(false);
@@ -168,6 +169,10 @@ export default function Home() {
 
         <footer className="container mx-auto flex items-center justify-between px-6 pb-10 text-xs text-(--text-tertiary) font-work-sans">
           <span>Feedback Analytics</span>
+          <nav className="flex items-center gap-4" aria-label="Documentos legais">
+            <Link to={PRIVACY_PATH} className="hover:text-(--text-secondary)">Privacidade</Link>
+            <Link to={TERMS_PATH} className="hover:text-(--text-secondary)">Termos</Link>
+          </nav>
           <span>Versão: {__APP_VERSION__}</span>
         </footer>
       </div>

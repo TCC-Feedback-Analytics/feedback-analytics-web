@@ -14,6 +14,7 @@ import type { ActionData } from 'lib/interfaces/contracts/action-data.contract';
 import { FaSpinner } from 'react-icons/fa6';
 import { useToast } from 'components/public/forms/messages/useToast';
 import RegisterEmailPendingNotice from './messages/registerEmailPendingNotice';
+import GoogleSignInButton from './GoogleSignInButton';
 import { PASSWORD_TOO_WEAK_MESSAGE } from 'lib/schemas/public/passwordPolicy';
 import { getPasswordStrength, loadPasswordScorer, userInputTokens } from 'src/lib/utils/passwordStrength';
 import type { RegisterErrorMessage, RegisterIssue } from './ui.types';
@@ -446,6 +447,9 @@ export default function FormRegister() {
 
   return (
     <div>
+      <div className="mb-5">
+        <GoogleSignInButton label="Criar conta com Google" />
+      </div>
       <form
         onSubmit={handleSubmit(onSubmit)}
         noValidate
@@ -501,7 +505,6 @@ export default function FormRegister() {
         <FieldTermsRegister
           id="terms"
           name="terms"
-          label="Concordo com os Termos de Serviço e a Política de Privacidade"
           register={register('terms')}
           error={errors.terms?.message as string | undefined}
         />
