@@ -163,12 +163,31 @@ describe('[Unidade] Primeiros passos do Dashboard', () => {
     expect(screen.getByRole('button', { name: /Testar de novo/ })).toBeInTheDocument();
   });
 
-  it('concluir o último passo mostra "Tudo pronto" sem sumir da tela', () => {
+  it('concluir o último passo mostra "Tudo pronto" e o cartão sai sozinho, sem recarregar', () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      saveFirstStepMarks(enterprise.id, { tested: true, downloaded: true, shared: false });
+      renderSteps(true, 1);
+      fireEvent.click(screen.getByRole('button', { name: /Copiar link/ }));
+      expect(screen.getByRole('region', { name: 'Tudo pronto ✓' })).toBeInTheDocument();
+      expect(screen.getByText('4 de 4 concluídos')).toBeInTheDocument();
+
+      act(() => {
+        vi.advanceTimersByTime(4000);
+      });
+      expect(screen.queryByRole('region', { name: 'Tudo pronto ✓' })).not.toBeInTheDocument();
+      expect(screen.getByText('Sem primeiros passos')).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('"Ver o painel" tira o cartão na hora', () => {
     saveFirstStepMarks(enterprise.id, { tested: true, downloaded: true, shared: false });
     renderSteps(true, 1);
     fireEvent.click(screen.getByRole('button', { name: /Copiar link/ }));
-    expect(screen.getByRole('region', { name: 'Tudo pronto ✓' })).toBeInTheDocument();
-    expect(screen.getByText('4 de 4 concluídos')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Ver o painel' }));
+    expect(screen.getByText('Sem primeiros passos')).toBeInTheDocument();
   });
 
   it('some quando tudo já estava pronto ou a conta já tem 10 feedbacks', () => {

@@ -11,7 +11,7 @@ import {
 /**
  * Estado dos "Primeiros passos" do Dashboard. O cartão aparece enquanto a conta
  * tem menos de 10 feedbacks e algum passo está pendente; concluído nesta visita,
- * fica até sair da tela, como "Tudo pronto".
+ * mostra "Tudo pronto" por alguns segundos e sai sozinho (`close`).
  */
 export function useFirstSteps({
   enterpriseId,
@@ -24,6 +24,7 @@ export function useFirstSteps({
 }) {
   const [marks, setMarks] = useState(() => readFirstStepMarks(enterpriseId));
   const [qrActivatedHere, setQrActivatedHere] = useState(false);
+  const [closed, setClosed] = useState(false);
 
   useEffect(() => {
     setMarks(readFirstStepMarks(enterpriseId));
@@ -52,7 +53,7 @@ export function useFirstSteps({
   );
 
   const visible =
-    Boolean(enterpriseId) && accountTotal !== null && accountTotal < MIN_FEEDBACKS_FOR_AI && !doneOnArrival;
+    Boolean(enterpriseId) && accountTotal !== null && accountTotal < MIN_FEEDBACKS_FOR_AI && !doneOnArrival && !closed;
 
   return {
     status,
@@ -63,6 +64,7 @@ export function useFirstSteps({
     visible,
     mark,
     markQrActivated: () => setQrActivatedHere(true),
+    close: () => setClosed(true),
   };
 }
 
