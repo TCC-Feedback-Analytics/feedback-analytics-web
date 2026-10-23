@@ -224,9 +224,9 @@ export default function Dashboard() {
   return (
     <div className="font-work-sans space-y-6">
       <CardSimple type="header">
-        <div className="flex-1 space-y-2">
+        <div className="min-w-0 flex-1 space-y-2">
           <p className="text-xs uppercase tracking-wide text-(--text-tertiary)">Visão geral</p>
-          <h1 className="font-montserrat text-xl font-semibold text-(--text-primary) md:text-2xl">
+          <h1 className="font-montserrat text-lg font-semibold text-(--text-primary) sm:text-xl md:text-2xl">
             Olá, {displayName}
           </h1>
           <p className="flex items-center gap-1.5 text-sm text-(--text-secondary)">
@@ -245,14 +245,14 @@ export default function Dashboard() {
           </p>
           <Link
             to="/user/feedbacks/all"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-(--text-secondary) transition-colors hover:text-(--text-primary)">
+            className="inline-flex min-h-11 w-full items-center gap-1.5 text-sm font-medium text-(--text-secondary) transition-colors hover:text-(--text-primary) sm:min-h-0 sm:w-auto">
             Ver feedbacks
             <FaArrowRight className="text-[0.6rem]" />
           </Link>
         </div>
         {/* Na conta nova, o compartilhar está nos Primeiros passos logo abaixo. */}
         {!showFirstSteps && (
-          <div className="md:self-center">
+          <div className="w-full md:w-auto md:self-center">
             <ShareQrCard to={shareFormPath} />
           </div>
         )}
@@ -313,7 +313,7 @@ export default function Dashboard() {
             aria-labelledby="dashboard-comments-title"
             data-tour="tour-dashboard-comments"
           >
-            <header className="flex flex-wrap items-center justify-between gap-3">
+            <header className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
               <h2 id="dashboard-comments-title" className="font-montserrat text-lg font-semibold text-(--text-primary)">
                 Análise dos comentários <span className="text-sm font-medium text-(--primary-color)">✨ IA</span>
               </h2>
@@ -356,10 +356,10 @@ export default function Dashboard() {
               )}
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex w-full justify-end">
               <Link
                 to="/user/insights/overview"
-                className="inline-flex items-center gap-1.5 text-sm text-(--text-secondary) transition-colors hover:text-(--text-primary)"
+                className="inline-flex min-h-11 w-full items-center gap-1.5 text-sm text-(--text-secondary) transition-colors hover:text-(--text-primary) sm:min-h-0 sm:w-auto"
               >
                 Ver a análise completa dos comentários
                 <FaArrowRight className="text-xs" aria-hidden />
