@@ -140,14 +140,19 @@ export default function UserInteractiveTour({
     updateSpotlight();
     const timer = setTimeout(updateSpotlight, 200);
     const interval = setInterval(updateSpotlight, 800);
+    const visualViewport = window.visualViewport;
     window.addEventListener("resize", updateSpotlight);
     window.addEventListener("scroll", updateSpotlight);
+    visualViewport?.addEventListener("resize", updateSpotlight);
+    visualViewport?.addEventListener("scroll", updateSpotlight);
 
     return () => {
       clearTimeout(timer);
       clearInterval(interval);
       window.removeEventListener("resize", updateSpotlight);
       window.removeEventListener("scroll", updateSpotlight);
+      visualViewport?.removeEventListener("resize", updateSpotlight);
+      visualViewport?.removeEventListener("scroll", updateSpotlight);
     };
   }, [updateSpotlight, currentTourStep, location.pathname]);
 
@@ -157,15 +162,14 @@ export default function UserInteractiveTour({
   const popoverStyle: React.CSSProperties = (() => {
     const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
 
-    // Celular: o balão fica preso embaixo, com os botões sempre à vista; se o
-    // destaque estiver na metade de baixo (ex.: o menu que abre de baixo), em cima.
+    // Celular: o balão permanece sempre na parte inferior. Assim, os controles
+    // não alternam de posição entre as etapas e ficam acessíveis ao polegar.
     if (isMobile) {
-      const dockTop = rect ? rect.top + rect.height / 2 > viewportHeight / 2 : false;
       return {
         position: "fixed",
         left: "50%",
         transform: "translateX(-50%)",
-        ...(dockTop ? { top: "16px" } : { bottom: "calc(16px + env(safe-area-inset-bottom))" }),
+        bottom: "calc(5.5rem + env(safe-area-inset-bottom))",
       };
     }
 
@@ -268,14 +272,14 @@ export default function UserInteractiveTour({
       <div
         ref={popoverRef}
         style={popoverStyle}
-        className={`pointer-events-auto z-50 flex w-[calc(100vw-32px)] max-w-[360px] flex-col rounded-2xl border border-(--primary-color)/30 bg-(--bg-secondary) shadow-xl backdrop-blur-md transition-all duration-200 ${
-          isMobile ? "max-h-[45dvh] p-3" : "max-h-[calc(100dvh-32px)] p-4"
+        className={`pointer-events-auto z-50 flex w-[calc(100vw-24px)] max-w-[360px] flex-col overflow-hidden rounded-2xl border border-(--primary-color)/30 bg-(--bg-secondary) shadow-xl backdrop-blur-md transition-all duration-200 sm:w-[calc(100vw-32px)] ${
+          isMobile ? "max-h-[48dvh] p-3.5" : "max-h-[calc(100dvh-32px)] p-4"
         }`}
       >
         {/* Celular: balão compacto (~150px) para não cobrir a tela. Texto curto,
             "Ver mais" para o completo, progresso numa barra e botões menores. */}
         {isMobile && (
-          <div className="flex min-h-0 flex-col gap-2">
+          <div className="flex min-h-0 flex-1 flex-col gap-2.5">
             <div className="flex shrink-0 items-center gap-2">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-(--primary-color)/15 text-(--primary-color) ring-1 ring-(--primary-color)/30 text-xs font-bold">
                 <IconComponent className="text-xs" />
@@ -298,7 +302,7 @@ export default function UserInteractiveTour({
               </button>
             </div>
 
-            <div className="min-h-0 overflow-y-auto">
+            <div className="min-h-0 flex-1 overscroll-contain overflow-y-auto pr-1">
               <p className="font-inter text-xs leading-relaxed text-(--text-secondary)">
                 {expanded ? description : mobileSummary}
               </p>
@@ -307,7 +311,7 @@ export default function UserInteractiveTour({
                   type="button"
                   aria-expanded={expanded}
                   onClick={() => setExpandedStep(expanded ? null : currentTourStep)}
-                  className="mt-1 text-[11px] font-semibold text-(--primary-color)"
+                  className="mt-1 inline-flex min-h-9 items-center text-[11px] font-semibold text-(--primary-color)"
                 >
                   {expanded ? "Ver menos" : "Ver mais"}
                 </button>
@@ -338,7 +342,7 @@ export default function UserInteractiveTour({
                 onClick={prevTourStep}
                 disabled={currentTourStep === 0}
                 aria-label="Anterior"
-                className="btn-ghost flex h-9 w-9 shrink-0 items-center justify-center disabled:cursor-not-allowed disabled:opacity-30"
+                className="btn-ghost flex h-10 w-10 shrink-0 items-center justify-center disabled:cursor-not-allowed disabled:opacity-30"
               >
                 <FaChevronLeft className="text-[10px]" />
               </button>
@@ -346,7 +350,7 @@ export default function UserInteractiveTour({
                 type="button"
                 onClick={handleActionClick}
                 disabled={isTourSaving}
-                className="btn-primary font-poppins flex h-9 shrink-0 items-center justify-center gap-1 px-4 text-xs font-semibold shadow-xs"
+                className="btn-primary font-poppins flex h-10 shrink-0 items-center justify-center gap-1 px-4 text-xs font-semibold shadow-xs"
               >
                 <span>{isTourSaving ? "Salvando..." : isLast ? "Entendi" : "Próximo"}</span>
                 {!isLast && <FaChevronRight className="text-[9px]" />}

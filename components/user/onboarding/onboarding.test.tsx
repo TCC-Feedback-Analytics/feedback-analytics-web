@@ -475,8 +475,10 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
       );
 
       const card = (await screen.findByText("Dashboard de Resultados")).closest("[style]") as HTMLElement;
-      expect(card.style.bottom).toContain("16px");
-      expect(card.className).toContain("max-h-[45dvh]");
+      expect(card.style.bottom).toContain("5.5rem");
+      expect(card.style.bottom).toContain("safe-area-inset-bottom");
+      expect(card.style.top).toBe("");
+      expect(card.className).toContain("max-h-[48dvh]");
       expect(screen.getByText("Próximo")).toBeInTheDocument();
 
       // Balão compacto: texto curto, contador e barra de progresso no lugar dos 16 pontos.
