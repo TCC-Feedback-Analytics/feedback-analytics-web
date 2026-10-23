@@ -2,6 +2,7 @@ import {
   FaMagnifyingGlass,
   FaStar,
   FaListOl,
+  FaSliders,
 } from 'react-icons/fa6';
 import { Input } from 'components/ui/input';
 import { Select, type SelectOption } from 'components/ui/select';
@@ -32,8 +33,16 @@ export default function FeedbackFilters({
   onLimitChange,
 }: FeedbackFiltersProps) {
   return (
-    <div className="font-work-sans relative z-30 overflow-visible rounded-2xl border border-(--quaternary-color)/10 bg-gradient-to-br from-(--bg-secondary) to-(--sixth-color) p-4 md:p-5 glass-card">
-      <div className="flex flex-wrap items-center gap-3">
+    <section className="font-work-sans relative z-30 space-y-4 overflow-visible rounded-2xl border border-(--quaternary-color)/10 bg-gradient-to-br from-(--bg-secondary) to-(--sixth-color) p-4 sm:p-5 glass-card" aria-labelledby="feedback-filters-title">
+      <div>
+        <h2 id="feedback-filters-title" className="flex items-center gap-2 text-sm font-semibold text-(--text-primary)">
+          <FaSliders className="text-(--primary-color)" aria-hidden />
+          Filtrar feedbacks
+        </h2>
+        <p className="mt-1 text-xs text-(--text-tertiary)">Busque por comentário, escopo ou nota para encontrar uma resposta rapidamente.</p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 sm:flex sm:flex-wrap sm:items-center">
         {/* Busca por mensagem */}
         <div className="w-full sm:w-auto min-w-[200px] flex-1 basis-56">
           <Input
@@ -69,9 +78,9 @@ export default function FeedbackFilters({
         </div>
 
         {/* Itens por página */}
-        <div className="flex items-center gap-2 sm:ml-auto">
+        <div className="grid grid-cols-[1fr_5.5rem] items-center gap-2 sm:ml-auto sm:flex">
           <span className="text-xs sm:text-sm text-[var(--text-tertiary)] shrink-0">Por página:</span>
-          <div className="w-20">
+          <div className="w-full sm:w-20">
             <Select
               options={LIMIT_OPTIONS}
               value={filters.limit}
@@ -82,6 +91,6 @@ export default function FeedbackFilters({
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
