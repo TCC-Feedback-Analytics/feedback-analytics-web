@@ -18,7 +18,7 @@ export default function FieldPhoneRegister({
     <div className="space-y-1">
       <Label
         htmlFor={name}
-        className="flex items-center gap-2 pl-2 text-sm text-(--text-secondary) font-work-sans font-normal"
+        className="flex cursor-pointer items-center gap-2 text-xs font-semibold text-(--text-secondary)"
       >
         <span>{label}</span>
       </Label>
@@ -28,7 +28,7 @@ export default function FieldPhoneRegister({
         inputMode="tel"
         error={!!error}
         aria-invalid={error ? true : undefined}
-        className="font-poppins"
+        className="h-12 rounded-xl border-(--primary-color)/20 bg-(--bg-tertiary) font-poppins"
         {...register}
         value={display}
         onChange={(e) => {

@@ -1,6 +1,6 @@
-import Card from 'components/public/shared/card';
-import SVGLock from 'components/svg/lock';
+import AuthShell from 'components/public/shared/AuthShell';
 import { useEffect } from 'react';
+import { FaArrowRight, FaCircleCheck } from 'react-icons/fa6';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function AuthSuccess() {
@@ -22,29 +22,18 @@ export default function AuthSuccess() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-(--bg-primary) p-4">
-      <div className="w-full max-w-2xl">
-        <Card
-          icon={<SVGLock />}
-          title="Conta verificada"
-          text="Sua conta foi confirmada com sucesso. Redirecionando para o dashboard..."
-          children={
-            <div className="mt-6">
-              <Link
-                to={params.get('next') ?? '/user/dashboard'}
-                className="flex h-12 w-full items-center justify-center rounded-lg border border-(--primary-color)/40 bg-gradient-to-r from-(--primary-color) to-(--tertiary-color) font-medium text-white transition-opacity duration-150 hover:opacity-90 active:translate-y-px">
-                Ir agora
-              </Link>
-            </div>
-          }
-          linkLogin="/login"
-        />
-      </div>
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-40 -right-32 h-80 w-80 rounded-full bg-(--primary-color)/10" />
-        <div className="absolute -bottom-40 -left-32 h-80 w-80 rounded-full bg-(--secondary-color)/10" />
-        <div className="absolute top-1/2 left-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-(--tertiary-color)/8" />
-      </div>
-    </div>
+    <AuthShell
+      icon={<FaCircleCheck className="h-4 w-4" aria-hidden />}
+      title="Conta verificada"
+      description="Sua conta foi confirmada com sucesso. Redirecionando para o dashboard..."
+      eyebrow="TUDO CERTO"
+    >
+      <Link
+        to={params.get('next') ?? '/user/dashboard'}
+        className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-(--primary-color) text-sm font-bold text-(--on-primary) shadow-[0_8px_18px_rgba(53,208,195,0.18)] transition-all hover:brightness-105 active:scale-[0.99]"
+      >
+        Ir agora <FaArrowRight className="h-3.5 w-3.5" aria-hidden />
+      </Link>
+    </AuthShell>
   );
 }

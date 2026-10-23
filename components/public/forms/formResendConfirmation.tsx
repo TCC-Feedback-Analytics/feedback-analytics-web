@@ -80,7 +80,7 @@ export default function FormResendConfirmation() {
     <form
       onSubmit={handleSubmit(onSubmit)}
       noValidate
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-4 font-inter"
     >
       {requestAccepted ? (
         <div
@@ -105,7 +105,7 @@ export default function FormResendConfirmation() {
       <div className="flex flex-col gap-1">
         <Label
           htmlFor="email"
-          className="text-sm font-medium text-(--text-secondary)"
+          className="text-xs font-semibold text-(--text-secondary)"
         >
           E-mail
         </Label>
@@ -122,7 +122,7 @@ export default function FormResendConfirmation() {
             aria-invalid={!!errors.email}
             aria-describedby={errors.email ? 'email-error' : undefined}
             {...register('email')}
-            className="pl-9 pr-4"
+            className="h-12 rounded-xl border-(--primary-color)/20 bg-(--bg-tertiary) pl-9 pr-4"
           />
         </div>
         {errors.email ? (
@@ -146,7 +146,7 @@ export default function FormResendConfirmation() {
         type="submit"
         disabled={isSubmitting || remainingSeconds > 0}
         aria-busy={isSubmitting}
-        className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-(--primary-color) to-(--tertiary-color) font-poppins font-medium text-white transition-opacity hover:opacity-90 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-(--primary-color) font-poppins text-sm font-bold text-(--on-primary) shadow-[0_8px_18px_rgba(53,208,195,0.18)] transition-all hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isSubmitting ? (
           <>
@@ -164,7 +164,7 @@ export default function FormResendConfirmation() {
         Já confirmou seu e-mail?{' '}
         <Link
           to="/login"
-          className="font-medium text-(--secondary-color) transition-opacity hover:opacity-80"
+          className="font-semibold text-(--primary-color) transition-opacity hover:opacity-80"
         >
           Voltar ao login
         </Link>

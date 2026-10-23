@@ -1,110 +1,44 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import Register from '../public/register';
 
-// Mock dos componentes filhos
-vi.mock('components/svg/lock', () => ({
-  default: () => <div data-testid="svg-lock">Lock Icon</div>,
-}));
-
-vi.mock('components/public/shared/card', () => ({
-  default: ({
-    title,
-    text,
-    children,
-    linkLogin,
-    icon,
-  }: {
-    title: string;
-    text: string;
-    children: React.ReactNode;
-    linkLogin?: string;
-    icon: React.ReactNode;
-  }) => (
-    <div data-testid="card-form">
-      <div data-testid="card-title">{title}</div>
-      <div data-testid="card-text">{text}</div>
-      <div data-testid="card-icon">{icon}</div>
-      <div data-testid="card-form-content">{children}</div>
-      {linkLogin && (
-        <a
-          href={linkLogin}
-          data-testid="login-link">
-          Login Link
-        </a>
-      )}
-    </div>
-  ),
-}));
+vi.mock('react-router-dom', async () => vi.importActual<typeof import('react-router-dom')>('react-router-dom'));
 
 vi.mock('components/public/forms/formRegister', () => ({
   default: () => <div data-testid="form-register">Register Form</div>,
 }));
 
-describe('[Unidade] Register Page', () => {
-  it('deve renderizar todos os elementos principais da página', () => {
-    render(<Register />);
+function renderRegister() {
+  return render(<Register />, { wrapper: MemoryRouter });
+}
 
-    expect(screen.getByTestId('card-form')).toBeInTheDocument();
-    expect(screen.getByTestId('card-title')).toHaveTextContent(
-      'Crie sua conta',
-    );
-    expect(screen.getByTestId('card-text')).toHaveTextContent(
-      'Leve, moderno e intuitivo - comece em minutos',
-    );
+describe('[Unidade] Register Page', () => {
+  it('deve renderizar a hierarquia principal da conta', () => {
+    renderRegister();
+
+    expect(screen.getByRole('heading', { name: 'Crie sua conta' })).toBeInTheDocument();
+    expect(screen.getByText('NOVA CONTA')).toBeInTheDocument();
+    expect(screen.getByText('Comece em minutos e transforme opiniões em decisões melhores.')).toBeInTheDocument();
   });
 
   it('deve renderizar o formulário de registro', () => {
-    render(<Register />);
+    renderRegister();
 
-    expect(screen.getByTestId('form-register')).toBeInTheDocument();
-    expect(screen.getByTestId('form-register')).toHaveTextContent(
-      'Register Form',
-    );
-  });
-
-  it('deve renderizar o ícone de cadeado', () => {
-    render(<Register />);
-
-    expect(screen.getByTestId('svg-lock')).toBeInTheDocument();
+    expect(screen.getByTestId('form-register')).toHaveTextContent('Register Form');
   });
 
   it('deve ter link para página de login', () => {
-    render(<Register />);
+    renderRegister();
 
-    const loginLink = screen.getByTestId('login-link');
-    expect(loginLink).toBeInTheDocument();
-    expect(loginLink).toHaveAttribute('href', '/login');
+    expect(screen.getByRole('link', { name: 'Entrar' })).toHaveAttribute('href', '/login');
   });
 
-  it('deve ter as classes CSS corretas para o layout', () => {
-    const { container } = render(<Register />);
+  it('deve usar a estrutura responsiva compartilhada de autenticação', () => {
+    const { container } = renderRegister();
 
     const mainDiv = container.firstChild as HTMLElement;
-    expect(mainDiv).toHaveClass(
-      'min-h-screen',
-      'bg-(--bg-primary)',
-    );
-  });
-
-  it('deve renderizar elementos decorativos de fundo', () => {
-    const { container } = render(<Register />);
-
-    const decorativeElements = container.querySelectorAll('.absolute');
-    expect(decorativeElements.length).toBeGreaterThan(0);
-  });
-
-  it('deve ter container com largura máxima correta', () => {
-    render(<Register />);
-
-    const container = screen.getByTestId('card-form').parentElement;
-    expect(container).toHaveClass('max-w-2xl');
-  });
-
-  it('deve ter posicionamento relativo no container principal', () => {
-    const { container } = render(<Register />);
-
-    const mainDiv = container.firstChild as HTMLElement;
-    expect(mainDiv).toHaveClass('relative');
+    expect(mainDiv).toHaveClass('login-experience', 'min-h-[100dvh]', 'relative');
+    expect(container.querySelector('main')).toHaveClass('grid', 'lg:grid-cols-[minmax(0,0.9fr)_minmax(24rem,0.8fr)]');
   });
 });

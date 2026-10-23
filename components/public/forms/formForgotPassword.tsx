@@ -59,13 +59,13 @@ export default function FormForgotPassword() {
     <form
       onSubmit={handleSubmit(onSubmit)}
       noValidate
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-4 font-inter"
     >
       {/* Campo de e-mail */}
       <div className="flex flex-col gap-1">
         <Label
           htmlFor="email"
-          className="text-sm font-medium text-(--text-secondary)"
+          className="text-xs font-semibold text-(--text-secondary)"
         >
           E-mail
         </Label>
@@ -80,7 +80,7 @@ export default function FormForgotPassword() {
             placeholder="seu@email.com"
             error={!!errors.email}
             {...register('email')}
-            className="pl-9 pr-4"
+            className="h-12 rounded-xl border-(--primary-color)/20 bg-(--bg-tertiary) pl-9 pr-4"
           />
         </div>
         {errors.email && (
@@ -92,7 +92,7 @@ export default function FormForgotPassword() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-(--primary-color) to-(--tertiary-color) font-medium text-white transition-opacity hover:opacity-90 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-(--primary-color) text-sm font-bold text-(--on-primary) shadow-[0_8px_18px_rgba(53,208,195,0.18)] transition-all hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isSubmitting ? (
           <FaSpinner className="animate-spin" size={16} />
@@ -106,7 +106,7 @@ export default function FormForgotPassword() {
         Lembrou a senha?{' '}
         <Link
           to="/login"
-          className="text-(--secondary-color) font-medium transition-opacity hover:opacity-80"
+          className="font-semibold text-(--primary-color) transition-opacity hover:opacity-80"
         >
           Voltar ao login
         </Link>

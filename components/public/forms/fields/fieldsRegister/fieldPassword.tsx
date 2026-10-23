@@ -23,7 +23,7 @@ export default function FieldPasswordRegister({
     <div className="space-y-1">
       <Label
         htmlFor={name}
-        className="flex items-center gap-2 pl-2 text-sm text-(--text-secondary) font-work-sans font-normal"
+        className="flex cursor-pointer items-center gap-2 text-xs font-semibold text-(--text-secondary)"
       >
         {icon && <span>{icon}</span>}
         <span>{label}</span>
@@ -36,7 +36,7 @@ export default function FieldPasswordRegister({
           error={!!error}
           aria-invalid={error ? true : undefined}
           autoComplete="new-password"
-          className="pl-4 pr-12 font-poppins"
+          className="h-12 rounded-xl border-(--primary-color)/20 bg-(--bg-tertiary) pl-4 pr-12 font-poppins"
           {...register}
           onChange={(e) => {
             register?.onChange?.(e);
@@ -46,7 +46,7 @@ export default function FieldPasswordRegister({
         <button
           type="button"
           aria-label={show ? 'Ocultar senha' : 'Mostrar senha'}
-          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-2 text-(--text-secondary) focus:outline-none focus:ring-2 focus:ring-(--primary-color) hover:bg-(--seventh-color) hover:text-(--text-primary)"
+          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-(--text-tertiary) transition-colors focus:outline-none focus:ring-2 focus:ring-(--primary-color) hover:bg-(--primary-color)/10 hover:text-(--primary-color)"
           onClick={() => setShow((s) => !s)}
         >
           {show ? (
