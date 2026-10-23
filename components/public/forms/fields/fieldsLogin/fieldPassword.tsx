@@ -17,10 +17,9 @@ export default function FieldPassword({
     <div className="space-y-1">
       <Label
         htmlFor={name}
-        className="flex items-center gap-2 pl-1 cursor-pointer text-(--text-secondary) font-work-sans font-normal"
+        className="cursor-pointer text-xs font-semibold text-(--text-secondary)"
       >
-        {icon && <span className="inline-flex items-center text-sm">{icon}</span>}
-        <span className="text-sm">{label}</span>
+        {label}
       </Label>
       <div className="relative">
         <Input
@@ -28,9 +27,10 @@ export default function FieldPassword({
           id={id}
           name={name}
           autoComplete="current-password"
+          startIcon={icon}
           error={!!error}
           aria-invalid={error ? true : undefined}
-          className="pl-4 pr-12"
+          className="h-12 rounded-xl border-(--primary-color)/20 bg-(--bg-tertiary) pr-12"
           {...register}
           onChange={(e) => {
             register?.onChange?.(e);
@@ -39,7 +39,7 @@ export default function FieldPassword({
         <button
           type="button"
           aria-label={show ? 'Ocultar senha' : 'Mostrar senha'}
-          className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-md p-2 text-(--text-secondary) hover:bg-(--seventh-color) hover:text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--primary-color)"
+          className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-lg p-2 text-(--text-tertiary) transition-colors hover:bg-(--primary-color)/10 hover:text-(--primary-color) focus:outline-none focus:ring-2 focus:ring-(--primary-color)"
           onClick={() => setShow((s) => !s)}
         >
           {show ? (

@@ -51,7 +51,7 @@ export default function FormCompleteSignup({ defaultFullName }: FormCompleteSign
     <form
       onSubmit={handleSubmit(onSubmit)}
       noValidate
-      className="space-y-5">
+      className="space-y-4 font-inter">
       <FieldText
         id="fullName"
         name="fullName"
@@ -86,12 +86,12 @@ export default function FormCompleteSignup({ defaultFullName }: FormCompleteSign
       )}
       <button
         type="submit"
-        className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-(--primary-color) to-(--tertiary-color) font-poppins font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-80"
+        className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-(--primary-color) font-poppins text-sm font-bold text-(--on-primary) shadow-[0_8px_18px_rgba(53,208,195,0.18)] transition-all hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-80"
         disabled={isSubmitting}
         aria-busy={isSubmitting}>
         {isSubmitting ? (
           <>
-            <FaSpinner className="animate-spin text-(--text-primary)" aria-hidden="true" />
+            <FaSpinner className="animate-spin" aria-hidden="true" />
             <span>Salvando...</span>
           </>
         ) : (

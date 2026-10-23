@@ -3,8 +3,7 @@ import {
   FaChartPie,
   FaWandMagicSparkles,
   FaCommentDots,
-  FaBoxesStacked,
-  FaEllipsis,
+  FaBars,
 } from 'react-icons/fa6';
 import { isMatch } from 'src/lib/utils/navMatch';
 import type { MobileBottomNavProps } from './ui.types';
@@ -25,9 +24,9 @@ export default function MobileBottomNav({
     },
     {
       label: 'Comentários',
-      to: '/user/insights',
-      icon: FaWandMagicSparkles,
-      tourAttr: 'mobile-nav-insights',
+      to: '/user/insights/comments',
+      icon: FaCommentDots,
+      tourAttr: 'mobile-nav-comments',
     },
     {
       isCentralButton: true,
@@ -39,23 +38,23 @@ export default function MobileBottomNav({
       tourAttr: 'mobile-nav-feedback',
     },
     {
-      label: 'Catálogo',
-      to: '/user/edit/types-feedback',
-      icon: FaBoxesStacked,
-      tourAttr: 'mobile-nav-catalog',
+      label: 'Diagnósticos',
+      to: '/user/insights/overview',
+      icon: FaWandMagicSparkles,
+      tourAttr: 'mobile-nav-insights',
     },
   ];
 
   return (
     <nav
       aria-label="Barra de navegação móvel"
-      className="fixed bottom-0 left-0 right-0 z-40 block border-t border-(--quaternary-color)/15 bg-(--bg-secondary)/95 px-3 pt-1.5 pb-2.5 shadow-[0_-4px_24px_rgba(0,0,0,0.35)] backdrop-blur-md md:hidden rounded-t-2xl max-w-full overflow-visible"
+      className="fixed bottom-0 left-0 right-0 z-40 block max-w-full overflow-visible rounded-t-2xl border-t border-(--quaternary-color)/15 bg-(--bg-secondary)/95 px-3 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_24px_rgba(0,0,0,0.35)] backdrop-blur-md md:hidden"
     >
-      <div className="flex items-center justify-around overflow-visible">
+      <div className="grid grid-cols-5 items-end overflow-visible">
         {navItems.map((item) => {
           if (item.isCentralButton) {
             return (
-              <div key="central-button" className="relative flex flex-col items-center overflow-visible z-50">
+              <div key="central-button" className="relative z-50 flex w-full flex-col items-center overflow-visible">
                 <button
                   type="button"
                   onClick={onOpenDrawer}
@@ -65,10 +64,11 @@ export default function MobileBottomNav({
                   aria-controls="mobile-navigation-drawer"
                   aria-haspopup="dialog"
                   title="Abrir menu completo"
-                  className="group relative -top-6 flex h-13 w-13 items-center justify-center rounded-full bg-linear-to-tr from-(--primary-color) to-cyan-400 text-white shadow-[0_4px_20px_rgba(62,217,227,0.45)] ring-4 ring-(--bg-secondary) transition-all duration-200 hover:scale-110 active:scale-90"
+                  className="group relative -top-7 flex h-15 w-15 items-center justify-center rounded-full bg-linear-to-tr from-(--primary-color) to-(--secondary-color) text-(--on-primary) shadow-[0_5px_24px_color-mix(in_srgb,var(--primary-color)_48%,transparent)] ring-4 ring-(--bg-secondary) transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-(--primary-color)/35"
                 >
-                  <FaEllipsis className="h-6 w-6 transition-transform group-hover:scale-110" />
+                  <FaBars className="h-6 w-6 transition-transform group-hover:scale-110" />
                 </button>
+                <span className="-mt-5 text-[11px] font-semibold leading-none text-(--text-tertiary)">Menu</span>
               </div>
             );
           }
@@ -85,19 +85,19 @@ export default function MobileBottomNav({
               data-tour={item.tourAttr}
               aria-current={isActive ? 'page' : undefined}
               data-pending-current={isPendingActive ? 'true' : undefined}
-              className={`flex flex-col items-center gap-1 text-center transition-all duration-200 active:scale-90 ${
+              className={`flex min-h-16 min-w-0 w-full flex-col items-center justify-center text-center transition-all duration-200 active:scale-90 ${
                 isActive
                   ? 'text-(--primary-color) font-bold scale-105'
                   : 'text-(--text-tertiary) hover:text-(--text-primary)'
               }`}
             >
-              <div className="relative flex items-center justify-center">
-                <Icon className="h-5 w-5" />
-                {isActive && (
-                  <span className="absolute -bottom-1.5 h-1 w-4 rounded-full bg-(--primary-color) transition-all duration-300" />
-                )}
+              <div className="flex h-8 shrink-0 flex-col items-center justify-start">
+                <span className={`h-1 w-4 rounded-full transition-all duration-300 ${
+                  isActive ? 'bg-(--primary-color)' : 'invisible'
+                }`} />
+                <Icon className="mt-1.5 h-[22px] w-[22px]" />
               </div>
-              <span className="text-[10px] tracking-tight leading-none font-medium">
+              <span className="mt-1.5 text-[11px] tracking-tight leading-none font-medium">
                 {item.label}
               </span>
             </NavLink>

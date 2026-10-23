@@ -1,3 +1,4 @@
+import { FaBoxesStacked } from 'react-icons/fa6';
 import { useEffect } from 'react';
 import { useActionData, useNavigation } from 'react-router-dom';
 import FormTypesFeedback from 'components/user/pages/profile/editTypesFeedback/formTypesFeedback';
@@ -23,13 +24,18 @@ export default function EditTypeFeedbacks() {
   }, [actionData, toast]);
 
   return (
-    <div className="font-work-sans space-y-6 pb-8">
+    <div className="font-work-sans space-y-5 pb-8 sm:space-y-6">
       <PageHeader />
 
-      <div className="space-y-3">
-        <div className="px-1">
+      <section className="space-y-5 rounded-3xl border border-(--quaternary-color)/12 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-4 sm:p-6">
+        <div className="flex items-start gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--primary-color)/15 text-(--primary-color)">
+            <FaBoxesStacked aria-hidden />
+          </span>
+          <div>
           <h2 className="font-montserrat text-xl font-semibold text-(--text-primary)">O que você quer acompanhar?</h2>
           <p className="mt-1 text-sm text-(--text-secondary)">Ative um tipo e salve para configurar seus itens.</p>
+          </div>
         </div>
 
         <div className="relative">
@@ -39,7 +45,7 @@ export default function EditTypeFeedbacks() {
             <div className="pointer-events-none absolute inset-0 rounded-xl border border-(--quaternary-color)/12 bg-(--bg-primary)/35 backdrop-blur-[1px]" />
           )}
         </div>
-      </div>
+      </section>
     </div>
   );
 }

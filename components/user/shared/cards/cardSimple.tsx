@@ -11,7 +11,7 @@ export default function CardSimple({
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   const baseClass =
-    'relative overflow-hidden rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6 md:p-8 glass-card';
+    'relative overflow-hidden rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-4 sm:p-6 md:p-8 glass-card';
 
   if (type === 'accordion') {
     return (

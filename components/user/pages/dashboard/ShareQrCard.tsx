@@ -15,7 +15,7 @@ export default function ShareQrCard({ to }: { to: string }) {
     <Link
       to={to}
       aria-label="Compartilhar o formulário de feedback pelo QR Code"
-      className="group flex items-center gap-4 rounded-xl border border-(--primary-color)/25 bg-(--primary-color)/8 px-4 py-3 transition-all hover:border-(--primary-color)/50 hover:bg-(--primary-color)/12"
+      className="group flex w-full items-center gap-4 rounded-xl border border-(--primary-color)/25 bg-(--primary-color)/8 px-4 py-3 transition-all hover:border-(--primary-color)/50 hover:bg-(--primary-color)/12 md:w-auto"
     >
       <span className="qr-anim relative grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-lg border border-(--primary-color)/30 bg-(--bg-primary)/40">
         <QrGlyph className="h-10 w-10 text-(--text-primary)" />

@@ -24,7 +24,7 @@ export default function CommentToneSection({ summary, inScope, ofScope, feedback
   return (
     <section
       aria-labelledby="comment-tone-title"
-      className="font-work-sans rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6"
+      className="font-work-sans rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-4 sm:p-6"
     >
       <h3 id="comment-tone-title" className="flex items-center gap-1.5 font-montserrat text-base font-semibold text-(--text-primary)">
         Tom dos comentários <MetricHelp term="commentTone" />

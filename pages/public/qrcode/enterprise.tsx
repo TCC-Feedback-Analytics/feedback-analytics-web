@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useLoaderData } from 'react-router-dom';
-import Card from 'components/public/shared/card';
-import SVGImageProfile from 'components/svg/imageProfile';
+import { FaCommentDots, FaShieldHalved } from 'react-icons/fa6';
 import { getItemKindLabel } from 'src/lib/utils/publicQrFeedbackForm';
 import { resolvePublicQrFeedbackScope } from 'src/lib/utils/publicQrFeedbackTemplateEngine';
 import StateSentPreviousFeedback from 'components/public/qrcode/enterprise/stateSentPreviousFeedback';
@@ -38,6 +37,11 @@ export default function FeedbackQRCodeEnterprise() {
   );
 
   const itemKindLabel = getItemKindLabel(itemKind);
+  const feedbackContext = itemName && itemKindLabel
+    ? enterpriseName
+      ? `${enterpriseName} · ${itemKindLabel}: ${itemName}`
+      : `${itemKindLabel}: ${itemName}`
+    : enterpriseName;
 
   const {
     formModel,
@@ -74,26 +78,38 @@ export default function FeedbackQRCodeEnterprise() {
   }
 
   return (
-    <div className="min-h-screen bg-(--bg-primary) flex items-center justify-center p-4 ">
-      <Card
-        title="Compartilhe sua Experiência"
-        text={
-          itemName && itemKindLabel
-            ? enterpriseName
-              ? `${enterpriseName} · Categoria: ${itemKindLabel} · Item: ${itemName}`
-              : `Categoria: ${itemKindLabel} · Item: ${itemName}`
-            : enterpriseName
-              ? `Conte-nos sobre sua experiência com ${enterpriseName}`
-              : 'Seu feedback é muito importante para nós'
-        }
-        icon={<SVGImageProfile />}
-        children={
-          <PublicQrFeedbackTemplateRenderer
-            scope={feedbackScope}
-            model={formModel}
-          />
-        }
-      />
+    <div className="feedback-form-experience min-h-[100dvh] bg-(--bg-primary) px-4 py-5 font-work-sans text-(--text-primary) sm:px-6 sm:py-8">
+      <main className="mx-auto w-full max-w-xl">
+        <header className="mb-7 flex items-center justify-between gap-4 sm:mb-9">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-(--primary-color) text-(--on-primary)">
+              <FaCommentDots className="h-[18px] w-[18px]" aria-hidden />
+            </span>
+            <span className="truncate font-montserrat text-[15px] font-bold tracking-tight">Feedback Analytics</span>
+          </div>
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-(--primary-color)/20 bg-(--primary-color)/10 text-(--primary-color)" title="Formulário seguro">
+            <FaShieldHalved className="h-[18px] w-[18px]" aria-hidden />
+            <span className="sr-only">Formulário seguro</span>
+          </span>
+        </header>
+
+        <section className="mb-6 space-y-2 sm:mb-7">
+          <h1 className="font-montserrat text-[28px] font-bold tracking-[-0.035em] text-(--text-primary)">
+            Sua opinião importa
+          </h1>
+          <p className="max-w-md text-sm leading-6 text-(--text-secondary)">
+            Leva menos de 2 minutos. Suas respostas nos ajudam a criar uma experiência melhor.
+          </p>
+          {feedbackContext && (
+            <p className="pt-1 text-xs font-medium text-(--primary-color)">{feedbackContext}</p>
+          )}
+        </section>
+
+        <PublicQrFeedbackTemplateRenderer
+          scope={feedbackScope}
+          model={formModel}
+        />
+      </main>
     </div>
   );
 }

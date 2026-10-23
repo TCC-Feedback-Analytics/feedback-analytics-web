@@ -44,14 +44,14 @@ export function ScopeSelectorDropdown({
   };
 
   return (
-    <div ref={containerRef} className="relative inline-block text-left">
+    <div ref={containerRef} className="relative w-full text-left sm:inline-block sm:w-auto">
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
         aria-expanded={open}
         aria-haspopup="listbox"
         data-scope-selector-trigger=""
-        className="inline-flex h-9 items-center gap-2 rounded-lg border border-(--quaternary-color)/18 bg-(--bg-secondary) px-3 py-1.5 text-xs font-medium text-(--text-primary) shadow-sm backdrop-blur-md transition-all duration-200 hover:border-(--quaternary-color)/35 hover:bg-(--seventh-color) focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/20 focus:outline-none"
+        className="inline-flex min-h-11 w-full items-center gap-2 rounded-lg border border-(--quaternary-color)/18 bg-(--bg-secondary) px-3 py-1.5 text-xs font-medium text-(--text-primary) shadow-sm backdrop-blur-md transition-all duration-200 hover:border-(--quaternary-color)/35 hover:bg-(--seventh-color) focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/20 focus:outline-none sm:min-h-9 sm:w-auto"
       >
         <span
           className="flex h-5 w-5 items-center justify-center rounded-md text-xs shrink-0"
@@ -74,7 +74,7 @@ export function ScopeSelectorDropdown({
         <div
           role="listbox"
           aria-label="Selecionar escopo"
-          className="absolute left-0 top-full z-50 mt-1.5 w-48 origin-top-left rounded-xl border border-(--quaternary-color)/16 bg-(--bg-secondary) p-1.5 shadow-xl backdrop-blur-md animate-in fade-in-50 zoom-in-95"
+          className="absolute left-0 top-full z-50 mt-1.5 w-full origin-top-left rounded-xl border border-(--quaternary-color)/16 bg-(--bg-secondary) p-1.5 shadow-xl backdrop-blur-md animate-in fade-in-50 zoom-in-95 sm:w-48"
         >
           <div className="px-2.5 py-1 text-[10px] font-semibold tracking-wider text-(--text-tertiary) uppercase">
             Escopo do Dashboard

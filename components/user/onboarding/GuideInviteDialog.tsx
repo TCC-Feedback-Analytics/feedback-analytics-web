@@ -33,10 +33,10 @@ export default function GuideInviteDialog({ variant, onStart, onLater }: GuideIn
               <DialogDescription>{texts.description}</DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <button type="button" onClick={onLater} className="btn-ghost font-poppins px-5 py-2.5 text-sm">
+              <button type="button" onClick={onLater} className="btn-ghost font-poppins h-12 w-full px-5 text-sm sm:w-auto">
                 Depois
               </button>
-              <button type="button" onClick={onStart} className="btn-primary font-poppins px-5 text-sm">
+              <button type="button" onClick={onStart} className="btn-primary font-poppins h-12 w-full px-5 text-sm sm:w-auto">
                 Começar o guia
               </button>
             </DialogFooter>

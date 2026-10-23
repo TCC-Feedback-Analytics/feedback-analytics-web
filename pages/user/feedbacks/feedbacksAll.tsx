@@ -164,7 +164,7 @@ export default function FeedbacksAll() {
   }
 
   return (
-    <div className="font-work-sans space-y-6 pb-8">
+    <div className="font-work-sans space-y-5 pb-8 sm:space-y-6">
       {/* Header com estatísticas */}
       <FeedbackHeader stats={stats} />
 
@@ -181,7 +181,7 @@ export default function FeedbacksAll() {
 
       {/* Lista de feedbacks + Paginação + Overlay */}
       <div className="relative min-h-[250px]">
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {feedbacks.length === 0 ? (
             <FeedbacksAllEmptyState
               hasFilters={Boolean(

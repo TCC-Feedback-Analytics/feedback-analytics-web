@@ -256,7 +256,7 @@ export default function GuidedQuestionsEditor({
   return (
     <Dialog open={open} onOpenChange={(value) => { setOpen(value); if (value) resetDialog(); }}>
       <DialogTrigger>
-        <button type="button" className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-(--primary-color) px-4 py-2.5 text-sm font-semibold text-(--on-primary) shadow-sm transition hover:-translate-y-0.5 hover:bg-(--secondary-color) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color) focus-visible:ring-offset-2">
+        <button type="button" className="inline-flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-(--primary-color) px-4 py-2.5 text-sm font-semibold text-(--on-primary) shadow-sm transition hover:-translate-y-0.5 hover:bg-(--secondary-color) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color) focus-visible:ring-offset-2 sm:w-auto">
           Configurar perguntas <FaArrowRight className="text-xs" aria-hidden />
         </button>
       </DialogTrigger>
@@ -295,9 +295,9 @@ export default function GuidedQuestionsEditor({
               </div>
 
               <div className="rounded-2xl border border-dashed border-(--quaternary-color)/18 bg-(--bg-secondary)/70 p-4">
-                <div className="mb-3 flex items-center justify-between gap-3">
+                <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div><h3 className="text-sm font-semibold text-(--text-primary)">Aprofunde (opcional)</h3><p className="mt-1 text-xs text-(--text-secondary)">Adicione até 3 subperguntas para investigar esse tema.</p></div>
-                  {(currentQuestion.subquestions ?? []).length < 3 && <button type="button" onClick={() => addSubquestion(step - 1)} className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-(--primary-color)/25 px-3 py-2 text-xs font-semibold text-(--primary-color) transition hover:bg-(--primary-color)/10"><FaPlus aria-hidden /> Adicionar</button>}
+                  {(currentQuestion.subquestions ?? []).length < 3 && <button type="button" onClick={() => addSubquestion(step - 1)} className="inline-flex min-h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-(--primary-color)/25 px-3 py-2 text-xs font-semibold text-(--primary-color) transition hover:bg-(--primary-color)/10 sm:w-auto"><FaPlus aria-hidden /> Adicionar</button>}
                 </div>
                 <div className="space-y-3">
                   {(currentQuestion.subquestions ?? []).map((subquestion, subIndex) => <div key={`${step}-${subIndex}`} className="flex items-start gap-2"><span className="mt-2.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-(--primary-color)/10 text-[11px] font-bold text-(--primary-color)">{subIndex + 1}</span><input value={subquestion.subquestion_text} onChange={(event) => updateSubquestion(step - 1, subIndex, event.target.value)} maxLength={MAX_LENGTH} placeholder="Ex.: O que poderíamos melhorar?" className="h-10 w-full rounded-xl border border-(--quaternary-color)/16 bg-(--seventh-color) px-3 text-sm text-(--text-primary) outline-none transition focus:border-(--primary-color)" /><button type="button" onClick={() => removeSubquestion(step - 1, subIndex)} aria-label={`Remover subpergunta ${step}.${subIndex + 1}`} className="mt-0.5 flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg text-(--text-tertiary) transition hover:bg-(--negative)/10 hover:text-(--negative) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--negative)"><FaTrashCan aria-hidden /></button></div>)}
@@ -309,12 +309,12 @@ export default function GuidedQuestionsEditor({
 
           {step === reviewStep && (
             <div className="space-y-5">
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm font-semibold text-(--text-primary)">Perguntas do formulário</p>
                   <p className="mt-1 text-xs text-(--text-secondary)">Ajuste a ordem, remova ou adicione uma pergunta antes de salvar.</p>
                 </div>
-                {questionCount < 3 && <button type="button" onClick={addQuestion} className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-(--primary-color)/25 px-3 py-2 text-xs font-semibold text-(--primary-color) transition hover:bg-(--primary-color)/10"><FaPlus aria-hidden /> Adicionar pergunta</button>}
+                {questionCount < 3 && <button type="button" onClick={addQuestion} className="inline-flex min-h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-(--primary-color)/25 px-3 py-2 text-xs font-semibold text-(--primary-color) transition hover:bg-(--primary-color)/10 sm:w-auto"><FaPlus aria-hidden /> Adicionar pergunta</button>}
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 {questions.map((question, index) => (
@@ -339,9 +339,9 @@ export default function GuidedQuestionsEditor({
 
         <DialogFooter>
             <span className="text-xs text-(--text-tertiary)">{step === 0 ? `${completedCount}/${questionCount} perguntas prontas` : step === reviewStep ? 'Tudo certo para salvar' : 'Você está no controle — avance quando estiver pronto.'}</span>
-          <div className="flex items-center justify-end gap-2">
-            {step > 0 && <button type="button" onClick={() => { setError(null); if (step === 1 && hasSavedQuestions) { setOpen(false); return; } setStep((current) => Math.max(0, current - 1)); }} className="inline-flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-(--text-secondary) transition hover:bg-(--seventh-color) hover:text-(--text-primary)"><FaArrowLeft aria-hidden /> {step === 1 && hasSavedQuestions ? 'Cancelar' : 'Voltar'}</button>}
-            {step < reviewStep ? <button type="button" onClick={nextStep} className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-(--primary-color) px-4 py-2.5 text-sm font-semibold text-(--on-primary) transition hover:bg-(--secondary-color)">{step === 0 ? 'Começar' : 'Continuar'} <FaArrowRight aria-hidden /></button> : <fetcher.Form method="post" action={action} onSubmit={submit}><input type="hidden" name="intent" value={intent} /><input ref={payloadRef} type="hidden" name={payloadFieldName} defaultValue="[]" />{extraHiddenFields.map((field) => <input key={field.name} type="hidden" name={field.name} value={field.value} />)}<button type="submit" disabled={(hasSavedQuestions && !isDirty) || isSaving} className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-(--primary-color) px-4 py-2.5 text-sm font-semibold text-(--on-primary) transition hover:bg-(--secondary-color) disabled:cursor-not-allowed disabled:opacity-50"><FaFloppyDisk aria-hidden /> {isSaving ? 'Salvando…' : 'Salvar perguntas'}</button></fetcher.Form>}
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
+            {step > 0 && <button type="button" onClick={() => { setError(null); if (step === 1 && hasSavedQuestions) { setOpen(false); return; } setStep((current) => Math.max(0, current - 1)); }} className="inline-flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-(--text-secondary) transition hover:bg-(--seventh-color) hover:text-(--text-primary) sm:w-auto"><FaArrowLeft aria-hidden /> {step === 1 && hasSavedQuestions ? 'Cancelar' : 'Voltar'}</button>}
+            {step < reviewStep ? <button type="button" onClick={nextStep} className="inline-flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-(--primary-color) px-4 py-2.5 text-sm font-semibold text-(--on-primary) transition hover:bg-(--secondary-color) sm:w-auto">{step === 0 ? 'Começar' : 'Continuar'} <FaArrowRight aria-hidden /></button> : <fetcher.Form method="post" action={action} onSubmit={submit} className="w-full sm:w-auto"><input type="hidden" name="intent" value={intent} /><input ref={payloadRef} type="hidden" name={payloadFieldName} defaultValue="[]" />{extraHiddenFields.map((field) => <input key={field.name} type="hidden" name={field.name} value={field.value} />)}<button type="submit" disabled={(hasSavedQuestions && !isDirty) || isSaving} className="inline-flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-(--primary-color) px-4 py-2.5 text-sm font-semibold text-(--on-primary) transition hover:bg-(--secondary-color) disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"><FaFloppyDisk aria-hidden /> {isSaving ? 'Salvando…' : 'Salvar perguntas'}</button></fetcher.Form>}
           </div>
         </DialogFooter>
 

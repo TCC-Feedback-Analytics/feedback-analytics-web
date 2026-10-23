@@ -197,7 +197,7 @@ export default function CommentFieldSettings({ scopeType, catalogItemId, ofTarge
               type="button"
               onClick={() => void save()}
               disabled={!dirty || promptInvalid || saving}
-              className="btn-primary font-poppins inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-primary font-poppins inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             >
               {saving ? <FaSpinner aria-hidden className="animate-spin" /> : <FaFloppyDisk aria-hidden />}
               {saving ? 'Salvando…' : 'Salvar campo de comentário'}

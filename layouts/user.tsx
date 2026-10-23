@@ -375,7 +375,7 @@ export default function User() {
                 }}
               />
 
-              <main className={`w-full max-w-full min-w-0 pb-24 md:pb-5 transition-all duration-300 ${
+              <main className={`w-full max-w-full min-w-0 pb-28 md:pb-5 transition-all duration-300 ${
                 isSidebarOpen ? 'md:pl-64' : 'md:pl-16'
               }`}>
                 <div className="w-full max-w-full min-w-0 bg-(--bg-primary) p-4 md:p-5">

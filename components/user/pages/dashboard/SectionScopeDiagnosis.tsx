@@ -79,11 +79,11 @@ export default function SectionScopeDiagnosis({
 
   return (
     <section
-      className="font-work-sans space-y-4 rounded-2xl border border-(--primary-color)/20 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6"
+      className="font-work-sans space-y-4 rounded-2xl border border-(--primary-color)/20 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-4 sm:p-6"
       aria-labelledby="scope-diagnosis-title"
       data-tour="tour-dashboard-diagnosis"
     >
-      <header className="flex flex-wrap items-center justify-between gap-3">
+      <header className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <h2 id="scope-diagnosis-title" className="flex items-center gap-1 font-montserrat text-lg font-semibold text-(--text-primary)">
           Diagnóstico do escopo <span className="text-sm font-medium text-(--primary-color)">✨ IA</span>
           <MetricHelp term="scopeDiagnosis" />
@@ -136,7 +136,7 @@ export default function SectionScopeDiagnosis({
           )}
 
           {!loading && !loadFailed && action && (
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-(--quaternary-color)/10 pt-4">
+            <div className="flex flex-col gap-3 border-t border-(--quaternary-color)/10 pt-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
               <p className="text-xs text-(--text-tertiary)">
                 {!enoughData
                   ? `São precisas pelo menos ${MIN_FEEDBACKS_FOR_AI} avaliações ${scopeInfo.inScope} (agora: ${periodTotal}).`
@@ -152,7 +152,7 @@ export default function SectionScopeDiagnosis({
                 type="button"
                 onClick={() => void generate({ force: action.force })}
                 disabled={!enoughData}
-                className={`${diagnosis && action.force ? 'btn-ghost' : 'btn-primary'} font-poppins inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50`}
+                className={`${diagnosis && action.force ? 'btn-ghost' : 'btn-primary'} font-poppins inline-flex min-h-11 w-full items-center justify-center gap-1.5 px-4 py-2 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto`}
               >
                 <FaWandMagicSparkles aria-hidden />
                 {action.label}
@@ -161,10 +161,10 @@ export default function SectionScopeDiagnosis({
           )}
 
           {diagnosis && (
-            <div className="flex justify-end">
+            <div className="flex w-full justify-end">
               <Link
                 to="/user/diagnosis"
-                className="inline-flex items-center gap-1.5 text-sm text-(--text-secondary) transition-colors hover:text-(--text-primary)"
+                className="inline-flex min-h-11 w-full items-center gap-1.5 text-sm text-(--text-secondary) transition-colors hover:text-(--text-primary) sm:min-h-0 sm:w-auto"
               >
                 Ver o histórico de diagnósticos
                 <FaArrowRight className="text-xs" aria-hidden />

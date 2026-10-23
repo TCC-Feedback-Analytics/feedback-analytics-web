@@ -33,7 +33,7 @@ export default function FormTypesFeedback() {
           <p className="text-sm font-semibold text-(--text-primary)">{enabledCount} de 3 tipos selecionados</p>
           <p className="mt-1 text-xs text-(--text-tertiary)">{isDirty ? 'Suas alterações ainda não foram salvas.' : 'A seleção atual está salva.'}</p>
         </div>
-        <button type="submit" disabled={!isDirty} className="btn-primary font-poppins inline-flex cursor-pointer items-center justify-center gap-2 px-5 py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-50">
+        <button type="submit" disabled={!isDirty} className="btn-primary font-poppins inline-flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 px-5 py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">
           <FaFloppyDisk aria-hidden /> {isDirty ? 'Salvar seleção' : 'Seleção salva'}
         </button>
       </div>
@@ -45,7 +45,7 @@ export default function FormTypesFeedback() {
           const Icon = type.icon;
 
           return (
-            <article key={type.name} className={`flex min-h-56 flex-col rounded-2xl border p-5 transition-colors ${enabled ? 'border-(--primary-color)/40 bg-(--primary-color)/6' : 'border-(--quaternary-color)/12 bg-(--bg-secondary)'}`}>
+            <article key={type.name} className={`flex min-h-52 flex-col rounded-2xl border p-4 transition-colors sm:min-h-56 sm:p-5 ${enabled ? 'border-(--primary-color)/40 bg-(--primary-color)/6' : 'border-(--quaternary-color)/12 bg-(--bg-secondary)'}`}>
               <div className="flex items-start justify-between gap-4">
                 <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${enabled ? 'bg-(--primary-color)/15 text-(--primary-color)' : 'bg-(--bg-tertiary) text-(--text-tertiary)'}`}><Icon aria-hidden /></div>
                 <div className="flex items-center gap-2">

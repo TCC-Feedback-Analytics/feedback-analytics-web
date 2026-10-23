@@ -1,4 +1,6 @@
+import { FaFilter } from 'react-icons/fa6';
 import { useLoaderData, useSearchParams } from 'react-router-dom';
+import { Select } from 'components/ui/select';
 import PageHeader from 'components/user/shared/PageHeader';
 import ScopeTag from 'components/user/shared/ScopeTag';
 import CommentList from 'components/user/pages/comments/CommentList';
@@ -37,41 +39,56 @@ export default function CommentsPage() {
   };
 
   return (
-    <div className="font-work-sans space-y-6">
+    <div className="font-work-sans space-y-5 sm:space-y-6">
       <PageHeader />
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div role="group" aria-label="Filtrar comentários" className="flex flex-wrap gap-2">
-          {COMMENT_FILTERS.map((option) => (
-            <button
-              key={option}
-              type="button"
-              aria-pressed={filter === option}
-              onClick={() => selectFilter(option)}
-              className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                filter === option
-                  ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--primary-color)'
-                  : 'border-(--quaternary-color)/18 text-(--text-secondary) hover:text-(--text-primary)'
-              }`}
-            >
-              {COMMENT_FILTER_LABEL[option]} ({filterComments(items, option).length})
-            </button>
-          ))}
+      <section className="space-y-4 rounded-2xl border border-(--quaternary-color)/12 bg-(--bg-secondary) p-4 sm:p-5" aria-labelledby="comments-filter-title">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 id="comments-filter-title" className="flex items-center gap-2 text-sm font-semibold text-(--text-primary)">
+              <FaFilter className="text-(--primary-color)" aria-hidden />
+              Filtrar comentários
+            </h2>
+            <p className="mt-1 text-xs leading-relaxed text-(--text-tertiary)">
+              Mostrando {visible.length} de {items.length} {items.length === 1 ? 'comentário analisado' : 'comentários analisados'}.
+            </p>
+          </div>
+          <ScopeTag className="w-full justify-center sm:w-auto" />
         </div>
-        <ScopeTag />
-      </div>
+
+        <div className="w-full sm:max-w-xs">
+          <label htmlFor="comments-tone-filter" className="sr-only">Filtrar comentários</label>
+          <Select<CommentFilter>
+            id="comments-tone-filter"
+            value={filter}
+            onChange={selectFilter}
+            startIcon={<FaFilter className="h-3.5 w-3.5" aria-hidden />}
+            options={COMMENT_FILTERS.map((option) => ({
+              value: option,
+              label: `${COMMENT_FILTER_LABEL[option]} (${filterComments(items, option).length})`,
+            }))}
+          />
+        </div>
+      </section>
 
       {loading ? (
-        <p className="text-sm text-(--text-tertiary)">Carregando os comentários…</p>
+        <p className="rounded-xl border border-(--quaternary-color)/10 bg-(--seventh-color) p-4 text-sm text-(--text-tertiary)">Carregando os comentários…</p>
       ) : error ? (
         <div className="rounded-xl border border-(--negative)/30 bg-(--negative)/10 px-4 py-3 text-sm text-(--text-primary)">{error}</div>
       ) : items.length === 0 ? (
-        <div className="rounded-2xl border border-(--quaternary-color)/10 bg-(--seventh-color) p-6 text-sm text-(--text-tertiary)">
+        <div className="rounded-2xl border border-(--quaternary-color)/10 bg-(--seventh-color) p-4 text-sm text-(--text-tertiary) sm:p-6">
           Ainda sem comentários analisados pela IA {scopeInfo.inScope}.
         </div>
       ) : visible.length === 0 ? (
-        <div className="rounded-2xl border border-(--quaternary-color)/10 bg-(--seventh-color) p-6 text-sm text-(--text-tertiary)">
-          Nenhum comentário neste filtro {scopeInfo.inScope}.
+        <div className="space-y-3 rounded-2xl border border-(--quaternary-color)/10 bg-(--seventh-color) p-4 text-sm text-(--text-tertiary) sm:p-6">
+          <p>Nenhum comentário neste filtro {scopeInfo.inScope}.</p>
+          <button
+            type="button"
+            onClick={() => selectFilter('todos')}
+            className="inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-(--primary-color)/30 bg-(--primary-color)/10 px-3 py-2 text-xs font-semibold text-(--primary-color) transition-colors hover:bg-(--primary-color)/18 sm:w-auto"
+          >
+            Ver todos os comentários
+          </button>
         </div>
       ) : (
         <CommentList items={visible} />
