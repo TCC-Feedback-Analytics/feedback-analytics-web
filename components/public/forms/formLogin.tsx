@@ -9,7 +9,7 @@ import {
   useSubmit,
 } from 'react-router-dom';
 import FieldText from './fields/fieldsLogin/fieldText';
-import { FaEnvelope, FaLock, FaSpinner } from 'react-icons/fa6';
+import { FaArrowRight, FaEnvelope, FaLock, FaSpinner } from 'react-icons/fa6';
 import FieldPassword from './fields/fieldsLogin/fieldPassword';
 import FieldRemember from './fields/fieldsLogin/fieldRemember';
 import { useToast } from 'components/public/forms/messages/useToast';
@@ -284,15 +284,15 @@ export default function FormLogin() {
   };
 
   return (
-    <>
-    <div className="mb-6">
+    <div className="space-y-5">
+    <div>
       <GoogleSignInButton />
     </div>
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-6 font-work-sans"
+      className="space-y-4 font-inter"
       noValidate>
-      <div className="space-y-4 pb-2">
+      <div className="space-y-3">
         <FieldText
           id="email"
           name="email"
@@ -311,38 +311,48 @@ export default function FormLogin() {
         />
       </div>
 
-      <div className="flex items-center text-(--secondary-color)">
+      <div className="flex items-center justify-between gap-3">
         <FieldRemember
           id="remember"
           name="remember"
           label="Lembrar de mim"
           register={register('remember')}
         />
+        <Link
+          to="/forgot-password"
+          className="shrink-0 text-xs font-semibold text-(--primary-color) transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color)"
+        >
+          Esqueci minha senha
+        </Link>
       </div>
 
       <button
         type="submit"
         disabled={isSubmitting}
         aria-busy={isSubmitting}
-        className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-(--primary-color) to-(--tertiary-color) font-poppins font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-80">
+        className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-(--primary-color) font-poppins text-sm font-bold text-(--on-primary) shadow-[0_8px_18px_rgba(53,208,195,0.18)] transition-all hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-80">
         {isSubmitting ? (
           <>
-            <FaSpinner className="animate-spin text-(--text-primary)" aria-hidden="true" />
+            <FaSpinner className="animate-spin" aria-hidden="true" />
             <span>Entrando...</span>
           </>
         ) : (
-          'Entrar'
+          <>
+            Entrar
+            <FaArrowRight className="h-3.5 w-3.5" aria-hidden />
+          </>
         )}
       </button>
 
-      <div className="-mt-3">
+      <div className="pt-1">
         <Dialog open={isLoginHelpOpen} onOpenChange={setIsLoginHelpOpen}>
           <DialogTrigger>
             <button
               type="button"
-              className="w-full cursor-pointer text-center font-work-sans text-sm font-medium text-(--secondary-color) transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color) focus-visible:ring-offset-2 focus-visible:ring-offset-(--bg-primary)"
+              className="flex w-full cursor-pointer items-center justify-between rounded-xl border border-(--primary-color)/15 bg-(--bg-tertiary) px-3 py-2.5 text-left text-xs text-(--text-tertiary) transition-colors hover:border-(--primary-color)/35 hover:text-(--text-secondary) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color)"
             >
-              Problemas para entrar?
+              <span>Problemas para entrar?</span>
+              <span className="font-semibold text-(--primary-color)">Mais opções</span>
             </button>
           </DialogTrigger>
 
@@ -405,6 +415,6 @@ export default function FormLogin() {
         </Dialog>
       </div>
     </form>
-    </>
+    </div>
   );
 }

@@ -88,6 +88,23 @@
   background-color: var(--bg-primary);
 }
 
+.login-experience {
+  color-scheme: dark;
+  --bg-primary: #03171b;
+  --bg-secondary: #092328;
+  --bg-tertiary: #0d2b30;
+  --text-primary: #f2faf9;
+  --text-secondary: #c9d9d8;
+  --text-tertiary: #91aaa9;
+  --primary-color: #35d0c3;
+  --secondary-color: #35d0c3;
+  --tertiary-color: #1f5354;
+  --quaternary-color: #70eaf0;
+  --sixth-color: #092328;
+  --seventh-color: #0d2b30;
+  --on-primary: #06272a;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     --bg-primary: #ffffff;
