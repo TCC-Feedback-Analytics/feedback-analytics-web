@@ -31,15 +31,24 @@ describe('layout pública', () => {
     expect(screen.getByText('Conteúdo público')).toBeInTheDocument();
   });
 
-  it('remove o cabeçalho da página de login', () => {
-    renderLayout('/login');
+  it.each([
+    '/login',
+    '/register',
+    '/forgot-password',
+    '/resend-confirmation',
+    '/auth/reset-password',
+    '/auth/success',
+    '/auth/link-expired',
+    '/auth/complete-signup',
+  ])('remove o cabeçalho das telas de autenticação (%s)', (path) => {
+    renderLayout(path);
 
     expect(screen.queryByTestId('public-header')).not.toBeInTheDocument();
     expect(screen.getByText('Conteúdo público')).toBeInTheDocument();
   });
 
   it('mantém o cabeçalho nas demais páginas públicas', () => {
-    renderLayout('/register');
+    renderLayout('/termos');
 
     expect(screen.getByTestId('public-header')).toBeInTheDocument();
   });
