@@ -1,5 +1,5 @@
-import Card from 'components/public/shared/card';
-import SVGImageProfile from 'components/svg/imageProfile';
+import { FaCircleCheck, FaLock } from 'react-icons/fa6';
+import FeedbackStatusLayout from './FeedbackStatusLayout';
 
 export default function StateSubmitted({
   enterpriseName,
@@ -7,46 +7,24 @@ export default function StateSubmitted({
   enterpriseName: string;
 }) {
   return (
-    <div className="min-h-screen bg-(--bg-primary) flex items-center justify-center p-4">
-      <Card
-        title="Feedback Enviado!"
-        text="Obrigado por compartilhar sua experiência conosco"
-        icon={<SVGImageProfile />}
-        children={
-          <div className="font-work-sans text-center">
-            <div className="w-16 h-16 bg-(--positive)/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg
-                className="w-8 h-8 text-(--positive)"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </div>
-            <p className="text-(--text-secondary) mb-6">
-              Seu feedback foi recebido com sucesso e será analisado pela nossa
-              equipe.
-            </p>
-            {enterpriseName && (
-              <p className="text-sm text-(--text-tertiary) mb-6">
-                <span className="font-medium">Empresa:</span> {enterpriseName}
-              </p>
-            )}
-            <div className="bg-(--primary-color)/10 border border-(--primary-color)/20 rounded-lg p-4">
-              <p className="text-(--primary-color) text-sm">
-                <strong>Feedback registrado!</strong>
-                <br />
-                Este dispositivo poderá enviar um novo feedback amanhã.
-              </p>
-            </div>
-          </div>
-        }
-      />
-    </div>
+    <FeedbackStatusLayout
+      tone="success"
+      eyebrow="RESPOSTA RECEBIDA"
+      title="Feedback enviado"
+      description="Obrigado por compartilhar sua experiência. Sua resposta já foi registrada e ajudará a melhorar os próximos atendimentos."
+      icon={<FaCircleCheck className="h-8 w-8" aria-hidden />}
+    >
+      <div className="space-y-3">
+        {enterpriseName && (
+          <p className="rounded-xl border border-(--quaternary-color)/14 bg-(--bg-tertiary) px-3.5 py-3 text-xs text-(--text-secondary)">
+            Enviado para <span className="font-semibold text-(--text-primary)">{enterpriseName}</span>
+          </p>
+        )}
+        <div className="flex items-start gap-3 rounded-xl border border-(--primary-color)/22 bg-(--primary-color)/10 p-3.5">
+          <FaLock className="mt-0.5 h-4 w-4 shrink-0 text-(--primary-color)" aria-hidden />
+          <p className="text-xs leading-5 text-(--text-secondary)">Para preservar a qualidade das respostas, este dispositivo poderá enviar um novo feedback amanhã.</p>
+        </div>
+      </div>
+    </FeedbackStatusLayout>
   );
 }

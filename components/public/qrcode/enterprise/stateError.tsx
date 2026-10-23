@@ -1,38 +1,26 @@
-import Card from 'components/public/shared/card';
-import SVGImageProfile from 'components/svg/imageProfile';
+import { FaRotateRight, FaTriangleExclamation } from 'react-icons/fa6';
+import FeedbackStatusLayout from './FeedbackStatusLayout';
 
 export default function StateError({ error }: { error: string }) {
   return (
-    <div className="min-h-screen bg-(--bg-primary) flex items-center justify-center p-4">
-      <Card
-        title="Erro"
-        text="Não foi possível carregar o formulário"
-        icon={<SVGImageProfile />}
-        children={
-          <div className="font-work-sans text-center">
-            <div className="w-16 h-16 bg-(--negative)/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg
-                className="w-8 h-8 text-(--negative)"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-            <p className="text-(--negative) mb-6">{error}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="font-poppins w-full rounded-lg bg-(--negative) px-6 py-3 font-semibold text-white transition-opacity hover:opacity-90">
-              Tentar Novamente
-            </button>
-          </div>
-        }
-      />
-    </div>
+    <FeedbackStatusLayout
+      tone="error"
+      eyebrow="ALGO NÃO SAIU COMO ESPERADO"
+      title="Não foi possível continuar"
+      description="Tente atualizar a página. Se o problema persistir, verifique sua conexão e leia o QR Code novamente."
+      icon={<FaTriangleExclamation className="h-8 w-8" aria-hidden />}
+    >
+      <div className="space-y-4">
+        <p role="alert" className="rounded-xl border border-(--negative)/30 bg-(--negative)/10 px-3.5 py-3 text-xs leading-5 text-(--negative)">{error}</p>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="flex h-[52px] w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-(--primary-color) px-5 font-poppins text-sm font-bold text-(--on-primary) transition-all hover:brightness-105 active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color)"
+        >
+          <FaRotateRight className="h-4 w-4" aria-hidden />
+          Tentar novamente
+        </button>
+      </div>
+    </FeedbackStatusLayout>
   );
 }
