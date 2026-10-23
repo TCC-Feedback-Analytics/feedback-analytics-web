@@ -33,7 +33,7 @@ export default function FieldDynamicQuestions({
   );
 
   return (
-    <div className="space-y-3">
+    <section className="overflow-hidden rounded-[20px] border border-(--quaternary-color)/15 bg-(--seventh-color)">
       {sortedQuestions.map((question) => {
         const selectedAnswer =
           answers.find((answer) => answer.question_id === question.id)?.answer_value ?? '';
@@ -45,14 +45,15 @@ export default function FieldDynamicQuestions({
         return (
           <div
             key={question.id}
-            className="rounded-xl border border-(--quaternary-color)/15 bg-(--seventh-color)/70 p-3"
+            className="border-b border-(--quaternary-color)/14 p-4 last:border-b-0 sm:p-[18px]"
           >
-            <p className="mb-2 text-sm font-medium text-(--text-primary) font-work-sans">
-              {question.question_order}. {question.question_text}
-            </p>
+            <div className="mb-4 flex items-center gap-2.5">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-(--primary-color)/12 text-[10px] font-bold text-(--primary-color)">{question.question_order}</span>
+              <p className="text-[13px] font-semibold text-(--text-primary)">{question.question_text}</p>
+            </div>
 
             <div
-              className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5"
+              className="grid grid-cols-5 gap-1 sm:gap-1.5"
               role="radiogroup"
               aria-label={`Pergunta ${question.question_order}`}
               aria-describedby={selectedAnswer ? questionHelperId : undefined}
@@ -67,12 +68,13 @@ export default function FieldDynamicQuestions({
                     role="radio"
                     aria-checked={isSelected}
                     onClick={() => onAnswerChange(question.id, option.value)}
-                    className={`min-h-[44px] w-full rounded-full border px-3 py-2 text-sm font-semibold transition-all duration-200 font-work-sans ${
+                    className={`flex min-h-[52px] w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border px-0.5 py-2 text-center text-[9px] font-semibold leading-3 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color) ${
                       isSelected
-                        ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--text-primary) shadow-[0_0_0_1px_var(--primary-color)]'
-                        : 'border-(--quaternary-color)/20 bg-(--eighth-color)/80 text-(--text-secondary) hover:border-(--primary-color)/45 hover:bg-(--primary-color)/8 hover:text-(--text-primary)'
+                        ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--primary-color) shadow-[0_0_0_1px_var(--primary-color)]'
+                        : 'border-(--quaternary-color)/20 bg-(--bg-primary)/40 text-(--text-secondary) hover:border-(--primary-color)/45 hover:bg-(--primary-color)/8 hover:text-(--text-primary)'
                     }`}
                   >
+                    <span className={`h-2.5 w-2.5 rounded-full ${isSelected ? 'bg-current' : 'bg-current/70'}`} aria-hidden />
                     {option.label}
                   </button>
                 );
@@ -82,14 +84,14 @@ export default function FieldDynamicQuestions({
             {selectedAnswer ? (
               <p
                 id={questionHelperId}
-                className="mt-2 text-xs text-(--text-secondary) font-work-sans"
+                className="mt-3 text-xs text-(--primary-color)"
               >
                 {ANSWER_HELPER[selectedAnswer as FeedbackAnswerValue]}
               </p>
             ) : null}
 
             {sortedSubquestions.length > 0 && (
-              <div className="mt-3 space-y-2 border-t border-(--quaternary-color)/15 pt-3">
+              <div className="mt-4 space-y-3 border-t border-(--quaternary-color)/15 pt-4">
                 {sortedSubquestions.map((subquestion) => {
                   const selectedSubanswer =
                     subanswers.find(
@@ -100,14 +102,14 @@ export default function FieldDynamicQuestions({
                   return (
                     <div
                       key={subquestion.id}
-                      className="rounded-lg border border-(--quaternary-color)/12 bg-(--bg-secondary) p-2"
+                      className="rounded-xl border border-(--quaternary-color)/12 bg-(--bg-primary)/30 p-3"
                     >
                       <p className="mb-2 text-xs font-semibold text-(--text-primary) font-work-sans">
                         {question.question_order}.{subquestion.subquestion_order} {subquestion.subquestion_text}
                       </p>
 
                       <div
-                        className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5"
+                        className="grid grid-cols-5 gap-1 sm:gap-1.5"
                         role="radiogroup"
                         aria-label={`Subpergunta ${question.question_order}.${subquestion.subquestion_order}`}
                         aria-describedby={selectedSubanswer ? subquestionHelperId : undefined}
@@ -124,10 +126,10 @@ export default function FieldDynamicQuestions({
                               onClick={() =>
                                 onSubanswerChange(subquestion.id, option.value)
                               }
-                              className={`min-h-[44px] w-full rounded-full border px-3 py-2 text-sm font-semibold transition-all duration-200 font-work-sans ${
+                              className={`min-h-[44px] w-full cursor-pointer rounded-lg border px-0.5 py-1 text-[8px] font-semibold leading-3 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color) ${
                                 isSelected
-                                  ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--text-primary) shadow-[0_0_0_1px_var(--primary-color)]'
-                                  : 'border-(--quaternary-color)/20 bg-(--eighth-color)/80 text-(--text-secondary) hover:border-(--primary-color)/45 hover:bg-(--primary-color)/8 hover:text-(--text-primary)'
+                                  ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--primary-color) shadow-[0_0_0_1px_var(--primary-color)]'
+                                  : 'border-(--quaternary-color)/20 bg-(--bg-primary)/40 text-(--text-secondary) hover:border-(--primary-color)/45 hover:bg-(--primary-color)/8 hover:text-(--text-primary)'
                               }`}
                             >
                               {option.label}
@@ -139,7 +141,7 @@ export default function FieldDynamicQuestions({
                       {selectedSubanswer ? (
                         <p
                           id={subquestionHelperId}
-                          className="mt-2 text-xs text-(--text-secondary) font-work-sans"
+                          className="mt-2 text-xs text-(--primary-color)"
                         >
                           {ANSWER_HELPER[selectedSubanswer as FeedbackAnswerValue]}
                         </p>
@@ -152,6 +154,6 @@ export default function FieldDynamicQuestions({
           </div>
         );
       })}
-    </div>
+    </section>
   );
 }

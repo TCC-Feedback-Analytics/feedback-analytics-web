@@ -5,7 +5,7 @@ import FieldCustomerName from './fields/fieldsQRCode/fieldCustomerName';
 import FieldCustomerEmail from './fields/fieldsQRCode/fieldCustomerEmail';
 import FieldCustomerGender from './fields/fieldsQRCode/fieldCustomerGender';
 import type { FormQRCodeFeedbackProps } from './fields/fieldsQRCode/ui.types';
-import { FaSpinner } from 'react-icons/fa6';
+import { FaChevronDown, FaShieldHalved, FaSpinner, FaUser } from 'react-icons/fa6';
 import { DEFAULT_COMMENT_FIELD, commentFieldLabel } from 'lib/schemas/public/commentField';
 
 export default function FormQRCodeFeedback({
@@ -33,7 +33,7 @@ export default function FormQRCodeFeedback({
   } = model.actions;
 
   return (
-    <form onSubmit={submit} className="space-y-6">
+    <form onSubmit={submit} className="space-y-5 sm:space-y-6">
       <FieldRating
         rating={formData.rating}
         onRatingChange={(rating) => updateFormData({ rating })}
@@ -55,53 +55,27 @@ export default function FormQRCodeFeedback({
         />
       )}
 
-      <div className="border-t border-(--bg-tertiary) pt-4">
+      <div className="rounded-2xl border border-(--quaternary-color)/15 bg-(--seventh-color) p-3.5 sm:p-4">
         <button
           type="button"
           onClick={toggleOptionalFields}
-          className="flex items-center justify-between w-full text-left text-sm font-medium text-(--text-secondary) hover:text-(--primary-color) transition-colors font-work-sans">
-          <span>Informações pessoais (opcional)</span>
-          <svg
-            className={`w-5 h-5 transition-transform ${showOptionalFields ? 'rotate-180' : ''
-              }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
+          aria-expanded={showOptionalFields}
+          className="flex w-full cursor-pointer items-center gap-3 rounded-xl text-left transition-colors hover:text-(--primary-color) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color)"
+        >
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-(--primary-color)/12 text-(--primary-color)">
+            <FaUser className="h-4 w-4" aria-hidden />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-bold text-(--text-primary)">Informações pessoais</span>
+            <span className="mt-0.5 block text-xs text-(--text-tertiary)">Nome, e-mail e gênero · Opcional</span>
+          </span>
+          <FaChevronDown className={`h-4 w-4 shrink-0 text-(--text-tertiary) transition-transform ${showOptionalFields ? 'rotate-180' : ''}`} aria-hidden />
         </button>
-        <p className="mt-1 text-xs text-(--text-tertiary) font-work-sans">
-          Compartilhe suas informações para nos ajudar a melhorar nossos
-          serviços
-        </p>
       </div>
 
       {showOptionalFields && (
-        <div className="space-y-4 rounded-xl border border-(--bg-tertiary) bg-(--seventh-color) p-6">
-          <div className="flex items-center mb-4 gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-(--primary-color) to-(--tertiary-color)">
-              <svg
-                className="h-4 w-4 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-(--text-primary) font-montserrat">
-              Informações Pessoais
-            </h3>
-          </div>
+        <div className="space-y-4 rounded-2xl border border-(--primary-color)/20 bg-(--primary-color)/5 p-4 sm:p-5">
+          <h2 className="font-montserrat text-base font-bold text-(--text-primary)">Seus dados (opcional)</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FieldCustomerName
               name={customerData.customer_name || ''}
@@ -120,15 +94,20 @@ export default function FormQRCodeFeedback({
       )}
 
       {error && (
-        <div className="rounded-lg border border-(--negative)/30 bg-(--negative)/10 p-3">
+        <div role="alert" className="rounded-xl border border-(--negative)/30 bg-(--negative)/10 p-3.5">
           <p className="text-(--negative) text-sm">{error}</p>
         </div>
       )}
 
+      <div className="flex items-start gap-2 px-1 text-xs leading-5 text-(--text-tertiary)">
+        <FaShieldHalved className="mt-0.5 h-3.5 w-3.5 shrink-0 text-(--primary-color)" aria-hidden />
+        <p>Seus dados são protegidos e usados apenas para melhorar sua experiência.</p>
+      </div>
+
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full cursor-pointer rounded-lg bg-gradient-to-r from-(--primary-color) to-(--tertiary-color) px-6 py-3 font-poppins font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:bg-(--bg-tertiary) disabled:text-(--text-secondary)">
+        className="flex h-[54px] w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-(--primary-color) px-6 font-poppins text-sm font-bold text-(--on-primary) shadow-[0_8px_20px_color-mix(in_srgb,var(--primary-color)_22%,transparent)] transition-all hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-(--bg-tertiary) disabled:text-(--text-secondary)">
         {isSubmitting ? (
           <>
             <FaSpinner className="mx-auto animate-spin text-white" aria-hidden="true" />

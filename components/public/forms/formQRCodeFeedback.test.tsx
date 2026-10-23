@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import '@testing-library/jest-dom';
 import type { CommentFieldSettings } from 'lib/schemas/public/commentField';
@@ -45,5 +45,19 @@ describe('formulário do cliente — campo de comentário do escopo', () => {
     render(<FormQRCodeFeedback model={model({ mode: 'HIDDEN', prompt: null })} />);
     expect(screen.queryByRole('textbox', { name: /experiência|opcional/ })).not.toBeInTheDocument();
     expect(document.getElementById('message')).toBeNull();
+  });
+
+  it('mantém os controles do novo formulário acessíveis e funcionais', () => {
+    const formModel = model();
+    render(<FormQRCodeFeedback model={formModel} />);
+
+    fireEvent.click(screen.getByRole('radio', { name: /5 estrelas: muito satisfeito/i }));
+    expect(formModel.actions.updateFormData).toHaveBeenCalledWith({ rating: 5 });
+
+    const personalInfoButton = screen.getByRole('button', { name: /informações pessoais/i });
+    expect(personalInfoButton).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(personalInfoButton);
+    expect(formModel.actions.toggleOptionalFields).toHaveBeenCalledOnce();
+    expect(screen.getByText(/seus dados são protegidos/i)).toBeInTheDocument();
   });
 });
