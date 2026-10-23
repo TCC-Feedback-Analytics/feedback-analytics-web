@@ -39,6 +39,13 @@ describe('[Unidade] Login Page', () => {
     expect(screen.getAllByText('Feedback Analytics')).toHaveLength(2);
   });
 
+  it('centraliza o aviso de segurança no rodapé do formulário', () => {
+    renderLogin();
+
+    expect(screen.getByText('Seus dados são protegidos e usados com segurança.'))
+      .toHaveClass('w-full', 'justify-center', 'text-center');
+  });
+
   it('deve ter link para página de registro', () => {
     renderLogin();
 
@@ -56,9 +63,13 @@ describe('[Unidade] Login Page', () => {
       'min-h-[100dvh]',
       'bg-(--bg-primary)',
     );
-    expect(container.querySelector('main')).toHaveClass(
-      'grid',
-      'lg:grid-cols-[minmax(0,0.9fr)_minmax(24rem,0.8fr)]',
-    );
+    const sidebar = container.querySelector('aside');
+    const formRegion = container.querySelector('main');
+
+    expect(mainDiv).toHaveClass('lg:grid-cols-[minmax(0,1fr)_minmax(28rem,0.82fr)]');
+    expect(sidebar).toHaveClass('hidden', 'lg:flex', 'lg:col-start-1');
+    expect(formRegion).toHaveClass('flex', 'justify-center', 'lg:col-start-2');
+    expect(formRegion?.parentElement).toBe(mainDiv);
+    expect(sidebar?.parentElement).toBe(mainDiv);
   });
 });
