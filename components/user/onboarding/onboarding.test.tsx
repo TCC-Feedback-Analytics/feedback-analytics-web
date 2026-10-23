@@ -432,12 +432,12 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
       '[data-tour="tour-movement"]',
       '[data-tour="tour-form-questions"]',
       '[data-tour="tour-dashboard-comments"]',
-      '[data-tour="tour-comments-overview"]',
+      '[data-tour="mobile-nav-insights"]',
       '[data-tour="tour-comments-list"]',
       '[data-tour="tour-compare-items"]',
       '[data-tour="tour-ratings-page"]',
       '[data-tour="mobile-nav-feedback"]',
-      '[data-tour="mobile-nav-catalog"]',
+      '[data-tour="mobile-nav-menu"]',
     ]);
     expect(INTERACTIVE_STEPS[13]).toMatchObject({
       mobileSelector: '[data-tour="mobile-nav-ia-settings"]',

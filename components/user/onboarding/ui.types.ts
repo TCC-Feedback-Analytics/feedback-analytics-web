@@ -143,6 +143,7 @@ export const INTERACTIVE_STEPS: TourStepData[] = [
   },
   {
     selector: '[data-tour="tour-comments-overview"]',
+    mobileSelector: '[data-tour="mobile-nav-insights"]',
     route: "/user/insights/overview",
     title: "Visão geral da análise",
     mobileSummary: "Tom, assuntos e recomendações da IA. Precisa da IA configurada e de 10 feedbacks.",
@@ -185,13 +186,14 @@ export const INTERACTIVE_STEPS: TourStepData[] = [
   },
   {
     selector: '[data-tour="tour-catalog"]',
-    mobileSelector: '[data-tour="mobile-nav-catalog"]',
+    mobileSelector: '[data-tour="mobile-nav-menu"]',
     route: "/user/edit/types-feedback",
     title: "Catálogo da Empresa",
-    mobileSummary: "Na barra de baixo, toque em Catálogo para produtos, serviços e setores.",
+    mobileSummary: "No menu, acesse o Catálogo para produtos, serviços e setores.",
     icon: FaBoxesStacked,
     description: "Ative os tipos de feedback e gerencie o catálogo de produtos, serviços e setores.",
-    mobileDescription: "Na barra inferior, toque em Catálogo para gerenciar produtos, serviços e setores.",
+    mobileDescription: "Na barra inferior, abra o Menu e toque em Catálogo para gerenciar produtos, serviços e setores.",
+    openMobileDrawer: true,
   },
   {
     selector: '[data-tour="ia-settings-form"]',
