@@ -165,7 +165,7 @@ export default function FormIaSettings() {
         <p role="alert" className="text-sm text-(--text-secondary)">
           {loaderData?.error || 'Não foi possível carregar a configuração de IA. Tente novamente.'}
         </p>
-        <button type="button" disabled={isBusy} onClick={() => revalidator.revalidate()} className="btn-primary rounded-xl px-4 py-2 text-sm disabled:opacity-50">
+        <button type="button" disabled={isBusy} onClick={() => revalidator.revalidate()} className="btn-primary min-h-11 w-full rounded-xl px-4 py-2 text-sm disabled:opacity-50 sm:w-auto">
           Recarregar configuração
         </button>
       </div>
@@ -211,7 +211,7 @@ export default function FormIaSettings() {
             type="button"
             onClick={handleDelete}
             disabled={isBusy}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-500/20 dark:text-red-400 transition-colors disabled:opacity-50"
+            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-xs font-semibold text-red-600 transition-colors hover:bg-red-500/20 disabled:opacity-50 sm:w-auto dark:text-red-400"
           >
             <FaTrashCan className="text-xs" />
             <span>Remover chave</span>
@@ -347,11 +347,11 @@ export default function FormIaSettings() {
           </div>
 
           {/* Botão de Submit */}
-          <div className="flex justify-end border-t border-(--quaternary-color)/15 pt-5">
+          <div className="flex w-full justify-end border-t border-(--quaternary-color)/15 pt-5">
             <button
               type="submit"
               disabled={!canSave}
-              className="btn-primary font-poppins inline-flex items-center gap-2 rounded-xl px-7 py-3 text-xs font-semibold shadow-md disabled:cursor-not-allowed disabled:opacity-60 transition-transform active:scale-95"
+              className="btn-primary font-poppins inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-7 py-3 text-xs font-semibold shadow-md transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             >
               {isSubmitting ? (
                 <>
