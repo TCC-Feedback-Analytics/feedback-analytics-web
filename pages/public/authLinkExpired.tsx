@@ -89,7 +89,7 @@ export default function AuthLinkExpired() {
                   className="h-12 w-full rounded-xl border border-(--primary-color)/20 bg-(--bg-tertiary) px-4 text-base text-(--text-primary) outline-none placeholder:text-(--text-tertiary) focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/20 md:text-sm"
                 />
                 {error && (
-                  <p role="alert" className="text-sm text-red-500">
+                  <p role="alert" className="text-sm text-(--negative)">
                     {error}
                   </p>
                 )}

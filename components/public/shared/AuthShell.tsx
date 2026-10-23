@@ -46,8 +46,8 @@ export default function AuthShell({
           <div className="flex items-center gap-3 text-xs text-(--text-tertiary)">
             <span className="flex -space-x-2" aria-hidden>
               <span className="h-7 w-7 rounded-full border-2 border-(--bg-primary) bg-(--primary-color)" />
-              <span className="h-7 w-7 rounded-full border-2 border-(--bg-primary) bg-amber-300" />
-              <span className="h-7 w-7 rounded-full border-2 border-(--bg-primary) bg-blue-400" />
+              <span className="h-7 w-7 rounded-full border-2 border-(--bg-primary) bg-(--positive)" />
+              <span className="h-7 w-7 rounded-full border-2 border-(--bg-primary) bg-(--secondary-color)" />
             </span>
             <span>+2.400 equipes escutando melhor</span>
           </div>
@@ -74,7 +74,7 @@ export default function AuthShell({
 
           {footer && <footer className="mt-6 border-t border-(--primary-color)/10 pt-5">{footer}</footer>}
 
-          <p className="mt-5 flex items-center justify-center gap-1.5 text-center text-[11px] leading-relaxed text-(--text-tertiary)">
+          <p className="mt-5 flex w-full items-center justify-center gap-1.5 text-center text-[11px] leading-relaxed text-(--text-tertiary)">
             <FaShieldHalved className="h-3 w-3 shrink-0 text-(--primary-color)/80" aria-hidden />
             Seus dados são protegidos e usados com segurança.
           </p>

@@ -99,7 +99,7 @@ export default function FormQRCodeFeedback({
         </div>
       )}
 
-      <div className="flex items-start gap-2 px-1 text-xs leading-5 text-(--text-tertiary)">
+      <div className="flex items-center justify-center gap-2 px-1 text-xs leading-5 text-(--text-tertiary)">
         <FaShieldHalved className="mt-0.5 h-3.5 w-3.5 shrink-0 text-(--primary-color)" aria-hidden />
         <p>Seus dados são protegidos e usados apenas para melhorar sua experiência.</p>
       </div>
@@ -110,7 +110,7 @@ export default function FormQRCodeFeedback({
         className="flex h-[54px] w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-(--primary-color) px-6 font-poppins text-sm font-bold text-(--on-primary) shadow-[0_8px_20px_color-mix(in_srgb,var(--primary-color)_22%,transparent)] transition-all hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-(--bg-tertiary) disabled:text-(--text-secondary)">
         {isSubmitting ? (
           <>
-            <FaSpinner className="mx-auto animate-spin text-white" aria-hidden="true" />
+            <FaSpinner className="mx-auto animate-spin text-(--on-primary)" aria-hidden="true" />
           </>
         ) : (
           'Enviar Feedback'

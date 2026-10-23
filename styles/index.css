@@ -199,6 +199,54 @@
     --sixth-color: #ffffff;
     --seventh-color: #eef7fb;
   }
+  .login-experience,
+  .feedback-form-experience {
+    color-scheme: light;
+    --bg-primary: #f2f7fb;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #d4e4ee;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-tertiary: #64748b;
+    --primary-color: #0f7c8f;
+    --secondary-color: #1294a8;
+    --tertiary-color: #0c6374;
+    --quaternary-color: #2ea3bc;
+    --quinary-color: #dff4f8;
+    --sixth-color: #ffffff;
+    --seventh-color: #eef7fb;
+    --on-primary: #ffffff;
+    --positive: #15803d;
+    --neutral: #a16207;
+    --negative: #be123c;
+    background-image:
+      radial-gradient(circle at top right, rgba(18, 148, 168, 0.16), transparent 28%),
+      radial-gradient(circle at left 18% bottom 12%, rgba(46, 163, 188, 0.14), transparent 24%),
+      linear-gradient(180deg, #f8fcfe 0%, #f2f7fb 48%, #edf5fa 100%);
+  }
+
+  .feedback-form-experience {
+    --feedback-answer-poor: #be123c;
+    --feedback-answer-poor-text: #9f1239;
+    --feedback-answer-poor-surface: #fff1f2;
+    --feedback-answer-poor-border: #fda4af;
+    --feedback-answer-bad: #c2410c;
+    --feedback-answer-bad-text: #9a3412;
+    --feedback-answer-bad-surface: #fff7ed;
+    --feedback-answer-bad-border: #fdba74;
+    --feedback-answer-neutral: #a16207;
+    --feedback-answer-neutral-text: #854d0e;
+    --feedback-answer-neutral-surface: #fefce8;
+    --feedback-answer-neutral-border: #facc15;
+    --feedback-answer-good: #15803d;
+    --feedback-answer-good-text: #166534;
+    --feedback-answer-good-surface: #f0fdf4;
+    --feedback-answer-good-border: #86efac;
+    --feedback-answer-great: #0f7c8f;
+    --feedback-answer-great-text: #0c6374;
+    --feedback-answer-great-surface: #ecfeff;
+    --feedback-answer-great-border: #67e8f9;
+  }
 }
 
 .font-inter {

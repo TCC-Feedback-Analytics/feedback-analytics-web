@@ -126,7 +126,7 @@ export default function FormResendConfirmation() {
           />
         </div>
         {errors.email ? (
-          <p id="email-error" className="text-xs text-red-400">
+          <p id="email-error" className="text-xs text-(--negative)">
             {errors.email.message}
           </p>
         ) : null}

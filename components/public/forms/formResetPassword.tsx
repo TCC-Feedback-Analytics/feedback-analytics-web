@@ -77,7 +77,7 @@ export default function FormResetPassword() {
           />
         </div>
         {errors.password && (
-          <p className="text-xs text-red-400">{errors.password.message}</p>
+          <p className="text-xs text-(--negative)">{errors.password.message}</p>
         )}
       </div>
 
@@ -104,7 +104,7 @@ export default function FormResetPassword() {
           />
         </div>
         {errors.confirmPassword && (
-          <p className="text-xs text-red-400">{errors.confirmPassword.message}</p>
+          <p className="text-xs text-(--negative)">{errors.confirmPassword.message}</p>
         )}
       </div>
 
