@@ -38,7 +38,7 @@ export default function MobileBottomNav({
       tourAttr: 'mobile-nav-feedback',
     },
     {
-      label: 'Análise IA',
+      label: 'Diagnósticos',
       to: '/user/insights/overview',
       icon: FaWandMagicSparkles,
       tourAttr: 'mobile-nav-insights',
@@ -85,16 +85,16 @@ export default function MobileBottomNav({
               data-tour={item.tourAttr}
               aria-current={isActive ? 'page' : undefined}
               data-pending-current={isPendingActive ? 'true' : undefined}
-              className={`flex min-h-15 min-w-0 w-full flex-col items-center justify-center gap-1 text-center transition-all duration-200 active:scale-90 ${
+              className={`flex min-h-16 min-w-0 w-full flex-col items-center justify-center gap-1.5 text-center transition-all duration-200 active:scale-90 ${
                 isActive
                   ? 'text-(--primary-color) font-bold scale-105'
                   : 'text-(--text-tertiary) hover:text-(--text-primary)'
               }`}
             >
-              <div className="relative flex items-center justify-center">
+              <div className="flex min-h-8 flex-col items-center justify-start">
                 <Icon className="h-[22px] w-[22px]" />
                 {isActive && (
-                  <span className="absolute -bottom-1.5 h-1 w-4 rounded-full bg-(--primary-color) transition-all duration-300" />
+                  <span className="mt-1.5 h-1 w-4 rounded-full bg-(--primary-color) transition-all duration-300" />
                 )}
               </div>
               <span className="text-[11px] tracking-tight leading-none font-medium">

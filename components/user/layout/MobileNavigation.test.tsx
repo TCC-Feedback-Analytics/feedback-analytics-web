@@ -47,14 +47,14 @@ describe('[Unidade] navegação móvel', () => {
     expect(button).toHaveAttribute('aria-controls', 'mobile-navigation-drawer');
   });
 
-  it('prioriza a análise com IA na barra inferior e mantém o catálogo no menu', () => {
+  it('prioriza os diagnósticos na barra inferior e mantém o catálogo no menu', () => {
     render(
       <MemoryRouter>
         <NavigationHarness />
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('link', { name: 'Análise IA' })).toHaveAttribute('href', '/user/insights/overview');
+    expect(screen.getByRole('link', { name: 'Diagnósticos' })).toHaveAttribute('href', '/user/insights/overview');
     expect(screen.getByRole('link', { name: 'Comentários' })).toHaveAttribute('href', '/user/insights/comments');
     expect(screen.queryByRole('link', { name: 'Catálogo' })).not.toBeInTheDocument();
   });

@@ -1,5 +1,6 @@
-import { FaCheck, FaFilter } from 'react-icons/fa6';
+import { FaFilter } from 'react-icons/fa6';
 import { useLoaderData, useSearchParams } from 'react-router-dom';
+import { Select } from 'components/ui/select';
 import PageHeader from 'components/user/shared/PageHeader';
 import ScopeTag from 'components/user/shared/ScopeTag';
 import CommentList from 'components/user/pages/comments/CommentList';
@@ -55,28 +56,18 @@ export default function CommentsPage() {
           <ScopeTag className="w-full justify-center sm:w-auto" />
         </div>
 
-        <div role="group" aria-label="Filtrar comentários" className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-          {COMMENT_FILTERS.map((option) => {
-            const selected = filter === option;
-            const count = filterComments(items, option).length;
-            return (
-              <button
-                key={option}
-                type="button"
-                aria-pressed={selected}
-                onClick={() => selectFilter(option)}
-                className={`flex min-h-11 w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-xs font-semibold transition-colors ${
-                  option === 'divergentes' ? 'col-span-2 sm:w-auto' : 'sm:w-auto' }
-                  ${selected
-                    ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--primary-color) shadow-sm'
-                    : 'border-(--quaternary-color)/18 bg-(--bg-primary)/30 text-(--text-secondary) hover:border-(--quaternary-color)/35 hover:text-(--text-primary)'
-                }`}
-              >
-                <span>{COMMENT_FILTER_LABEL[option]} ({count})</span>
-                {selected && <FaCheck className="shrink-0" aria-hidden />}
-              </button>
-            );
-          })}
+        <div className="w-full sm:max-w-xs">
+          <label htmlFor="comments-tone-filter" className="sr-only">Filtrar comentários</label>
+          <Select<CommentFilter>
+            id="comments-tone-filter"
+            value={filter}
+            onChange={selectFilter}
+            startIcon={<FaFilter className="h-3.5 w-3.5" aria-hidden />}
+            options={COMMENT_FILTERS.map((option) => ({
+              value: option,
+              label: `${COMMENT_FILTER_LABEL[option]} (${filterComments(items, option).length})`,
+            }))}
+          />
         </div>
       </section>
 
