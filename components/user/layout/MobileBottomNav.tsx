@@ -64,7 +64,7 @@ export default function MobileBottomNav({
                   aria-controls="mobile-navigation-drawer"
                   aria-haspopup="dialog"
                   title="Abrir menu completo"
-                  className="group relative -top-7 flex h-15 w-15 items-center justify-center rounded-full bg-linear-to-tr from-(--primary-color) to-cyan-400 text-white shadow-[0_5px_24px_rgba(62,217,227,0.48)] ring-4 ring-(--bg-secondary) transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-(--primary-color)/35"
+                  className="group relative -top-7 flex h-15 w-15 items-center justify-center rounded-full bg-linear-to-tr from-(--primary-color) to-(--secondary-color) text-(--on-primary) shadow-[0_5px_24px_color-mix(in_srgb,var(--primary-color)_48%,transparent)] ring-4 ring-(--bg-secondary) transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-(--primary-color)/35"
                 >
                   <FaBars className="h-6 w-6 transition-transform group-hover:scale-110" />
                 </button>
@@ -85,19 +85,19 @@ export default function MobileBottomNav({
               data-tour={item.tourAttr}
               aria-current={isActive ? 'page' : undefined}
               data-pending-current={isPendingActive ? 'true' : undefined}
-              className={`flex min-h-16 min-w-0 w-full flex-col items-center justify-center gap-1.5 text-center transition-all duration-200 active:scale-90 ${
+              className={`flex min-h-16 min-w-0 w-full flex-col items-center justify-center text-center transition-all duration-200 active:scale-90 ${
                 isActive
                   ? 'text-(--primary-color) font-bold scale-105'
                   : 'text-(--text-tertiary) hover:text-(--text-primary)'
               }`}
             >
-              <div className="flex min-h-8 flex-col items-center justify-start">
-                <Icon className="h-[22px] w-[22px]" />
-                {isActive && (
-                  <span className="mt-1.5 h-1 w-4 rounded-full bg-(--primary-color) transition-all duration-300" />
-                )}
+              <div className="flex h-8 shrink-0 flex-col items-center justify-start">
+                <span className={`h-1 w-4 rounded-full transition-all duration-300 ${
+                  isActive ? 'bg-(--primary-color)' : 'invisible'
+                }`} />
+                <Icon className="mt-1.5 h-[22px] w-[22px]" />
               </div>
-              <span className="text-[11px] tracking-tight leading-none font-medium">
+              <span className="mt-1.5 text-[11px] tracking-tight leading-none font-medium">
                 {item.label}
               </span>
             </NavLink>

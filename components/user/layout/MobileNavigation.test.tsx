@@ -59,6 +59,20 @@ describe('[Unidade] navegação móvel', () => {
     expect(screen.queryByRole('link', { name: 'Catálogo' })).not.toBeInTheDocument();
   });
 
+  it('posiciona o indicador de página acima do ícone ativo', () => {
+    render(
+      <MemoryRouter initialEntries={['/user/edit/feedback-general']}>
+        <MobileBottomNav isDrawerOpen={false} onOpenDrawer={vi.fn()} />
+      </MemoryRouter>,
+    );
+
+    const activeLink = screen.getByRole('link', { name: 'Avaliação' });
+    const iconArea = activeLink.firstElementChild;
+    expect(iconArea?.firstElementChild).toHaveClass('h-1', 'bg-(--primary-color)');
+    expect(iconArea?.lastElementChild).toHaveClass('mt-1.5');
+    expect(activeLink.lastElementChild).toHaveClass('mt-1.5');
+  });
+
   it('mantém as rotas adicionais acessíveis no drawer', async () => {
     const onClose = vi.fn();
     const user = userEvent.setup();
