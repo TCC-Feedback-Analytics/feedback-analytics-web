@@ -17,6 +17,34 @@ const ANSWER_HELPER: Record<FeedbackAnswerValue, string> = {
   OTIMA: 'Excelente experiência',
 };
 
+const ANSWER_TONES: Record<FeedbackAnswerValue, { option: string; indicator: string; core: string }> = {
+  PESSIMO: {
+    option: 'border-[var(--feedback-answer-poor-border)] bg-[var(--feedback-answer-poor-surface)] text-[var(--feedback-answer-poor-text)] hover:border-[var(--feedback-answer-poor)]',
+    indicator: 'border-[var(--feedback-answer-poor-border)] bg-[var(--feedback-answer-poor-surface)]',
+    core: 'bg-[var(--feedback-answer-poor)]',
+  },
+  RUIM: {
+    option: 'border-[var(--feedback-answer-bad-border)] bg-[var(--feedback-answer-bad-surface)] text-[var(--feedback-answer-bad-text)] hover:border-[var(--feedback-answer-bad)]',
+    indicator: 'border-[var(--feedback-answer-bad-border)] bg-[var(--feedback-answer-bad-surface)]',
+    core: 'bg-[var(--feedback-answer-bad)]',
+  },
+  MEDIANA: {
+    option: 'border-[var(--feedback-answer-neutral-border)] bg-[var(--feedback-answer-neutral-surface)] text-[var(--feedback-answer-neutral-text)] hover:border-[var(--feedback-answer-neutral)]',
+    indicator: 'border-[var(--feedback-answer-neutral-border)] bg-[var(--feedback-answer-neutral-surface)]',
+    core: 'bg-[var(--feedback-answer-neutral)]',
+  },
+  BOA: {
+    option: 'border-[var(--feedback-answer-good-border)] bg-[var(--feedback-answer-good-surface)] text-[var(--feedback-answer-good-text)] hover:border-[var(--feedback-answer-good)]',
+    indicator: 'border-[var(--feedback-answer-good-border)] bg-[var(--feedback-answer-good-surface)]',
+    core: 'bg-[var(--feedback-answer-good)]',
+  },
+  OTIMA: {
+    option: 'border-[var(--feedback-answer-great-border)] bg-[var(--feedback-answer-great-surface)] text-[var(--feedback-answer-great-text)] hover:border-[var(--feedback-answer-great)]',
+    indicator: 'border-[var(--feedback-answer-great-border)] bg-[var(--feedback-answer-great-surface)]',
+    core: 'bg-[var(--feedback-answer-great)]',
+  },
+};
+
 export default function FieldDynamicQuestions({
   questions,
   answers,
@@ -60,6 +88,7 @@ export default function FieldDynamicQuestions({
             >
               {ANSWER_OPTIONS.map((option) => {
                 const isSelected = selectedAnswer === option.value;
+                const tone = ANSWER_TONES[option.value];
 
                 return (
                   <button
@@ -68,13 +97,15 @@ export default function FieldDynamicQuestions({
                     role="radio"
                     aria-checked={isSelected}
                     onClick={() => onAnswerChange(question.id, option.value)}
-                    className={`flex min-h-[52px] w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border px-0.5 py-2 text-center text-[9px] font-semibold leading-3 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color) ${
+                    className={`flex min-h-[60px] w-full cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border px-0.5 py-2 text-center text-[9px] font-semibold leading-3 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color) ${tone.option} ${
                       isSelected
-                        ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--primary-color) shadow-[0_0_0_1px_var(--primary-color)]'
-                        : 'border-(--quaternary-color)/20 bg-(--bg-tertiary) text-(--text-secondary) hover:border-(--primary-color)/45 hover:bg-(--primary-color)/8 hover:text-(--text-primary)'
+                        ? 'scale-[1.03] shadow-[0_0_0_1px_currentColor]'
+                        : 'hover:brightness-110'
                     }`}
                   >
-                    <span className={`h-2.5 w-2.5 rounded-full ${isSelected ? 'bg-current' : 'bg-current/70'}`} aria-hidden />
+                    <span className={`flex h-7 w-7 items-center justify-center rounded-full border ${tone.indicator}`} aria-hidden>
+                      <span className={`rounded-full ${isSelected ? 'h-3.5 w-3.5' : 'h-2.5 w-2.5'} ${tone.core}`} />
+                    </span>
                     {option.label}
                   </button>
                 );
@@ -116,6 +147,7 @@ export default function FieldDynamicQuestions({
                       >
                         {ANSWER_OPTIONS.map((option) => {
                           const isSelected = selectedSubanswer === option.value;
+                          const tone = ANSWER_TONES[option.value];
 
                           return (
                             <button
@@ -126,12 +158,13 @@ export default function FieldDynamicQuestions({
                               onClick={() =>
                                 onSubanswerChange(subquestion.id, option.value)
                               }
-                              className={`min-h-[44px] w-full cursor-pointer rounded-lg border px-0.5 py-1 text-[8px] font-semibold leading-3 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color) ${
+                              className={`flex min-h-[48px] w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border px-0.5 py-1 text-[8px] font-semibold leading-3 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color) ${tone.option} ${
                                 isSelected
-                                  ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--primary-color) shadow-[0_0_0_1px_var(--primary-color)]'
-                                  : 'border-(--quaternary-color)/20 bg-(--bg-secondary) text-(--text-secondary) hover:border-(--primary-color)/45 hover:bg-(--primary-color)/8 hover:text-(--text-primary)'
+                                  ? 'shadow-[0_0_0_1px_currentColor]'
+                                  : 'hover:brightness-110'
                               }`}
                             >
+                              <span className={`h-2 rounded-full ${isSelected ? 'w-3' : 'w-2'} ${tone.core}`} aria-hidden />
                               {option.label}
                             </button>
                           );

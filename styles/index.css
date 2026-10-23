@@ -106,6 +106,29 @@
   --on-primary: #06272a;
 }
 
+.feedback-form-experience {
+  --feedback-answer-poor: #f87171;
+  --feedback-answer-poor-text: #fca5a5;
+  --feedback-answer-poor-surface: #f8717118;
+  --feedback-answer-poor-border: #f8717166;
+  --feedback-answer-bad: #fb923c;
+  --feedback-answer-bad-text: #fdba74;
+  --feedback-answer-bad-surface: #fb923c18;
+  --feedback-answer-bad-border: #fb923c66;
+  --feedback-answer-neutral: #fbbf24;
+  --feedback-answer-neutral-text: #fcd34d;
+  --feedback-answer-neutral-surface: #fbbf2418;
+  --feedback-answer-neutral-border: #fbbf2466;
+  --feedback-answer-good: #71eb5e;
+  --feedback-answer-good-text: #98f5a3;
+  --feedback-answer-good-surface: #75eb5e18;
+  --feedback-answer-good-border: #83eb5e66;
+  --feedback-answer-great: #35d0c3;
+  --feedback-answer-great-text: #8be4dc;
+  --feedback-answer-great-surface: #35d0c31f;
+  --feedback-answer-great-border: #35d0c378;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     --bg-primary: #ffffff;
