@@ -4,13 +4,13 @@ import { isEmbeddedForm } from 'src/lib/utils/embeddedForm';
 
 export default function Public() {
   const { pathname } = useLocation();
-  // O formulário de coleta é uma experiência focada no cliente, sem navegação
-  // da área pública. A mesma regra também cobre o preview dentro do Dashboard.
+  // As experiências focadas em uma única tarefa não exibem a navegação pública.
+  // A regra também cobre o preview do formulário dentro do Dashboard.
   const embedded = isEmbeddedForm();
-  const isFeedbackCollection = pathname === '/feedback/qrcode';
+  const isHeaderlessPage = ['/feedback/qrcode', '/login'].includes(pathname);
   return (
     <div className="public-theme min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
-      {!embedded && !isFeedbackCollection && (
+      {!embedded && !isHeaderlessPage && (
         <header className="relative z-10">
           <Header />
         </header>

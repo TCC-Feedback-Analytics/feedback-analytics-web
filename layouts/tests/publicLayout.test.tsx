@@ -31,8 +31,15 @@ describe('layout pública', () => {
     expect(screen.getByText('Conteúdo público')).toBeInTheDocument();
   });
 
-  it('mantém o cabeçalho nas demais páginas públicas', () => {
+  it('remove o cabeçalho da página de login', () => {
     renderLayout('/login');
+
+    expect(screen.queryByTestId('public-header')).not.toBeInTheDocument();
+    expect(screen.getByText('Conteúdo público')).toBeInTheDocument();
+  });
+
+  it('mantém o cabeçalho nas demais páginas públicas', () => {
+    renderLayout('/register');
 
     expect(screen.getByTestId('public-header')).toBeInTheDocument();
   });
