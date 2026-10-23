@@ -15,7 +15,7 @@ export default function Login() {
               <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-(--primary-color) text-(--on-primary)">
                 <FaCommentDots className="h-[18px] w-[18px]" aria-hidden />
               </span>
-              <span className="font-montserrat text-base font-bold tracking-tight">Feedback</span>
+              <span className="font-montserrat text-base font-bold tracking-tight">Feedback Analytics</span>
             </Link>
 
             <div className="max-w-md space-y-5">
@@ -50,7 +50,7 @@ export default function Login() {
             <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-(--primary-color) text-(--on-primary)">
               <FaCommentDots className="h-[18px] w-[18px]" aria-hidden />
             </span>
-            <span className="font-montserrat text-base font-bold tracking-tight">Feedback</span>
+            <span className="font-montserrat text-base font-bold tracking-tight">Feedback Analytics</span>
           </Link>
 
           <header className="space-y-2">

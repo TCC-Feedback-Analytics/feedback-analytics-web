@@ -33,6 +33,12 @@ describe('[Unidade] Login Page', () => {
     expect(screen.getByTestId('form-login')).toHaveTextContent('Login Form');
   });
 
+  it('deve exibir o nome completo da marca no cabeçalho', () => {
+    renderLogin();
+
+    expect(screen.getAllByText('Feedback Analytics')).toHaveLength(2);
+  });
+
   it('deve ter link para página de registro', () => {
     renderLogin();
 
