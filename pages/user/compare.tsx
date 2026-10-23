@@ -1,4 +1,5 @@
 import { useEffect, useId, useState } from 'react';
+import { FaCalendarDays, FaScaleBalanced } from 'react-icons/fa6';
 import PageHeader from 'components/user/shared/PageHeader';
 import ComparePreview from 'components/user/pages/compare/ComparePreview';
 import PrecisionBadge from 'components/user/shared/PrecisionBadge';
@@ -215,7 +216,7 @@ export default function CompareItems() {
 
   if (!activeKind || !itemA || !itemB) {
     return (
-      <div className="font-work-sans space-y-6">
+      <div className="font-work-sans space-y-5 sm:space-y-6">
         <PageHeader />
         <ComparePreview />
       </div>
@@ -227,71 +228,109 @@ export default function CompareItems() {
   const rows = fresh && !result.failed ? buildRows(result.stats) : [];
 
   return (
-    <div className="font-work-sans space-y-6">
+    <div className="font-work-sans space-y-5 sm:space-y-6">
       <PageHeader />
 
       <section
         data-tour="tour-compare-items"
-        className="space-y-4 rounded-2xl border border-(--quaternary-color)/10 bg-(--bg-secondary) p-4 md:p-5"
+        className="overflow-hidden rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) shadow-sm"
         aria-label="O que comparar"
       >
-        {kinds.length > 1 && (
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Tipo de item">
-            {kinds.map((option) => {
-              const { Icon, color } = SCOPE_CONFIG[option];
-              const selected = option === activeKind;
-              return (
-                <button
-                  key={option}
-                  type="button"
-                  aria-pressed={selected}
-                  onClick={() => changeKind(option)}
-                  className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
-                    selected
-                      ? 'border-(--primary-color)/45 bg-(--primary-color)/10 text-(--text-primary)'
-                      : 'border-(--quaternary-color)/18 text-(--text-secondary) hover:text-(--text-primary)'
-                  }`}
-                >
-                  <Icon className="h-3 w-3" style={{ color }} aria-hidden />
-                  {KIND_PLURAL[option]}
-                </button>
-              );
-            })}
+        <div className="flex flex-col gap-4 border-b border-(--quaternary-color)/10 p-4 sm:flex-row sm:items-start sm:justify-between sm:p-6">
+          <div className="flex min-w-0 items-start gap-3">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-(--primary-color)/15 text-(--primary-color)">
+              <FaScaleBalanced className="h-4 w-4" aria-hidden />
+            </span>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-(--primary-color)">Comparação justa</p>
+              <h2 className="mt-1 font-montserrat text-lg font-semibold text-(--text-primary)">Escolha os itens e o período</h2>
+              <p className="mt-1 max-w-2xl text-sm leading-relaxed text-(--text-secondary)">
+                Compare itens do mesmo tipo com exatamente o mesmo recorte de dados.
+              </p>
+            </div>
           </div>
-        )}
-
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="space-y-1">
-            <label htmlFor={selectAId} className="text-xs font-medium text-(--text-tertiary)">
-              Item A
-            </label>
-            <Select
-              id={selectAId}
-              options={items.filter((item) => item.id !== itemB.id).map((item) => ({ value: item.id, label: item.name }))}
-              value={itemA.id}
-              onChange={(value) => setAId(String(value))}
-              searchable={items.length > 8}
-            />
-          </div>
-          <div className="space-y-1">
-            <label htmlFor={selectBId} className="text-xs font-medium text-(--text-tertiary)">
-              Item B
-            </label>
-            <Select
-              id={selectBId}
-              options={items.filter((item) => item.id !== itemA.id).map((item) => ({ value: item.id, label: item.name }))}
-              value={itemB.id}
-              onChange={(value) => setBId(String(value))}
-              searchable={items.length > 8}
-            />
-          </div>
+          <span className="inline-flex w-full shrink-0 items-center justify-center rounded-full border border-(--primary-color)/20 bg-(--primary-color)/8 px-3 py-1 text-xs font-medium text-(--text-secondary) sm:w-fit">
+            Mesmo período para os dois
+          </span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <PeriodSelectorDropdown value={period} onChange={setPeriod} />
-          <p className="text-xs text-(--text-tertiary)">
-            O mesmo período para os dois {KIND_SINGULAR[activeKind]}s. As perguntas não entram: cada {KIND_SINGULAR[activeKind]} tem as suas.
-          </p>
+        <div className="space-y-5 p-4 sm:p-6">
+          {kinds.length > 1 && (
+            <div className="space-y-2" role="group" aria-label="Tipo de item">
+              <p className="text-xs font-semibold uppercase tracking-wide text-(--text-tertiary)">Tipo de item</p>
+              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                {kinds.map((option) => {
+                  const { Icon, color } = SCOPE_CONFIG[option];
+                  const selected = option === activeKind;
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      aria-pressed={selected}
+                      onClick={() => changeKind(option)}
+                      className={`inline-flex min-h-11 w-full items-center gap-2 rounded-xl border px-3 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color)/40 sm:min-h-10 sm:w-auto ${
+                        selected
+                          ? 'border-(--primary-color)/45 bg-(--primary-color)/10 text-(--text-primary)'
+                          : 'border-(--quaternary-color)/18 bg-(--bg-primary)/20 text-(--text-secondary) hover:border-(--quaternary-color)/35 hover:text-(--text-primary)'
+                      }`}
+                    >
+                      <Icon className="h-3.5 w-3.5" style={{ color }} aria-hidden />
+                      {KIND_PLURAL[option]}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto_1fr] md:items-end">
+            <div className="rounded-xl border border-cyan-400/20 bg-cyan-400/5 p-3 sm:p-4">
+              <div className="mb-2 flex items-center gap-2">
+                <span className="grid h-5 w-5 place-items-center rounded-full bg-cyan-400/15 text-[10px] font-bold text-cyan-300">A</span>
+                <label htmlFor={selectAId} className="text-xs font-semibold uppercase tracking-wide text-(--text-secondary)">
+                  Primeiro item
+                </label>
+              </div>
+              <Select
+                id={selectAId}
+                options={items.filter((item) => item.id !== itemB.id).map((item) => ({ value: item.id, label: item.name }))}
+                value={itemA.id}
+                onChange={(value) => setAId(String(value))}
+                searchable={items.length > 8}
+              />
+            </div>
+
+            <span className="mx-auto grid h-8 w-8 place-items-center rounded-full border border-(--quaternary-color)/20 bg-(--bg-primary) text-[10px] font-bold text-(--text-tertiary) md:mb-4" aria-hidden>
+              VS
+            </span>
+
+            <div className="rounded-xl border border-violet-400/20 bg-violet-400/5 p-3 sm:p-4">
+              <div className="mb-2 flex items-center gap-2">
+                <span className="grid h-5 w-5 place-items-center rounded-full bg-violet-400/15 text-[10px] font-bold text-violet-300">B</span>
+                <label htmlFor={selectBId} className="text-xs font-semibold uppercase tracking-wide text-(--text-secondary)">
+                  Segundo item
+                </label>
+              </div>
+              <Select
+                id={selectBId}
+                options={items.filter((item) => item.id !== itemA.id).map((item) => ({ value: item.id, label: item.name }))}
+                value={itemB.id}
+                onChange={(value) => setBId(String(value))}
+                searchable={items.length > 8}
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3 border-t border-(--quaternary-color)/10 pt-4 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-2 text-(--text-secondary)">
+              <FaCalendarDays className="h-4 w-4 text-(--primary-color)" aria-hidden />
+              <span className="text-sm font-medium">Período</span>
+            </div>
+            <PeriodSelectorDropdown value={period} onChange={setPeriod} />
+            <p className="text-xs leading-relaxed text-(--text-tertiary)">
+              As perguntas não entram: cada {KIND_SINGULAR[activeKind]} tem as suas.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -300,35 +339,69 @@ export default function CompareItems() {
           Não foi possível carregar a comparação agora. Tente novamente em instantes.
         </div>
       ) : loading ? (
-        <p className="text-sm text-(--text-tertiary)">Carregando a comparação…</p>
-      ) : (
-        <div className="overflow-x-auto rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color)">
-          <table className="w-full min-w-[560px] text-left text-sm">
-            <caption className="px-5 pt-4 text-left text-xs text-(--text-tertiary)">
-              {itemA.name} × {itemB.name} · {periodText(period).label}
-            </caption>
-            <thead>
-              <tr className="border-b border-(--quaternary-color)/10 text-xs text-(--text-tertiary)">
-                <th scope="col" className="px-5 py-3 font-medium">Métrica</th>
-                <th scope="col" className="px-5 py-3 font-medium text-(--text-primary)">A · {itemA.name}</th>
-                <th scope="col" className="px-5 py-3 font-medium text-(--text-primary)">B · {itemB.name}</th>
-                <th scope="col" className="px-5 py-3 font-medium">Quem está melhor</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.metric} className="border-b border-(--quaternary-color)/8 last:border-0">
-                  <th scope="row" className="px-5 py-3 font-medium text-(--text-secondary)">{row.metric}</th>
-                  <td className="px-5 py-3 text-(--text-primary)">{row.a}</td>
-                  <td className="px-5 py-3 text-(--text-primary)">{row.b}</td>
-                  <td className="px-5 py-3">
-                    <Verdict row={row} nameA={itemA.name} nameB={itemB.name} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="rounded-2xl border border-(--quaternary-color)/10 bg-(--bg-secondary) px-5 py-8 text-center text-sm text-(--text-tertiary)" aria-live="polite">
+          Carregando a comparação…
         </div>
+      ) : (
+        <section className="overflow-hidden rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color)" aria-labelledby="compare-results-title">
+          <header className="flex flex-col gap-3 border-b border-(--quaternary-color)/10 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-(--primary-color)">Resultado</p>
+              <h2 id="compare-results-title" className="mt-1 font-montserrat text-lg font-semibold text-(--text-primary)">Leitura lado a lado</h2>
+            </div>
+            <p className="text-sm text-(--text-secondary)"><span className="font-semibold text-cyan-300">A · {itemA.name}</span> <span className="px-1 text-(--text-tertiary)">vs.</span> <span className="font-semibold text-violet-300">B · {itemB.name}</span></p>
+          </header>
+          <div className="space-y-3 p-4 md:hidden">
+            <p className="text-xs text-(--text-tertiary)">{periodText(period).label}</p>
+            {rows.map((row) => (
+              <article key={row.metric} className="rounded-xl border border-(--quaternary-color)/10 bg-(--bg-primary)/30 p-3.5">
+                <h3 className="text-sm font-semibold text-(--text-primary)">{row.metric}</h3>
+                <dl className="mt-3 grid grid-cols-2 gap-2">
+                  <div className="min-w-0 rounded-lg bg-cyan-400/5 p-2.5">
+                    <dt className="truncate text-[10px] font-semibold uppercase tracking-wide text-cyan-300">A · {itemA.name}</dt>
+                    <dd className="mt-1 break-words text-xs leading-relaxed text-(--text-primary)">{row.a}</dd>
+                  </div>
+                  <div className="min-w-0 rounded-lg bg-violet-400/5 p-2.5">
+                    <dt className="truncate text-[10px] font-semibold uppercase tracking-wide text-violet-300">B · {itemB.name}</dt>
+                    <dd className="mt-1 break-words text-xs leading-relaxed text-(--text-primary)">{row.b}</dd>
+                  </div>
+                </dl>
+                <div className="mt-3 border-t border-(--quaternary-color)/10 pt-2.5 text-xs text-(--text-secondary)">
+                  <span className="mr-1 font-semibold text-(--text-primary)">Comparação:</span>
+                  <Verdict row={row} nameA={itemA.name} nameB={itemB.name} />
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="hidden overflow-x-auto md:block">
+            <table className="w-full min-w-[560px] text-left text-sm">
+              <caption className="px-5 pt-4 text-left text-xs text-(--text-tertiary)">
+                {itemA.name} × {itemB.name} · {periodText(period).label}
+              </caption>
+              <thead>
+                <tr className="border-b border-(--quaternary-color)/10 text-xs text-(--text-tertiary)">
+                  <th scope="col" className="px-5 py-3 font-medium">Métrica</th>
+                  <th scope="col" className="px-5 py-3 font-medium text-cyan-300">A · {itemA.name}</th>
+                  <th scope="col" className="px-5 py-3 font-medium text-violet-300">B · {itemB.name}</th>
+                  <th scope="col" className="px-5 py-3 font-medium">Quem está melhor</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => (
+                  <tr key={row.metric} className="border-b border-(--quaternary-color)/8 last:border-0">
+                    <th scope="row" className="px-5 py-3 font-medium text-(--text-secondary)">{row.metric}</th>
+                    <td className="px-5 py-3 text-(--text-primary)">{row.a}</td>
+                    <td className="px-5 py-3 text-(--text-primary)">{row.b}</td>
+                    <td className="px-5 py-3">
+                      <Verdict row={row} nameA={itemA.name} nameB={itemB.name} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
       )}
     </div>
   );
