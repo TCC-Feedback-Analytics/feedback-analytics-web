@@ -33,7 +33,7 @@ export default function FieldRating({ rating, onRatingChange }: FieldRatingProps
                 : 'border-(--quaternary-color)/18 bg-(--bg-tertiary) text-(--text-tertiary) hover:border-(--primary-color)/45 hover:bg-(--primary-color)/8 hover:text-(--primary-color)'
             }`}>
             <svg
-              className="h-5 w-5"
+              className={`h-5 w-5 ${star <= rating ? 'text-(--primary-color)' : ''}`}
               fill={star <= rating ? 'currentColor' : 'none'}
               stroke="currentColor"
               strokeWidth="1.5"
