@@ -33,7 +33,7 @@ export default function FieldDynamicQuestions({
   );
 
   return (
-    <section className="overflow-hidden rounded-[20px] border border-(--quaternary-color)/15 bg-(--seventh-color)">
+    <section className="overflow-hidden rounded-[20px] border border-(--quaternary-color)/15 bg-(--bg-secondary)">
       {sortedQuestions.map((question) => {
         const selectedAnswer =
           answers.find((answer) => answer.question_id === question.id)?.answer_value ?? '';
@@ -71,7 +71,7 @@ export default function FieldDynamicQuestions({
                     className={`flex min-h-[52px] w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border px-0.5 py-2 text-center text-[9px] font-semibold leading-3 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color) ${
                       isSelected
                         ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--primary-color) shadow-[0_0_0_1px_var(--primary-color)]'
-                        : 'border-(--quaternary-color)/20 bg-(--bg-primary)/40 text-(--text-secondary) hover:border-(--primary-color)/45 hover:bg-(--primary-color)/8 hover:text-(--text-primary)'
+                        : 'border-(--quaternary-color)/20 bg-(--bg-tertiary) text-(--text-secondary) hover:border-(--primary-color)/45 hover:bg-(--primary-color)/8 hover:text-(--text-primary)'
                     }`}
                   >
                     <span className={`h-2.5 w-2.5 rounded-full ${isSelected ? 'bg-current' : 'bg-current/70'}`} aria-hidden />
@@ -102,7 +102,7 @@ export default function FieldDynamicQuestions({
                   return (
                     <div
                       key={subquestion.id}
-                      className="rounded-xl border border-(--quaternary-color)/12 bg-(--bg-primary)/30 p-3"
+                      className="rounded-xl border border-(--quaternary-color)/12 bg-(--bg-tertiary) p-3"
                     >
                       <p className="mb-2 text-xs font-semibold text-(--text-primary) font-work-sans">
                         {question.question_order}.{subquestion.subquestion_order} {subquestion.subquestion_text}
@@ -129,7 +129,7 @@ export default function FieldDynamicQuestions({
                               className={`min-h-[44px] w-full cursor-pointer rounded-lg border px-0.5 py-1 text-[8px] font-semibold leading-3 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color) ${
                                 isSelected
                                   ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--primary-color) shadow-[0_0_0_1px_var(--primary-color)]'
-                                  : 'border-(--quaternary-color)/20 bg-(--bg-primary)/40 text-(--text-secondary) hover:border-(--primary-color)/45 hover:bg-(--primary-color)/8 hover:text-(--text-primary)'
+                                  : 'border-(--quaternary-color)/20 bg-(--bg-secondary) text-(--text-secondary) hover:border-(--primary-color)/45 hover:bg-(--primary-color)/8 hover:text-(--text-primary)'
                               }`}
                             >
                               {option.label}

@@ -10,7 +10,7 @@ export default function FieldRating({ rating, onRatingChange }: FieldRatingProps
   };
 
   return (
-    <section className="rounded-[18px] border border-(--quaternary-color)/15 bg-(--seventh-color) p-4 sm:p-[18px]">
+    <section className="rounded-[18px] border border-(--quaternary-color)/15 bg-(--bg-secondary) p-4 sm:p-[18px]">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
           <h2 className="font-work-sans text-[15px] font-bold text-(--text-primary)">Qual sua nota geral?</h2>
@@ -30,7 +30,7 @@ export default function FieldRating({ rating, onRatingChange }: FieldRatingProps
             className={`flex min-h-[52px] cursor-pointer flex-col items-center justify-center gap-0.5 rounded-xl border transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color) ${
               star === rating
                 ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--primary-color) shadow-[0_0_0_1px_var(--primary-color)]'
-                : 'border-(--quaternary-color)/18 bg-(--bg-primary)/45 text-(--text-tertiary) hover:border-(--primary-color)/45 hover:bg-(--primary-color)/8 hover:text-(--primary-color)'
+                : 'border-(--quaternary-color)/18 bg-(--bg-tertiary) text-(--text-tertiary) hover:border-(--primary-color)/45 hover:bg-(--primary-color)/8 hover:text-(--primary-color)'
             }`}>
             <svg
               className="h-5 w-5"

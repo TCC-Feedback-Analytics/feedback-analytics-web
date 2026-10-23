@@ -88,7 +88,8 @@
   background-color: var(--bg-primary);
 }
 
-.login-experience {
+.login-experience,
+.feedback-form-experience {
   color-scheme: dark;
   --bg-primary: #03171b;
   --bg-secondary: #092328;

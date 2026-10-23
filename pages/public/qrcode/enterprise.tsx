@@ -78,7 +78,7 @@ export default function FeedbackQRCodeEnterprise() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-(--bg-primary) px-4 py-5 font-work-sans text-(--text-primary) sm:px-6 sm:py-8">
+    <div className="feedback-form-experience min-h-[100dvh] bg-(--bg-primary) px-4 py-5 font-work-sans text-(--text-primary) sm:px-6 sm:py-8">
       <main className="mx-auto w-full max-w-xl">
         <header className="mb-7 flex items-center justify-between gap-4 sm:mb-9">
           <div className="flex min-w-0 items-center gap-2.5">

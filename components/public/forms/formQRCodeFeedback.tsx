@@ -55,7 +55,7 @@ export default function FormQRCodeFeedback({
         />
       )}
 
-      <div className="rounded-2xl border border-(--quaternary-color)/15 bg-(--seventh-color) p-3.5 sm:p-4">
+      <div className="rounded-2xl border border-(--quaternary-color)/15 bg-(--bg-secondary) p-3.5 sm:p-4">
         <button
           type="button"
           onClick={toggleOptionalFields}
