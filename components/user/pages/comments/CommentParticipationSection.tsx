@@ -137,7 +137,7 @@ export default function CommentParticipationSection({
   return (
     <section
       aria-labelledby="comment-participation-title"
-      className="font-work-sans space-y-4 rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6"
+      className="font-work-sans space-y-4 rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-4 sm:p-6"
     >
       <h3 id="comment-participation-title" className="flex items-center gap-1.5 font-montserrat text-base font-semibold text-(--text-primary)">
         Quem escreve comentário <MetricHelp term="commentParticipation" />
