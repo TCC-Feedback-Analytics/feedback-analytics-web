@@ -22,7 +22,8 @@ describe('chooseTimelineBucket', () => {
 describe('formatBucketLabel', () => {
   it('dia, semana e mês em português', () => {
     expect(formatBucketLabel('2026-10-15', 'day')).toBe('15/10');
-    expect(formatBucketLabel('2026-10-12', 'week')).toBe('sem. de 12/10');
+    expect(formatBucketLabel('2026-10-12', 'week')).toBe('12/10 a 18/10');
+    expect(formatBucketLabel('2026-10-26', 'week')).toBe('26/10 a 01/11');
     expect(formatBucketLabel('2026-10-01', 'month')).toMatch(/out.*2026/);
   });
 });

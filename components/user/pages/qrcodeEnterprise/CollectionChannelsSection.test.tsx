@@ -30,13 +30,17 @@ function renderSection(props: Partial<CollectionChannelsSectionProps> = {}) {
 describe('[Unidade] Canais de coleta', () => {
   afterEach(() => cleanup());
 
-  it('separa o canal das perguntas e mostra o QR Code com o link', () => {
+  it('separa o canal das perguntas e mostra um card por canal, com a coleta em cima valendo para todos', () => {
     renderSection();
     expect(screen.getByRole('region', { name: 'Por onde seus clientes respondem' })).toBeInTheDocument();
     expect(screen.getByText(/Os canais levam às perguntas da empresa/)).toBeInTheDocument();
-    expect(screen.getByText('QR Code e link')).toBeInTheDocument();
+    expect(screen.getByText('Coleta de respostas')).toBeInTheDocument();
+    expect(screen.getByText('Com a coleta pausada, nenhum canal recebe respostas.')).toBeInTheDocument();
+    expect(screen.getByTestId('qr-channel-card')).toHaveTextContent('QR Code');
+    expect(screen.getByTestId('link-channel-card')).toHaveTextContent('Link');
+    expect(screen.queryByText('QR Code e link')).not.toBeInTheDocument();
     expect(screen.getByText('https://app.example/feedback/qrcode?enterprise=ent-1')).toBeInTheDocument();
-    // Passos e dicas num card só, com as dicas recolhidas, para caber numa tela.
+    // As dicas do QR ficam recolhidas, para caber numa tela.
     expect(screen.getAllByRole('listitem').length).toBeGreaterThanOrEqual(3);
     expect(screen.getByText('Dicas de uso').closest('details')).not.toHaveAttribute('open');
   });
@@ -47,6 +51,7 @@ describe('[Unidade] Canais de coleta', () => {
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
     expect(screen.getByText('Ative a coleta para mostrar o QR Code.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Baixar QR Code/ })).toBeDisabled();
+    expect(screen.getByText('Ative a coleta para o link receber respostas.')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Ativar coleta/ }));
     expect(onToggleQr).toHaveBeenCalledOnce();
   });
