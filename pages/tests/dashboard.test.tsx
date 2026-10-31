@@ -148,7 +148,7 @@ describe('[Unidade] Dashboard Page', () => {
 
     // Sem feedbacks pendentes (pendingCount ausente) → linha de status "em dia".
     expect(
-      screen.getByText('Tudo em dia — nenhum feedback aguardando análise neste escopo.'),
+      screen.getByText('Tudo em dia — nenhum comentário aguardando análise neste escopo.'),
     ).toBeInTheDocument();
   });
 
@@ -252,7 +252,7 @@ describe('[Unidade] Dashboard Page', () => {
     vi.mocked(useLoaderData).mockReturnValue({
       stats: empty,
       accountTotalFeedbacks: 0,
-      qrActive: true,
+      qrActive: false,
       dashboardError: null,
     } as ReturnType<typeof useLoaderData>);
     vi.mocked(useRouteLoaderData).mockReturnValue({
@@ -276,7 +276,7 @@ describe('[Unidade] Dashboard Page', () => {
 
     expect(await screen.findByRole('region', { name: 'Seu painel está pronto. Falta o primeiro feedback.' })).toBeInTheDocument();
     // Os Primeiros passos vêm logo abaixo do cabeçalho, e o atalho do QR do cabeçalho sai.
-    expect(screen.getByText('Faltam 3 passos para começar a receber feedbacks.')).toBeInTheDocument();
+    expect(screen.getByText('Ative o QR Code para começar a receber feedbacks.')).toBeInTheDocument();
     const firstSteps = screen.getByRole('region', { name: 'Primeiros passos' });
     expect(firstSteps.compareDocumentPosition(screen.getByRole('region', { name: 'Seu painel está pronto. Falta o primeiro feedback.' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.queryByRole('link', { name: /Compartilhar o formulário de feedback pelo QR Code/ })).not.toBeInTheDocument();
@@ -336,7 +336,7 @@ describe('[Unidade] Dashboard Page', () => {
 
     // O seed do loader é do histórico inteiro: não aparece com o período escolhido.
     expect(screen.getByLabelText('Carregando métricas do escopo')).toBeInTheDocument();
-    expect(await screen.findByText('4 feedbacks aguardando análise neste escopo.')).toBeInTheDocument();
+    expect(await screen.findByText('4 comentários aguardando análise da IA neste escopo.')).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByLabelText('Carregando métricas do escopo')).not.toBeInTheDocument());
     const periodCall = mocks.getFeedbackStats.mock.calls.find(([params]) => params.start_date);
     expect(periodCall?.[0]).toEqual(expect.objectContaining({ scope_type: 'COMPANY', end_date: expect.any(String) }));
