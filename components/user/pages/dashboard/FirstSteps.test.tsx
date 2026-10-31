@@ -22,7 +22,9 @@ import { EMBEDDED_FORM_MESSAGE } from 'src/lib/utils/embeddedForm';
 import { saveFirstStepMarks } from 'src/lib/utils/firstSteps';
 
 const enterprise = { id: 'ent-1', full_name: 'Padaria da Vovó' };
-const formUrl = `${window.location.origin}/feedback/qrcode?enterprise=ent-1`;
+const formUrl = `${window.location.origin}/feedback/qrcode?enterprise=ent-1&canal=link`;
+// O "Testar o formulário" vai marcado como teste, fora das métricas de canal.
+const testUrl = `${window.location.origin}/feedback/qrcode?enterprise=ent-1&canal=teste`;
 
 function Harness({ qrActive, accountTotal, onFeedbackSent }: { qrActive: boolean | null; accountTotal: number; onFeedbackSent?: () => void }) {
   const steps = useFirstSteps({ enterpriseId: enterprise.id, qrActive, accountTotal });
@@ -129,7 +131,7 @@ describe('[Unidade] Primeiros passos do Dashboard', () => {
 
     const dialog = screen.getByRole('dialog');
     const frame = within(dialog).getByTitle('Formulário do cliente') as HTMLIFrameElement;
-    expect(frame.src).toBe(`${formUrl}&embed=1`);
+    expect(frame.src).toBe(`${testUrl}&embed=1`);
     expect(within(dialog).getByText(/Sua resposta conta como um feedback de verdade/)).toBeInTheDocument();
 
     // Mensagem de outra origem é ignorada.

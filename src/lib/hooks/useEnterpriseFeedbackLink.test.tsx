@@ -12,7 +12,9 @@ vi.mock('components/public/forms/messages/useToast', () => ({
 import { useEnterpriseFeedbackLink } from './useEnterpriseFeedbackLink';
 
 const enterprise = { id: 'ent-1', full_name: 'Padaria da Vovó' };
-const formUrl = `${window.location.origin}/feedback/qrcode?enterprise=ent-1`;
+// Cada canal leva a sua marca: o link copiado/compartilhado é LINK, o QR é QR e a etiqueta é NFC.
+const formUrl = `${window.location.origin}/feedback/qrcode?enterprise=ent-1&canal=link`;
+const qrFormUrl = `${window.location.origin}/feedback/qrcode?enterprise=ent-1&canal=qr`;
 
 describe('useEnterpriseFeedbackLink', () => {
   afterEach(() => {
@@ -23,7 +25,8 @@ describe('useEnterpriseFeedbackLink', () => {
   it('monta o link do formulário geral e o QR Code dele', () => {
     const { result } = renderHook(() => useEnterpriseFeedbackLink(enterprise));
     expect(result.current.feedbackUrl).toBe(formUrl);
-    expect(result.current.qrCodeUrl).toContain(encodeURIComponent(formUrl));
+    expect(result.current.qrCodeUrl).toContain(encodeURIComponent(qrFormUrl));
+    expect(result.current.nfcUrl).toBe(`${window.location.origin}/feedback/qrcode?enterprise=ent-1&canal=nfc`);
   });
 
   it('sem compartilhamento nativo, compartilhar copia o link', async () => {

@@ -28,6 +28,7 @@ export async function ActionPublicQrCodeFeedback({
   const customer_name = String(form.get('customer_name') ?? '').trim();
   const customer_email = String(form.get('customer_email') ?? '').trim();
   const customer_gender_raw = String(form.get('customer_gender') ?? '').trim();
+  const channel = String(form.get('channel') ?? '').trim();
   const answers = parsePublicQrAnswersInput(answersRaw);
   const subanswers = parsePublicQrSubanswersInput(subanswersRaw);
   // O comentário é opcional: o cliente pode só dar as estrelas e responder às perguntas.
@@ -57,7 +58,7 @@ export async function ActionPublicQrCodeFeedback({
       rating,
       answers,
       subanswers,
-      channel: 'QRCODE',
+      channel: channel || undefined,
       customer_name: customer_name || undefined,
       customer_email: customer_email || undefined,
       customer_gender: customer_gender_raw

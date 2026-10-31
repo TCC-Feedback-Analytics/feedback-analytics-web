@@ -31,6 +31,7 @@ export function useQrCodeFeedbackController({
   initialError,
   questions,
   commentField,
+  channel,
 }: QrCodeFeedbackControllerParams): QrCodeFeedbackControllerResult {
   const toast = useToast();
   const fetcher = useFetcher<QrcodeEnterpriseActionData>();
@@ -181,6 +182,7 @@ export function useQrCodeFeedbackController({
         customer_name: customerData.customer_name ?? '',
         customer_email: customerData.customer_email ?? '',
         customer_gender: customerData.customer_gender ?? '',
+        channel: channel ?? '',
       },
       { method: 'post' },
     );

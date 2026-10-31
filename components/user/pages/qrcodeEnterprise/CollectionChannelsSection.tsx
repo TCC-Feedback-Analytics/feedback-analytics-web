@@ -1,5 +1,6 @@
 import { FaCheck, FaCircleCheck, FaCirclePause, FaCopy, FaDownload, FaLock, FaPlay, FaQrcode, FaShareNodes, FaTowerBroadcast } from 'react-icons/fa6';
 import HelpHint from 'components/user/shared/HelpHint';
+import NfcTagCard from './NfcTagCard';
 import type { CollectionChannelsSectionProps } from './ui.types';
 
 const actionClass =
@@ -20,8 +21,8 @@ const TIPS = [
 /**
  * "Canais de coleta": por onde o cliente chega às perguntas de uma avaliação
  * (empresa ou item do catálogo). Um card compacto por canal, para caber numa tela
- * só: hoje o QR Code com o link (status, QR, ações, passos e dicas recolhidas); o
- * NFC entra depois como mais um card nesta seção.
+ * só: o QR Code com o link (status, QR, ações, passos e dicas recolhidas) e a
+ * etiqueta NFC. Cada canal leva a sua marca na URL, para as métricas por canal.
  */
 export default function CollectionChannelsSection({
   ofTarget,
@@ -32,6 +33,7 @@ export default function CollectionChannelsSection({
   onToggleQr,
   qrCodeUrl,
   feedbackUrl,
+  nfcUrl,
   showCopied,
   onDownload,
   onCopyLink,
@@ -149,6 +151,8 @@ export default function CollectionChannelsSection({
           <div className="pointer-events-none absolute inset-0 rounded-2xl bg-(--bg-primary)/30 backdrop-blur-[1px]" />
         )}
       </div>
+
+      {nfcUrl && <NfcTagCard nfcUrl={nfcUrl} qrActive={qrActive} />}
     </section>
   );
 }

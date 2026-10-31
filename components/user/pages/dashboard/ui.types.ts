@@ -169,3 +169,10 @@ export interface SectionScopeDiagnosisProps {
   model: string | null;
 }
 
+/**
+ * Props da seção "Por onde chegaram" (avaliações por canal de coleta).
+ * Usado em: components/user/pages/dashboard/SectionChannels.tsx.
+ */
+export interface SectionChannelsProps {
+  stats: FeedbackStats | null;
+}

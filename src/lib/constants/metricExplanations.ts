@@ -14,7 +14,8 @@ export type MetricTermKey =
   | 'returningCustomers'
   | 'commentTone'
   | 'scopeDiagnosis'
-  | 'commentParticipation';
+  | 'commentParticipation'
+  | 'collectionChannels';
 
 export type MetricExplanation = {
   title: string;
@@ -92,6 +93,15 @@ export const METRIC_EXPLANATIONS: Record<MetricTermKey, MetricExplanation> = {
       'O resumo é o percentual de positivos menos o de negativos (de −100 a +100), dito também em palavras: Positivo, Neutro (entre −5 e +5) ou Atenção.',
     ],
     example: '60% positivos e 15% negativos → +45 · Positivo.',
+  },
+  collectionChannels: {
+    title: 'Por onde chegaram',
+    paragraphs: [
+      'Mostra por qual canal o cliente chegou ao formulário: o QR Code impresso, o link compartilhado (WhatsApp, e-mail, redes sociais) ou a etiqueta NFC, que abre o formulário quando ele encosta o celular.',
+      'Todos os canais levam ao mesmo formulário e entram nas mesmas métricas. Aqui você vê qual traz mais respostas e se a nota muda de um canal para outro.',
+      'O "Testar o formulário" do Dashboard não aparece aqui. Avaliações de antes da marcação de canal, ou de QR Codes impressos antes dela, aparecem à parte, como sem marca.',
+    ],
+    example: 'QR Code: 40 avaliações (62%), média 4,3 · Etiqueta NFC: 25 (38%), média 4,6.',
   },
   commentParticipation: {
     title: 'Quem escreve comentário',

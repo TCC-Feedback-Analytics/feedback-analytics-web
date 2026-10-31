@@ -53,7 +53,7 @@ describe('[Integração] loadPublicQrCodeEnterpriseData', () => {
     });
 
     const result = await loadPublicQrCodeEnterpriseData(
-      'http://localhost/feedback/qrcode?enterprise=enterprise-1&collection_point=cp-1&item=item-1',
+      'http://localhost/feedback/qrcode?enterprise=enterprise-1&collection_point=cp-1&item=item-1&canal=nfc',
     );
 
     expect(mockServiceGetEnterprisePublic).toHaveBeenCalledWith('enterprise-1', {
@@ -70,6 +70,7 @@ describe('[Integração] loadPublicQrCodeEnterpriseData', () => {
       itemKind: 'PRODUCT',
       questions: [],
       commentField: { mode: 'CUSTOM', prompt: 'O que mudaria neste produto?' },
+      channel: 'NFC',
       error: '',
     });
   });
