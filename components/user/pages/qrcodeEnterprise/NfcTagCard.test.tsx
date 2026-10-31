@@ -57,6 +57,9 @@ describe('Etiqueta NFC', () => {
 
     expect(screen.queryByRole('button', { name: /Gravar etiqueta/ })).not.toBeInTheDocument();
     expect(screen.getByText('Como gravar pelo iPhone')).toBeInTheDocument();
+    // Fica claro que a etiqueta é comprada, não impressa.
+    expect(screen.getByText('Compre as etiquetas')).toBeInTheDocument();
+    expect(screen.getByText(/não é impressa/)).toHaveTextContent('etiqueta NFC NTAG215');
     fireEvent.click(screen.getByRole('button', { name: /Copiar endereço da etiqueta/ }));
     await waitFor(() => expect(writeText).toHaveBeenCalledWith(nfcUrl));
     expect(await screen.findByRole('button', { name: /Endereço copiado!/ })).toBeInTheDocument();
