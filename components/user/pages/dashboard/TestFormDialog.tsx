@@ -45,7 +45,7 @@ export default function TestFormDialog({ open, onOpenChange, feedbackUrl, onResu
         <header className="font-work-sans border-b border-(--quaternary-color)/12 px-5 py-4 pr-16">
           <h2 className="font-montserrat text-base font-semibold text-(--text-primary)">Testar o formulário</h2>
           <p className="text-xs text-(--text-secondary)">
-            É o mesmo formulário que seus clientes veem. Sua resposta conta como um feedback de verdade.
+            É o mesmo formulário que seus clientes veem. Sua resposta fica marcada como teste e não entra nas métricas.
           </p>
         </header>
 
@@ -53,11 +53,11 @@ export default function TestFormDialog({ open, onOpenChange, feedbackUrl, onResu
           <div role="status" className="font-work-sans flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
             <FaCircleCheck aria-hidden className="text-4xl text-(--positive)" />
             <p className="font-montserrat text-lg font-semibold text-(--text-primary)">
-              {result === 'sent' ? 'Pronto! Esse é o seu primeiro feedback.' : 'Você já respondeu por este aparelho.'}
+              {result === 'sent' ? 'Pronto! Seu teste chegou.' : 'Você já respondeu por este aparelho.'}
             </p>
             <p className="text-sm text-(--text-secondary)">
               {result === 'sent'
-                ? 'O painel já está atualizado. Agora é com os seus clientes.'
+                ? 'Ele aparece na lista de feedbacks com a marca "Teste". Agora é com os seus clientes.'
                 : 'O formulário aceita uma resposta por aparelho, como acontece com seus clientes.'}
             </p>
             <button

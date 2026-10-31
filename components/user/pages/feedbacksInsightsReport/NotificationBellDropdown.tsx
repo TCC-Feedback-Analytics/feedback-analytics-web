@@ -117,10 +117,10 @@ export function NotificationBellDropdown({
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-(--text-primary)">
-                      {pendingCount} {pendingCount === 1 ? "novo feedback" : "novos feedbacks"}
+                      {pendingCount} {pendingCount === 1 ? "comentário novo" : "comentários novos"}
                     </h4>
                     <p className="text-[11px] text-(--text-secondary) mt-0.5">
-                      Aguardando análise de IA neste escopo.
+                      Aguardando análise da IA neste escopo. Só os feedbacks com comentário escrito vão para a IA.
                     </p>
                   </div>
                 </div>
@@ -140,7 +140,7 @@ export function NotificationBellDropdown({
                 <div>
                   <h4 className="text-xs font-bold text-emerald-300">Tudo em dia!</h4>
                   <p className="text-[11px] text-(--text-tertiary)">
-                    Nenhum feedback pendente de análise.
+                    Nenhum comentário pendente de análise.
                   </p>
                 </div>
               </div>
