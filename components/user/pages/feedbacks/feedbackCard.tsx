@@ -1,4 +1,5 @@
 import type { KeyboardEvent } from 'react';
+import { TEST_FEEDBACK_HINT, feedbackChannelLabel } from 'src/lib/utils/feedbackChannelLabel';
 import type { FeedbackCardProps } from './ui.types';
 
 const ANSWER_LABEL: Record<string, string> = {
@@ -75,10 +76,12 @@ export default function FeedbackCard({ feedback, onClick }: FeedbackCardProps) {
           : 'Empresa';
 
   const itemName = resolvedItemName;
-  const channelDisplayName =
+  const channelDisplayName = feedbackChannelLabel(
+    feedback.channel,
     feedback.collection_points?.type === 'QR_CODE'
       ? (feedback.collection_points?.name || '').replace(/^QR Code\s*-\s*.+$/, 'QR Code')
-      : (feedback.collection_points?.name || 'N/A');
+      : (feedback.collection_points?.name || 'N/A'),
+  );
 
   const questionAnswers = feedback.feedback_question_answers ?? [];
 
@@ -110,6 +113,14 @@ export default function FeedbackCard({ feedback, onClick }: FeedbackCardProps) {
           <div className="flex items-center gap-1">
             {renderStars(feedback.rating)}
           </div>
+          {feedback.channel === 'TEST' && (
+            <span
+              title={TEST_FEEDBACK_HINT}
+              className="rounded-full border border-(--quaternary-color)/20 bg-(--seventh-color) px-2.5 py-0.5 text-xs font-semibold text-(--text-secondary)"
+            >
+              Teste
+            </span>
+          )}
         </div>
         <div className="text-xs text-[var(--text-tertiary)] sm:text-sm">
           {formatDate(feedback.created_at)}
