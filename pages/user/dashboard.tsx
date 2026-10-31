@@ -197,7 +197,6 @@ export default function Dashboard() {
   const firstSteps = useFirstSteps({
     enterpriseId: enterprise?.id,
     qrActive: dashboardLoaderData?.qrActive ?? null,
-    accountTotal: accountTotalFeedbacks,
   });
   const showFirstSteps = Boolean(enterprise) && firstSteps.visible;
   const enterpriseId = enterprise?.id;
@@ -247,15 +246,15 @@ export default function Dashboard() {
             {pendingCount > 0 && (
               <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-(--primary-color)" />
             )}
-            {showFirstSteps && !firstSteps.allDone
-              ? `Faltam ${firstSteps.remaining} ${firstSteps.remaining === 1 ? 'passo' : 'passos'} para começar a receber feedbacks.`
+            {showFirstSteps && !firstSteps.qrActive
+              ? 'Ative o QR Code para começar a receber feedbacks.'
               : isAccountEmpty
               ? 'Vamos coletar os primeiros feedbacks.'
               : totalFeedbacks === 0
               ? 'Compartilhe o formulário pelo QR Code para começar a coletar feedbacks.'
               : pendingCount > 0
-                ? `${pendingCount} ${pendingCount === 1 ? 'feedback aguardando' : 'feedbacks aguardando'} análise neste escopo.`
-                : 'Tudo em dia — nenhum feedback aguardando análise neste escopo.'}
+                ? `${pendingCount} ${pendingCount === 1 ? 'comentário aguardando' : 'comentários aguardando'} análise da IA neste escopo.`
+                : 'Tudo em dia — nenhum comentário aguardando análise neste escopo.'}
           </p>
           <Link
             to="/user/feedbacks/all"
