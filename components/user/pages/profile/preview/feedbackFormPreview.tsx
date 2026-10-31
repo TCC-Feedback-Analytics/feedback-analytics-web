@@ -14,7 +14,8 @@ import type { FeedbackFormPreviewProps } from './ui.types';
  * Reusa o componente real `FormQRCodeFeedback` (fidelidade 100%) com um view-model SIMULADO —
  * sem `useQrCodeFeedbackController` (que acopla fetch/toast) e com `submit` neutralizado.
  * O estado local leve deixa o gestor experimentar (clicar na nota, responder) sem persistir nada.
- * Envolto em `.public-theme` para herdar as cores exatas do formulário do cliente.
+ * Envolto em `.feedback-form-experience` para herdar os tokens e a escala de
+ * respostas exatos do formulário apresentado ao cliente.
  */
 export default function FeedbackFormPreview({
   questions,
@@ -88,7 +89,7 @@ export default function FeedbackFormPreview({
           Não enviada
         </span>
       </div>
-      <div className="public-theme rounded-xl bg-(--bg-primary) p-5">
+      <div className="feedback-form-experience rounded-xl bg-(--bg-primary) p-5">
         <FormQRCodeFeedback model={model} />
       </div>
     </div>

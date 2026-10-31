@@ -50,18 +50,18 @@ export default function CommentsOverview() {
 
   return (
     <>
-      <div className="font-work-sans space-y-6 pb-8">
+      <div className="font-work-sans space-y-5 pb-8 sm:space-y-6">
         <PageHeader />
 
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <Link
             to="/user/insights/comments"
-            className="inline-flex items-center gap-1.5 text-sm text-(--text-secondary) hover:text-(--text-primary)"
+            className="inline-flex min-h-11 w-full items-center gap-1.5 rounded-lg border border-(--quaternary-color)/14 bg-(--bg-secondary) px-3 text-sm font-medium text-(--text-secondary) transition-colors hover:border-(--quaternary-color)/28 hover:text-(--text-primary) sm:min-h-0 sm:w-auto sm:border-0 sm:bg-transparent sm:px-0"
           >
             Ver os comentários
             <FaArrowRight className="text-xs" aria-hidden />
           </Link>
-          <ScopeTag />
+          <ScopeTag className="w-full justify-center sm:w-auto" />
         </div>
 
         <div className="relative space-y-6">
@@ -85,7 +85,7 @@ export default function CommentsOverview() {
 
           {summary && summary.totalAnalyzed > 0 && <CommentTopicsSection summary={summary} />}
 
-          <section className="space-y-6 rounded-2xl border border-(--quaternary-color)/10 bg-gradient-to-br from-(--bg-secondary) to-(--sixth-color) p-6 glass-card">
+          <section className="space-y-6 rounded-2xl border border-(--quaternary-color)/10 bg-gradient-to-br from-(--bg-secondary) to-(--sixth-color) p-4 glass-card sm:p-6">
             <InsightsReportHeaderSection
               updatedLabel={updatedLabel}
               canAnalyze={canAnalyze}

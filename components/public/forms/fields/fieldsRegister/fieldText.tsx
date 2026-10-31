@@ -16,7 +16,7 @@ export default function FieldText({
     <div className="space-y-1">
       <Label
         htmlFor={name}
-        className="flex items-center gap-2 pl-2 text-sm text-(--text-secondary) font-work-sans font-normal"
+        className="flex cursor-pointer items-center gap-2 text-xs font-semibold text-(--text-secondary)"
       >
         {icon && <span>{icon}</span>}
         <span>{label}</span>
@@ -29,6 +29,7 @@ export default function FieldText({
         error={!!error}
         aria-invalid={error ? true : undefined}
         autoComplete={type === 'email' ? 'email' : 'off'}
+        className="h-12 rounded-xl border-(--primary-color)/20 bg-(--bg-tertiary)"
         {...register}
       />
       {error && (

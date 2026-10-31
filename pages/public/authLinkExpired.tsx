@@ -1,6 +1,6 @@
-import Card from 'components/public/shared/card';
-import SVGLock from 'components/svg/lock';
+import AuthShell from 'components/public/shared/AuthShell';
 import { useRef, useState } from 'react';
+import { FaEnvelope, FaTriangleExclamation } from 'react-icons/fa6';
 import { Link } from 'react-router-dom';
 import { ServiceResendConfirmation } from 'src/services/serviceAuth';
 import {
@@ -49,19 +49,18 @@ export default function AuthLinkExpired() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-(--bg-primary) p-4">
-      <div className="w-full max-w-2xl">
-        <Card
-          icon={<SVGLock />}
-          title="Link expirado"
-          text="O link de confirmação expirou. Informe seu e-mail para solicitar uma nova confirmação."
-          children={
-            <div className="mt-6 flex flex-col gap-3">
+    <AuthShell
+      icon={<FaTriangleExclamation className="h-4 w-4" aria-hidden />}
+      title="Link expirado"
+      description="O link de confirmação expirou. Informe seu e-mail para solicitar uma nova confirmação."
+      eyebrow="CONFIRMAÇÃO PENDENTE"
+    >
+      <div className="flex flex-col gap-4">
               {requestAccepted ? (
                 <div
                   role="status"
                   aria-live="polite"
-                  className="rounded-lg border border-(--positive)/30 bg-(--positive)/10 p-3 text-sm text-(--text-secondary)"
+                  className="rounded-xl border border-(--positive)/30 bg-(--positive)/10 p-4 text-sm text-(--text-secondary)"
                 >
                   <p className="font-semibold text-(--text-primary)">
                     Solicitação recebida
@@ -77,7 +76,7 @@ export default function AuthLinkExpired() {
                   event.preventDefault();
                   void handleResend();
                 }}
-                className="flex flex-col gap-3"
+                className="flex flex-col gap-4"
               >
                 <input
                   type="email"
@@ -87,10 +86,10 @@ export default function AuthLinkExpired() {
                   onChange={(e) => setEmail(e.target.value)}
                   aria-label="E-mail"
                   aria-invalid={Boolean(error)}
-                  className="h-12 w-full rounded-lg border border-(--border-color) bg-(--bg-secondary) px-4 text-sm text-(--text-primary) outline-none focus:border-(--primary-color) focus:ring-1 focus:ring-(--primary-color)"
+                  className="h-12 w-full rounded-xl border border-(--primary-color)/20 bg-(--bg-tertiary) px-4 text-base text-(--text-primary) outline-none placeholder:text-(--text-tertiary) focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/20 md:text-sm"
                 />
                 {error && (
-                  <p role="alert" className="text-sm text-red-500">
+                  <p role="alert" className="text-sm text-(--negative)">
                     {error}
                   </p>
                 )}
@@ -106,7 +105,7 @@ export default function AuthLinkExpired() {
                   type="submit"
                   disabled={loading || !email || remainingSeconds > 0}
                   aria-busy={loading}
-                  className="flex h-12 w-full items-center justify-center rounded-lg border border-(--primary-color)/40 bg-gradient-to-r from-(--primary-color) to-(--tertiary-color) font-medium text-white transition-opacity duration-150 hover:opacity-90 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-12 w-full items-center justify-center rounded-xl bg-(--primary-color) text-sm font-bold text-(--on-primary) shadow-[0_8px_18px_rgba(53,208,195,0.18)] transition-all hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {loading
                     ? 'Enviando...'
@@ -115,22 +114,10 @@ export default function AuthLinkExpired() {
                       : 'Reenviar e-mail'}
                 </button>
               </form>
-              <Link
-                to="/login"
-                className="text-center text-sm text-(--text-secondary) hover:text-(--text-primary)"
-              >
-                Voltar ao login
-              </Link>
-            </div>
-          }
-          linkLogin="/login"
-        />
+        <Link to="/login" className="inline-flex min-h-11 items-center justify-center gap-2 text-center text-sm font-semibold text-(--primary-color) hover:opacity-80">
+          <FaEnvelope className="h-3.5 w-3.5" aria-hidden /> Voltar ao login
+        </Link>
       </div>
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-40 -right-32 h-80 w-80 rounded-full bg-(--primary-color)/10" />
-        <div className="absolute -bottom-40 -left-32 h-80 w-80 rounded-full bg-(--secondary-color)/10" />
-        <div className="absolute top-1/2 left-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-(--tertiary-color)/8" />
-      </div>
-    </div>
+    </AuthShell>
   );
 }

@@ -17,12 +17,12 @@ import type { FirstStepItemProps, FirstStepsProps } from './ui.types';
 import type { QrCodeEnterpriseActionResponse } from 'pages/user/qrcodes/ui.types';
 
 const actionClass =
-  'inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-(--primary-color)/30 bg-(--primary-color)/10 px-3 py-1.5 text-xs font-semibold text-(--primary-color) transition-colors hover:bg-(--primary-color)/18 disabled:cursor-not-allowed disabled:opacity-60';
+  'inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-(--primary-color)/30 bg-(--primary-color)/10 px-3 py-2 text-xs font-semibold text-(--primary-color) transition-colors hover:bg-(--primary-color)/18 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto';
 /** Tempo do "Tudo pronto" antes de o cartão sair do Dashboard. */
 const CLOSE_AFTER_DONE_MS = 4000;
 
 const primaryActionClass =
-  'inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-(--primary-color) px-3.5 py-2 text-xs font-semibold text-(--on-primary) transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60';
+  'inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-(--primary-color) px-3.5 py-2 text-xs font-semibold text-(--on-primary) transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto';
 
 function FirstStepItem({ number, title, description, done, note, children }: FirstStepItemProps) {
   return (
@@ -48,7 +48,7 @@ function FirstStepItem({ number, title, description, done, note, children }: Fir
           </h3>
           <p className="text-xs text-(--text-secondary)">{description}</p>
         </div>
-        <div className="flex flex-wrap gap-2">{children}</div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">{children}</div>
         {note && <p className="text-[11px] text-(--text-tertiary)">{note}</p>}
       </div>
     </li>

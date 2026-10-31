@@ -12,3 +12,13 @@ export interface CardProps {
   linkRegister?: string;
   linkLogin?: string;
 }
+
+export interface AuthShellProps {
+  title: string;
+  description: string;
+  icon: ReactNode;
+  children: ReactNode;
+  footer?: ReactNode;
+  wide?: boolean;
+  eyebrow?: string;
+}

@@ -34,7 +34,7 @@ export default function InsightsControlsBar() {
 
   return (
     // Alvo do passo "Escopo e período" do guia.
-    <div data-tour="tour-period" className="flex flex-wrap items-center gap-2">
+    <div data-tour="tour-period" className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
       <InsightsHeaderControls
         availableScopes={availableScopes}
         selectedScope={scope}
@@ -51,7 +51,7 @@ export default function InsightsControlsBar() {
           aria-checked={compare}
           onClick={() => setCompare(!compare)}
           title="Compara com o período anterior, do mesmo tamanho"
-          className={`inline-flex h-9 items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors focus:ring-2 focus:ring-(--primary-color)/20 focus:outline-none ${
+          className={`inline-flex min-h-11 w-full items-center justify-between gap-2 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors focus:ring-2 focus:ring-(--primary-color)/20 focus:outline-none sm:min-h-9 sm:w-auto ${
             compare
               ? 'border-(--primary-color)/45 bg-(--primary-color)/10 text-(--text-primary)'
               : 'border-(--quaternary-color)/18 bg-(--bg-secondary) text-(--text-secondary) hover:border-(--quaternary-color)/35 hover:text-(--text-primary)'

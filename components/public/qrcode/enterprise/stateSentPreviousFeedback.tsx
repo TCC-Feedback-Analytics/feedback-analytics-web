@@ -1,5 +1,5 @@
-import Card from 'components/public/shared/card';
-import SVGImageProfile from 'components/svg/imageProfile';
+import { FaClock, FaShieldHalved } from 'react-icons/fa6';
+import FeedbackStatusLayout from './FeedbackStatusLayout';
 
 export default function StateSentPreviousFeedback({
   enterpriseName,
@@ -7,48 +7,24 @@ export default function StateSentPreviousFeedback({
   enterpriseName: string;
 }) {
   return (
-    <div className="min-h-screen bg-(--bg-primary) flex items-center justify-center p-4">
-      <Card
-        title="Feedback Já Enviado"
-        text="Este dispositivo já enviou feedback para esta empresa hoje"
-        icon={<SVGImageProfile />}
-        children={
-          <div className="font-work-sans text-center">
-            <div className="w-16 h-16 bg-(--neutral)/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg
-                className="w-8 h-8 text-(--neutral)"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                />
-              </svg>
-            </div>
-            <p className="text-(--text-secondary) mb-6">
-              Obrigado! Este dispositivo já enviou feedback para esta empresa
-              hoje. Você poderá enviar um novo feedback amanhã.
-            </p>
-            {enterpriseName && (
-              <p className="text-sm text-(--text-tertiary) mb-6">
-                <span className="font-medium">Empresa:</span> {enterpriseName}
-              </p>
-            )}
-            <div className="bg-(--primary-color)/10 border border-(--primary-color)/20 rounded-lg p-4">
-              <p className="text-(--primary-color) text-sm">
-                <strong>Por que não posso enviar outro feedback?</strong>
-                <br />
-                Para evitar spam e garantir a qualidade dos feedbacks,
-                permitimos apenas um feedback por dispositivo por empresa por
-                dia.
-              </p>
-            </div>
-          </div>
-        }
-      />
-    </div>
+    <FeedbackStatusLayout
+      tone="notice"
+      eyebrow="RESPOSTA JÁ REGISTRADA"
+      title="Obrigado por participar"
+      description="Este dispositivo já enviou uma resposta para esta empresa hoje. Você poderá compartilhar uma nova opinião amanhã."
+      icon={<FaClock className="h-8 w-8" aria-hidden />}
+    >
+      <div className="space-y-3">
+        {enterpriseName && (
+          <p className="rounded-xl border border-(--quaternary-color)/14 bg-(--bg-tertiary) px-3.5 py-3 text-xs text-(--text-secondary)">
+            Empresa: <span className="font-semibold text-(--text-primary)">{enterpriseName}</span>
+          </p>
+        )}
+        <div className="flex items-start gap-3 rounded-xl border border-(--primary-color)/22 bg-(--primary-color)/10 p-3.5">
+          <FaShieldHalved className="mt-0.5 h-4 w-4 shrink-0 text-(--primary-color)" aria-hidden />
+          <p className="text-xs leading-5 text-(--text-secondary)">Esse limite evita envios repetidos e ajuda a manter a qualidade das informações recebidas.</p>
+        </div>
+      </div>
+    </FeedbackStatusLayout>
   );
 }

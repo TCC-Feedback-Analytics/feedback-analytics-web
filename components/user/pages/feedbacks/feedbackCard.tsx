@@ -1,3 +1,4 @@
+import type { KeyboardEvent } from 'react';
 import type { FeedbackCardProps } from './ui.types';
 
 const ANSWER_LABEL: Record<string, string> = {
@@ -81,17 +82,24 @@ export default function FeedbackCard({ feedback, onClick }: FeedbackCardProps) {
 
   const questionAnswers = feedback.feedback_question_answers ?? [];
 
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (!onClick || (event.key !== 'Enter' && event.key !== ' ')) return;
+    event.preventDefault();
+    onClick();
+  };
+
   return (
     <div
-      className={`font-work-sans relative overflow-hidden rounded-2xl border border-(--quaternary-color)/10 bg-gradient-to-br from-(--bg-secondary) to-(--sixth-color) p-6 glass-card feedback-card ${onClick
-          ? 'cursor-pointer transition-colors hover:border-(--quaternary-color)/20'
+      className={`font-work-sans relative overflow-hidden rounded-2xl border border-(--quaternary-color)/10 bg-gradient-to-br from-(--bg-secondary) to-(--sixth-color) p-4 glass-card feedback-card sm:p-5 ${onClick
+          ? 'cursor-pointer transition-colors hover:border-(--quaternary-color)/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-(--primary-color)/50'
           : ''
         }`}
       onClick={onClick}
+      onKeyDown={handleKeyDown}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}>
       {/* Header com rating e data */}
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-3">
           <div
             className={`font-poppins px-3 py-1 rounded-full text-sm font-medium border ${getRatingColor(
@@ -103,14 +111,14 @@ export default function FeedbackCard({ feedback, onClick }: FeedbackCardProps) {
             {renderStars(feedback.rating)}
           </div>
         </div>
-        <div className="text-sm text-[var(--text-tertiary)]">
+        <div className="text-xs text-[var(--text-tertiary)] sm:text-sm">
           {formatDate(feedback.created_at)}
         </div>
       </div>
 
       {/* Mensagem do feedback */}
       <div className="mb-5">
-        <p className="text-[var(--text-primary)] leading-relaxed">
+        <p className="text-[15px] leading-relaxed text-[var(--text-primary)]">
           {feedback.message?.trim() ? feedback.message : <span className="italic text-(--text-tertiary)">Sem comentário</span>}
         </p>
       </div>
@@ -130,7 +138,7 @@ export default function FeedbackCard({ feedback, onClick }: FeedbackCardProps) {
       )}
 
       {/* Informações adicionais */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm border-t border-(--quaternary-color)/10 pt-4">
+      <div className="flex flex-col gap-3 border-t border-(--quaternary-color)/10 pt-4 text-sm sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs sm:text-sm text-[var(--text-tertiary)]">
           <span>
             <strong className="text-[var(--text-secondary)]">Canal:</strong>{' '}
@@ -159,6 +167,12 @@ export default function FeedbackCard({ feedback, onClick }: FeedbackCardProps) {
           </div>
         )}
       </div>
+
+      {onClick && (
+        <span className="mt-4 flex min-h-11 w-full items-center justify-center rounded-lg border border-(--primary-color)/25 bg-(--primary-color)/8 px-3 text-xs font-semibold text-(--primary-color) sm:w-fit">
+          Ver detalhes do feedback
+        </span>
+      )}
     </div>
   );
 }

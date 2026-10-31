@@ -14,8 +14,23 @@ export interface CollectionChannelsSectionProps {
   onToggleQr: () => void;
   qrCodeUrl: string;
   feedbackUrl: string;
+  /** Endereço gravado na etiqueta NFC (marcado como canal NFC). */
+  nfcUrl: string;
   showCopied: boolean;
   onDownload: () => void;
   onCopyLink: () => void;
   onShare: () => void;
 }
+
+/**
+ * Props do card "Etiqueta NFC" dos Canais de coleta.
+ * Usado em: components/user/pages/qrcodeEnterprise/NfcTagCard.tsx.
+ */
+export interface NfcTagCardProps {
+  nfcUrl: string;
+  /** A etiqueta usa a mesma coleta do QR: pausada, ela não recebe respostas. */
+  qrActive: boolean;
+}
+
+/** Etapas da gravação da etiqueta pelo navegador (Web NFC). */
+export type NfcWriteState = 'idle' | 'writing' | 'done' | 'error';

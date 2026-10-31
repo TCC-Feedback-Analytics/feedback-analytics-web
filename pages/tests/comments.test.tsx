@@ -67,24 +67,26 @@ describe('[Unidade] Página de comentários analisados', () => {
     expect(screen.getByText('Demorou demais')).toBeInTheDocument();
     expect(screen.getByText('Normal')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Produto · Pizza/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Todos (3)' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('combobox', { name: 'Filtrar comentários' })).toHaveTextContent('Todos (3)');
   });
 
   it('abre já filtrado pelo ?filtro= da URL (links antigos de Analisados)', () => {
     renderPage('/user/insights/comments?filtro=negativos');
-    expect(screen.getByRole('button', { name: 'Negativos (1)' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('combobox', { name: 'Filtrar comentários' })).toHaveTextContent('Negativos (1)');
     expect(screen.getByText('Demorou demais')).toBeInTheDocument();
     expect(screen.queryByText('Atendimento excelente')).not.toBeInTheDocument();
   });
 
   it('o filtro "Nota e texto não combinam" mostra só as divergências e fica na URL', () => {
     renderPage();
-    fireEvent.click(screen.getByRole('button', { name: 'Nota e texto não combinam (1)' }));
+    fireEvent.click(screen.getByRole('combobox', { name: 'Filtrar comentários' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Nota e texto não combinam (1)' }));
     expect(screen.getByTestId('search')).toHaveTextContent('?filtro=divergentes');
     expect(screen.getByText('Demorou demais')).toBeInTheDocument();
     expect(screen.queryByText('Normal')).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Todos (3)' }));
+    fireEvent.click(screen.getByRole('combobox', { name: 'Filtrar comentários' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Todos (3)' }));
     expect(screen.getByTestId('search')).toHaveTextContent('');
     expect(screen.getByText('Normal')).toBeInTheDocument();
   });

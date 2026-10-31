@@ -52,6 +52,7 @@ export default function EditFeedbackGeneral() {
 
   const {
     feedbackUrl,
+    nfcUrl,
     qrCodeUrl,
     showCopied,
     download: handleDownload,
@@ -68,19 +69,19 @@ export default function EditFeedbackGeneral() {
   }, [qrActive, qrFetcher]);
 
   return (
-    <div className="font-work-sans space-y-8 pb-8">
+    <div className="font-work-sans space-y-5 pb-8 sm:space-y-6">
       <PageHeader />
 
-      <section className="rounded-3xl border border-(--primary-color)/18 bg-linear-to-br from-(--primary-color)/10 via-(--bg-secondary) to-(--sixth-color) p-5 shadow-sm sm:p-7">
+      <section className="rounded-3xl border border-(--primary-color)/18 bg-linear-to-br from-(--primary-color)/10 via-(--bg-secondary) to-(--sixth-color) p-4 shadow-sm sm:p-6">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-(--primary-color)/20 bg-(--bg-primary)/40 px-3 py-1 text-xs font-semibold text-(--primary-color)">
               <FaPenToSquare aria-hidden /> Perguntas
             </div>
-            <h2 className="font-montserrat text-2xl font-bold tracking-tight text-(--text-primary) sm:text-3xl">O que seus clientes respondem ao avaliar a empresa</h2>
+            <h2 className="font-montserrat text-xl font-bold tracking-tight text-(--text-primary) sm:text-2xl">O que seus clientes respondem ao avaliar a empresa</h2>
             <p className="mt-2 text-sm text-(--text-secondary)">A avaliação da empresa como um todo, sem separar por produto, serviço ou departamento.</p>
           </div>
-          <div className="flex shrink-0 items-center gap-2 rounded-2xl border border-(--quaternary-color)/12 bg-(--bg-primary)/55 px-4 py-3 text-sm text-(--text-secondary)">
+          <div className="flex w-full shrink-0 items-center gap-2 rounded-2xl border border-(--quaternary-color)/12 bg-(--bg-primary)/55 px-4 py-3 text-sm text-(--text-secondary) lg:w-auto">
             <FaCircleCheck className="text-(--primary-color)" aria-hidden /> 3 perguntas essenciais
           </div>
         </div>
@@ -106,6 +107,7 @@ export default function EditFeedbackGeneral() {
         onToggleQr={handleToggleQr}
         qrCodeUrl={qrCodeUrl}
         feedbackUrl={feedbackUrl}
+        nfcUrl={nfcUrl}
         showCopied={showCopied}
         onDownload={handleDownload}
         onCopyLink={handleCopyLink}

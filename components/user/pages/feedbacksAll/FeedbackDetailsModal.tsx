@@ -44,16 +44,19 @@ export default function FeedbackDetailsModal({
   const questionAnswers = selectedFeedback.feedback_question_answers ?? [];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60" />
       <div
-        className="relative max-h-[85vh] w-full max-w-3xl overflow-y-auto custom-scrollbar rounded-2xl border border-(--quaternary-color)/10 bg-gradient-to-br from-(--bg-secondary) to-(--sixth-color) p-5 sm:p-6 glass-card"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Detalhes do feedback"
+        className="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto custom-scrollbar rounded-t-3xl border border-(--quaternary-color)/10 bg-gradient-to-br from-(--bg-secondary) to-(--sixth-color) p-4 sm:max-h-[85vh] sm:rounded-2xl sm:p-6 glass-card"
         onClick={(e) => e.stopPropagation()}>
-        <div className="mb-4 flex items-start justify-between">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <h2 className="font-montserrat text-lg font-semibold text-(--text-primary)">Detalhes do Feedback</h2>
           <button
             onClick={onClose}
-            className="btn-ghost font-poppins px-3 py-1 text-sm">
+            className="btn-ghost font-poppins min-h-11 w-full px-3 py-1 text-sm sm:w-auto">
             Fechar
           </button>
         </div>

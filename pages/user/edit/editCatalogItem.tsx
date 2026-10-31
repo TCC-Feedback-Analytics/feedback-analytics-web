@@ -22,6 +22,7 @@ import {
 } from "src/lib/constants/routes/intents";
 import { getCatalogKindBySlug } from "src/lib/constants/catalog";
 import { getQrCodeUrl } from "src/lib/utils/qrcode";
+import { feedbackFormUrl } from "src/lib/utils/feedbackFormUrl";
 import { useDirtyTracker } from "src/lib/hooks/useDirtyTracker";
 import { useToast } from "components/public/forms/messages/useToast";
 import PageHeader from "components/user/shared/PageHeader";
@@ -152,16 +153,21 @@ function CatalogItemConfig() {
     );
   }, [detailPath, itemId, qrActive, qrFetcher]);
 
-  const feedbackUrl = useMemo(() => {
-    if (!collectionPointId) return "";
-    return `${window.location.origin}/feedback/qrcode?enterprise=${enterprise.id}&collection_point=${collectionPointId}&item=${itemId}`;
-  }, [collectionPointId, enterprise.id, itemId]);
-
-  const qrCodeUrl = useMemo(
-    () =>
-      feedbackUrl ? getQrCodeUrl(feedbackUrl, { size: 300, format: "png" }) : "",
-    [feedbackUrl],
+  // Cada canal leva a sua marca na URL, para o painel saber por onde a resposta chegou.
+  const formUrlFor = useCallback(
+    (channel: "QR" | "LINK" | "NFC") =>
+      collectionPointId
+        ? feedbackFormUrl({ enterpriseId: enterprise.id, collectionPointId, itemId, channel })
+        : "",
+    [collectionPointId, enterprise.id, itemId],
   );
+  const feedbackUrl = useMemo(() => formUrlFor("LINK"), [formUrlFor]);
+  const nfcUrl = useMemo(() => formUrlFor("NFC"), [formUrlFor]);
+
+  const qrCodeUrl = useMemo(() => {
+    const qrFormUrl = formUrlFor("QR");
+    return qrFormUrl ? getQrCodeUrl(qrFormUrl, { size: 300, format: "png" }) : "";
+  }, [formUrlFor]);
 
   const handleDownload = useCallback(async () => {
     if (!qrCodeUrl) return;
@@ -376,6 +382,7 @@ function CatalogItemConfig() {
         onToggleQr={handleToggleQr}
         qrCodeUrl={qrCodeUrl}
         feedbackUrl={feedbackUrl}
+        nfcUrl={nfcUrl}
         showCopied={showCopied}
         onDownload={handleDownload}
         onCopyLink={handleCopyLink}

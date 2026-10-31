@@ -14,10 +14,9 @@ export default function FieldText({
     <div className="space-y-1">
       <Label
         htmlFor={name}
-        className="flex items-center gap-2 pl-1 cursor-pointer text-(--text-secondary) font-work-sans font-normal"
+        className="cursor-pointer text-xs font-semibold text-(--text-secondary)"
       >
-        {icon && <span className="inline-flex items-center text-sm">{icon}</span>}
-        <span className="text-sm">{label}</span>
+        {label}
       </Label>
       {/* E-mail do login: "username" deixa o Safari e o Samsung Pass preencherem o par
           e-mail + senha certo; sem maiúscula nem correção automática no celular. */}
@@ -30,9 +29,11 @@ export default function FieldText({
         autoCapitalize="none"
         autoCorrect="off"
         spellCheck={false}
+        placeholder="voce@empresa.com"
+        startIcon={icon}
         error={!!error}
         aria-invalid={error ? true : undefined}
-        className="px-4"
+        className="h-12 rounded-xl border-(--primary-color)/20 bg-(--bg-tertiary)"
         {...register}
       />
       {error && (

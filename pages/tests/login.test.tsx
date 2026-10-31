@@ -1,99 +1,75 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import Login from '../public/login';
 
-// Mock dos componentes filhos para focar no teste da página
-vi.mock('components/public/shared/card', () => ({
-  default: ({
-    title,
-    text,
-    linkRegister,
-    icon,
-    children,
-  }: {
-    title: string;
-    text: string;
-    linkRegister: string;
-    icon: React.ReactNode;
-    children: React.ReactNode;
-  }) => (
-    <div data-testid="card-form">
-      <div data-testid="card-title">{title}</div>
-      <div data-testid="card-text">{text}</div>
-      <div data-testid="card-icon">{icon}</div>
-      <div data-testid="card-form-content">{children}</div>
-      <a
-        href={linkRegister}
-        data-testid="register-link">
-        Register Link
-      </a>
-    </div>
-  ),
-}));
+vi.mock('react-router-dom', async () => vi.importActual<typeof import('react-router-dom')>('react-router-dom'));
 
 vi.mock('components/public/forms/formLogin', () => ({
   default: () => <div data-testid="form-login">Login Form</div>,
 }));
 
-vi.mock('components/svg/lock', () => ({
-  default: () => <div data-testid="svg-lock">Lock Icon</div>,
-}));
+function renderLogin() {
+  return render(<Login />, { wrapper: MemoryRouter });
+}
 
 describe('[Unidade] Login Page', () => {
   it('deve renderizar todos os elementos principais da página', () => {
-    render(<Login />);
+    renderLogin();
 
-    expect(screen.getByTestId('card-form')).toBeInTheDocument();
-    expect(screen.getByTestId('card-title')).toHaveTextContent(
+    expect(screen.getByRole('heading', { name: 'Bem-vindo de volta' })).toBeInTheDocument();
+    expect(screen.getByText(
       'Bem-vindo de volta',
-    );
-    expect(screen.getByTestId('card-text')).toHaveTextContent(
-      'Entre na sua conta para continuar',
-    );
+    )).toBeInTheDocument();
+    expect(screen.getByText(
+      'Entre na sua conta para continuar.',
+    )).toBeInTheDocument();
   });
 
   it('deve renderizar o formulário de login', () => {
-    render(<Login />);
+    renderLogin();
 
     expect(screen.getByTestId('form-login')).toBeInTheDocument();
     expect(screen.getByTestId('form-login')).toHaveTextContent('Login Form');
   });
 
-  it('deve renderizar o ícone de cadeado', () => {
-    render(<Login />);
+  it('deve exibir o nome completo da marca no cabeçalho', () => {
+    renderLogin();
 
-    expect(screen.getByTestId('svg-lock')).toBeInTheDocument();
+    expect(screen.getAllByText('Feedback Analytics')).toHaveLength(2);
+  });
+
+  it('centraliza o aviso de segurança no rodapé do formulário', () => {
+    renderLogin();
+
+    expect(screen.getByText('Seus dados são protegidos e usados com segurança.'))
+      .toHaveClass('w-full', 'justify-center', 'text-center');
   });
 
   it('deve ter link para página de registro', () => {
-    render(<Login />);
+    renderLogin();
 
-    const registerLink = screen.getByTestId('register-link');
+    const registerLink = screen.getByRole('link', { name: 'Cadastre-se' });
     expect(registerLink).toBeInTheDocument();
     expect(registerLink).toHaveAttribute('href', '/register');
   });
 
-  it('deve renderizar os links de termos e política', () => {
-    render(<Login />);
-
-    expect(screen.getByText('Termos de Serviço')).toBeInTheDocument();
-    expect(screen.getByText('Política de Privacidade')).toBeInTheDocument();
-  });
-
-  it('deve ter as classes CSS corretas para o layout', () => {
-    const { container } = render(<Login />);
+  it('deve usar um layout responsivo para a experiência de login', () => {
+    const { container } = renderLogin();
 
     const mainDiv = container.firstChild as HTMLElement;
     expect(mainDiv).toHaveClass(
-      'min-h-screen',
+      'login-experience',
+      'min-h-[100dvh]',
       'bg-(--bg-primary)',
     );
-  });
+    const sidebar = container.querySelector('aside');
+    const formRegion = container.querySelector('main');
 
-  it('deve renderizar elementos decorativos de fundo', () => {
-    const { container } = render(<Login />);
-
-    const decorativeElements = container.querySelectorAll('.absolute');
-    expect(decorativeElements.length).toBeGreaterThan(0);
+    expect(mainDiv).toHaveClass('lg:grid-cols-[minmax(0,1fr)_minmax(28rem,0.82fr)]');
+    expect(sidebar).toHaveClass('hidden', 'lg:flex', 'lg:col-start-1');
+    expect(formRegion).toHaveClass('flex', 'justify-center', 'lg:col-start-2');
+    expect(formRegion?.parentElement).toBe(mainDiv);
+    expect(sidebar?.parentElement).toBe(mainDiv);
   });
 });

@@ -1,6 +1,7 @@
 import { ServiceGetEnterprisePublic } from 'src/services/serviceEnterprise';
 import type { FeedbackQuestionPublic } from 'lib/interfaces/contracts/qrcode/question.contract';
 import { DEFAULT_COMMENT_FIELD, type CommentFieldSettings } from 'lib/schemas/public/commentField';
+import { CHANNEL_URL_PARAM, channelFromUrlValue, type FeedbackChannel } from 'lib/schemas/public/feedbackChannel';
 
 export type PublicQrCodeEnterpriseLoadData = {
   enterpriseId: string | null;
@@ -11,6 +12,8 @@ export type PublicQrCodeEnterpriseLoadData = {
   itemKind: 'PRODUCT' | 'SERVICE' | 'DEPARTMENT' | null;
   questions: FeedbackQuestionPublic[];
   commentField: CommentFieldSettings;
+  /** Canal de coleta da marca `canal` da URL; null sem marca. */
+  channel?: FeedbackChannel | null;
   error: string;
 };
 
@@ -73,6 +76,7 @@ export async function loadPublicQrCodeEnterpriseData(
       itemKind: enterprise.item_kind ?? null,
       questions: enterprise.questions ?? [],
       commentField: enterprise.comment ?? DEFAULT_COMMENT_FIELD,
+      channel: channelFromUrlValue(url.searchParams.get(CHANNEL_URL_PARAM)),
       error: '',
     };
   } catch (err) {

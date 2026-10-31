@@ -1,9 +1,10 @@
 import { FaCheck, FaCircleCheck, FaCirclePause, FaCopy, FaDownload, FaLock, FaPlay, FaQrcode, FaShareNodes, FaTowerBroadcast } from 'react-icons/fa6';
 import HelpHint from 'components/user/shared/HelpHint';
+import NfcTagCard from './NfcTagCard';
 import type { CollectionChannelsSectionProps } from './ui.types';
 
 const actionClass =
-  'btn-ghost font-poppins inline-flex items-center gap-1.5 px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-50';
+  'btn-ghost font-poppins inline-flex min-h-11 w-full items-center justify-center gap-1.5 px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto';
 
 const STEPS = [
   'Baixe o QR Code ou copie o link.',
@@ -20,8 +21,8 @@ const TIPS = [
 /**
  * "Canais de coleta": por onde o cliente chega às perguntas de uma avaliação
  * (empresa ou item do catálogo). Um card compacto por canal, para caber numa tela
- * só: hoje o QR Code com o link (status, QR, ações, passos e dicas recolhidas); o
- * NFC entra depois como mais um card nesta seção.
+ * só: o QR Code com o link (status, QR, ações, passos e dicas recolhidas) e a
+ * etiqueta NFC. Cada canal leva a sua marca na URL, para as métricas por canal.
  */
 export default function CollectionChannelsSection({
   ofTarget,
@@ -32,6 +33,7 @@ export default function CollectionChannelsSection({
   onToggleQr,
   qrCodeUrl,
   feedbackUrl,
+  nfcUrl,
   showCopied,
   onDownload,
   onCopyLink,
@@ -53,7 +55,7 @@ export default function CollectionChannelsSection({
 
       <div className="relative rounded-2xl border border-(--quaternary-color)/12 bg-(--bg-secondary) p-4 sm:p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-(--primary-color)/12 text-(--primary-color)">
               <FaQrcode aria-hidden />
             </div>
@@ -71,7 +73,7 @@ export default function CollectionChannelsSection({
               type="button"
               onClick={onToggleQr}
               disabled={qrLoading}
-              className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${qrActive ? 'border border-rose-500/30 bg-rose-500/10 text-rose-200 hover:bg-rose-500/15' : 'bg-(--primary-color) text-(--on-primary) hover:bg-(--secondary-color)'}`}
+              className={`inline-flex min-h-11 w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto ${qrActive ? 'border border-rose-500/30 bg-rose-500/10 text-rose-200 hover:bg-rose-500/15' : 'bg-(--primary-color) text-(--on-primary) hover:bg-(--secondary-color)'}`}
             >
               {qrActive ? <FaCirclePause aria-hidden /> : <FaPlay aria-hidden />}{' '}
               {qrLoading ? 'Atualizando…' : qrActive ? 'Pausar coleta' : 'Ativar coleta'}
@@ -109,7 +111,7 @@ export default function CollectionChannelsSection({
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
               <button type="button" onClick={onDownload} disabled={!qrActive} className={actionClass}>
                 <FaDownload aria-hidden /> Baixar QR Code
               </button>
@@ -149,6 +151,8 @@ export default function CollectionChannelsSection({
           <div className="pointer-events-none absolute inset-0 rounded-2xl bg-(--bg-primary)/30 backdrop-blur-[1px]" />
         )}
       </div>
+
+      {nfcUrl && <NfcTagCard nfcUrl={nfcUrl} qrActive={qrActive} />}
     </section>
   );
 }

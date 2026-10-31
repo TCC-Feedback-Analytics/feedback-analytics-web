@@ -657,7 +657,7 @@ export default function QuestionsEditor({
           <button
             type="submit"
             disabled={!isDirty || isSubmitting}
-            className="btn-primary font-poppins px-6 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-60"
+            className="btn-primary font-poppins min-h-11 w-full px-6 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
             {submitLabel}
           </button>

@@ -69,6 +69,7 @@ describe('[Integração] ActionPublicQrCodeFeedback', () => {
         message: 'Ótimo produto',
         rating: '5',
         answers: JSON.stringify(defaultAnswers),
+        channel: 'NFC',
       }),
     );
 
@@ -81,7 +82,7 @@ describe('[Integração] ActionPublicQrCodeFeedback', () => {
       rating: 5,
       answers: defaultAnswers,
       subanswers: [],
-      channel: 'QRCODE',
+      channel: 'NFC',
       customer_name: undefined,
       customer_email: undefined,
       customer_gender: undefined,

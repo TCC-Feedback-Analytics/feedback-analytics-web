@@ -19,7 +19,7 @@ export default function PageHeader({ title, description, breadcrumb, actions }: 
   const crumbs = breadcrumb ?? meta.breadcrumb;
 
   return (
-    <header className="font-work-sans mb-6 border-b border-(--quaternary-color)/12 pb-4">
+    <header className="font-work-sans mb-5 border-b border-(--quaternary-color)/12 pb-4 sm:mb-6">
       {crumbs.length > 0 && (
         <nav aria-label="Trilha de navegação" className="mb-2">
           <ol className="flex flex-wrap items-center gap-1.5 text-xs text-(--text-tertiary)">
@@ -50,7 +50,7 @@ export default function PageHeader({ title, description, breadcrumb, actions }: 
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h1 className="font-montserrat text-2xl font-bold tracking-tight text-(--text-primary)">
+          <h1 className="font-montserrat text-xl font-bold tracking-tight text-(--text-primary) sm:text-2xl">
             {resolvedTitle}
           </h1>
           {resolvedDescription && (
@@ -59,7 +59,7 @@ export default function PageHeader({ title, description, breadcrumb, actions }: 
             </p>
           )}
         </div>
-        {actions && <div className="shrink-0">{actions}</div>}
+        {actions && <div className="w-full shrink-0 sm:w-auto">{actions}</div>}
       </div>
     </header>
   );

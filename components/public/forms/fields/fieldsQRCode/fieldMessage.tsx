@@ -3,13 +3,15 @@ import type { FieldMessageProps } from './ui.types';
 
 export default function FieldMessage({ message, onMessageChange, label }: FieldMessageProps) {
   return (
-    <div>
-      <label
-        htmlFor="message"
-        className="font-work-sans block text-sm font-medium text-(--text-primary) mb-2">
-        {label}{' '}
-        <span className="font-normal text-(--text-secondary)">(opcional)</span>
-      </label>
+    <section className="space-y-2.5">
+      <div className="flex items-center justify-between gap-3">
+        <label
+          htmlFor="message"
+          className="text-sm font-bold text-(--text-primary)">
+          {label}
+        </label>
+        <span className="text-[11px] text-(--text-tertiary)">Opcional</span>
+      </div>
       <textarea
         id="message"
         value={message}
@@ -17,8 +19,9 @@ export default function FieldMessage({ message, onMessageChange, label }: FieldM
         placeholder="Descreva sua experiência, sugestões ou comentários..."
         rows={4}
         maxLength={5000}
-        className="font-work-sans w-full resize-none rounded-lg border border-(--bg-tertiary) bg-(--seventh-color) px-4 py-3 text-base md:text-sm text-(--text-primary) placeholder-(--text-secondary) focus:border-transparent focus:outline-none focus:ring-2 focus:ring-(--primary-color)"
+        className="min-h-[116px] w-full resize-none rounded-2xl border border-(--quaternary-color)/18 bg-(--bg-secondary) px-4 py-3.5 text-base text-(--text-primary) placeholder-(--text-tertiary) transition-colors focus:border-(--primary-color) focus:outline-none focus:ring-2 focus:ring-(--primary-color)/20 md:text-sm"
       />
-    </div>
+      <p className="text-right text-[10px] text-(--text-tertiary)">{message.length} / 5000</p>
+    </section>
   );
 }

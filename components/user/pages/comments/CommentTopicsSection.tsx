@@ -20,7 +20,7 @@ export default function CommentTopicsSection({ summary }: CommentTopicsSectionPr
   return (
     <section
       aria-labelledby="comment-topics-title"
-      className="font-work-sans rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6"
+      className="font-work-sans rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-4 sm:p-6"
     >
       <h3 id="comment-topics-title" className="flex items-center gap-1.5 font-montserrat text-base font-semibold text-(--text-primary)">
         Assuntos que mais impactam <MetricHelp term="aspects" />
@@ -35,7 +35,7 @@ export default function CommentTopicsSection({ summary }: CommentTopicsSectionPr
             {aspects.map((aspect) => (
               <li
                 key={aspect.aspect}
-                className="flex items-center justify-between gap-3 rounded-lg border border-(--quaternary-color)/10 bg-(--seventh-color) px-3 py-2"
+                className="flex flex-col items-start gap-1.5 rounded-lg border border-(--quaternary-color)/10 bg-(--seventh-color) px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3"
               >
                 <div className="min-w-0">
                   <span className="block truncate text-sm text-(--text-primary)">{aspect.aspect}</span>

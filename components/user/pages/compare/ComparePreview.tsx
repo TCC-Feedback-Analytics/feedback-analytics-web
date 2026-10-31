@@ -32,10 +32,10 @@ const EXAMPLE_ROWS = [
  */
 export default function ComparePreview() {
   return (
-    <div className="font-work-sans space-y-6" data-tour="tour-compare-items">
+    <div className="font-work-sans space-y-5 sm:space-y-6" data-tour="tour-compare-items">
       <section
         aria-labelledby="compare-preview-title"
-        className="relative overflow-hidden rounded-2xl border border-(--primary-color)/20 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6"
+        className="relative overflow-hidden rounded-2xl border border-(--primary-color)/20 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-4 sm:p-6"
       >
         <div className="flex items-start gap-4">
           <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-(--primary-color)/15 text-(--primary-color)">
@@ -67,7 +67,7 @@ export default function ComparePreview() {
         </ol>
 
         <div className="mt-5">
-          <Link to="/user/edit/types-feedback" className="btn-primary inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold">
+          <Link to="/user/edit/types-feedback" className="btn-primary inline-flex min-h-11 w-full items-center justify-center gap-2 px-4 py-2 text-sm font-semibold sm:w-auto">
             Abrir o Catálogo
             <FaArrowRight className="text-xs" aria-hidden />
           </Link>
@@ -84,7 +84,19 @@ export default function ComparePreview() {
           </span>
         </header>
 
-        <div className="welcome-ghost overflow-x-auto rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color)" aria-hidden>
+        <div className="welcome-ghost space-y-3 rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-4 md:hidden" aria-hidden>
+          {EXAMPLE_ROWS.map((row) => (
+            <article key={row.metric} className="rounded-xl border border-(--quaternary-color)/10 bg-(--bg-primary)/30 p-3">
+              <h3 className="text-sm font-semibold text-(--text-primary)">{row.metric}</h3>
+              <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                <p className="rounded-lg bg-cyan-400/5 p-2 text-(--text-primary)"><span className="block text-[10px] font-semibold uppercase text-cyan-300">A · Pizza</span>{row.a}</p>
+                <p className="rounded-lg bg-violet-400/5 p-2 text-(--text-primary)"><span className="block text-[10px] font-semibold uppercase text-violet-300">B · Hambúrguer</span>{row.b}</p>
+              </div>
+              <p className="mt-2 text-xs text-(--text-secondary)"><span className="font-semibold text-(--text-primary)">Comparação: </span>{row.verdict}</p>
+            </article>
+          ))}
+        </div>
+        <div className="welcome-ghost hidden overflow-x-auto rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) md:block" aria-hidden>
           <table className="w-full min-w-[520px] text-left text-sm">
             <thead>
               <tr className="border-b border-(--quaternary-color)/10 text-xs text-(--text-tertiary)">

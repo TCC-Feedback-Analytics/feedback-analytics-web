@@ -64,7 +64,7 @@ export default function InsightsActionBar() {
 
   return (
     <>
-      {(isScopeRoute || isProcessing) && <div className="relative z-20 mb-5 flex w-full max-w-full flex-wrap items-center gap-3 rounded-xl border border-(--quaternary-color)/12 bg-(--bg-secondary) p-3">
+      {(isScopeRoute || isProcessing) && <div className="relative z-20 mb-5 flex w-full max-w-full flex-col gap-3 rounded-xl border border-(--quaternary-color)/12 bg-(--bg-secondary) p-3 sm:flex-row sm:flex-wrap sm:items-center">
         {isScopeRoute && <>
         <InsightsControlsBar />
         </>}
@@ -74,11 +74,11 @@ export default function InsightsActionBar() {
           {progress && progress.total > 0 ? ` (${progress.done}/${progress.total})` : ''}
         </p>}
 
-        <div className="sm:ml-auto flex flex-wrap items-center gap-2">
+        <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
           <button
             type="button"
             onClick={() => setGenerateDialogOpen(true)}
-            className="btn-primary font-poppins inline-flex items-center gap-2 px-4 py-2 text-[13px] font-semibold shadow-md transition-all hover:scale-[1.02]"
+            className="btn-primary font-poppins inline-flex min-h-11 w-full items-center justify-center gap-2 px-4 py-2 text-[13px] font-semibold shadow-md transition-all hover:scale-[1.02] sm:w-auto"
           >
             {isProcessing ? (
               <>
