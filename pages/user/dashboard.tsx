@@ -222,6 +222,19 @@ export default function Dashboard() {
     }
   };
 
+  // O diagnóstico do escopo é a visão do conjunto, então abre o Dashboard. Mas só
+  // sai com 10 avaliações no período: antes disso, vai para o fim, para
+  // o Dashboard não começar com um card que ainda não tem o que mostrar.
+  const diagnosisOnTop = (stats?.totalFeedbacks ?? 0) >= MIN_FEEDBACKS_FOR_AI;
+  const diagnosisSection = (
+    <SectionScopeDiagnosis
+      hasConfiguredAI={Boolean(userLoaderData?.iaConfig?.hasKey && userLoaderData.iaConfig.model)}
+      hasCompanyContext={canAnalyze}
+      periodTotal={scopedLoading ? null : stats?.totalFeedbacks ?? null}
+      model={userLoaderData?.iaConfig?.model ?? null}
+    />
+  );
+
   return (
     <div className="font-work-sans space-y-6">
       <CardSimple type="header">
@@ -288,13 +301,7 @@ export default function Dashboard() {
         </>
       ) : (
         <>
-          {/* Visão do conjunto no topo: o que está acontecendo e o que fazer. */}
-          <SectionScopeDiagnosis
-            hasConfiguredAI={Boolean(userLoaderData?.iaConfig?.hasKey && userLoaderData.iaConfig.model)}
-            hasCompanyContext={canAnalyze}
-            periodTotal={scopedLoading ? null : stats?.totalFeedbacks ?? null}
-            model={userLoaderData?.iaConfig?.model ?? null}
-          />
+          {diagnosisOnTop && diagnosisSection}
 
           {scopedLoading ? (
             <DashboardScopedSkeleton />
@@ -369,6 +376,8 @@ export default function Dashboard() {
               </Link>
             </div>
           </section>
+
+          {!diagnosisOnTop && diagnosisSection}
         </>
       )}
 

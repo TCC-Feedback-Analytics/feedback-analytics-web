@@ -1,6 +1,7 @@
 import type { FeedbackDetailsModalProps } from './ui.types';
 
 import { formatDateTime } from 'src/lib/utils/FormatDate';
+import { TEST_FEEDBACK_HINT, feedbackChannelLabel } from 'src/lib/utils/feedbackChannelLabel';
 
 const ANSWER_LABEL: Record<string, string> = {
   PESSIMO: 'Péssimo',
@@ -36,10 +37,12 @@ export default function FeedbackDetailsModal({
           : 'Empresa';
 
   const itemName = resolvedItemName;
-  const channelDisplayName =
+  const channelDisplayName = feedbackChannelLabel(
+    selectedFeedback.channel,
     selectedFeedback.collection_points?.type === 'QR_CODE'
       ? (selectedFeedback.collection_points?.name || '').replace(/^QR Code\s*-\s*.+$/, 'QR Code')
-      : (selectedFeedback.collection_points?.name || 'N/A');
+      : (selectedFeedback.collection_points?.name || 'N/A'),
+  );
 
   const questionAnswers = selectedFeedback.feedback_question_answers ?? [];
 
@@ -76,6 +79,9 @@ export default function FeedbackDetailsModal({
                 </span>
               )}
             </div>
+            {selectedFeedback.channel === 'TEST' && (
+              <p className="text-xs text-(--text-tertiary)">{TEST_FEEDBACK_HINT}</p>
+            )}
             <p className="whitespace-pre-wrap leading-relaxed text-(--text-primary)">
               {selectedFeedback.message?.trim() ? selectedFeedback.message : <span className="italic text-(--text-tertiary)">Sem comentário</span>}
             </p>

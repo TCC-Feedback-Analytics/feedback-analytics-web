@@ -1,6 +1,8 @@
+import type { ReactNode } from 'react';
+
 /**
  * Props da seção "Canais de coleta": por onde o cliente chega às perguntas.
- * Hoje só o QR Code (com o link); o NFC entra como mais um canal.
+ * Um card por canal: QR Code, link e etiqueta NFC.
  * Usado em: components/user/pages/qrcodeEnterprise/CollectionChannelsSection.tsx.
  */
 export interface CollectionChannelsSectionProps {
@@ -34,3 +36,13 @@ export interface NfcTagCardProps {
 
 /** Etapas da gravação da etiqueta pelo navegador (Web NFC). */
 export type NfcWriteState = 'idle' | 'writing' | 'done' | 'error';
+
+/**
+ * Props de um passo numerado do card "Etiqueta NFC".
+ * Usado em: components/user/pages/qrcodeEnterprise/NfcTagCard.tsx.
+ */
+export interface NfcStepProps {
+  number: number;
+  title: string;
+  children: ReactNode;
+}

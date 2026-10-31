@@ -114,7 +114,7 @@ const ROUTE_META: Record<string, RouteMeta> = {
   },
   '/user/edit/feedback-general': {
     title: 'Avaliação da empresa',
-    description: 'As perguntas e os canais de coleta (QR Code e link) que seus clientes usam para avaliar a empresa como um todo.',
+    description: 'As perguntas e os canais de coleta que seus clientes usam para avaliar a empresa como um todo.',
     breadcrumb: [{ label: SECTION_CONFIG }, { label: 'Avaliação da empresa' }],
   },
 
