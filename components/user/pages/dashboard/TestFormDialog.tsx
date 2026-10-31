@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { FaArrowUpRightFromSquare, FaCircleCheck } from 'react-icons/fa6';
 import { Dialog, DialogContent } from 'components/ui/dialog';
 import { embeddedFormUrl, readEmbeddedFormResult, type EmbeddedFormResult } from 'src/lib/utils/embeddedForm';
+import { withChannel } from 'src/lib/utils/feedbackFormUrl';
 import type { TestFormDialogProps } from './ui.types';
 
 /** Depois de enviar, a janela mostra o "Pronto" por alguns segundos e fecha. */
@@ -14,6 +15,8 @@ const CLOSE_AFTER_SENT_MS = 3500;
 export default function TestFormDialog({ open, onOpenChange, feedbackUrl, onResult }: TestFormDialogProps) {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const [result, setResult] = useState<EmbeddedFormResult | null>(null);
+  // O teste do dono conta como feedback, mas não aparece como canal de coleta.
+  const testUrl = withChannel(feedbackUrl, 'TEST');
 
   useEffect(() => {
     if (!open) {
@@ -69,14 +72,14 @@ export default function TestFormDialog({ open, onOpenChange, feedbackUrl, onResu
           <iframe
             ref={frameRef}
             title="Formulário do cliente"
-            src={embeddedFormUrl(feedbackUrl)}
+            src={embeddedFormUrl(testUrl)}
             className="min-h-0 w-full flex-1 border-0 bg-(--bg-primary)"
           />
         )}
 
         <footer className="font-work-sans border-t border-(--quaternary-color)/12 px-5 py-3 text-right">
           <a
-            href={feedbackUrl}
+            href={testUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-xs font-medium text-(--text-secondary) hover:text-(--text-primary)"

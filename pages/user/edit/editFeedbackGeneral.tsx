@@ -52,6 +52,7 @@ export default function EditFeedbackGeneral() {
 
   const {
     feedbackUrl,
+    nfcUrl,
     qrCodeUrl,
     showCopied,
     download: handleDownload,
@@ -106,6 +107,7 @@ export default function EditFeedbackGeneral() {
         onToggleQr={handleToggleQr}
         qrCodeUrl={qrCodeUrl}
         feedbackUrl={feedbackUrl}
+        nfcUrl={nfcUrl}
         showCopied={showCopied}
         onDownload={handleDownload}
         onCopyLink={handleCopyLink}

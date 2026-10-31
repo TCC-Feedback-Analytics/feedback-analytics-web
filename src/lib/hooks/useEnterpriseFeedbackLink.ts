@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { getQrCodeUrl } from 'src/lib/utils/qrcode';
+import { feedbackFormUrl } from 'src/lib/utils/feedbackFormUrl';
 import { useToast } from 'components/public/forms/messages/useToast';
 
 /**
@@ -11,14 +12,13 @@ export function useEnterpriseFeedbackLink(enterprise: { id: string; full_name?: 
   const toast = useToast();
   const [showCopied, setShowCopied] = useState(false);
 
-  const feedbackUrl = useMemo(() => {
-    const baseUrl = window.location.origin;
-    return `${baseUrl}/feedback/qrcode?enterprise=${enterprise.id}`;
-  }, [enterprise.id]);
+  // Cada canal leva a sua marca na URL, para o painel saber por onde a resposta chegou.
+  const feedbackUrl = useMemo(() => feedbackFormUrl({ enterpriseId: enterprise.id, channel: 'LINK' }), [enterprise.id]);
+  const nfcUrl = useMemo(() => feedbackFormUrl({ enterpriseId: enterprise.id, channel: 'NFC' }), [enterprise.id]);
 
   const qrCodeUrl = useMemo(
-    () => getQrCodeUrl(feedbackUrl, { size: 300, format: 'png' }),
-    [feedbackUrl],
+    () => getQrCodeUrl(feedbackFormUrl({ enterpriseId: enterprise.id, channel: 'QR' }), { size: 300, format: 'png' }),
+    [enterprise.id],
   );
 
   const download = useCallback(async () => {
@@ -68,5 +68,5 @@ export function useEnterpriseFeedbackLink(enterprise: { id: string; full_name?: 
     }
   }, [enterprise.full_name, feedbackUrl, copyLink]);
 
-  return { feedbackUrl, qrCodeUrl, showCopied, download, copyLink, share };
+  return { feedbackUrl, nfcUrl, qrCodeUrl, showCopied, download, copyLink, share };
 }

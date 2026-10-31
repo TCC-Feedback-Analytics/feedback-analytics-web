@@ -12,6 +12,7 @@ import {
 } from 'react-icons/fa';
 import SectionRatings from 'components/user/pages/dashboard/SectionRatings';
 import SectionMovement from 'components/user/pages/dashboard/SectionMovement';
+import SectionChannels from 'components/user/pages/dashboard/SectionChannels';
 import SectionScopeDiagnosis from 'components/user/pages/dashboard/SectionScopeDiagnosis';
 import ShareQrCard from 'components/user/pages/dashboard/ShareQrCard';
 import SectionFormQuestions from 'components/user/pages/questions/SectionFormQuestions';
@@ -300,6 +301,8 @@ export default function Dashboard() {
           ) : (
             <>
               <SectionRatings stats={stats} previous={previousStats} />
+
+              <SectionChannels stats={stats} />
 
               <SectionMovement />
 
