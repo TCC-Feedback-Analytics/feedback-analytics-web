@@ -48,7 +48,10 @@ describe('SectionMovement', () => {
 
     const section = await screen.findByRole('region', { name: /Movimento das avaliações/ });
     expect(await within(section).findByText('15')).toBeInTheDocument();
-    expect(within(section).getByText(/mais avaliações em/)).toHaveTextContent('15/10 (12)');
+    expect(within(section).getByText(/Dia com mais avaliações/)).toHaveTextContent('Dia com mais avaliações: 15/10, com 12 avaliações');
+    // Poucos dias: cada barra mostra embaixo a data e quantas avaliações teve.
+    expect(within(section).getByText('Cada barra é um dia.')).toBeInTheDocument();
+    expect(within(section).getByText('12 avaliações')).toBeInTheDocument();
 
     const table = within(section).getByRole('table', { name: 'Avaliações e média por dia' });
     const rows = within(table).getAllByRole('row');

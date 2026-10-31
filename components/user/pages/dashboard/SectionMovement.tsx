@@ -4,7 +4,8 @@ import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { useScopedTimeline } from 'src/lib/hooks/useScopedTimeline';
 import { formatRating } from 'src/lib/utils/ratingLabel';
 import { scopeText } from 'src/lib/utils/scopeText';
-import { BUCKET_PLURAL, BUCKET_WORD, formatBucketLabel } from 'src/lib/utils/timeline';
+import { countLabel } from 'src/lib/utils/plural';
+import { BUCKET_BAR_MEANING, BUCKET_PEAK_LABEL, BUCKET_PLURAL, BUCKET_WORD, formatBucketLabel } from 'src/lib/utils/timeline';
 import type { MovementChartProps, SectionMovementProps } from './ui.types';
 
 /** Abaixo disso, a média do intervalo é pouco confiável (bolinha vazada). */
@@ -15,6 +16,8 @@ const WIDTH = 600;
 const MAX_BAR_WIDTH = 36;
 /** Abaixo disso, não há tendência para mostrar: aparece um aviso no lugar do gráfico. */
 const MIN_INTERVALS_WITH_RATINGS = 2;
+/** Até aqui, cada barra ganha embaixo a data e a quantidade; acima, só três datas de referência. */
+const MAX_LABELED_BARS = 8;
 
 function MovementChart({ points, bucket, compact }: MovementChartProps) {
   const barsHeight = compact ? 80 : 130;
@@ -42,12 +45,14 @@ function MovementChart({ points, bucket, compact }: MovementChartProps) {
   });
   if (current) segments.push(current);
 
+  const labelEachBar = points.length <= MAX_LABELED_BARS;
   const ticks = points.length > 2 ? [0, Math.floor((points.length - 1) / 2), points.length - 1] : points.map((_, index) => index);
 
   return (
     <div className="space-y-1.5">
       <p className="text-[11px] text-(--text-tertiary)">
-        Avaliações por {BUCKET_WORD[bucket]} (no máximo {maxCount.toLocaleString('pt-BR')})
+        {BUCKET_BAR_MEANING[bucket]}
+        {!labelEachBar && ` A mais alta tem ${countLabel(maxCount, 'avaliações')}.`}
       </p>
       <svg viewBox={`0 0 ${WIDTH} ${height}`} className="block h-auto w-full" aria-hidden>
         {/* Base das barras e linha de referência da média 3 (Mediana). */}
@@ -105,11 +110,23 @@ function MovementChart({ points, bucket, compact }: MovementChartProps) {
           ),
         )}
       </svg>
-      <div className="flex justify-between text-[11px] text-(--text-tertiary)">
-        {ticks.map((index) => (
-          <span key={points[index].start}>{formatBucketLabel(points[index].start, bucket)}</span>
-        ))}
-      </div>
+      {labelEachBar ? (
+        // Uma coluna por barra, do mesmo tamanho da faixa dela no gráfico: o texto fica embaixo da barra.
+        <div className="grid text-center text-[11px] leading-tight" style={{ gridTemplateColumns: `repeat(${points.length}, minmax(0, 1fr))` }}>
+          {points.map((point) => (
+            <div key={point.start} className="px-0.5">
+              <p className="text-(--text-tertiary)">{formatBucketLabel(point.start, bucket)}</p>
+              <p className="font-semibold text-(--text-secondary)">{countLabel(point.count, 'avaliações')}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex justify-between text-[11px] text-(--text-tertiary)">
+          {ticks.map((index) => (
+            <span key={points[index].start}>{formatBucketLabel(points[index].start, bucket)}</span>
+          ))}
+        </div>
+      )}
       <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-(--text-tertiary)">
         <span className="inline-flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-sm bg-(--primary-color)/55" aria-hidden /> Quantidade
@@ -154,7 +171,7 @@ export default function SectionMovement({ variant = 'dashboard' }: SectionMoveme
         <p>
           <strong className="text-(--text-primary)">{data.total.toLocaleString('pt-BR')}</strong>{' '}
           {data.total === 1 ? 'avaliação' : 'avaliações'}
-          {only && <> em {formatBucketLabel(only.start, data.bucket)}</>}
+          {only && <> {data.bucket === 'week' ? 'na semana de' : 'em'} {formatBucketLabel(only.start, data.bucket)}</>}
           {only?.mean != null && <>, média {formatRating(only.mean)}</>}.
         </p>
         <p className="mt-1 text-xs text-(--text-tertiary)">
@@ -165,15 +182,18 @@ export default function SectionMovement({ variant = 'dashboard' }: SectionMoveme
   } else {
     body = (
       <div className="space-y-4">
-        <p className="text-sm text-(--text-secondary)">
-          <strong className="text-(--text-primary)">{data.total.toLocaleString('pt-BR')}</strong>{' '}
-          {data.total === 1 ? 'avaliação' : 'avaliações'}
+        <div className="space-y-0.5 text-sm text-(--text-secondary)">
+          <p>
+            <strong className="text-(--text-primary)">{data.total.toLocaleString('pt-BR')}</strong>{' '}
+            {data.total === 1 ? 'avaliação' : 'avaliações'} no total
+          </p>
           {peak && peak.count > 0 && (
-            <>
-              {' '}· mais avaliações em <strong className="text-(--text-primary)">{formatBucketLabel(peak.start, data.bucket)}</strong> ({peak.count})
-            </>
+            <p>
+              {BUCKET_PEAK_LABEL[data.bucket]}: <strong className="text-(--text-primary)">{formatBucketLabel(peak.start, data.bucket)}</strong>, com{' '}
+              {countLabel(peak.count, 'avaliações')}
+            </p>
           )}
-        </p>
+        </div>
         <MovementChart points={data.points} bucket={data.bucket} compact={variant === 'dashboard'} />
         <table className="sr-only">
           <caption>Avaliações e média por {BUCKET_WORD[data.bucket]}</caption>

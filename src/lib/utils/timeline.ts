@@ -34,11 +34,30 @@ export function browserTimeZone(): string {
 export const BUCKET_WORD: Record<TimelineBucket, string> = { day: 'dia', week: 'semana', month: 'mês' };
 export const BUCKET_PLURAL: Record<TimelineBucket, string> = { day: 'dias', week: 'semanas', month: 'meses' };
 
-/** "15/10", "sem. de 12/10", "out. de 2026". */
+/** Rótulo do intervalo com mais avaliações, no resumo acima do gráfico. */
+export const BUCKET_PEAK_LABEL: Record<TimelineBucket, string> = {
+  day: 'Dia com mais avaliações',
+  week: 'Semana com mais avaliações',
+  month: 'Mês com mais avaliações',
+};
+
+/** O que cada barra do gráfico representa (no gateway, a semana começa na segunda). */
+export const BUCKET_BAR_MEANING: Record<TimelineBucket, string> = {
+  day: 'Cada barra é um dia.',
+  week: 'Cada barra é uma semana, de segunda a domingo.',
+  month: 'Cada barra é um mês.',
+};
+
+function formatDayMonth(date: Date): string {
+  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+}
+
+/** "15/10", "12/10 a 18/10" (a semana inteira, para não deixar dúvida) e "out. de 2026". */
 export function formatBucketLabel(start: string, bucket: TimelineBucket): string {
   const date = parseLocalDate(start);
   if (!date) return start;
   if (bucket === 'month') return date.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
-  const dayMonth = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-  return bucket === 'week' ? `sem. de ${dayMonth}` : dayMonth;
+  if (bucket === 'day') return formatDayMonth(date);
+  const weekEnd = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 6);
+  return `${formatDayMonth(date)} a ${formatDayMonth(weekEnd)}`;
 }
