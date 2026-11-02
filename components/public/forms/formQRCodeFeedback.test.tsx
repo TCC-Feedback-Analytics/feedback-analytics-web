@@ -42,6 +42,14 @@ describe('formulário do cliente — campo de comentário do escopo', () => {
     expect(screen.queryByText(/Conte-nos mais sobre sua experiência/)).not.toBeInTheDocument();
   });
 
+  it('antes de enviar, aponta para a Política de Privacidade numa aba nova', () => {
+    render(<FormQRCodeFeedback model={model()} />);
+    const link = screen.getByRole('link', { name: 'Política de Privacidade' });
+    expect(link).toHaveAttribute('href', '/privacidade');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link.closest('p')).toHaveTextContent('Ao enviar, você concorda com a Política de Privacidade.');
+  });
+
   it('com o campo oculto, não pede comentário', () => {
     render(<FormQRCodeFeedback model={model({ mode: 'HIDDEN', prompt: null })} />);
     expect(screen.queryByRole('textbox', { name: /experiência|opcional/ })).not.toBeInTheDocument();
