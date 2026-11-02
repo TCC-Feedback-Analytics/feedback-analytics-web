@@ -64,7 +64,7 @@ export default function Privacy() {
         <ul>
           <li>Vercel, que hospeda o site e a API;</li>
           <li>Supabase, que hospeda o banco de dados;</li>
-          <li>SendGrid, que envia os e-mails da conta;</li>
+          <li>Brevo, que envia os e-mails da conta;</li>
           <li>Google, quando a pessoa escolhe entrar com o Google;</li>
           <li>
             OpenRouter e o provedor do modelo de IA escolhido pelo negócio, que recebem os comentários, as

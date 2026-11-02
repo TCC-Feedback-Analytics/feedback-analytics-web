@@ -8,6 +8,7 @@ import Information from "components/user/pages/profile/editUser/information";
 import AIContextProfileCard from "components/user/pages/profile/AIContextProfileCard";
 import CompanyProfileSection from "components/user/pages/profile/CompanyProfileSection";
 import CardSimple from "components/user/shared/cards/cardSimple";
+import DeleteAccountSection from "components/user/pages/profile/DeleteAccountSection";
 import { FaUser } from "react-icons/fa6";
 
 export default function Profile() {
@@ -57,6 +58,8 @@ export default function Profile() {
           <h2 id="contexto-ia-titulo" className="sr-only">Contexto da empresa para IA</h2>
           <AIContextProfileCard />
         </section>
+
+        <DeleteAccountSection />
 
         {isSavingProfile && (
           <div className="pointer-events-none absolute inset-0 rounded-2xl border border-(--quaternary-color)/12 bg-(--bg-primary)/35 backdrop-blur-[1px]" />
