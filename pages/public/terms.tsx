@@ -69,9 +69,9 @@ export default function Terms() {
 
       <LegalSection title="7. Encerramento">
         <p>
-          Você pode pedir a exclusão da conta a qualquer momento pelo e-mail{' '}
-          <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a>. Podemos suspender ou encerrar contas
-          que descumpram estes termos.
+          Você pode excluir a conta a qualquer momento na página Perfil, no botão "Excluir minha conta", ou
+          pedir pelo e-mail <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a>. A exclusão apaga a conta, a
+          empresa e todos os feedbacks, sem volta. Podemos suspender ou encerrar contas que descumpram estes termos.
         </p>
       </LegalSection>
 
