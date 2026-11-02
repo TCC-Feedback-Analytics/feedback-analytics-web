@@ -5,5 +5,5 @@
 export const PRIVACY_PATH = '/privacidade';
 export const TERMS_PATH = '/termos';
 export const LEGAL_VERSION = 'v1';
-export const LEGAL_UPDATED_AT = '21 de outubro de 2026';
+export const LEGAL_UPDATED_AT = '2 de novembro de 2026';
 export const LEGAL_CONTACT_EMAIL = 'feedbackanalytics2026@gmail.com';
