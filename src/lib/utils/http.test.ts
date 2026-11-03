@@ -54,10 +54,8 @@ describe('vercel.json: repasse da API', () => {
     expect(config.rewrites.at(-1)).toEqual({ source: '/(.*)', destination: '/index.html' });
   });
 
-  it('a Web de developer usa o gateway de developer; o resto, o de produção', () => {
+  it('repassa toda chamada /api ao gateway de produção', () => {
     const api = config.rewrites.filter((rule) => rule.source === '/api/(.*)');
-    expect(api[0].destination).toBe('https://feedback-analytics-api-developer.vercel.app/api/$1');
-    expect(api[0].has).toEqual([{ type: 'host', value: 'feedback-analytics-web-developer.vercel.app' }]);
-    expect(api[1]).toEqual({ source: '/api/(.*)', destination: 'https://feedback-analytics-api-gateway.vercel.app/api/$1' });
+    expect(api).toEqual([{ source: '/api/(.*)', destination: 'https://feedback-analytics-api-gateway.vercel.app/api/$1' }]);
   });
 });
