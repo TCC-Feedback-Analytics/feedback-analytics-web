@@ -12,10 +12,14 @@ A hierarquia de componentes segue uma regra de escopo: quanto mais próximo de u
 |---|---|---|
 | **Global (app inteiro)** | `components/globals/` | Componentes que afetam qualquer rota (ex: `errorPage`) |
 | **Fallbacks de carregamento** | `components/fallbacks/` | Telas de espera do nível de aplicação (`FallbackType01`) |
+| **Primitivos de UI** | `components/ui/` | Peças genéricas usadas nas duas áreas: `Dialog`, `Select`, `Switch`, `Checkbox`, `Input`, `Textarea`, `Label`, `Spinner`, `Toast` e `Sidebar` |
 | **SVG / Ícones inline** | `components/svg/` | Assets SVG convertidos em componentes React |
-| **Compartilhado — área pública** | `components/public/shared/` | Peças comuns entre páginas públicas |
-| **Compartilhado — área logada** | `components/user/shared/` | Cards, Avatar, Badge, Skeletons, Header |
-| **Específico de tela** | `components/user/pages/{feature}/` | Componentes que pertencem a uma única rota |
+| **Compartilhado — área pública** | `components/public/shared/` e `components/public/layout/` | Peças comuns entre páginas públicas (ex: `AuthShell`, a moldura das telas de acesso) e o cabeçalho público |
+| **Compartilhado — área logada** | `components/user/shared/` | Cards, Avatar, Badge, Skeletons, `PageHeader`, `SectionTabs`, `ScopeTag` e ajuda contextual |
+| **Moldura da área logada** | `components/user/layout/` e `components/user/onboarding/` | Cabeçalho, menu lateral, navegação do celular e barra de escopo e período; onboarding e guia do sistema |
+| **Específico de tela** | `components/public/{forms,legal,qrcode}/` e `components/user/pages/{feature}/` | Componentes que pertencem a uma única rota ou fluxo |
+
+A árvore completa de pastas está em [Arquitetura e Estrutura](./arquitetura-estrutura.md).
 
 **Regra prática:** se um componente for usado em mais de uma tela, ele sobe um nível para `shared/`. Se for usado em toda a aplicação, vai para `globals/`. Nunca copiar um componente entre pastas de feature — extrair para `shared/`.
 
@@ -23,31 +27,35 @@ A hierarquia de componentes segue uma regra de escopo: quanto mais próximo de u
 
 ## Design System / UI Kit
 
-O frontend não usa uma biblioteca de componentes externa (sem Shadcn, sem Radix UI, sem Material). Todo o sistema visual é customizado sobre **Tailwind CSS v4**.
+O frontend não usa uma biblioteca de componentes em runtime (sem Radix UI, sem Material). Os primitivos de `components/ui/` seguem o desenho do shadcn/ui, mas são escritos no próprio repositório. Todo o sistema visual é customizado sobre **Tailwind CSS v4**.
 
 ### Tokens de design
 
-Os valores de cor, fundo e texto são definidos como variáveis CSS customizadas e consumidos via Tailwind:
+Os valores de cor, fundo e texto são definidos como variáveis CSS customizadas em `styles/index.css` e consumidos via Tailwind:
 
 ```
+--bg-primary         → fundo da página
 --bg-secondary       → fundo de cards e painéis
 --bg-tertiary        → fundo de elementos aninhados
 --text-primary       → texto principal
---text-tertiary      → texto de apoio/secundário
+--text-secondary     → texto secundário
+--text-tertiary      → texto de apoio
+--primary-color      → cor de destaque (botões, links, itens ativos)
+--positive / --neutral / --negative → avaliações positivas, neutras e críticas
 --quaternary-color   → bordas e separadores
 --sixth-color        → gradientes de fundo
 --seventh-color      → cor base dos skeletons (animate-pulse)
 ```
 
-Isso significa que trocar o tema (ex: dark → light) exige apenas reatribuir essas variáveis — os componentes não precisam ser alterados.
+Cada área reatribui as variáveis numa classe própria: `.public-theme` (área pública), `.private-user-theme` (área logada) e `.feedback-form-experience` (formulário do cliente). O tema escuro é o padrão; o claro entra pela preferência do sistema (`@media (prefers-color-scheme: light)`), que reatribui as mesmas variáveis — os componentes não mudam. Menus e janelas abertos com `createPortal` ficam fora dessas classes; `src/lib/utils/portalTheme.ts` devolve a classe do tema para o portal herdar as cores.
 
 ### Ícones
 
-**React Icons** (v5) é a biblioteca de ícones. Importar sempre de um sub-pacote específico (ex: `react-icons/fa`) para evitar importar a coleção inteira.
+**React Icons** (v5) é a biblioteca de ícones. Importar sempre de um sub-pacote específico (ex: `react-icons/fa6`) para evitar importar a coleção inteira.
 
 ### Utilitário `glass-card`
 
-Existe uma classe utilitária customizada `glass-card` aplicada em cards e painéis principais (efeito glassmorphism). Centraliza o estilo visual dos containers sem repetir propriedades CSS em cada componente.
+Existe uma classe utilitária customizada `glass-card` (em `styles/user/profile.css`) aplicada em cards e painéis principais (efeito glassmorphism). Centraliza o estilo visual dos containers sem repetir propriedades CSS em cada componente.
 
 ---
 
@@ -68,8 +76,8 @@ No roteador raiz (`src/routes/source.tsx`), o `errorElement` captura qualquer er
 }
 ```
 
-O `ErrorPage` global está em `components/globals/handling/errorPage.tsx`.  
-A área logada tem sua própria versão em `components/user/shared/handling/errorPage.tsx`.
+O `ErrorPage` global está em `components/globals/handling/errorPage.tsx` e também é o `errorElement` da rota da área pública (`src/routes/public.tsx`).  
+A rota `/user` (`src/routes/user.tsx`) usa a versão da área logada, em `components/user/shared/handling/errorPage.tsx`.
 
 > **Pendente:** ambos os componentes `ErrorPage` (o global e o da área logada) estão como placeholders vazios (`return <></>`). A tela de feedback amigável para o usuário ainda precisa ser implementada.
 
@@ -80,3 +88,4 @@ A área logada tem sua própria versão em `components/user/shared/handling/erro
 - [Visão Geral](./visao-geral.md)
 - [Arquitetura e Estrutura](./arquitetura-estrutura.md)
 - [Interface e Performance](./interface-performance.md)
+- [Fluxo de Autenticação e Navegação](./fluxo-autenticacao.md)

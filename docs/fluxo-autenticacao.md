@@ -10,31 +10,39 @@ Este documento descreve como o frontend decide o que mostrar para cada usuário:
 
 | Tipo | Rotas | Acesso |
 |---|---|---|
-| **Pública** | `/`, `/login`, `/register`, `/forgot-password`, `/auth/reset-password`, `/auth/success`, `/auth/link-expired`, `/feedback/qrcode` | Qualquer visitante, sem verificação |
-| **Protegida** | Tudo em `/user/*` | Exige sessão válida — verificada antes de renderizar |
+| **Pública** | `/`, `/login`, `/register`, `/forgot-password`, `/resend-confirmation`, `/auth/reset-password`, `/auth/success`, `/auth/link-expired`, `/feedback/qrcode`, `/privacidade`, `/termos` | Qualquer visitante, sem verificação |
+| **Pública com sessão** | `/auth/complete-signup` | Fica fora de `/user`, mas o `LoaderCompleteSignup` exige sessão (ver [Login com Google](#login-com-google)) |
+| **Protegida** | Tudo em `/user/*`, inclusive `/user/openrouter/callback` | Exige sessão válida e telefone cadastrado — verificados antes de renderizar |
 
 ---
 
 ## Guarda de Rotas — `LoaderUserProtected`
 
-Todas as rotas `/user/*` são filhas de um único layout que declara `LoaderUserProtected` como loader. Isso significa que **antes de qualquer tela protegida ser renderizada**, o loader executa:
+Todas as rotas `/user/*` são filhas de um único layout (rota `id="user"`) que declara `LoaderUserProtected` como loader. Isso significa que **antes de qualquer tela protegida ser renderizada**, o loader executa:
 
 ```
 Usuário navega para /user/*
         ↓
 LoaderUserProtected executa
         ↓
-  Chama loadUserContextData()
+  Chama loadUserContextData(), em paralelo:
+  ServiceGetUser()     → GET /api/protected/user/auth_user
+  ServiceGetEnterprise() → GET /api/protected/user/enterprise   (falha vira null)
+  ServiceGetIaConfig()   → GET /api/protected/user/ia-config    (falha vira null)
+  e, se veio empresa, GET /api/protected/user/collecting_data   (falha vira null)
         ↓
-  ServiceGetUser() → GET /api/protected/user/auth_user
-  ServiceGetEnterprise() → GET /api/protected/user/enterprise (+ collecting_data)
-        ↓
+    ┌───┴──────────────┐
+  auth_user ok      auth_user falhou (401, rede, etc.)
+    ↓                    ↓
+  user.phone?       throw redirect('/login')
     ┌───┴───┐
-  Sucesso   Erro (401, rede, etc.)
-    ↓           ↓
-Renderiza   throw redirect('/login')
+   sim     não (entrou com Google e não completou o cadastro)
+    ↓        ↓
+Renderiza  throw redirect('/auth/complete-signup')
   a tela
 ```
+
+Só a falha de `auth_user` manda para o login; as outras leituras falham em silêncio e chegam como `null` (a empresa vira um objeto parcial).
 
 ### O que `loadUserContextData` retorna
 
@@ -42,13 +50,14 @@ Se a sessão for válida, o loader devolve para a tela:
 
 ```ts
 {
-  user,        // dados do usuário autenticado (id, email, metadata)
-  enterprise,  // dados da empresa (ou objeto parcial se ainda não cadastrou)
+  user,        // dados do usuário autenticado (id, email, phone, user_metadata)
+  enterprise,  // dados da empresa (ou objeto parcial se a leitura falhou)
   collecting,  // configurações de coleta de dados (pode ser null)
+  iaConfig,    // estado da configuração de IA (pode ser null)
 }
 ```
 
-Esses dados ficam disponíveis via `useRouteLoaderData` em qualquer componente dentro da área protegida — sem necessidade de chamar a API novamente.
+Esses dados ficam disponíveis via `useRouteLoaderData('user')` em qualquer componente dentro da área protegida — sem necessidade de chamar a API novamente.
 
 ---
 
@@ -56,9 +65,11 @@ Esses dados ficam disponíveis via `useRouteLoaderData` em qualquer componente d
 
 ### Como a sessão é armazenada
 
-A sessão trafega via **cookie httpOnly**, definido e gerenciado **pelo backend** (API Gateway, que usa **Better Auth** por baixo). O frontend **não instancia SDK de auth nem manipula tokens**: apenas envia o cookie automaticamente em cada requisição, porque `src/lib/utils/http.ts` usa `credentials: 'include'` em todos os helpers. Não há sessão em `localStorage` no frontend.
+A sessão trafega via **cookie httpOnly**, definido e gerenciado **pelo backend** (API Gateway, que usa **Better Auth** por baixo). O frontend **não instancia SDK de auth nem manipula tokens**: apenas envia o cookie automaticamente em cada requisição, porque `requestApi` (`src/lib/utils/http.ts`), base de todos os helpers, usa `credentials: 'include'`. A exceção é `requestPublicApi`, que usa `credentials: 'omit'` (ver [Resolução da URL da API](#resolução-da-url-da-api)). Não há sessão em `localStorage` no frontend.
 
-> **Nota:** a autenticação do backend migrou do **Supabase Auth** para o **Better Auth**. Para o frontend **nada muda**: os endpoints de auth do gateway continuam nos mesmos caminhos (`/api/public/auth/...`) — só o provedor por baixo mudou. O importante continua sendo enviar as requisições com credencial (cookie) e deixar o gateway devolver/gerenciar o cookie de sessão.
+Em produção a Web chama `/api/*` no próprio domínio e a Vercel repassa ao gateway (`vercel.json`). Por isso o cookie de sessão é do próprio site, e não de outro domínio: Safari e Samsung Internet bloqueiam cookie de outro site, e o login não se mantinha.
+
+> **Nota:** a autenticação do backend migrou do **Supabase Auth** para o **Better Auth**. Os fluxos de login, logout, cadastro, reenvio e recuperação continuam em `/api/public/auth/...`. Login com Google, lista de contas e exclusão de conta chamam direto as rotas nativas do Better Auth em `/api/auth/...`. O contrato de cada rota está no `docs/endpoints.md` do repositório `feedback-analytics-api-gateway`.
 
 ### Validade e renovação
 
@@ -95,24 +106,69 @@ redirect       retorna payload de erro para a tela
 /user/dashboard?login=success
 ```
 
+O botão fica em "Entrando..." até o fim da navegação, incluindo os loaders do Dashboard. No Dashboard, `?login=success` mostra o toast "Login realizado com sucesso." e sai da URL.
+
 ### Tratamento de erros no login
+
+Os erros aparecem em toast (título e descrição), conforme o `error` devolvido pelo gateway:
 
 | Cenário | Mensagem exibida |
 |---|---|
-| Credenciais inválidas | "E-mail ou senha incorretos.". O dialog de ajuda é aberto automaticamente após a tentativa rejeitada. |
-| Conta não confirmada (e-mail pendente) | **Mesma** mensagem e mesmas opções genéricas de ajuda — por segurança (RNE-014, proteção contra enumeração de usuários) a UI não revela que a conta existe ou está pendente. |
-| Rate limit (429) | "Muitas tentativas de login. Aguarde e tente novamente." |
+| Credenciais inválidas (`invalid_credentials`) | "E-mail ou senha incorretos." O dialog de ajuda é aberto automaticamente após a tentativa rejeitada. |
+| Conta não confirmada (e-mail pendente) | **Mesma** mensagem e mesmas opções genéricas de ajuda — por segurança (RNE-014, proteção contra enumeração de usuários) o gateway responde `invalid_credentials` e a UI não revela que a conta existe ou está pendente. |
+| Dados inválidos (`invalid_payload`) | "E-mail inválido." ou "Senha inválida.", pelo campo apontado em `issues` |
+| Rate limit (429) | "Muitas tentativas de login." — "Aguarde alguns instantes antes de tentar novamente." |
 | Servidor indisponível (5xx) | "Serviço de login temporariamente indisponível." |
-| Sem conexão | "Não foi possível conectar ao servidor. Verifique sua conexão." |
+| Sem conexão | "Falha de conexão." — "Não foi possível conectar ao servidor de login. Verifique sua internet e tente novamente." |
 
-> A opção fixa **"Problemas para entrar?"** abre um dialog com **"Redefinir senha"** e **"Reenviar e-mail de confirmação"**. Após uma tentativa de login rejeitada, o dialog abre automaticamente e destaca a orientação de confirmação. Nenhuma opção inclui o e-mail na URL, e a tela de reenvio mantém uma resposta genérica, sem confirmar se a conta existe ou se está pendente.
+> A opção fixa **"Problemas para entrar?"** abre um dialog com **"Redefinir senha"** (`/forgot-password`) e **"Reenviar e-mail de confirmação"** (`/resend-confirmation`). Após uma tentativa rejeitada com `invalid_credentials`, o dialog abre automaticamente e destaca a orientação de confirmação. Nenhuma opção inclui o e-mail na URL, e a tela de reenvio mantém uma resposta genérica, sem confirmar se a conta existe ou se está pendente.
+
+---
+
+## Login com Google
+
+O botão **"Continuar com Google"** (`GoogleSignInButton`) aparece acima do formulário de login e, como **"Criar conta com Google"**, no cadastro. Só é renderizado com `VITE_GOOGLE_AUTH_ENABLED=true`; as credenciais do Google ficam no gateway.
+
+```
+Usuário clica em "Continuar com Google"
+        ↓
+googleSignInUrl → POST /api/auth/sign-in/social  (rota nativa do Better Auth)
+  { provider: 'google',
+    callbackURL:        <origem>/user/dashboard,
+    newUserCallbackURL: <origem>/auth/complete-signup,
+    errorCallbackURL:   <origem>/login?error=google }
+        ↓
+Gateway devolve a URL do Google (precisa começar com https://)
+        ↓
+window.location.assign(url) → Google → volta pelo gateway com o cookie de sessão
+        ↓
+    ┌───────────┼──────────────┐
+ conta antiga  conta nova     erro
+    ↓           ↓               ↓
+/user/dashboard /auth/complete-signup  /login?error=google
+```
+
+- Se o gateway não devolver a URL, ou na volta com `?error=google`, o botão mostra "Não deu para entrar com o Google. Tente de novo ou use e-mail e senha."
+- Não há e-mail de confirmação: o Google já entrega o e-mail verificado.
+
+### Completar o cadastro (`/auth/complete-signup`)
+
+Quem entra pelo Google pela primeira vez ainda não tem telefone nem aceite dos termos.
+
+1. `LoaderCompleteSignup` chama `GET /api/protected/user/auth_user`: sem sessão, vai para `/login`; com telefone, o cadastro já está completo e vai para `/user/dashboard`. Senão, devolve o e-mail e o nome vindo do Google.
+2. O formulário pede o nome do negócio (preenchido com o nome do Google), o telefone e o aceite dos termos.
+3. `ServiceCompleteSignup` → `POST /api/protected/user/complete-signup`. Com sucesso, vai para `/user/dashboard`. Em `409 phone_taken`, o erro aparece no campo de telefone; qualquer outra falha mostra "Não deu para salvar agora. Tente de novo em instantes."
+
+O `LoaderUserProtected` reforça a regra: qualquer acesso a `/user/*` sem telefone volta para esta tela.
 
 ---
 
 ## Fluxo de Logout
 
 ```
-Usuário clica em "Sair"
+Usuário clica em "Sair" (menu do layout /user)
+        ↓
+fetcher envia { intent: INTENT_LOGOUT } para a action da rota /user
         ↓
 ActionLogout valida o intent (INTENT_LOGOUT)
         ↓
@@ -136,59 +192,125 @@ ActionForgotPassword → ServiceForgotPassword
         ↓
 POST /api/public/auth/forgot-password
         ↓
-Resposta sempre genérica (não revela se o e-mail existe):
+Resposta sempre genérica (não revela se o e-mail existe), em toast "E-mail enviado!":
 "Se este e-mail estiver cadastrado, você receberá as instruções em breve."
 ```
+
+Falhas (rate limit, 5xx, rede, e-mail malformado) aparecem em toast "Não foi possível enviar".
 
 ### Etapa 2 — Redefinir senha (`/auth/reset-password`)
 
 ```
 Usuário clica no link recebido por e-mail
         ↓
-O link (processado pelo callback do gateway) estabelece uma sessão temporária via cookie
+GET /api/public/auth/callback do gateway grava o token no cookie httpOnly ba_reset
+(vale 1 h, só é enviado para PATCH /user/password) e vai direto para /auth/reset-password
         ↓
 Usuário define nova senha
         ↓
 ActionResetPassword → ServiceResetPassword
         ↓
-PATCH /api/protected/user/password  (usa a sessão temporária do link)
+PATCH /api/protected/user/password  (usa o cookie ba_reset, não a sessão)
         ↓
     ┌───┴───┐
-  ok: true   Link expirado/inválido (401)
+  ok: true   Erro (ex.: 401 reset_password_invalid_token)
     ↓              ↓
-Senha alterada  "O link de redefinição expirou. Solicite um novo."
+redirect       toast "Erro ao redefinir senha" com a mensagem do gateway
+/login?reset=success   ("O link de redefinição expirou ou é inválido. Solicite um novo.")
 ```
+
+> Hoje a tela de login não lê `?reset=success`: não há aviso de "senha alterada" ao chegar no login.
 
 ---
 
 ## Fluxo de Cadastro
 
 ```
-/register → usuário preenche os dados
+/register → usuário preenche nome do negócio, e-mail, telefone, senha, confirmação e termos
         ↓
 ActionRegister → POST /api/public/auth/register
         ↓
-Gateway (Better Auth) envia e-mail de confirmação via SMTP
+    ┌───┴───┐
+  ok: true   erro → toast com a mensagem (ou a do status: 429, 5xx, rede)
+    ↓
+Tela "Confirme seu e-mail" (RegisterEmailPendingNotice)
         ↓
-Usuário clica no link → /auth/success
+Gateway (Better Auth) envia o e-mail de confirmação
         ↓
-Conta ativada → usuário pode fazer login
+Usuário clica no link → /api/auth/verify-email (Better Auth) → /auth/success
+        ↓
+    ┌───┴───┐
+  válido    ?error=<código> (TOKEN_EXPIRED, INVALID_TOKEN...)
+    ↓              ↓
+"Conta verificada"  /auth/link-expired
+e, em 1,5 s, /user/dashboard (o Better Auth já abre a sessão ao verificar)
 ```
 
-Se o e-mail de confirmação não chegou, o usuário pode reenviar via `ActionResendConfirmation`.
+- E-mail já cadastrado não gera erro: o gateway responde como sucesso (RNE-014), e a Web mostra a mesma tela "Confirme seu e-mail".
+- A tela "Confirme seu e-mail" mostra o e-mail digitado, o botão "Abrir o <provedor>" quando reconhece o provedor do e-mail, o reenvio e o link "Já confirmei · Ir para login".
+
+### Reenvio da confirmação
+
+O reenvio aparece em três lugares, todos com `ServiceResendConfirmation` → `POST /api/public/auth/resend-confirmation`:
+
+| Onde | Como chega |
+|---|---|
+| `/resend-confirmation` (`ActionResendConfirmation`) | Pelo dialog "Problemas para entrar?" do login |
+| Tela "Confirme seu e-mail" | Logo depois do cadastro, com o e-mail já preenchido |
+| `/auth/link-expired` | Quando o link de confirmação falha; pede o e-mail de novo |
+
+- A chamada usa `requestPublicApi`: vai direto ao gateway, sem cookie, porque o limite de reenvio conta por IP do cliente.
+- A resposta de sucesso é sempre genérica: "Se existir uma conta pendente para este e-mail, enviaremos uma nova confirmação."
+- **Tempo de espera:** o `retryAfterSeconds` do corpo (ou, sem ele, o header `Retry-After`) inicia a contagem em `useResendConfirmationCooldown`, tanto no sucesso quanto no `429 rate_limited`. Enquanto conta, o botão fica desabilitado e mostra "Solicitar novamente em mm:ss" (ou `hh:mm:ss` acima de uma hora). Os limites (intervalo por e-mail, por hora e por IP) estão no `endpoints.md` do gateway.
+- Erros aparecem com título próprio: "Muitas tentativas", "Falha de conexão" ou "Serviço indisponível" (5xx).
+
+---
+
+## Perfil: troca de e-mail
+
+Na seção "Dados pessoais e acesso" do Perfil (`/user/profile`), o campo **Email** é editável (`EditableFieldFixed`), com a dica "Após alterar, confirme nos dois emails (antigo e novo)". Ao salvar, envia `intent=update_email` para a `ActionProfile`, que chama `ServiceUpdateEmail` → `PATCH /api/protected/user/email`.
+
+> **Limitação atual:** o gateway sempre responde `400 update_failed`, porque o `changeEmail` do Better Auth não está ligado. Além disso, a `ActionProfile` não trata o erro: `ServiceUpdateEmail` lança, a falha sobe para o `errorElement` da rota `/user` (`components/user/shared/handling/errorPage.tsx`), que hoje não renderiza nada. Na prática, a troca de e-mail não acontece e a área logada fica em branco até recarregar.
+
+---
+
+## Exclusão de conta
+
+No fim do Perfil, a seção **"Excluir minha conta"** (`DeleteAccountSection`) apaga a conta, a empresa e todos os dados dela, sem volta.
+
+```
+Usuário clica em "Excluir minha conta"
+        ↓
+Dialog abre e consulta ServiceAccountHasPassword → GET /api/auth/list-accounts
+        ↓
+Pede a senha se a conta tem login por senha (ou se não deu para saber)
+e a palavra EXCLUIR para liberar o botão "Excluir para sempre"
+        ↓
+ServiceDeleteAccount → POST /api/auth/delete-user  ({ password } ou {})
+```
+
+| Resposta | O que a tela mostra |
+|---|---|
+| Sucesso | "Sua conta foi excluída." |
+| `INVALID_PASSWORD` | "Senha incorreta. Confira e tente de novo." |
+| `SESSION_EXPIRED` | "Por segurança, saia, entre de novo e volte aqui para excluir a conta." |
+| Outro código ou falha de rede | "Não foi possível excluir a conta agora. Tente de novo em instantes." |
+
+- Quem só entra pelo Google não tem senha: o pedido vai sem senha, e o gateway só aceita se a entrada foi recente (24 h); senão, cai em `SESSION_EXPIRED`.
+- Durante a exclusão e depois dela o dialog não fecha. A tela final tem o botão "Ir para o início", que recarrega a página em `/`.
 
 ---
 
 ## Resolução da URL da API
 
-O utilitário `http.ts` usa a URL da API configurada para o ambiente:
+O utilitário `http.ts` monta a URL a partir de duas variáveis:
 
 | Ambiente | Comportamento |
 |---|---|
-| **Local** | Usa `VITE_API_BASE_URL` do `.env` |
-| **Vercel (produção ou preview)** | Usa `VITE_API_BASE_URL` configurada no ambiente do projeto web |
+| **Local** | `VITE_API_BASE_URL=http://localhost:3000` (como no `.env.example`): a Web chama o gateway direto. Com a variável vazia, os caminhos ficam relativos (`/api/...`) e o proxy do `vite.config.ts` repassa para `http://localhost:3000`. |
+| **Vercel (produção ou preview)** | `VITE_API_BASE_URL` vazia: a Web chama `/api/*` no próprio domínio e o `vercel.json` repassa para `https://feedback-analytics-api-gateway.vercel.app/api/*`, mantendo o cookie de sessão no domínio do site. |
 
-Cada ambiente da Vercel deve informar explicitamente a URL da API correspondente.
+`VITE_PUBLIC_API_BASE_URL` vale só para as rotas públicas que contam por IP (reenvio da confirmação e envio do formulário público de feedback): elas vão direto ao gateway, com `credentials: 'omit'`, porque atrás do repasse da Vercel todos os pedidos poderiam chegar com o mesmo IP. Sem a variável, usa a mesma base de `VITE_API_BASE_URL`.
 
 ---
 
