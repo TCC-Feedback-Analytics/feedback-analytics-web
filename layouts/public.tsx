@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { isEmbeddedForm } from 'src/lib/utils/embeddedForm';
 
 const HEADERLESS_PUBLIC_PATHS = new Set([
+  '/',
   '/feedback/qrcode',
   '/login',
   '/register',

@@ -1,0 +1,289 @@
+/* Motion and interactive emphasis */
+.fn-hero,.fn-hero-inner {
+  min-height: 800px;
+}
+.fn-hero-inner {
+  padding-block: 28px 72px;
+}
+.fn-nav {
+  margin-inline: -12px;
+  min-height: 64px;
+  padding: 12px 24px;
+}
+.fn-hero-copy {
+  margin-top: 88px;
+}
+.fn-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .65s ease,transform .65s cubic-bezier(.22,1,.36,1);
+}
+.fn-reveal.fn-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fn-channel,.fn-scope,.fn-safeguards article {
+  transition: background-color .28s ease,color .28s ease,border-color .28s ease,box-shadow .28s ease,transform .28s ease,opacity .65s ease;
+}
+.fn-channel-icon,.fn-scope-icon,.fn-scope-qr,.fn-scope-divider,.fn-scope p,.fn-scope small,.fn-safeguard-top>div,.fn-safeguard-top svg {
+  transition: background-color .28s ease,color .28s ease,transform .28s ease;
+}
+.fn-safeguards article:nth-child(3) {
+  background: #08272c;
+  border-color: #1d4449;
+}
+.fn-safeguards article:nth-child(3) .fn-safeguard-top>div {
+  background: #10363b;
+}
+.fn-safeguards article:nth-child(3) .fn-safeguard-top svg {
+  color: #35d0c3;
+}
+.fn-nav-links a,.fn-footer-links a {
+  transition: color .2s ease;
+}
+.fn-blueprint-cell-top svg {
+  transition: transform .25s ease;
+}
+.fn-blueprint-cell {
+  transition: border-color .25s ease,box-shadow .25s ease,transform .25s ease;
+}
+.fn-mean-card,.fn-quote-card,.fn-impact-card,.fn-recommendation,.fn-ticket {
+  transition: transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s ease;
+}
+.fn-impact-bar {
+  transform-origin: left;
+  animation: fn-bar-grow .9s .15s both cubic-bezier(.22,1,.36,1);
+  animation-play-state: paused;
+}
+.fn-evidence-board.fn-revealed .fn-impact-bar {
+  animation-play-state: running;
+}
+@keyframes fn-bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@media (hover:hover) {
+  .fn-channel:hover,.fn-scope:hover {
+    background: #08282d;
+    color: #f2faf9;
+    box-shadow: 0 12px 28px #082a2d20;
+    transform: translateY(-4px);
+  }
+  .fn-channel:hover p,.fn-scope:hover p {
+    color: #a9bfbd;
+  }
+  .fn-channel:hover .fn-channel-icon,.fn-scope:hover .fn-scope-icon {
+    background: #103d42;
+    color: #35d0c3;
+    transform: scale(1.06);
+  }
+  .fn-scope:hover .fn-scope-divider {
+    background: #285158;
+  }
+  .fn-scope:hover small {
+    color: #35d0c3;
+  }
+  .fn-scope:hover .fn-scope-qr {
+    background: #0d3439;
+    color: #35d0c3;
+  }
+  .fn-safeguards article:hover {
+    background: #0d3439;
+    border-color: #2d5c61;
+    box-shadow: 0 12px 28px #0003;
+    transform: translateY(-4px);
+  }
+  .fn-safeguards article:hover .fn-safeguard-top>div {
+    background: #35d0c3;
+  }
+  .fn-safeguards article:hover .fn-safeguard-top svg {
+    color: #082a2d;
+    transform: scale(1.08);
+  }
+  .fn-blueprint-cell:hover {
+    border-color: #8accc2;
+    box-shadow: 0 8px 18px #082a2d0d;
+    transform: translateY(-3px);
+  }
+  .fn-blueprint-cell:hover .fn-blueprint-cell-top svg {
+    transform: translateX(3px);
+  }
+  .fn-mean-card:hover {
+    transform: translateY(-5px) rotate(1.5deg);
+  }
+  .fn-quote-card:hover {
+    transform: translateY(-5px) rotate(-1.2deg);
+  }
+  .fn-impact-card:hover {
+    transform: translateY(-5px) rotate(-1.3deg);
+  }
+  .fn-recommendation:hover {
+    transform: translateY(-5px) rotate(1.1deg);
+  }
+  .fn-ticket:hover {
+    transform: translateY(-5px) rotate(-2deg);
+    box-shadow: 0 28px 45px #082a2d40;
+  }
+}
+@media (prefers-reduced-motion:no-preference) {
+  .fn-hero-copy {
+    animation: fn-hero-enter .75s .08s both cubic-bezier(.22,1,.36,1);
+  }
+  .fn-live-card {
+    animation: fn-hero-enter .75s .25s both cubic-bezier(.22,1,.36,1);
+  }
+  @keyframes fn-hero-enter {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+@media(max-width:650px) {
+  .fn-hero,.fn-hero-inner {
+    min-height: 830px;
+  }
+  .fn-hero-inner {
+    padding-block: 18px 40px;
+  }
+  .fn-nav {
+    min-height: 54px;
+    margin-inline: -4px;
+    padding: 0 14px;
+  }
+  .fn-hero-copy {
+    margin-top: 60px;
+  }
+  .fn-live-card {
+    width: 100%;
+    margin: 50px 0 0;
+  }
+  .fn-receipt-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 22px;
+    padding-block: 32px;
+  }
+  .fn-receipt-lead {
+    width: auto;
+  }
+  .fn-receipt-lead h2 {
+    display: none;
+  }
+  .fn-receipt-step {
+    flex: auto;
+    gap: 14px;
+  }
+  .fn-blueprint {
+    padding-block: 54px;
+  }
+  .fn-blueprint .fn-section-intro {
+    margin-bottom: 30px;
+  }
+  .fn-blueprint-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 30px;
+    padding: 18px;
+  }
+  .fn-blueprint-lane {
+    grid-column: auto;
+    padding: 0;
+    min-height: 36px;
+  }
+  .fn-lane-icon {
+    width: 36px;
+    height: 36px;
+  }
+  .fn-blueprint-cell {
+    height: 44px;
+    min-height: 44px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px;
+  }
+  .fn-blueprint-cell-top {
+    display: contents;
+  }
+  .fn-blueprint-cell-top .fn-step-dot {
+    order: 0;
+    flex: none;
+  }
+  .fn-blueprint-cell>span {
+    order: 1;
+  }
+  .fn-blueprint-cell-top svg {
+    order: 2;
+    margin-left: auto;
+    flex: none;
+  }
+  .fn-blueprint-note {
+    display: none;
+  }
+  .fn-channels {
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 8px;
+  }
+  .fn-channel {
+    min-height: 112px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 4px;
+    text-align: center;
+  }
+  .fn-channel h3 {
+    font-size: 13px;
+  }
+  .fn-channel p {
+    display: none;
+  }
+  .fn-scopes-grid {
+    margin-top: 24px;
+  }
+  .fn-scope-qr {
+    background: transparent;
+  }
+  .fn-safeguards article {
+    min-height: 0;
+  }
+  .fn-ticket {
+    transform: rotate(-1.5deg);
+  }
+  @media (hover:hover) {
+    .fn-scope:hover .fn-scope-qr {
+      background: transparent;
+    }
+    .fn-mean-card:hover,.fn-quote-card:hover,.fn-impact-card:hover,.fn-recommendation:hover {
+      transform: translateY(-3px);
+    }
+    .fn-ticket:hover {
+      transform: translateY(-5px) rotate(-1.5deg);
+    }
+  }
+}
+@media(prefers-reduced-motion:reduce) {
+  .field-notes *,.field-notes *::before,.field-notes *::after {
+    animation: none!important;
+    transition: none!important;
+    scroll-behavior: auto!important;
+  }
+  .fn-reveal {
+    opacity: 1;
+    transform: none;
+  }
+}

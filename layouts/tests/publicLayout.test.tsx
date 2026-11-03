@@ -32,6 +32,7 @@ describe('layout pública', () => {
   });
 
   it.each([
+    '/',
     '/login',
     '/register',
     '/forgot-password',
