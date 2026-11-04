@@ -3,18 +3,32 @@ import {
   ServiceStartPhoneVerification,
   ServiceUpdateEmail,
   ServiceUpdateMetadados,
-  ServiceVerifyPhone,
 } from 'src/services/serviceUser';
 import {
   INTENT_PROFILE_START_PHONE,
   INTENT_PROFILE_UPDATE_EMAIL,
   INTENT_PROFILE_UPDATE_FULL_NAME,
-  INTENT_PROFILE_VERIFY_PHONE,
 } from 'src/lib/constants/routes/intents';
 import {
   ACTION_ERROR_INVALID_INTENT,
   ACTION_ERROR_INVALID_PAYLOAD,
+  ACTION_ERROR_REQUEST_FAILED,
 } from 'src/lib/constants/routes/errors';
+
+/**
+ * A falha da API volta como resultado da action, e não como exceção: exceção
+ * sobe para o errorElement de /user e tira a pessoa do Perfil. A tela mostra o
+ * erro num toast.
+ */
+async function saveProfileChange(save: () => Promise<unknown>) {
+  try {
+    await save();
+    return { ok: true };
+  } catch (err) {
+    const code = (err as { code?: string }).code;
+    return { error: code ?? ACTION_ERROR_REQUEST_FAILED };
+  }
+}
 
 export async function ActionProfile({ request }: ActionFunctionArgs) {
   const form = await request.formData();
@@ -26,8 +40,7 @@ export async function ActionProfile({ request }: ActionFunctionArgs) {
     if (!full_name) {
       return { error: ACTION_ERROR_INVALID_PAYLOAD };
     }
-    await ServiceUpdateMetadados(full_name);
-    return { ok: true };
+    return saveProfileChange(() => ServiceUpdateMetadados(full_name));
   }
 
   // Atualiza o e-mail do usuário.
@@ -36,28 +49,16 @@ export async function ActionProfile({ request }: ActionFunctionArgs) {
     if (!email) {
       return { error: ACTION_ERROR_INVALID_PAYLOAD };
     }
-    await ServiceUpdateEmail(email);
-    return { ok: true };
+    return saveProfileChange(() => ServiceUpdateEmail(email));
   }
 
-  // Inicia a verificação do telefone do usuário.
+  // Atualiza o telefone do usuário (sem SMS, o gateway salva direto).
   if (intent === INTENT_PROFILE_START_PHONE) {
     const phone = String(form.get('phone') ?? '');
     if (!phone) {
       return { error: ACTION_ERROR_INVALID_PAYLOAD };
     }
-    await ServiceStartPhoneVerification(phone);
-    return { ok: true };
-  }
-
-  // Confirma a verificação do telefone do usuário.
-  if (intent === INTENT_PROFILE_VERIFY_PHONE) {
-    const token = String(form.get('token') ?? '');
-    if (!token) {
-      return { error: ACTION_ERROR_INVALID_PAYLOAD };
-    }
-    await ServiceVerifyPhone(token);
-    return { ok: true };
+    return saveProfileChange(() => ServiceStartPhoneVerification(phone));
   }
 
   // Retorna um erro caso o intent seja inválido.
