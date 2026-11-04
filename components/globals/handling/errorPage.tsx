@@ -2,11 +2,7 @@ import { useEffect } from 'react';
 import { FaArrowRotateRight, FaHouse, FaTriangleExclamation } from 'react-icons/fa6';
 import { isRouteErrorResponse, Link, useRouteError } from 'react-router-dom';
 import AuthShell from 'components/public/shared/AuthShell';
-
-type ErrorPageProps = {
-  /** Para onde "Voltar ao início" leva. */
-  homePath?: string;
-};
+import type { ErrorPageProps } from './ui.types';
 
 export default function ErrorPage({ homePath = '/' }: ErrorPageProps) {
   const error = useRouteError();
