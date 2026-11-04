@@ -1,3 +1,5 @@
+import GlobalErrorPage from 'components/globals/handling/errorPage';
+
 export default function ErrorPage() {
-  return <></>;
+  return <GlobalErrorPage homePath="/user/dashboard" />;
 }

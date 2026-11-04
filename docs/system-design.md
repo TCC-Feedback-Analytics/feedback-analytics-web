@@ -79,7 +79,7 @@ No roteador raiz (`src/routes/source.tsx`), o `errorElement` captura qualquer er
 O `ErrorPage` global está em `components/globals/handling/errorPage.tsx` e também é o `errorElement` da rota da área pública (`src/routes/public.tsx`).  
 A rota `/user` (`src/routes/user.tsx`) usa a versão da área logada, em `components/user/shared/handling/errorPage.tsx`.
 
-> **Pendente:** ambos os componentes `ErrorPage` (o global e o da área logada) estão como placeholders vazios (`return <></>`). A tela de feedback amigável para o usuário ainda precisa ser implementada.
+O `ErrorPage` global mostra "Página não encontrada" no 404 e "Algo deu errado" nos outros erros, com "Tentar de novo" (recarrega a página) e "Voltar ao início", e registra o erro no console. A versão da área logada usa o mesmo componente, com "Voltar ao início" levando a `/user/dashboard`.
 
 ---
 

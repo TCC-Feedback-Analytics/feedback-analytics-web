@@ -10,6 +10,8 @@ type MetadadosResponse = {
 };
 type EmailUpdateResponse = {
   user: { id: string; email: string | null } | null;
+  /** E-mail pedido, que só vale depois da confirmação pelo link. */
+  pending_email: string;
 };
 type OkResponse = { ok: boolean };
 
@@ -38,14 +40,6 @@ export function ServiceStartPhoneVerification(phone: string) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ phone }),
-  });
-}
-
-export function ServiceVerifyPhone(token: string) {
-  return getJson<OkResponse>('/api/protected/user/phone/verify', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token }),
   });
 }
 
