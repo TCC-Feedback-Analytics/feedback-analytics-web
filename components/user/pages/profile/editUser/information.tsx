@@ -42,8 +42,8 @@ export default function Information({
           icon={<FaEnvelope aria-hidden="true" className="text-(--primary-color)" />}
           schema={emailUpdateSchema}
           intent={INTENT_PROFILE_UPDATE_EMAIL}
-          hint="Após alterar, confirme nos dois emails (antigo e novo)"
-          successMessage="Email atualizado!"
+          hint="Após alterar, confirme pelo link enviado ao novo e-mail"
+          successMessage="Confirme no novo e-mail!"
           errorMessage="Erro ao atualizar email"
           className="md:col-span-1"
         />

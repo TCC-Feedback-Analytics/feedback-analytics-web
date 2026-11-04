@@ -2,17 +2,20 @@ import { useState, useEffect } from 'react';
 import { useSubmit, useActionData } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { phoneStartSchema, phoneVerifySchema } from 'lib/schemas/user/phoneSchema';
-import { INTENT_PROFILE_START_PHONE, INTENT_PROFILE_VERIFY_PHONE } from 'src/lib/constants/routes/intents';
+import { phoneStartSchema } from 'lib/schemas/user/phoneSchema';
+import { INTENT_PROFILE_START_PHONE } from 'src/lib/constants/routes/intents';
 import { useToast } from 'components/public/forms/messages/useToast';
-import { FaCircleCheck, FaCircleExclamation, FaPaperPlane, FaPenToSquare, FaPhone, FaXmark } from 'react-icons/fa6';
+import { FaCircleCheck, FaCircleExclamation, FaPenToSquare, FaPhone, FaXmark } from 'react-icons/fa6';
 import type { ActionData } from 'lib/interfaces/contracts/action-data.contract';
 import type { PhoneEditableFieldProps } from './ui.types';
 
+/**
+ * Sem provedor de SMS, o gateway salva o número direto em /phone/start; por isso
+ * não há passo de código de confirmação.
+ */
 export default function PhoneEditableField({ currentPhone, className = '' }: PhoneEditableFieldProps) {
-  const [mode, setMode] = useState<'view' | 'edit' | 'verify'>('view');
-  const [pendingPhone, setPendingPhone] = useState('');
-  const [submitStage, setSubmitStage] = useState<'start' | 'verify' | null>(null);
+  const [mode, setMode] = useState<'view' | 'edit'>('view');
+  const [isSaving, setIsSaving] = useState(false);
   const [actionDataAtSubmit, setActionDataAtSubmit] = useState<ActionData | undefined>(undefined);
 
   // Garantir que currentPhone nunca seja undefined
@@ -22,45 +25,25 @@ export default function PhoneEditableField({ currentPhone, className = '' }: Pho
   const toast = useToast();
   const actionData = useActionData() as ActionData | undefined;
 
-  // Form para alterar telefone
   const phoneForm = useForm({
     resolver: zodResolver(phoneStartSchema),
     defaultValues: { phone: safeCurrentPhone },
   });
 
-  // Form para verificar código
-  const verifyForm = useForm({
-    resolver: zodResolver(phoneVerifySchema),
-    defaultValues: { token: '' },
-  });
-
   useEffect(() => {
-    if (!submitStage) return;
+    if (!isSaving) return;
     if (!actionData) return;
     if (actionData === actionDataAtSubmit) return;
 
     if (actionData.ok) {
-      if (submitStage === 'start') {
-        // SMS enviado com sucesso
-        toast.success('Código enviado!', 'Verifique seu SMS');
-        setPendingPhone(phoneForm.getValues().phone);
-        setMode('verify');
-      } else if (submitStage === 'verify') {
-        // Telefone verificado com sucesso
-        toast.success('Telefone atualizado!', 'Número confirmado');
-        setMode('view');
-        verifyForm.reset();
-        setPendingPhone('');
-      }
+      toast.success('Telefone atualizado!', 'Alterações salvas com sucesso');
+      setMode('view');
     } else {
-      const message = submitStage === 'start'
-        ? 'Erro ao enviar código'
-        : 'Código inválido';
-      toast.error(message, actionData.message || 'Tente novamente');
+      toast.error('Erro ao atualizar telefone', actionData.message || 'Tente novamente');
     }
-    setSubmitStage(null);
+    setIsSaving(false);
     setActionDataAtSubmit(undefined);
-  }, [actionData, actionDataAtSubmit, toast, submitStage, phoneForm, verifyForm]);
+  }, [actionData, actionDataAtSubmit, toast, isSaving]);
 
   const handleEdit = () => {
     setMode('edit');
@@ -68,29 +51,18 @@ export default function PhoneEditableField({ currentPhone, className = '' }: Pho
 
   const handleCancel = () => {
     phoneForm.reset({ phone: safeCurrentPhone });
-    verifyForm.reset({ token: '' });
-    setPendingPhone('');
-    setSubmitStage(null);
+    setIsSaving(false);
     setActionDataAtSubmit(undefined);
     setMode('view');
   };
 
   const handlePhoneSubmit = (data: { phone: string }) => {
     setActionDataAtSubmit(actionData);
-    setSubmitStage('start');
+    setIsSaving(true);
     const fd = new FormData();
     fd.set('intent', INTENT_PROFILE_START_PHONE);
     fd.set('initial_phone', safeCurrentPhone);
     fd.set('phone', data.phone);
-    submit(fd, { method: 'post', encType: 'application/x-www-form-urlencoded' });
-  };
-
-  const handleVerifySubmit = (data: { token: string }) => {
-    setActionDataAtSubmit(actionData);
-    setSubmitStage('verify');
-    const fd = new FormData();
-    fd.set('intent', INTENT_PROFILE_VERIFY_PHONE);
-    fd.set('token', data.token);
     submit(fd, { method: 'post', encType: 'application/x-www-form-urlencoded' });
   };
 
@@ -126,107 +98,45 @@ export default function PhoneEditableField({ currentPhone, className = '' }: Pho
   }
 
   // Modo de edição (alterar número)
-  if (mode === 'edit') {
-    return (
-      <div className={`bg-(--bg-secondary) border-2 border-(--primary-color) rounded-lg p-4 shadow-lg transition-all ${className}`}>
-        <form onSubmit={phoneForm.handleSubmit(handlePhoneSubmit)} className="space-y-3">
-          <div>
-            <label className="block text-sm font-medium text-(--text-primary) mb-2">
-              Novo número de telefone
-            </label>
-            <input
-              type="tel"
-              {...phoneForm.register('phone')}
-              placeholder="+55 (11) 99999-9999"
-              disabled={submitStage === 'start'}
-              className="w-full rounded-lg border border-(--quaternary-color)/30 bg-(--seventh-color) px-4 py-3 text-(--text-primary) outline-none placeholder:text-(--text-tertiary) focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/20 transition-all"
-              autoFocus
-            />
-            {phoneForm.formState.errors.phone?.message && (
-              <p className="mt-1 text-xs text-(--negative) flex items-center gap-1">
-                <FaCircleExclamation aria-hidden="true" />
-                {phoneForm.formState.errors.phone.message}
-              </p>
-            )}
-            <p className="mt-1 text-xs text-(--text-secondary)">
-              Formato: +55 seguido do DDD e número
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 pt-2">
-            <button
-              type="submit"
-              disabled={submitStage === 'start'}
-              className="px-4 py-2 bg-(--primary-color) text-(--on-primary) rounded-lg text-sm font-medium hover:shadow-md transition-all flex items-center gap-2"
-            >
-              <FaPaperPlane aria-hidden="true" />
-              Enviar SMS
-            </button>
-            <button
-              type="button"
-              onClick={handleCancel}
-              disabled={submitStage === 'start'}
-              className="px-4 py-2 bg-(--quaternary-color)/20 text-(--text-secondary) rounded-lg text-sm font-medium hover:bg-(--quaternary-color)/30 transition-all flex items-center gap-2"
-            >
-              <FaXmark aria-hidden="true" />
-              Cancelar
-            </button>
-          </div>
-        </form>
-      </div>
-    );
-  }
-
-  // Modo de verificação (inserir código SMS)
   return (
-    <div className={`bg-(--bg-secondary) border-2 border-(--positive) rounded-lg p-4 shadow-lg transition-all ${className}`}>
-      <div className="mb-4">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-8 h-8 bg-(--positive) rounded-full flex items-center justify-center text-white text-sm">
-            <FaCircleCheck aria-hidden="true" />
-          </div>
-          <span className="text-sm font-medium" style={{ color: 'var(--positive)' }}>SMS enviado para {pendingPhone}</span>
-        </div>
-        <p className="text-xs text-(--text-secondary)">
-          Digite o código de 6 dígitos que você recebeu
-        </p>
-      </div>
-
-      <form onSubmit={verifyForm.handleSubmit(handleVerifySubmit)} className="space-y-3">
+    <div className={`bg-(--bg-secondary) border-2 border-(--primary-color) rounded-lg p-4 shadow-lg transition-all ${className}`}>
+      <form onSubmit={phoneForm.handleSubmit(handlePhoneSubmit)} className="space-y-3">
         <div>
           <label className="block text-sm font-medium text-(--text-primary) mb-2">
-            Código de verificação
+            Novo número de telefone
           </label>
           <input
-            type="text"
-            {...verifyForm.register('token')}
-            placeholder="000000"
-            maxLength={6}
-            disabled={submitStage === 'verify'}
-            className="w-full rounded-lg border border-(--quaternary-color)/30 bg-(--seventh-color) px-4 py-3 text-(--text-primary) outline-none placeholder:text-(--text-tertiary) focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/20 transition-all text-center text-lg font-mono tracking-widest"
+            type="tel"
+            {...phoneForm.register('phone')}
+            placeholder="+55 (11) 99999-9999"
+            disabled={isSaving}
+            className="w-full rounded-lg border border-(--quaternary-color)/30 bg-(--seventh-color) px-4 py-3 text-(--text-primary) outline-none placeholder:text-(--text-tertiary) focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/20 transition-all"
             autoFocus
           />
-          {verifyForm.formState.errors.token?.message && (
+          {phoneForm.formState.errors.phone?.message && (
             <p className="mt-1 text-xs text-(--negative) flex items-center gap-1">
               <FaCircleExclamation aria-hidden="true" />
-              {verifyForm.formState.errors.token.message}
+              {phoneForm.formState.errors.phone.message}
             </p>
           )}
+          <p className="mt-1 text-xs text-(--text-secondary)">
+            Formato: +55 seguido do DDD e número
+          </p>
         </div>
 
         <div className="flex items-center gap-2 pt-2">
           <button
             type="submit"
-            disabled={submitStage === 'verify'}
-            className="px-4 py-2 bg-(--positive) text-white rounded-lg text-sm font-medium hover:shadow-md transition-all flex items-center gap-2"
+            disabled={isSaving}
+            className="px-4 py-2 bg-(--primary-color) text-(--on-primary) rounded-lg text-sm font-medium hover:shadow-md transition-all flex items-center gap-2"
           >
             <FaCircleCheck aria-hidden="true" />
-            Confirmar
+            {isSaving ? 'Salvando...' : 'Salvar'}
           </button>
           <button
             type="button"
             onClick={handleCancel}
-            disabled={submitStage === 'verify'}
+            disabled={isSaving}
             className="px-4 py-2 bg-(--quaternary-color)/20 text-(--text-secondary) rounded-lg text-sm font-medium hover:bg-(--quaternary-color)/30 transition-all flex items-center gap-2"
           >
             <FaXmark aria-hidden="true" />

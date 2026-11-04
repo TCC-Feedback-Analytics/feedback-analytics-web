@@ -268,9 +268,11 @@ O reenvio aparece em três lugares, todos com `ServiceResendConfirmation` → `P
 
 ## Perfil: troca de e-mail
 
-Na seção "Dados pessoais e acesso" do Perfil (`/user/profile`), o campo **Email** é editável (`EditableFieldFixed`), com a dica "Após alterar, confirme nos dois emails (antigo e novo)". Ao salvar, envia `intent=update_email` para a `ActionProfile`, que chama `ServiceUpdateEmail` → `PATCH /api/protected/user/email`.
+Na seção "Dados pessoais e acesso" do Perfil (`/user/profile`), o campo **Email** é editável (`EditableFieldFixed`), com a dica "Após alterar, confirme pelo link enviado ao novo e-mail". Ao salvar, envia `intent=update_email` para a `ActionProfile`, que chama `ServiceUpdateEmail` → `PATCH /api/protected/user/email`.
 
-> **Limitação atual:** o gateway sempre responde `400 update_failed`, porque o `changeEmail` do Better Auth não está ligado. Além disso, a `ActionProfile` não trata o erro: `ServiceUpdateEmail` lança, a falha sobe para o `errorElement` da rota `/user` (`components/user/shared/handling/errorPage.tsx`), que hoje não renderiza nada. Na prática, a troca de e-mail não acontece e a área logada fica em branco até recarregar.
+O gateway pede a troca ao `changeEmail` do Better Auth, que manda o e-mail "Confirme seu novo e-mail" para o endereço novo; a tela mostra o toast "Confirme no novo e-mail!". A troca só vale depois do clique no link, que passa pelo `/api/auth/verify-email` e volta para `/auth/success`.
+
+Se o gateway recusar, a `ActionProfile` devolve `{ error }` em vez de lançar, e a tela mostra o toast "Erro ao atualizar email" sem sair do Perfil. O mesmo vale para nome e telefone.
 
 ---
 
