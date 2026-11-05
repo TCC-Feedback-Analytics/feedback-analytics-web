@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useInsightsControls } from "src/lib/context/insightsControls";
 import { ServiceGetFeedbackStats } from "src/services/serviceFeedbacks";
+import { useLatestRequest } from "./useLatestRequest";
 
 /**
  * Contagem de feedbacks ainda NÃO analisados no escopo selecionado, lida do
@@ -23,8 +24,10 @@ export function useScopedPendingCount(enabled: boolean): {
   const [totalAnalyzed, setTotalAnalyzed] = useState(0);
   const [latestAnalysisAt, setLatestAnalysisAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const startRequest = useLatestRequest();
 
   const fetchCount = useCallback(async () => {
+    const isLatest = startRequest();
     setLoading(true);
     // Zera os contadores do escopo anterior antes de aguardar a nova resposta:
     // assim nenhum consumidor (ex.: gate de "Analisar feedbacks") avalia regras
@@ -42,19 +45,21 @@ export function useScopedPendingCount(enabled: boolean): {
         scope_type: scope,
         catalog_item_id: catalogParam,
       });
+      if (!isLatest()) return;
       setPendingCount(stats?.pendingCount ?? 0);
       setTotalFeedbacks(stats?.totalFeedbacks ?? 0);
       setTotalAnalyzed(stats?.totalAnalyzed ?? 0);
       setLatestAnalysisAt(stats?.latestAnalysisAt ?? null);
     } catch {
+      if (!isLatest()) return;
       setPendingCount(0);
       setTotalFeedbacks(0);
       setTotalAnalyzed(0);
       setLatestAnalysisAt(null);
     } finally {
-      setLoading(false);
+      if (isLatest()) setLoading(false);
     }
-  }, [scope, catalogItemId]);
+  }, [scope, catalogItemId, startRequest]);
 
   useEffect(() => {
     if (enabled) fetchCount();

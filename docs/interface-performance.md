@@ -69,7 +69,7 @@ Não há throttle genérico. Os formulários desabilitam o botão de envio enqua
 
 ### Cancelamento
 
-O `useIaModels` e o `onboardingContext` passam um `AbortController` para o service e descartam a resposta se o componente desmontar antes. Parte dos hooks de escopo (`useScopedStats`, `useScopedTimeline`, `useScopedHeatmap`, `useScopedCustomers`, `usePreviousPeriod`, `useFormQuestionsConfig`) usa uma flag de cancelamento no `useEffect` para descartar a resposta que chega depois de trocar o escopo ou de desmontar. Os demais (`useScopedInsightsReport`, `useScopedFeedbackAnalysis`, `useScopedFeedbackQuestions`, `useScopedPendingCount`) ainda não têm essa proteção.
+O `useIaModels` e o `onboardingContext` passam um `AbortController` para o service e descartam a resposta se o componente desmontar antes. Parte dos hooks de escopo (`useScopedStats`, `useScopedTimeline`, `useScopedHeatmap`, `useScopedCustomers`, `usePreviousPeriod`, `useFormQuestionsConfig`) usa uma flag de cancelamento no `useEffect` para descartar a resposta que chega depois de trocar o escopo ou de desmontar. Os que também recarregam por `reload` ou ao concluir uma análise (`useScopedInsightsReport`, `useScopedFeedbackAnalysis`, `useScopedFeedbackQuestions`, `useScopedPendingCount`) usam o `useLatestRequest`: cada busca ganha um número, e só a mais recente grava no estado.
 
 ### Acompanhamento dos jobs de IA
 

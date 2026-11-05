@@ -4,6 +4,7 @@ import type { FeedbackQuestionsLoadData } from 'src/routes/load/loadFeedbackQues
 import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { ServiceGetFeedbackQuestions } from 'src/services/serviceFeedbacks';
 import { hasMetricsPeriod, metricsPeriodParams } from 'src/lib/utils/metricsPeriod';
+import { useLatestRequest } from './useLatestRequest';
 
 type UseScopedFeedbackQuestionsResult = {
   questions: QuestionMetric[];
@@ -27,8 +28,10 @@ export function useScopedFeedbackQuestions(
   const [questions, setQuestions] = useState<QuestionMetric[]>(initialData.questions);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(initialData.error);
+  const startRequest = useLatestRequest();
 
   const fetchQuestions = useCallback(async () => {
+    const isLatest = startRequest();
     setLoading(true);
     setError(null);
 
@@ -41,14 +44,16 @@ export function useScopedFeedbackQuestions(
         catalog_item_id: catalogParam,
         ...metricsPeriodParams(period),
       });
+      if (!isLatest()) return;
       setQuestions(data.questions);
     } catch {
+      if (!isLatest()) return;
       setQuestions([]);
       setError('Erro ao carregar métricas por pergunta');
     } finally {
-      setLoading(false);
+      if (isLatest()) setLoading(false);
     }
-  }, [scope, catalogItemId, period]);
+  }, [scope, catalogItemId, period, startRequest]);
 
   useEffect(() => {
     if (!didInitRef.current) {
