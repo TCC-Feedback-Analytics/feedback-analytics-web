@@ -127,10 +127,13 @@ describe('[Unidade] Profile Page', () => {
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByText('Contexto e configuração de IA')).toBeInTheDocument();
-    expect(screen.queryByLabelText('Fechar')).not.toBeInTheDocument();
 
+    // O clique fora não fecha (para não perder o que foi digitado); o X fecha.
     fireEvent.click(screen.getByRole('dialog'));
     expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText('Fechar'));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('avança da etapa 3 para a etapa 4 sem fechar o dialog', () => {

@@ -9,6 +9,7 @@ import {
   ServiceGetFeedbackInsightsReport,
 } from 'src/services/serviceFeedbacks';
 import { ALL_TIME_PERIOD, metricsPeriodParams } from 'src/lib/utils/metricsPeriod';
+import { useLatestRequest } from './useLatestRequest';
 
 type UseScopedInsightsReportOptions = {
   /**
@@ -55,8 +56,10 @@ export function useScopedInsightsReport(
   const [summary, setSummary] = useState<FeedbackAnalysisSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const startRequest = useLatestRequest();
 
   const fetchReportData = useCallback(async () => {
+    const isLatest = startRequest();
     setLoading(true);
     setError(null);
 
@@ -78,6 +81,7 @@ export function useScopedInsightsReport(
             }).catch(() => null)
           : Promise.resolve(null),
       ]);
+      if (!isLatest()) return;
 
       setReport(reportData);
       setSummary(analysisData?.summary ?? null);
@@ -86,11 +90,11 @@ export function useScopedInsightsReport(
         setError('Erro ao carregar relatório de insights');
       }
     } catch {
-      setError('Erro ao carregar relatório de insights');
+      if (isLatest()) setError('Erro ao carregar relatório de insights');
     } finally {
-      setLoading(false);
+      if (isLatest()) setLoading(false);
     }
-  }, [scope, catalogItemId, withAnalysis, analysisPeriod]);
+  }, [scope, catalogItemId, withAnalysis, analysisPeriod, startRequest]);
 
   // Recarrega ao montar e ao trocar escopo/item.
   useEffect(() => {

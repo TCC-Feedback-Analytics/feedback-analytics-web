@@ -82,6 +82,9 @@ export default function FeedbackDetailsModal({
             {selectedFeedback.channel === 'TEST' && (
               <p className="text-xs text-(--text-tertiary)">{TEST_FEEDBACK_HINT}</p>
             )}
+            {selectedFeedback.comment_prompt && selectedFeedback.message?.trim() && (
+              <p className="text-xs font-medium text-(--text-secondary)">{selectedFeedback.comment_prompt}</p>
+            )}
             <p className="whitespace-pre-wrap leading-relaxed text-(--text-primary)">
               {selectedFeedback.message?.trim() ? selectedFeedback.message : <span className="italic text-(--text-tertiary)">Sem comentário</span>}
             </p>
@@ -149,24 +152,12 @@ export default function FeedbackDetailsModal({
             {selectedFeedback.tracked_devices ? (
               <div className="grid grid-cols-1 gap-2 text-(--text-tertiary) md:grid-cols-2">
                 <div>
-                  <span className="text-(--text-secondary)">Fingerprint:</span>{' '}
-                  {selectedFeedback.tracked_devices.device_fingerprint || '—'}
-                </div>
-                <div>
                   <span className="text-(--text-secondary)">Feedbacks:</span>{' '}
                   {selectedFeedback.tracked_devices.feedback_count ?? 0}
                 </div>
                 <div>
-                  <span className="text-(--text-secondary)">IP:</span>{' '}
-                  {selectedFeedback.tracked_devices.ip_address || '—'}
-                </div>
-                <div>
-                  <span className="text-(--text-secondary)">Blocked:</span>{' '}
+                  <span className="text-(--text-secondary)">Bloqueado:</span>{' '}
                   {selectedFeedback.tracked_devices.is_blocked ? 'Sim' : 'Não'}
-                </div>
-                <div className="md:col-span-2">
-                  <span className="text-(--text-secondary)">User Agent:</span>{' '}
-                  {selectedFeedback.tracked_devices.user_agent || '—'}
                 </div>
               </div>
             ) : (

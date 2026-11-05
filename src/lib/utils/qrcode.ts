@@ -1,16 +1,10 @@
-export type QrCodeFormat = 'png' | 'svg';
+import QRCode from 'qrcode';
 
-export type QrCodeOptions = {
-  size?: number;
-  format?: QrCodeFormat;
-};
-
-export const getQrCodeUrl = (
-  data: string,
-  options: QrCodeOptions = {},
-): string => {
-  const size = options.size ?? 200;
-  const format = options.format ?? 'png';
-  const encoded = encodeURIComponent(data);
-  return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&format=${format}&data=${encoded}`;
-};
+/**
+ * Imagem PNG do QR Code (data URL), gerada no navegador. Antes vinha do
+ * api.qrserver.com, que recebia o endereço do formulário com o id da empresa;
+ * aqui nenhum dado sai para terceiros (LGPD).
+ */
+export function buildQrCodeDataUrl(data: string, size = 300): Promise<string> {
+  return QRCode.toDataURL(data, { width: size, margin: 2 });
+}

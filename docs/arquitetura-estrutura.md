@@ -60,7 +60,7 @@ graph TD
 
 - **Chamadas pontuais:** algumas telas e componentes chamam o service direto, sem rota nem hook — ex.: `pages/user/ratings.tsx` e `pages/user/compare.tsx` (`ServiceGetFeedbackStats`), `pages/user/diagnosis.tsx`, `pages/user/openrouterCallback.tsx`, `DeleteAccountSection` e `CommentFieldSettings`. Mesmo assim, o `fetch` continua só no `http.ts`.
 
-- **Endereço da API:** os services chamam caminhos relativos `/api/...`. Em produção, a Web chama o próprio domínio e a Vercel repassa `/api/*` ao gateway (`rewrites` do `vercel.json`); localmente, `VITE_API_BASE_URL` aponta para o gateway, e o `vite.config.ts` também tem um proxy `/api → http://localhost:3000`. As rotas públicas que contam por IP (formulário do cliente e reenvio da confirmação) usam `requestPublicApi`/`postPublicJson`, que vão direto ao gateway por `VITE_PUBLIC_API_BASE_URL`, sem cookie. As variáveis estão no `.env.example`; a sessão, no [Fluxo de autenticação](./fluxo-autenticacao.md).
+- **Endereço da API:** os services chamam caminhos relativos `/api/...`. Em produção, a Web chama o próprio domínio e a Vercel repassa `/api/*` ao gateway (`rewrites` do `vercel.json`); localmente, com `VITE_API_BASE_URL` vazia (padrão do `.env.example`), o proxy do `vite.config.ts` repassa `/api → http://localhost:3000`. As rotas públicas que contam por IP (formulário do cliente e reenvio da confirmação) usam `requestPublicApi`/`postPublicJson`, que vão direto ao gateway por `VITE_PUBLIC_API_BASE_URL`, sem cookie. As variáveis estão no `.env.example`; a sessão, no [Fluxo de autenticação](./fluxo-autenticacao.md).
 
 ## As 4 Camadas do Sistema
 Para manter o código fácil de dar manutenção, separamos as responsabilidades:
@@ -116,7 +116,7 @@ feedback-analytics-web/
 │       ├── constants/          → Constantes de domínio (catálogo, escopos, ajuda, métricas, textos legais) e routes/ (errors, intents, routeMeta)
 │       ├── context/            → Contextos React (insightsControls, onboardingContext, companyQuestionsGenerationContext)
 │       ├── hooks/              → Hooks de dados por escopo (useScopedStats, useScopedInsightsReport, useScopedFeedbackAnalysis…) e de operação da IA (useIaOperation, useAnalysisJobPolling)
-│       ├── mock/               → menu.ts: definição do menu da área logada (usada pelo Menu, HeaderNav e sectionSiblings)
+│       ├── constants/          → inclui menu.ts: definição do menu da área logada (usada pelo Menu, HeaderNav e sectionSiblings)
 │       └── utils/              → Utilitários puros (formatação, validação, estatística, http)
 ├── pages/                      → Montagem das telas (composição de componentes)
 │   ├── public/                 → Páginas públicas (home, login, register, senha, termos, privacidade, qrcode)
@@ -145,7 +145,7 @@ feedback-analytics-web/
 │           ├── compare/
 │           ├── dashboard/
 │           ├── diagnosis/
-│           ├── edit/           → Skeletons das telas de edição
+│           ├── edit/           → Skeleton da tela de clientes (EditCustomersSkeleton)
 │           ├── feedbacks/
 │           │   └── insights/   → Skeleton da visão geral dos comentários
 │           ├── feedbacksAll/

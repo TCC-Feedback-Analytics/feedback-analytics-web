@@ -1,8 +1,12 @@
 import FormLogin from 'components/public/forms/formLogin';
 import { FaCommentDots, FaLock, FaShieldHalved } from 'react-icons/fa6';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 export default function Login() {
+  // A redefinição de senha volta para cá com ?reset=success (actionResetPassword).
+  const [searchParams] = useSearchParams();
+  const passwordWasReset = searchParams.get('reset') === 'success';
+
   return (
     <div className="login-experience grid min-h-[100dvh] overflow-hidden bg-(--bg-primary) font-inter text-(--text-primary) lg:grid-cols-[minmax(0,1fr)_minmax(28rem,0.82fr)]">
       <aside className="relative hidden overflow-hidden border-r border-(--primary-color)/15 bg-(--bg-secondary)/35 lg:col-start-1 lg:flex lg:min-h-[100dvh] lg:flex-col lg:px-[clamp(3rem,8vw,9rem)] lg:py-[clamp(3rem,7vh,6rem)]">
@@ -68,6 +72,15 @@ export default function Login() {
             </h2>
             <p className="text-[clamp(0.875rem,1.1vw,1rem)] text-(--text-tertiary)">Entre na sua conta para continuar.</p>
           </header>
+
+          {passwordWasReset && (
+            <p
+              role="status"
+              className="mt-6 rounded-xl border border-(--positive)/30 bg-(--positive)/10 p-4 text-sm text-(--text-secondary)"
+            >
+              <span className="font-semibold text-(--text-primary)">Senha alterada.</span> Entre com a nova senha.
+            </p>
+          )}
 
           <div className="mt-6">
             <FormLogin />

@@ -49,7 +49,7 @@ export function ServiceCompleteSignup(payload: { fullName: string; phone: string
 }
 
 /** Resultado de "Excluir minha conta", já traduzido dos códigos do Better Auth. */
-export type DeleteAccountOutcome = 'deleted' | 'wrong_password' | 'login_again' | 'failed';
+export type DeleteAccountOutcome = 'deleted' | 'wrong_password' | 'login_again' | 'no_password' | 'failed';
 
 /**
  * A conta tem senha? Quem só entra pelo Google não tem, e a exclusão não pede
@@ -75,5 +75,7 @@ export async function ServiceDeleteAccount(password?: string): Promise<DeleteAcc
   const payload = (await res.json().catch(() => null)) as { code?: unknown } | null;
   if (payload?.code === 'INVALID_PASSWORD') return 'wrong_password';
   if (payload?.code === 'SESSION_EXPIRED') return 'login_again';
+  // Mandou senha para uma conta que só entra pelo Google (não deu para saber antes).
+  if (payload?.code === 'CREDENTIAL_ACCOUNT_NOT_FOUND') return 'no_password';
   return 'failed';
 }

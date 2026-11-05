@@ -219,7 +219,7 @@ redirect       toast "Erro ao redefinir senha" com a mensagem do gateway
 /login?reset=success   ("O link de redefinição expirou ou é inválido. Solicite um novo.")
 ```
 
-> Hoje a tela de login não lê `?reset=success`: não há aviso de "senha alterada" ao chegar no login.
+> Ao chegar com `?reset=success`, a tela de login mostra "Senha alterada. Entre com a nova senha."
 
 ---
 
@@ -289,6 +289,9 @@ Pede a senha se a conta tem login por senha (ou se não deu para saber)
 e a palavra EXCLUIR para liberar o botão "Excluir para sempre"
         ↓
 ServiceDeleteAccount → POST /api/auth/delete-user  ({ password } ou {})
+        ↓
+Se veio CREDENTIAL_ACCOUNT_NOT_FOUND (mandou senha a uma conta só do Google,
+porque o list-accounts falhou), marca a conta como sem senha e repete sem senha
 ```
 
 | Resposta | O que a tela mostra |
@@ -309,7 +312,7 @@ O utilitário `http.ts` monta a URL a partir de duas variáveis:
 
 | Ambiente | Comportamento |
 |---|---|
-| **Local** | `VITE_API_BASE_URL=http://localhost:3000` (como no `.env.example`): a Web chama o gateway direto. Com a variável vazia, os caminhos ficam relativos (`/api/...`) e o proxy do `vite.config.ts` repassa para `http://localhost:3000`. |
+| **Local** | `VITE_API_BASE_URL` vazia (como no `.env.example`): os caminhos ficam relativos (`/api/...`) e o proxy do `vite.config.ts` repassa para `http://localhost:3000`, o mesmo caminho da produção. Com `VITE_API_BASE_URL=http://localhost:3000`, a Web chama o gateway direto. |
 | **Vercel (produção ou preview)** | `VITE_API_BASE_URL` vazia: a Web chama `/api/*` no próprio domínio e o `vercel.json` repassa para `https://feedback-analytics-api-gateway.vercel.app/api/*`, mantendo o cookie de sessão no domínio do site. |
 
 `VITE_PUBLIC_API_BASE_URL` vale só para as rotas públicas que contam por IP (reenvio da confirmação e envio do formulário público de feedback): elas vão direto ao gateway, com `credentials: 'omit'`, porque atrás do repasse da Vercel todos os pedidos poderiam chegar com o mesmo IP. Sem a variável, usa a mesma base de `VITE_API_BASE_URL`.

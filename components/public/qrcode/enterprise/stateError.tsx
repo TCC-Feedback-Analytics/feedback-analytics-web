@@ -7,7 +7,7 @@ export default function StateError({ error }: { error: string }) {
       tone="error"
       eyebrow="ALGO NÃO SAIU COMO ESPERADO"
       title="Não foi possível continuar"
-      description="Tente atualizar a página. Se o problema persistir, verifique sua conexão e leia o QR Code novamente."
+      description="Tente atualizar a página. Se o problema persistir, verifique sua conexão e abra o link ou leia o QR Code novamente."
       icon={<FaTriangleExclamation className="h-8 w-8" aria-hidden />}
     >
       <div className="space-y-4">

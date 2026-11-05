@@ -1,5 +1,5 @@
 import type { MenuItem } from "components/user/layout/ui.types";
-import { menuData } from "src/lib/mock/menu";
+import { menuData } from "src/lib/constants/menu";
 import { firstLeafTo, isMatch, normalizePath } from "src/lib/utils/navMatch";
 
 export interface SectionTab {

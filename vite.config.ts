@@ -32,7 +32,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      // Shared schemas are imported from ../../shared; force zod to resolve from web deps.
+      // Os schemas do @feedback/lib-shared (alias `lib`) importam o zod: força o da Web.
       zod: path.resolve(__dirname, './node_modules/zod'),
       src: path.resolve(__dirname, './src'),
       layouts: path.resolve(__dirname, './layouts'),

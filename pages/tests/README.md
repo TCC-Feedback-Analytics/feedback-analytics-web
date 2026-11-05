@@ -27,7 +27,7 @@ Os blocos `describe` usam o prefixo `[Unidade]` ou `[Integração]` (este últim
 | `components/**/*.test.tsx` | Componentes, ao lado do arquivo testado |
 | `layouts/tests/` | `layouts/public.tsx` e `layouts/user.tsx` |
 | `src/lib/utils/*.test.ts` e `src/lib/utils/tests/` | Utilitários puros |
-| `src/lib/hooks/*.test.tsx`, `src/lib/mock/menu.test.ts` | Hooks e definição do menu |
+| `src/lib/hooks/*.test.tsx`, `src/lib/constants/menu.test.ts` | Hooks e definição do menu |
 | `src/routes/actions/`, `src/routes/loaders/`, `src/routes/load/` | Actions, loaders e helpers de carga |
 | `src/services/*.test.ts` | Services |
 
