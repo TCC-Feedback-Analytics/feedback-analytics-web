@@ -7,6 +7,7 @@ import type { FeedbackAnalysisLoadData } from "src/routes/load/loadFeedbackAnaly
 import { useInsightsControls } from "src/lib/context/insightsControls";
 import { ServiceGetFeedbackAnalysis } from "src/services/serviceFeedbacks";
 import { hasMetricsPeriod, metricsPeriodParams } from "src/lib/utils/metricsPeriod";
+import { useLatestRequest } from "./useLatestRequest";
 
 type UseScopedFeedbackAnalysisResult = {
   items: FeedbackAnalysisItem[];
@@ -41,8 +42,10 @@ export function useScopedFeedbackAnalysis(
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(initialData.error);
+  const startRequest = useLatestRequest();
 
   const fetchAnalysis = useCallback(async () => {
+    const isLatest = startRequest();
     setLoading(true);
     setError(null);
 
@@ -55,16 +58,18 @@ export function useScopedFeedbackAnalysis(
         catalog_item_id: catalogParam,
         ...metricsPeriodParams(period),
       });
+      if (!isLatest()) return;
       setItems(data.items);
       setSummary(data.summary);
     } catch {
+      if (!isLatest()) return;
       setItems([]);
       setSummary(null);
       setError("Erro ao carregar analytics de feedbacks");
     } finally {
-      setLoading(false);
+      if (isLatest()) setLoading(false);
     }
-  }, [scope, catalogItemId, period]);
+  }, [scope, catalogItemId, period, startRequest]);
 
   // Recarrega ao trocar escopo/item/período; no 1º render usa a semente do loader
   // quando o escopo ainda é Empresa (sem item) e sem período.
