@@ -20,7 +20,7 @@ O frontend só conversa com o **API Gateway**, pelos caminhos `/api/*`. Em produ
 | **React Hook Form** | 7.x | Gerenciamento de estado de formulários |
 | **@hookform/resolvers** | 5.x | Integração do React Hook Form com schemas Zod |
 | **Zod** | 4.x | Validação e parsing de schemas |
-| **@feedback/lib-shared** | tag `v1.8.0` | Contratos compartilhados (tipos e schemas), importados pelo alias `lib` |
+| **@feedback/lib-shared** | tag `v1.9.0` | Contratos compartilhados (tipos e schemas), importados pelo alias `lib` |
 | **@zxcvbn-ts** (core, common, pt-br) | 4.x | Medidor de força da senha no cadastro |
 | **qrcode** | 1.5.x | Gera a imagem do QR Code no navegador, sem serviço de terceiros |
 | **Tailwind CSS** | 4.x | Estilização utilitária |

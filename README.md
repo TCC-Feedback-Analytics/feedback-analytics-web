@@ -6,7 +6,7 @@ O frontend **não fala com o banco nem com o provedor de auth diretamente**: tod
 
 - **Stack:** React 19 · Vite 7 · React Router DOM 7 (loaders/actions) · Tailwind CSS v4 · TypeScript
 - **Formulários:** React Hook Form + Zod
-- **Contratos:** tipos e schemas de [`@feedback/lib-shared`](https://github.com/TCC-Feedback-Analytics/feedback-analytics-contracts) (git tag `v1.8.0`, consumidos via alias `lib`)
+- **Contratos:** tipos e schemas de [`@feedback/lib-shared`](https://github.com/TCC-Feedback-Analytics/feedback-analytics-contracts) (git tag `v1.9.0`, consumidos via alias `lib`)
 - **Deploy:** Vercel — build estático (SPA); o `vercel.json` repassa `/api/*` ao API Gateway e o resto cai no `index.html`
 
 ## Rodar localmente

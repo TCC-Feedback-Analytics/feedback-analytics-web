@@ -2,7 +2,7 @@
 
 Este repositório consome os contratos de `@feedback/lib-shared`
 (`TCC-Feedback-Analytics/feedback-analytics-contracts`, **repositório público**,
-via dependência git — tag `v1.8.0` no `package.json`). Como o repo é público, o `npm ci` clona sem token —
+via dependência git — tag `v1.9.0` no `package.json`). Como o repo é público, o `npm ci` clona sem token —
 os workflows só reescrevem `ssh→https` (ver abaixo). Nenhum secret é necessário
 para o **CI** (lint/typecheck/build/unit).
 
