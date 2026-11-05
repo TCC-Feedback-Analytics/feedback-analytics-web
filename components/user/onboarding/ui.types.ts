@@ -23,7 +23,7 @@ export interface AIContextDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isMandatory?: boolean;
-  /** Na edição do perfil, o fechamento só acontece após salvar o contexto. */
+  /** Na edição do perfil, o clique fora não fecha; fecha ao salvar ou pelo X, que descarta a edição. */
   closeOnlyAfterSave?: boolean;
   /** Chamado quando o contexto é salvo pelo usuário; diz se a LLM ficou configurada. */
   onSetupSaved?: (info: { llmConfigured: boolean }) => void;

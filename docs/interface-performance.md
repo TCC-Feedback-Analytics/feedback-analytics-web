@@ -22,9 +22,8 @@ Na área logada, o `layouts/user.tsx` olha o `useNavigation()`: enquanto `naviga
 | `/user/feedbacks/:id` | `FeedbackDetailsSkeleton` |
 | `/user/insights/overview` | `InsightsReportSkeleton` |
 | `/user/edit/customers` | `EditCustomersSkeleton` |
-| `/user/edit/collecting-data-enterprise` | `EditCollectingDataSkeleton` |
 
-> O layout ainda tem ramos para `/user/edit/profile` (`EditProfileSkeleton`) e `/user/edit/feedback-settings` (`EditFeedbackSettingsSkeleton`), mas hoje a primeira não é rota e a segunda é só um redirect para `/user/edit/types-feedback`.
+> As rotas que só redirecionam (`/user/edit/collecting-data-enterprise`, `/user/edit/feedback-settings`) não têm skeleton próprio.
 
 ### Carregamento dentro da página
 

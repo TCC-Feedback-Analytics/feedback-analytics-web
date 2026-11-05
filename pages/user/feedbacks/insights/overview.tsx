@@ -40,7 +40,7 @@ export default function CommentsOverview() {
 
   const analysisBlockedMessage = canAnalyze
     ? null
-    : 'Para analisar os comentários, preencha as informações da empresa em Editar > Configuração de Coleta de Dados.';
+    : 'Para analisar os comentários, preencha o contexto da empresa em Minha conta > Contexto da empresa para IA.';
 
   if (loading && !report && !summary && !fetchError) {
     return <InsightsReportSkeleton />;

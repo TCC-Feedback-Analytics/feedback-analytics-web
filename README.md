@@ -15,7 +15,7 @@ Este repositório **é** o app — os comandos rodam na raiz dele:
 
 ```bash
 npm install
-cp .env.example .env    # VITE_API_BASE_URL=http://localhost:3000 (a API precisa estar rodando)
+cp .env.example .env    # VITE_API_BASE_URL vazia: o Vite repassa /api ao gateway (a API precisa estar rodando)
 npm run dev             # http://localhost:5173
 ```
 

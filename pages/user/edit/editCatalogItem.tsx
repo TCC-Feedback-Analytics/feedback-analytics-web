@@ -21,7 +21,7 @@ import {
   INTENT_QR_SAVE_FEEDBACK_QUESTIONS,
 } from "src/lib/constants/routes/intents";
 import { getCatalogKindBySlug } from "src/lib/constants/catalog";
-import { getQrCodeUrl } from "src/lib/utils/qrcode";
+import { useQrCodeDataUrl } from "src/lib/hooks/useQrCodeDataUrl";
 import { feedbackFormUrl } from "src/lib/utils/feedbackFormUrl";
 import { useDirtyTracker } from "src/lib/hooks/useDirtyTracker";
 import { useToast } from "components/public/forms/messages/useToast";
@@ -110,7 +110,7 @@ function CatalogItemConfig() {
         data.active ? (data.collection_point_id ?? prev) : null,
       );
       toast.success(
-        data.active ? "QR Code ativado!" : "QR Code desativado!",
+        data.active ? "Coleta ativada!" : "Coleta desativada!",
         data.active
           ? "Item disponível para coleta de feedback."
           : "Coleta de feedback do item pausada.",
@@ -164,10 +164,7 @@ function CatalogItemConfig() {
   const feedbackUrl = useMemo(() => formUrlFor("LINK"), [formUrlFor]);
   const nfcUrl = useMemo(() => formUrlFor("NFC"), [formUrlFor]);
 
-  const qrCodeUrl = useMemo(() => {
-    const qrFormUrl = formUrlFor("QR");
-    return qrFormUrl ? getQrCodeUrl(qrFormUrl, { size: 300, format: "png" }) : "";
-  }, [formUrlFor]);
+  const qrCodeUrl = useQrCodeDataUrl(formUrlFor("QR"));
 
   const handleDownload = useCallback(async () => {
     if (!qrCodeUrl) return;

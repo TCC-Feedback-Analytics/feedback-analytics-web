@@ -72,15 +72,15 @@ function inferRegisterErrorByMessage(rawMessage?: string): RegisterErrorMessage 
 
   if (normalized.includes('email') && isAlreadyRegistered) {
     return {
-      message: 'E-mail ja cadastrado.',
+      message: 'E-mail já cadastrado.',
       description: 'Use outro e-mail ou recupere sua conta existente.',
     };
   }
 
   if ((normalized.includes('phone') || normalized.includes('telefone')) && isAlreadyRegistered) {
     return {
-      message: 'Telefone ja cadastrado.',
-      description: 'Informe outro numero para continuar o cadastro.',
+      message: 'Telefone já cadastrado.',
+      description: 'Informe outro número para continuar o cadastro.',
     };
   }
 
@@ -305,15 +305,15 @@ function getRegisterErrorMessage(actionData: ActionData): RegisterErrorMessage {
 
   if (actionData.error === 'email_taken') {
     return {
-      message: 'E-mail ja cadastrado.',
+      message: 'E-mail já cadastrado.',
       description: 'Use outro e-mail ou recupere sua conta existente.',
     };
   }
 
   if (actionData.error === 'phone_taken') {
     return {
-      message: 'Telefone ja cadastrado.',
-      description: 'Informe outro numero para continuar o cadastro.',
+      message: 'Telefone já cadastrado.',
+      description: 'Informe outro número para continuar o cadastro.',
     };
   }
 

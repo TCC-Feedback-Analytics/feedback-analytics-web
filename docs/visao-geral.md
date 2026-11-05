@@ -22,6 +22,7 @@ O frontend só conversa com o **API Gateway**, pelos caminhos `/api/*`. Em produ
 | **Zod** | 4.x | Validação e parsing de schemas |
 | **@feedback/lib-shared** | tag `v1.8.0` | Contratos compartilhados (tipos e schemas), importados pelo alias `lib` |
 | **@zxcvbn-ts** (core, common, pt-br) | 4.x | Medidor de força da senha no cadastro |
+| **qrcode** | 1.5.x | Gera a imagem do QR Code no navegador, sem serviço de terceiros |
 | **Tailwind CSS** | 4.x | Estilização utilitária |
 | **React Icons** | 5.x | Biblioteca de ícones |
 | **TypeScript** | 5.8.x | Tipagem estática |
@@ -113,7 +114,7 @@ As rotas são declaradas em `src/routes/public.tsx` e `src/routes/user.tsx`, mon
 | `/user/edit/feedback-settings` | `/user/edit/types-feedback` |
 | `/user/qrcode/enterprise` | `/user/edit/feedback-general` |
 
-> **Wayfinding e menu** — a navegação interna é padronizada por `routeMeta.ts` (mapeia `pathname` → título/descrição/breadcrumb) consumido pelo `PageHeader` (breadcrumb + título no topo de cada página). O menu (`src/lib/mock/menu.ts`) tem Visão geral, Comparar itens, Diagnósticos, Feedbacks, Análise dos comentários e **"Configuração da coleta"** (Avaliação da empresa, Catálogo e Configuração de IA). No celular, a navegação vai para a barra inferior e a gaveta de menu. O Perfil e o Guia do Sistema ficam no menu da conta, no cabeçalho.
+> **Wayfinding e menu** — a navegação interna é padronizada por `routeMeta.ts` (mapeia `pathname` → título/descrição/breadcrumb) consumido pelo `PageHeader` (breadcrumb + título no topo de cada página). O menu (`src/lib/constants/menu.ts`) tem Visão geral, Comparar itens, Diagnósticos, Feedbacks, Análise dos comentários e **"Configuração da coleta"** (Avaliação da empresa, Catálogo e Configuração de IA). No celular, a navegação vai para a barra inferior e a gaveta de menu. O Perfil e o Guia do Sistema ficam no menu da conta, no cabeçalho.
 
 ### Controles de escopo e período
 
@@ -121,7 +122,7 @@ Abaixo do cabeçalho, a barra de controles (`InsightsActionBar`) aparece no Dash
 
 ### Onboarding e guia do sistema
 
-Na primeira entrada, o layout da área logada abre o contexto da empresa para a IA (obrigatório) com a configuração de IA (opcional). Com a IA configurada, uma tela espera a geração automática das 3 perguntas do formulário; se a geração falhar, um aviso fica no topo do layout até ser resolvido (detalhes em [Configuração de IA](./configuracao-ia.md)). O guia do sistema (tour interativo) não abre sozinho: o Dashboard convida a pessoa, que pode começar ou adiar, e o guia segue disponível no menu da conta. A conta nova vê os "Primeiros passos" no topo do Dashboard: ativar o QR Code geral e, se quiser, testar o formulário numa janela.
+Na primeira entrada, o layout da área logada abre o contexto da empresa para a IA (obrigatório) com a configuração de IA (opcional). Com a IA configurada, uma tela espera a geração automática das 3 perguntas do formulário; se a geração falhar, um aviso fica no topo do layout até ser resolvido (detalhes em [Configuração de IA](./configuracao-ia.md)). O guia do sistema (tour interativo) não abre sozinho: o Dashboard convida a pessoa, que pode começar ou adiar, e o guia segue disponível no menu da conta. A conta nova vê os "Primeiros passos" no topo do Dashboard: "Ativar a coleta da empresa" (QR Code, link e etiqueta NFC) e, se quiser, testar o formulário numa janela.
 
 ---
 

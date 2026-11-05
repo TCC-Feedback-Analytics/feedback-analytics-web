@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { menuData } from "src/lib/mock/menu";
+import { menuData } from "src/lib/constants/menu";
 import {
   firstLeafTo,
   hasActiveDescendant,

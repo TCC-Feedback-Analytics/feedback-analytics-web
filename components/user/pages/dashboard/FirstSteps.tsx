@@ -120,10 +120,10 @@ export default function FirstSteps({ enterprise, steps, onFeedbackSent }: FirstS
         <FirstStepItem
           number={1}
           done={qrActive}
-          title={qrActive ? 'QR Code ativado' : 'Ativar o QR Code da empresa'}
+          title={qrActive ? 'Coleta ativada' : 'Ativar a coleta da empresa'}
           description={qrActive
             ? 'Os clientes já conseguem responder pelo QR Code, pelo link e pela etiqueta NFC.'
-            : 'É o QR Code geral, da avaliação da empresa. Desativado, os clientes ainda não conseguem responder.'}
+            : 'É a coleta geral, da avaliação da empresa, pelo QR Code, pelo link e pela etiqueta NFC. Desativada, os clientes ainda não conseguem responder.'}
           note={activateError ?? undefined}
         >
           {!qrActive && (

@@ -265,6 +265,15 @@ export default function AIContextDialog({
     onOpenChange(false);
   }, [closeOnlyAfterSave, onOpenChange]);
 
+  // No Perfil o clique fora não fecha (para não perder o que foi digitado por
+  // engano), mas o X sim: descarta a edição e volta aos valores salvos.
+  const closeWithoutSaving = useCallback(() => {
+    setValues(serverValuesRef.current);
+    setStep(0);
+    allowCloseRef.current = false;
+    onOpenChange(false);
+  }, [onOpenChange]);
+
   useEffect(() => {
     const data = collectingFetcher.data;
     if (!data || lastCollectingResult.current === data) return;
@@ -395,10 +404,10 @@ export default function AIContextDialog({
             </div>
           </div>
 
-          {!isMandatory && !closeOnlyAfterSave && (
+          {!isMandatory && (
             <button
               type="button"
-              onClick={requestClose}
+              onClick={closeOnlyAfterSave ? closeWithoutSaving : requestClose}
               aria-label="Fechar"
               className="shrink-0 rounded-xl p-2 text-(--text-tertiary) transition-colors hover:bg-(--seventh-color) hover:text-(--text-primary)"
             >

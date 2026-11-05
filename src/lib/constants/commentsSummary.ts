@@ -10,4 +10,4 @@ export const COMMENTS_SUMMARY_TITLE = 'Resumo dos comentários e recomendações
 export const COMMENTS_SUMMARY_PERIOD_NOTE = 'O resumo considera todos os comentários analisados.';
 
 export const COMMENTS_SUMMARY_SOURCE =
-  'A IA lê os comentários analisados, junto com a nota e as respostas de cada um. Para a visão de todos os números do escopo, use o Diagnóstico (em breve).';
+  'A IA lê os comentários analisados, junto com a nota e as respostas de cada um. Para a visão de todos os números do escopo, use o Diagnóstico.';

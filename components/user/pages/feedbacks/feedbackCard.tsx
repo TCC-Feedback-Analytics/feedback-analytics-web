@@ -129,6 +129,10 @@ export default function FeedbackCard({ feedback, onClick }: FeedbackCardProps) {
 
       {/* Mensagem do feedback */}
       <div className="mb-5">
+        {/* Pergunta própria do escopo, que o cliente viu acima do campo de comentário. */}
+        {feedback.comment_prompt && feedback.message?.trim() && (
+          <p className="mb-1 text-xs font-medium text-(--text-secondary)">{feedback.comment_prompt}</p>
+        )}
         <p className="text-[15px] leading-relaxed text-[var(--text-primary)]">
           {feedback.message?.trim() ? feedback.message : <span className="italic text-(--text-tertiary)">Sem comentário</span>}
         </p>

@@ -40,7 +40,7 @@ function createArgs(body: Record<string, string | undefined>): ActionFunctionArg
   } as ActionFunctionArgs;
 }
 
-describe('[Unit] ActionIaSettings', () => {
+describe('[Unidade] ActionIaSettings', () => {
   beforeEach(() => {
     mockUpdateIaConfig.mockReset();
     mockDeleteIaConfig.mockReset();

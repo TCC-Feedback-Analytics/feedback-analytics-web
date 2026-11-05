@@ -247,11 +247,11 @@ export default function Dashboard() {
               <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-(--primary-color)" />
             )}
             {showFirstSteps && !firstSteps.qrActive
-              ? 'Ative o QR Code para começar a receber feedbacks.'
+              ? 'Ative a coleta para começar a receber feedbacks.'
               : isAccountEmpty
               ? 'Vamos coletar os primeiros feedbacks.'
               : totalFeedbacks === 0
-              ? 'Compartilhe o formulário pelo QR Code para começar a coletar feedbacks.'
+              ? 'Compartilhe o formulário pelo QR Code, pelo link ou pela etiqueta NFC para começar a coletar feedbacks.'
               : pendingCount > 0
                 ? `${pendingCount} ${pendingCount === 1 ? 'comentário aguardando' : 'comentários aguardando'} análise da IA neste escopo.`
                 : 'Tudo em dia — nenhum comentário aguardando análise neste escopo.'}

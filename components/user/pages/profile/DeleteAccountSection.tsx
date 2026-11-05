@@ -20,6 +20,7 @@ const OUTCOME_MESSAGE = {
   wrong_password: 'Senha incorreta. Confira e tente de novo.',
   login_again: 'Por segurança, saia, entre de novo e volte aqui para excluir a conta.',
   failed: 'Não foi possível excluir a conta agora. Tente de novo em instantes.',
+  no_password: 'Não foi possível excluir a conta agora. Tente de novo em instantes.',
 } as const;
 
 /**
@@ -53,7 +54,12 @@ export default function DeleteAccountSection() {
   const deleteAccount = async () => {
     setError(null);
     setStep('deleting');
-    const outcome = await ServiceDeleteAccount(needsPassword ? password : undefined);
+    let outcome = await ServiceDeleteAccount(needsPassword ? password : undefined);
+    // Sem saber se havia senha, ela foi junto; a conta não tem: repete sem senha.
+    if (outcome === 'no_password') {
+      setHasPassword(false);
+      outcome = await ServiceDeleteAccount();
+    }
     if (outcome === 'deleted') {
       setStep('deleted');
       return;

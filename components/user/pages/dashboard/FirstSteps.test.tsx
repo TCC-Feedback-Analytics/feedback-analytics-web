@@ -44,7 +44,7 @@ const stepNamed = (title: string) => screen.getByRole('heading', { level: 3, nam
 async function activateQr() {
   qrAction.mockResolvedValue({ ok: true, active: true });
   fireEvent.click(screen.getByRole('button', { name: /Ativar QR Code/ }));
-  expect(await screen.findByText('QR Code ativado')).toBeInTheDocument();
+  expect(await screen.findByText('Coleta ativada')).toBeInTheDocument();
 }
 
 describe('[Unidade] Primeiros passos do Dashboard', () => {
@@ -58,7 +58,7 @@ describe('[Unidade] Primeiros passos do Dashboard', () => {
     const section = screen.getByRole('region', { name: 'Primeiros passos' });
     expect(within(section).getByText('Comece por aqui')).toBeInTheDocument();
     const titles = within(section).getAllByRole('heading', { level: 3 }).map((node) => node.textContent);
-    expect(titles).toEqual(['Ativar o QR Code da empresa', 'Testar o formulário (opcional)']);
+    expect(titles).toEqual(['Ativar a coleta da empresa', 'Testar o formulário (opcional)']);
     // Baixar o QR e compartilhar o link não são mais passos.
     expect(screen.queryByRole('button', { name: /Baixar QR Code|Copiar link/ })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Testar o formulário/ })).toBeDisabled();
@@ -81,7 +81,7 @@ describe('[Unidade] Primeiros passos do Dashboard', () => {
     const form = await qrAction.mock.calls[0][0].request.formData();
     expect(form.get('intent')).toBe(INTENT_QR_ENABLE);
     expect(screen.queryByText('Avaliação da empresa')).not.toBeInTheDocument();
-    expect(stepNamed('QR Code ativado')).toHaveAttribute('data-done', 'true');
+    expect(stepNamed('Coleta ativada')).toHaveAttribute('data-done', 'true');
     expect(screen.getByRole('button', { name: /Testar o formulário/ })).toBeEnabled();
     // O teste ainda está em aberto: o cartão fica.
     expect(screen.getByRole('region', { name: 'Primeiros passos' })).toBeInTheDocument();

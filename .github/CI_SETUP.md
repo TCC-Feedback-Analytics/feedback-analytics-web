@@ -10,7 +10,7 @@ para o **CI** (lint/typecheck/build/unit).
 
 | Workflow | Gatilho | Jobs |
 |---|---|---|
-| `ci.yml` (CI Pipeline - Web) | `push` e `pull_request` para `main` e `developer` | `lint-typecheck-build`: `npm run lint`, `tsc -p tsconfig.ci.json --noEmit` (sem os testes) e `npm run build`. `unit-tests`: `npm run test -- run` (Vitest em execução única). Node 24. |
+| `ci.yml` (CI Pipeline - Web) | `push` e `pull_request` para `main` e `developer` | `lint-typecheck-build`: `npm run lint`, `tsc -p tsconfig.ci.json --noEmit` (sem os testes) e `npm run build`. `unit-tests`: `npm run test -- run` (Vitest em execução única). Node 20. |
 | `deploy-web.yml` (Deploy Web (Vercel)) | Manual (`workflow_dispatch`), com o campo `confirm_deploy` = `ok` | `deploy-web`: recusa qualquer branch que não seja `main`, roda `npm ci` e publica em produção pela CLI da Vercel. Node 20. Um deploy novo na mesma branch cancela o anterior (`concurrency`). |
 
 Configure em **Settings → Secrets and variables → Actions** apenas o que o
