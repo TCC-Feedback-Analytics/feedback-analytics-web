@@ -99,7 +99,7 @@ export async function ActionFeedbackInsightsReport({
       return {
         errorCode: 'collecting_data_required_for_analysis',
         error:
-          'Para analisar os feedbacks, preencha as informações da empresa em Editar > Configuração de Coleta de Dados.',
+          'Para analisar os feedbacks, preencha o contexto da empresa em Minha conta > Contexto da empresa para IA.',
       };
     }
 

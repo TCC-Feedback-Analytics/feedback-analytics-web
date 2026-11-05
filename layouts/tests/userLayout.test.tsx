@@ -193,9 +193,6 @@ describe('[Unidade] LayoutUser', () => {
     ['/user/feedbacks/123', 'Feedback Details skeleton'],
     ['/user/insights/overview', 'Insights Report skeleton'],
     ['/user/edit/customers', 'Edit Customers skeleton'],
-    ['/user/edit/profile', 'Edit Profile skeleton'],
-    ['/user/edit/collecting-data-enterprise', 'Edit Collecting Data skeleton'],
-    ['/user/edit/feedback-settings', 'Edit Feedback Settings skeleton'],
   ])('exibe skeleton esperado durante navegação para %s', (pathname, skeletonLabel) => {
     vi.mocked(useNavigation).mockReturnValue({
       state: 'loading',

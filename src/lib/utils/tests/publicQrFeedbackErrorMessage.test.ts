@@ -9,7 +9,7 @@ describe('[Unidade] getPublicQrFeedbackErrorMessage', () => {
     });
 
     expect(message).toBe(
-      'QR Code inválido ou desativado para esta empresa. Solicite um novo QR Code ao estabelecimento.',
+      'Este formulário está desativado ou o endereço é inválido. Peça um novo QR Code ou link ao estabelecimento.',
     );
   });
 

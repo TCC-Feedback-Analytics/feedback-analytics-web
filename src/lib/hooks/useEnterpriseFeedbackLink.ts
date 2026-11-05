@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { getQrCodeUrl } from 'src/lib/utils/qrcode';
+import { useQrCodeDataUrl } from 'src/lib/hooks/useQrCodeDataUrl';
 import { feedbackFormUrl } from 'src/lib/utils/feedbackFormUrl';
 import { useToast } from 'components/public/forms/messages/useToast';
 
@@ -16,12 +16,11 @@ export function useEnterpriseFeedbackLink(enterprise: { id: string; full_name?: 
   const feedbackUrl = useMemo(() => feedbackFormUrl({ enterpriseId: enterprise.id, channel: 'LINK' }), [enterprise.id]);
   const nfcUrl = useMemo(() => feedbackFormUrl({ enterpriseId: enterprise.id, channel: 'NFC' }), [enterprise.id]);
 
-  const qrCodeUrl = useMemo(
-    () => getQrCodeUrl(feedbackFormUrl({ enterpriseId: enterprise.id, channel: 'QR' }), { size: 300, format: 'png' }),
-    [enterprise.id],
-  );
+  const qrFormUrl = useMemo(() => feedbackFormUrl({ enterpriseId: enterprise.id, channel: 'QR' }), [enterprise.id]);
+  const qrCodeUrl = useQrCodeDataUrl(qrFormUrl);
 
   const download = useCallback(async () => {
+    if (!qrCodeUrl) return;
     try {
       const response = await fetch(qrCodeUrl);
       const blob = await response.blob();

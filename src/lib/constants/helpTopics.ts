@@ -156,10 +156,10 @@ export const HELP_TOPICS: Record<HelpTopicKey, HelpTopicContent> = {
     example: 'Cole o link na mensagem de confirmação do pedido para o cliente avaliar depois da entrega.',
   },
   itemQrStatus: {
-    title: 'QR ativo ou inativo',
+    title: 'Coleta ativa ou inativa',
     paragraphs: [
-      'Este selo mostra se o item já está pronto para receber feedback. "QR ativo" significa que o QR Code dele está no ar e os clientes conseguem avaliar; "QR inativo" significa que a coleta dele ainda está pausada.',
-      'Para ativar, abra o item em Configurar e habilite o QR Code. Itens inativos não recebem novas avaliações, mas mantêm todo o histórico do que já foi coletado.',
+      'Este selo mostra se o item já está pronto para receber feedback. "Coleta ativa" significa que o formulário dele está no ar e os clientes conseguem avaliar pelo QR Code, pelo link ou pela etiqueta NFC; "Coleta inativa" significa que a coleta dele ainda está pausada.',
+      'Para ativar, abra o item em Configurar e ative a coleta. Itens inativos não recebem novas avaliações, mas mantêm todo o histórico do que já foi coletado.',
     ],
   },
   removeCatalogItem: {

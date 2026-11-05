@@ -28,7 +28,7 @@ export default function InsightsReportHeaderSection({
           {analysisBlockedMessage}
           {' '}
           <Link
-            to="/user/profile#dados-da-empresa"
+            to="/user/profile#contexto-da-ia"
             className="font-semibold text-(--text-primary) underline underline-offset-2"
           >
             Configurar agora

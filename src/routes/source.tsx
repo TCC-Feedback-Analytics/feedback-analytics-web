@@ -14,7 +14,6 @@ export default function Source() {
     {
       id: 'root',
       path: '/',
-      // lazy: () => import('./root'),
       errorElement: <ErrorPage />,
       hydrateFallbackElement: <FallbackType01 />,
       children: createRoutesFromElements(

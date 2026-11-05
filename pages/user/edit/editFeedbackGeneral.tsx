@@ -42,7 +42,7 @@ export default function EditFeedbackGeneral() {
       setQrError(null);
       setQrActive(actionResult.active);
       toast.success(
-        actionResult.active ? 'QR Code ativado!' : 'QR Code desativado!',
+        actionResult.active ? 'Coleta ativada!' : 'Coleta desativada!',
         actionResult.active
           ? 'Agora os clientes podem enviar feedback'
           : 'Coleta de feedback pausada',

@@ -19,9 +19,6 @@ import FeedbacksAllSkeleton from 'components/user/pages/feedbacks/FeedbacksAllSk
 import FeedbackDetailsSkeleton from 'components/user/pages/feedbacks/FeedbackDetailsSkeleton';
 import InsightsReportSkeleton from 'components/user/pages/feedbacks/insights/InsightsReportSkeleton';
 import EditCustomersSkeleton from 'components/user/pages/edit/EditCustomersSkeleton';
-import EditProfileSkeleton from 'components/user/pages/edit/EditProfileSkeleton';
-import EditCollectingDataSkeleton from 'components/user/pages/edit/EditCollectingDataSkeleton';
-import EditFeedbackSettingsSkeleton from 'components/user/pages/edit/EditFeedbackSettingsSkeleton';
 import type { CollectingDataEnterprise, EnterpriseContext } from 'lib/interfaces/entities/enterprise.entity';
 import type { IaConfigResponse } from 'src/services/serviceIaConfig';
 import type { InsightScopeOption, InsightsCatalogItemOption } from 'components/user/pages/feedbacksInsightsReport/ui.types';
@@ -288,9 +285,6 @@ export default function User() {
     if (pendingPathname === '/user/insights/overview') return <InsightsReportSkeleton />;
 
     if (pendingPathname === '/user/edit/customers') return <EditCustomersSkeleton />;
-    if (pendingPathname === '/user/edit/profile') return <EditProfileSkeleton />;
-    if (pendingPathname === '/user/edit/collecting-data-enterprise') return <EditCollectingDataSkeleton />;
-    if (pendingPathname === '/user/edit/feedback-settings') return <EditFeedbackSettingsSkeleton />;
 
     return <Outlet />;
   })();

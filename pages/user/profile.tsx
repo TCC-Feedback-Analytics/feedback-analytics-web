@@ -23,7 +23,7 @@ export default function Profile() {
   const phone = user.phone || "";
   const isSavingProfile =
     navigation.state === "submitting" &&
-    navigation.formAction?.includes("/user/edit/profile");
+    navigation.formAction?.includes("/user/profile");
 
   return (
     <div className="font-work-sans space-y-8 pb-8">
@@ -54,7 +54,7 @@ export default function Profile() {
 
         <CompanyProfileSection enterprise={enterprise} />
 
-        <section aria-labelledby="contexto-ia-titulo" className="scroll-mt-6">
+        <section id="contexto-da-ia" aria-labelledby="contexto-ia-titulo" className="scroll-mt-6">
           <h2 id="contexto-ia-titulo" className="sr-only">Contexto da empresa para IA</h2>
           <AIContextProfileCard />
         </section>

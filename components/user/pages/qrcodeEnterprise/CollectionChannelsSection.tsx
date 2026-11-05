@@ -100,12 +100,17 @@ export default function CollectionChannelsSection({
             <div className="flex justify-center sm:block">
               {qrActive ? (
                 <div className="rounded-xl bg-white p-2 shadow-sm">
-                  <img
-                    src={qrCodeUrl}
-                    alt={`QR Code para feedback - ${displayName || 'Empresa'}`}
-                    className="h-32 w-32"
-                    decoding="async"
-                  />
+                  {/* Vazio por um instante, enquanto o QR é gerado no navegador. */}
+                  {qrCodeUrl ? (
+                    <img
+                      src={qrCodeUrl}
+                      alt={`QR Code para feedback - ${displayName || 'Empresa'}`}
+                      className="h-32 w-32"
+                      decoding="async"
+                    />
+                  ) : (
+                    <div className="h-32 w-32" aria-hidden />
+                  )}
                 </div>
               ) : (
                 <div className="flex h-36 w-36 flex-col items-center justify-center gap-2 rounded-xl border border-(--quaternary-color)/14 bg-(--seventh-color) p-3 text-center">

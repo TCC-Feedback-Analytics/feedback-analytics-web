@@ -2,7 +2,7 @@
 
 Este repositório consome os contratos de `@feedback/lib-shared`
 (`TCC-Feedback-Analytics/feedback-analytics-contracts`, **repositório público**,
-via dependência git — tag `v1.8.0` no `package.json`). Como o repo é público, o `npm ci` clona sem token —
+via dependência git — tag `v1.9.0` no `package.json`). Como o repo é público, o `npm ci` clona sem token —
 os workflows só reescrevem `ssh→https` (ver abaixo). Nenhum secret é necessário
 para o **CI** (lint/typecheck/build/unit).
 
@@ -10,8 +10,8 @@ para o **CI** (lint/typecheck/build/unit).
 
 | Workflow | Gatilho | Jobs |
 |---|---|---|
-| `ci.yml` (CI Pipeline - Web) | `push` e `pull_request` para `main` e `developer` | `lint-typecheck-build`: `npm run lint`, `tsc -p tsconfig.ci.json --noEmit` (sem os testes) e `npm run build`. `unit-tests`: `npm run test -- run` (Vitest em execução única). Node 24. |
-| `deploy-web.yml` (Deploy Web (Vercel)) | Manual (`workflow_dispatch`), com o campo `confirm_deploy` = `ok` | `deploy-web`: recusa qualquer branch que não seja `main`, roda `npm ci` e publica em produção pela CLI da Vercel. Node 20. Um deploy novo na mesma branch cancela o anterior (`concurrency`). |
+| `ci.yml` (CI Pipeline - Web) | `push` e `pull_request` para `main` e `developer` | `lint-typecheck-build`: `npm run lint`, `tsc -p tsconfig.ci.json --noEmit` (sem os testes) e `npm run build`. `unit-tests`: `npm run test -- run` (Vitest em execução única). Node 24, o mesmo do deploy: no Node 20, o `Request` nativo recusa o `URLSearchParams` do jsdom e os testes de action quebram. |
+| `deploy-web.yml` (Deploy Web (Vercel)) | Manual (`workflow_dispatch`), com o campo `confirm_deploy` = `ok` | `deploy-web`: recusa qualquer branch que não seja `main`, roda `npm ci` e publica em produção pela CLI da Vercel. Node 24. Um deploy novo na mesma branch cancela o anterior (`concurrency`). |
 
 Configure em **Settings → Secrets and variables → Actions** apenas o que o
 workflow de **deploy** usa:
