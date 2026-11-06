@@ -7,6 +7,8 @@ const HEADERLESS_PUBLIC_PATHS = new Set([
   '/produto/coleta',
   '/produto/analise',
   '/produto/resultados',
+  '/privacidade',
+  '/termos',
   '/feedback/qrcode',
   '/login',
   '/register',

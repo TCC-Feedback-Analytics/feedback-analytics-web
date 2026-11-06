@@ -38,6 +38,8 @@ describe('layout pública', () => {
     '/produto/coleta',
     '/produto/analise',
     '/produto/resultados',
+    '/privacidade',
+    '/termos',
     '/login',
     '/register',
     '/forgot-password',
@@ -54,7 +56,7 @@ describe('layout pública', () => {
   });
 
   it('mantém o cabeçalho nas demais páginas públicas', () => {
-    renderLayout('/termos');
+    renderLayout('/alguma-pagina');
 
     expect(screen.getByTestId('public-header')).toBeInTheDocument();
   });
