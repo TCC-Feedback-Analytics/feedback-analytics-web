@@ -14,9 +14,9 @@ export default function HomeFooter() {
           <div className="fn-footer-links">
             <div>
               <strong>Produto</strong>
-              <a href="#coleta">Coleta</a>
-              <a href="#analise">Análise</a>
-              <a href="#resultados">Resultados</a>
+              <Link to="/produto/coleta">Coleta</Link>
+              <Link to="/produto/analise">Análise</Link>
+              <Link to="/produto/resultados">Resultados</Link>
             </div>
             <div>
               <strong>Conta</strong>

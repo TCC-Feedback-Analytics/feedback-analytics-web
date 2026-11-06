@@ -5,7 +5,9 @@ import '@testing-library/jest-dom';
 import Public from '../public';
 
 // O setup global usa um mock mínimo do roteador; este teste precisa do roteador real.
-vi.mock('react-router-dom', async () => vi.importActual<typeof import('react-router-dom')>('react-router-dom'));
+vi.mock('react-router-dom', async () =>
+  vi.importActual<typeof import('react-router-dom')>('react-router-dom'),
+);
 
 vi.mock('components/public/layout/header', () => ({
   default: () => <div data-testid="public-header">Cabeçalho público</div>,
@@ -33,6 +35,9 @@ describe('layout pública', () => {
 
   it.each([
     '/',
+    '/produto/coleta',
+    '/produto/analise',
+    '/produto/resultados',
     '/login',
     '/register',
     '/forgot-password',

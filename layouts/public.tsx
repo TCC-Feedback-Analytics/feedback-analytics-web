@@ -4,6 +4,9 @@ import { isEmbeddedForm } from 'src/lib/utils/embeddedForm';
 
 const HEADERLESS_PUBLIC_PATHS = new Set([
   '/',
+  '/produto/coleta',
+  '/produto/analise',
+  '/produto/resultados',
   '/feedback/qrcode',
   '/login',
   '/register',

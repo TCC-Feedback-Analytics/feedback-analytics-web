@@ -1,6 +1,8 @@
-
 import Public from 'layouts/public';
 import Home from 'pages/public/home';
+import Coleta from 'pages/public/coleta';
+import Analise from 'pages/public/analise';
+import Resultados from 'pages/public/resultados';
 import Login from 'pages/public/login';
 import Register from 'pages/public/register';
 import FeedbackQRCodeEnterprise from 'pages/public/qrcode/enterprise';
@@ -25,61 +27,30 @@ import { ActionResendConfirmation } from './actions/actionResendConfirmation';
 
 export function RoutePublic() {
   return (
-    <Route
-      path="/"
-      element={<Public />}
-      errorElement={<ErrorPage />}>
-      <Route
-        path="/"
-        element={<Home />}
-      />
-      <Route
-        path="login"
-        element={<Login />}
-        action={ActionLogin}
-      />
-      <Route
-        path="register"
-        element={<Register />}
-        action={ActionRegister}
-      />
-      <Route 
-        path="forgot-password"
-        element={<ForgotPassword />}
-        action={ActionForgotPassword}
-      />
+    <Route path="/" element={<Public />} errorElement={<ErrorPage />}>
+      <Route path="/" element={<Home />} />
+      <Route path="produto/coleta" element={<Coleta />} />
+      <Route path="produto/analise" element={<Analise />} />
+      <Route path="produto/resultados" element={<Resultados />} />
+      <Route path="login" element={<Login />} action={ActionLogin} />
+      <Route path="register" element={<Register />} action={ActionRegister} />
+      <Route path="forgot-password" element={<ForgotPassword />} action={ActionForgotPassword} />
       <Route
         path="resend-confirmation"
         element={<ResendConfirmation />}
         action={ActionResendConfirmation}
       />
-      <Route 
-        path="auth/reset-password"
-        element={<ResetPassword />}
-        action={ActionResetPassword}
-      />
+      <Route path="auth/reset-password" element={<ResetPassword />} action={ActionResetPassword} />
       <Route
         path="feedback/qrcode"
         loader={LoaderPublicQrCodeEnterprise}
         action={ActionPublicQrCodeFeedback}
         element={<FeedbackQRCodeEnterprise />}
       />
-      <Route
-        path="auth/success"
-        element={<AuthSuccess />}
-      />
-      <Route
-        path="auth/link-expired"
-        element={<AuthLinkExpired />}
-      />
-      <Route
-        path="privacidade"
-        element={<Privacy />}
-      />
-      <Route
-        path="termos"
-        element={<Terms />}
-      />
+      <Route path="auth/success" element={<AuthSuccess />} />
+      <Route path="auth/link-expired" element={<AuthLinkExpired />} />
+      <Route path="privacidade" element={<Privacy />} />
+      <Route path="termos" element={<Terms />} />
       <Route
         path="auth/complete-signup"
         loader={LoaderCompleteSignup}
