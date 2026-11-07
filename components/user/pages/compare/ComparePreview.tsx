@@ -7,7 +7,7 @@ const STEPS = [
     description: 'Pelo menos 2 do mesmo tipo: dois produtos, dois serviços ou dois departamentos.',
   },
   {
-    title: 'Ative o QR Code de cada item',
+    title: 'Ative a coleta de cada item',
     description: 'Cada item tem o seu formulário. Compartilhe com os clientes para as avaliações chegarem.',
   },
   {

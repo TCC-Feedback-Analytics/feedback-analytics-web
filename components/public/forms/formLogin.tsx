@@ -143,7 +143,7 @@ function getInvalidLoginPayloadErrorMessage(actionData: ActionData) {
     if (field === 'password') {
       return {
         message: 'Senha inválida.',
-        description: issue.message || 'A senha deve ter ao menos 6 caracteres.',
+        description: issue.message || 'Confira a senha e tente de novo.',
       };
     }
 

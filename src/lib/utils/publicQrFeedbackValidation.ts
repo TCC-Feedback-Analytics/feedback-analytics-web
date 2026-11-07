@@ -10,8 +10,6 @@ export const MAX_SUBANSWER_COUNT = 9;
 export const PUBLIC_QR_FEEDBACK_ERRORS = {
   missingEnterpriseId: 'ID da empresa não encontrado. Verifique o QR Code.',
   missingRating: 'Por favor, selecione uma avaliação.',
-  questionsNotConfigured:
-    'Perguntas de feedback ainda não configuradas para este QR Code.',
   missingAnswers: 'Responda todas as perguntas antes de enviar.',
   missingSubanswers: 'Responda todas as subperguntas antes de enviar.',
 } as const;

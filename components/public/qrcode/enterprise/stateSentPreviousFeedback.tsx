@@ -11,7 +11,7 @@ export default function StateSentPreviousFeedback({
       tone="notice"
       eyebrow="RESPOSTA JÁ REGISTRADA"
       title="Obrigado por participar"
-      description="Este dispositivo já enviou uma resposta para esta empresa hoje. Você poderá compartilhar uma nova opinião amanhã."
+      description="Este dispositivo já enviou uma resposta por aqui hoje. Você poderá compartilhar uma nova opinião amanhã."
       icon={<FaClock className="h-8 w-8" aria-hidden />}
     >
       <div className="space-y-3">

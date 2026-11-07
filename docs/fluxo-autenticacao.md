@@ -219,7 +219,7 @@ redirect       toast "Erro ao redefinir senha" com a mensagem do gateway
 /login?reset=success   ("O link de redefinição expirou ou é inválido. Solicite um novo.")
 ```
 
-> Hoje a tela de login não lê `?reset=success`: não há aviso de "senha alterada" ao chegar no login.
+> Ao chegar com `?reset=success`, a tela de login mostra "Senha alterada. Entre com a nova senha."
 
 ---
 
@@ -268,9 +268,11 @@ O reenvio aparece em três lugares, todos com `ServiceResendConfirmation` → `P
 
 ## Perfil: troca de e-mail
 
-Na seção "Dados pessoais e acesso" do Perfil (`/user/profile`), o campo **Email** é editável (`EditableFieldFixed`), com a dica "Após alterar, confirme nos dois emails (antigo e novo)". Ao salvar, envia `intent=update_email` para a `ActionProfile`, que chama `ServiceUpdateEmail` → `PATCH /api/protected/user/email`.
+Na seção "Dados pessoais e acesso" do Perfil (`/user/profile`), o campo **Email** é editável (`EditableFieldFixed`), com a dica "Após alterar, confirme pelo link enviado ao novo e-mail". Ao salvar, envia `intent=update_email` para a `ActionProfile`, que chama `ServiceUpdateEmail` → `PATCH /api/protected/user/email`.
 
-> **Limitação atual:** o gateway sempre responde `400 update_failed`, porque o `changeEmail` do Better Auth não está ligado. Além disso, a `ActionProfile` não trata o erro: `ServiceUpdateEmail` lança, a falha sobe para o `errorElement` da rota `/user` (`components/user/shared/handling/errorPage.tsx`), que hoje não renderiza nada. Na prática, a troca de e-mail não acontece e a área logada fica em branco até recarregar.
+O gateway pede a troca ao `changeEmail` do Better Auth, que manda o e-mail "Confirme seu novo e-mail" para o endereço novo; a tela mostra o toast "Confirme no novo e-mail!". A troca só vale depois do clique no link, que passa pelo `/api/auth/verify-email` e volta para `/auth/success`.
+
+Se o gateway recusar, a `ActionProfile` devolve `{ error }` em vez de lançar, e a tela mostra o toast "Erro ao atualizar email" sem sair do Perfil. O mesmo vale para nome e telefone.
 
 ---
 
@@ -287,6 +289,9 @@ Pede a senha se a conta tem login por senha (ou se não deu para saber)
 e a palavra EXCLUIR para liberar o botão "Excluir para sempre"
         ↓
 ServiceDeleteAccount → POST /api/auth/delete-user  ({ password } ou {})
+        ↓
+Se veio CREDENTIAL_ACCOUNT_NOT_FOUND (mandou senha a uma conta só do Google,
+porque o list-accounts falhou), marca a conta como sem senha e repete sem senha
 ```
 
 | Resposta | O que a tela mostra |
@@ -307,7 +312,7 @@ O utilitário `http.ts` monta a URL a partir de duas variáveis:
 
 | Ambiente | Comportamento |
 |---|---|
-| **Local** | `VITE_API_BASE_URL=http://localhost:3000` (como no `.env.example`): a Web chama o gateway direto. Com a variável vazia, os caminhos ficam relativos (`/api/...`) e o proxy do `vite.config.ts` repassa para `http://localhost:3000`. |
+| **Local** | `VITE_API_BASE_URL` vazia (como no `.env.example`): os caminhos ficam relativos (`/api/...`) e o proxy do `vite.config.ts` repassa para `http://localhost:3000`, o mesmo caminho da produção. Com `VITE_API_BASE_URL=http://localhost:3000`, a Web chama o gateway direto. |
 | **Vercel (produção ou preview)** | `VITE_API_BASE_URL` vazia: a Web chama `/api/*` no próprio domínio e o `vercel.json` repassa para `https://feedback-analytics-api-gateway.vercel.app/api/*`, mantendo o cookie de sessão no domínio do site. |
 
 `VITE_PUBLIC_API_BASE_URL` vale só para as rotas públicas que contam por IP (reenvio da confirmação e envio do formulário público de feedback): elas vão direto ao gateway, com `credentials: 'omit'`, porque atrás do repasse da Vercel todos os pedidos poderiam chegar com o mesmo IP. Sem a variável, usa a mesma base de `VITE_API_BASE_URL`.

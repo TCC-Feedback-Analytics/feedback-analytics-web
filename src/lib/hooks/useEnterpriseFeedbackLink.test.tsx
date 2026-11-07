@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 
 const { toast } = vi.hoisted(() => ({
   toast: { success: vi.fn(), error: vi.fn() },
@@ -7,6 +7,11 @@ const { toast } = vi.hoisted(() => ({
 
 vi.mock('components/public/forms/messages/useToast', () => ({
   useToast: () => toast,
+}));
+
+// O QR é gerado no navegador; aqui a imagem carrega o próprio endereço, para conferir qual foi.
+vi.mock('qrcode', () => ({
+  default: { toDataURL: vi.fn(async (text: string) => `data:image/png;base64,${text}`) },
 }));
 
 import { useEnterpriseFeedbackLink } from './useEnterpriseFeedbackLink';
@@ -22,10 +27,10 @@ describe('useEnterpriseFeedbackLink', () => {
     Object.assign(navigator, { share: undefined });
   });
 
-  it('monta o link do formulário geral e o QR Code dele', () => {
+  it('monta o link do formulário geral e o QR Code dele', async () => {
     const { result } = renderHook(() => useEnterpriseFeedbackLink(enterprise));
     expect(result.current.feedbackUrl).toBe(formUrl);
-    expect(result.current.qrCodeUrl).toContain(encodeURIComponent(qrFormUrl));
+    await waitFor(() => expect(result.current.qrCodeUrl).toBe(`data:image/png;base64,${qrFormUrl}`));
     expect(result.current.nfcUrl).toBe(`${window.location.origin}/feedback/qrcode?enterprise=ent-1&canal=nfc`);
   });
 

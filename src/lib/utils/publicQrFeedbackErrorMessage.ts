@@ -7,11 +7,13 @@ type PublicQrFeedbackErrorParams = {
 const DEFAULT_PUBLIC_QR_FEEDBACK_ERROR =
   'Erro ao enviar feedback. Tente novamente.';
 
+// Vale para quem chegou pelo QR Code, pelo link ou pela etiqueta NFC.
+const FORM_UNAVAILABLE_MESSAGE =
+  'Este formulário está desativado ou o endereço é inválido. Peça um novo QR Code ou link ao estabelecimento.';
+
 const CODE_ERROR_MESSAGE_MAP: Record<string, string> = {
-  enterprise_not_found:
-    'QR Code inválido ou desativado para esta empresa. Solicite um novo QR Code ao estabelecimento.',
-  collection_point_not_found:
-    'QR Code inválido ou desativado para esta empresa. Solicite um novo QR Code ao estabelecimento.',
+  enterprise_not_found: FORM_UNAVAILABLE_MESSAGE,
+  collection_point_not_found: FORM_UNAVAILABLE_MESSAGE,
   invalid_payload: 'Dados inválidos. Revise as informações e tente novamente.',
   collection_point_error:
     'Não foi possível validar o QR Code no momento. Tente novamente em instantes.',
@@ -54,7 +56,7 @@ export function getPublicQrFeedbackErrorMessage({
   }
 
   if (status === 404) {
-    return 'QR Code inválido ou desativado para esta empresa. Solicite um novo QR Code ao estabelecimento.';
+    return FORM_UNAVAILABLE_MESSAGE;
   }
 
   if (isPublicMessage(fallbackMessage)) {

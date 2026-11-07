@@ -82,7 +82,7 @@ export const METRIC_EXPLANATIONS: Record<MetricTermKey, MetricExplanation> = {
     paragraphs: [
       'Mostra quantas avaliações vieram de quem já tinha avaliado a empresa antes, em qualquer produto, serviço ou departamento. Cliente que volta é sinal de fidelidade.',
       'Também compara a nota de quem volta com a de quem avalia pela primeira vez. Se quem volta dá nota maior, a experiência se sustenta; se dá menor, algo piora com o tempo.',
-      'O sistema reconhece o cliente pelo aparelho usado para avaliar, sem dados pessoais. Por isso o número é aproximado: a mesma pessoa em outro celular conta como outro cliente.',
+      'O sistema reconhece o cliente pelo aparelho usado para avaliar (o mesmo navegador na mesma rede), sem dados pessoais. Por isso o número é aproximado: a mesma pessoa em outro celular ou em outra rede conta como outro cliente.',
     ],
     example: '20% das avaliações vêm de quem volta · Quem volta dá 4,8; primeira vez, 3,8.',
   },

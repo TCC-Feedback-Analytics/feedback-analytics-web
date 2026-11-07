@@ -75,7 +75,7 @@ export function getIaErrorMessage(errorCode: string | null | undefined): string 
   if (Object.hasOwn(IA_RESPONSE_ERROR_MESSAGES, code)) return IA_RESPONSE_ERROR_MESSAGES[code];
 
   if (code === 'collecting_data_required_for_analysis') {
-    return 'Para analisar os feedbacks, preencha as informações da empresa em Editar > Configuração de Coleta de Dados.';
+    return 'Para analisar os feedbacks, preencha o contexto da empresa em Minha conta > Contexto da empresa para IA.';
   }
 
   if (code === 'insufficient_feedbacks_for_analysis') {
