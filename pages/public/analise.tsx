@@ -1,3 +1,5 @@
+import ProductSection from 'components/public/product/ProductSection';
+import { publicNavigationWidth, productContainer } from 'components/public/product/layoutClasses';
 import { Link } from 'react-router-dom';
 import {
   LuArrowRight,
@@ -69,6 +71,7 @@ function Copy({ desktop, mobile }: { desktop: string; mobile?: string }) {
 function EvidenceBoard() {
   return (
     <div
+      data-product-reveal
       className="an-evidence flex-[0_0_470px] rounded-[20px] border border-[#285158] bg-[#092429] p-5 shadow-[0_22px_44px_#0006] max-[900px]:mt-[100px] max-[900px]:rounded-[15px] max-[900px]:p-[15px]"
       aria-label="Exemplo de análise do tom dos comentários"
     >
@@ -115,12 +118,12 @@ function EvidenceBoard() {
 export default function Analise() {
   return (
     <div className="field-notes coleta-page analise-page [--co-body:#526c6c] [--co-pale:#e6f1ef] [--co-teal:#087e75]">
-      <section
+      <ProductSection hero
         className="co-hero bg-[#03171b] [&_h1]:!my-[22px] [&_h1]:text-[clamp(42px,4.05vw,58px)] [&_h1]:leading-[1.06] [&_h1]:tracking-[-1px] [&_h1]:font-[650] max-[900px]:[&_h1]:!my-[17px] max-[900px]:[&_h1]:text-[42px] max-[900px]:[&_h1]:tracking-[-.7px] max-[360px]:[&_h1]:text-[37px]"
         id="analise-hero"
       >
         <div className="co-hero-inner mx-auto w-[min(calc(100%_-_128px),1312px)] pt-7 pb-16 max-[900px]:w-[calc(100%_-_32px)] max-[900px]:pt-[18px] max-[900px]:pb-[68px]">
-          <div className="relative left-1/2 w-[min(calc(100vw_-_152px),1288px)] -translate-x-1/2 max-[850px]:w-[calc(100vw_-_40px)] max-[380px]:w-[calc(100vw_-_24px)]">
+          <div className={publicNavigationWidth}>
             <ProductNavigation />
           </div>
           <div className="co-hero-content an-hero-content flex min-h-[498px] items-center justify-between gap-[50px] pt-[70px] max-[900px]:block max-[900px]:min-h-0 max-[900px]:px-1.5 max-[900px]:pt-[46px] min-h-[508px] max-[900px]:pt-[46px] [&_.co-hero-copy]:max-w-[650px]">
@@ -145,12 +148,12 @@ export default function Analise() {
             <EvidenceBoard />
           </div>
         </div>
-      </section>
-      <section
+      </ProductSection>
+      <ProductSection
         className="an-strip bg-[#08282d] py-9 [&_.fn-eyebrow]:font-bold [&_.fn-eyebrow]:tracking-[1px] max-[900px]:bg-[#061d22] max-[900px]:py-[34px] max-[900px]:[&_.fn-eyebrow]:text-[10px]"
         aria-label="O que a análise entrega"
       >
-        <div className="co-container an-strip-inner mx-auto w-[min(calc(100%_-_152px),1288px)] max-[900px]:w-[min(calc(100%_-_40px),700px)] flex items-center justify-between gap-6 [&>div]:flex [&>div]:items-center [&>div]:gap-2.5 [&>div]:text-[13px] [&>div_span]:font-[Geist_Mono,monospace] [&>div_span]:text-[11px] [&>div_span]:font-bold [&>div_span]:text-[#4f7776] max-[900px]:grid max-[900px]:gap-5 max-[900px]:[&>div]:gap-[13px] max-[900px]:[&>div]:text-sm max-[900px]:[&>div_span]:grid max-[900px]:[&>div_span]:h-[42px] max-[900px]:[&>div_span]:w-[42px] max-[900px]:[&>div_span]:place-items-center max-[900px]:[&>div_span]:rounded-[11px] max-[900px]:[&>div_span]:bg-[#0d3035] max-[900px]:[&>div_span]:text-[#35d0c3]">
+        <div className={`co-container an-strip-inner ${productContainer} flex items-center justify-between gap-6 [&>div]:flex [&>div]:items-center [&>div]:gap-2.5 [&>div]:text-[13px] [&>div_span]:font-[Geist_Mono,monospace] [&>div_span]:text-[11px] [&>div_span]:font-bold [&>div_span]:text-[#4f7776] max-[900px]:grid max-[900px]:gap-5 max-[900px]:[&>div]:gap-[13px] max-[900px]:[&>div]:text-sm max-[900px]:[&>div_span]:grid max-[900px]:[&>div_span]:h-[42px] max-[900px]:[&>div_span]:w-[42px] max-[900px]:[&>div_span]:place-items-center max-[900px]:[&>div_span]:rounded-[11px] max-[900px]:[&>div_span]:bg-[#0d3035] max-[900px]:[&>div_span]:text-[#35d0c3]`}>
           <p className="fn-eyebrow">A IA LÊ O TEXTO. A MATEMÁTICA MEDE A BASE.</p>
           {['Sentimento graduado', 'Aspectos e categorias', 'Resumo e recomendações'].map(
             (label, index) => (
@@ -161,12 +164,12 @@ export default function Analise() {
             ),
           )}
         </div>
-      </section>
-      <section
+      </ProductSection>
+      <ProductSection
         className="an-section an-workflow py-[84px] [&_.fn-eyebrow]:font-bold [&_.fn-eyebrow]:tracking-[1px] [&_.co-section-header>p]:text-[#526c6c] max-[900px]:py-[54px] bg-[#f5faf9] text-[#082327] [&_.fn-eyebrow]:!text-[#087e75]"
         id="do-texto-a-decisao"
       >
-        <div className="co-container mx-auto w-[min(calc(100%_-_152px),1288px)] max-[900px]:w-[min(calc(100%_-_40px),700px)]">
+        <div className={`co-container ${productContainer}`}>
           <div className="co-section-header mb-11 flex items-end justify-between gap-[50px] [&_h2]:!mt-[14px] [&_h2]:max-w-[760px] [&>p]:w-[410px] [&>p]:shrink-0 [&>p]:text-[15px] [&>p]:leading-[1.55] max-[900px]:mb-[22px] max-[900px]:block max-[900px]:[&_h2]:!mt-[22px] max-[900px]:[&_h2]:!text-[34px] max-[900px]:[&_h2]:!leading-[1.1] max-[900px]:[&>p]:!mt-[22px] max-[900px]:[&>p]:w-auto max-[900px]:[&>p]:leading-normal">
             <div>
               <p className="fn-eyebrow">DO TEXTO À DECISÃO</p>
@@ -203,12 +206,12 @@ export default function Analise() {
             ))}
           </div>
         </div>
-      </section>
-      <section
+      </ProductSection>
+      <ProductSection
         className="an-section an-outputs py-[84px] [&_.fn-eyebrow]:font-bold [&_.fn-eyebrow]:tracking-[1px] [&_.co-section-header>p]:text-[#526c6c] max-[900px]:py-[54px] bg-[#03171b] [&_.co-section-header>p]:text-[#a9bebc]"
         id="resultados-da-analise"
       >
-        <div className="co-container mx-auto w-[min(calc(100%_-_152px),1288px)] max-[900px]:w-[min(calc(100%_-_40px),700px)]">
+        <div className={`co-container ${productContainer}`}>
           <div className="co-section-header mb-11 flex items-end justify-between gap-[50px] [&_h2]:!mt-[14px] [&_h2]:max-w-[760px] [&>p]:w-[410px] [&>p]:shrink-0 [&>p]:text-[15px] [&>p]:leading-[1.55] max-[900px]:mb-[22px] max-[900px]:block max-[900px]:[&_h2]:!mt-[22px] max-[900px]:[&_h2]:!text-[34px] max-[900px]:[&_h2]:!leading-[1.1] max-[900px]:[&>p]:!mt-[22px] max-[900px]:[&>p]:w-auto max-[900px]:[&>p]:leading-normal">
             <div>
               <p className="fn-eyebrow">O QUE VOLTA PARA VOCÊ</p>
@@ -242,12 +245,12 @@ export default function Analise() {
             ))}
           </div>
         </div>
-      </section>
-      <section
+      </ProductSection>
+      <ProductSection
         className="an-section an-reliability py-[84px] [&_.fn-eyebrow]:font-bold [&_.fn-eyebrow]:tracking-[1px] [&_.co-section-header>p]:text-[#526c6c] max-[900px]:py-[54px] bg-[#f5faf9] py-[76px] text-[#082327] [&_.fn-eyebrow]:!text-[#087e75] [&_h2]:!mt-[15px] [&_h2]:!text-[42px] [&_h2]:!leading-[1.08] [&_h2+p]:!mt-[15px] [&_h2+p]:max-w-[600px] [&_h2+p]:text-[15px] [&_h2+p]:leading-[1.55] [&_h2+p]:text-[#526c6c] max-[900px]:py-[54px] max-[900px]:[&_h2]:!mt-[22px] max-[900px]:[&_h2]:!text-[33px] max-[900px]:[&_h2]:!leading-[1.1] max-[900px]:[&_h2+p]:!mt-[22px] max-[900px]:[&_h2+p]:leading-[1.4]"
         id="precisao"
       >
-        <div className="co-container an-reliability-inner mx-auto w-[min(calc(100%_-_152px),1288px)] max-[900px]:w-[min(calc(100%_-_40px),700px)] flex items-center justify-between gap-[60px] [&>div:first-child]:max-w-[650px] max-[900px]:block">
+        <div className={`co-container an-reliability-inner ${productContainer} flex items-center justify-between gap-[60px] [&>div:first-child]:max-w-[650px] max-[900px]:block`}>
           <div>
             <p className="fn-eyebrow">LEITURA HONESTA</p>
             <h2>
@@ -272,12 +275,12 @@ export default function Analise() {
             ))}
           </div>
         </div>
-      </section>
-      <section
+      </ProductSection>
+      <ProductSection
         className="co-final bg-[#ddeeeb] py-[70px] text-center text-[#082327] [&_.fn-eyebrow]:font-bold [&_.fn-eyebrow]:tracking-[1px] [&_.fn-eyebrow]:!text-[#087e75] [&_h2]:mx-auto [&_h2]:!my-[22px] [&_h2]:max-w-[900px] [&_p:not(.fn-eyebrow)]:text-base [&_p:not(.fn-eyebrow)]:text-[#526c6c] [&_.co-button]:mt-[22px] [&_.co-button]:text-[#f2faf9] [&_.co-button_svg]:text-[#35d0c3] max-[900px]:py-14 max-[900px]:[&_h2]:!my-5 max-[900px]:[&_h2]:!text-[34px] max-[900px]:[&_h2]:!leading-[1.1] max-[900px]:[&_p:not(.fn-eyebrow)]:text-[15px] max-[900px]:[&_.co-button]:mt-5 max-[900px]:[&_.co-button]:min-h-[52px] max-[900px]:[&_.co-button]:w-full"
         id="da-voz-a-acao"
       >
-        <div className="co-container mx-auto w-[min(calc(100%_-_152px),1288px)] max-[900px]:w-[min(calc(100%_-_40px),700px)]">
+        <div className={`co-container ${productContainer}`}>
           <p className="fn-eyebrow">DA VOZ À AÇÃO</p>
           <h2>Pare de procurar padrões no escuro.</h2>
           <p>Deixe a IA organizar os comentários. Mantenha a decisão nas suas mãos.</p>
@@ -288,7 +291,7 @@ export default function Analise() {
             Começar análise <LuArrowRight aria-hidden="true" />
           </Link>
         </div>
-      </section>
+      </ProductSection>
       <HomeFooter />
     </div>
   );

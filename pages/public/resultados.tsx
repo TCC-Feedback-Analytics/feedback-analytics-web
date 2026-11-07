@@ -1,3 +1,5 @@
+import ProductSection from 'components/public/product/ProductSection';
+import { publicNavigationWidth } from 'components/public/product/layoutClasses';
 import { Link } from 'react-router-dom';
 import {
   LuArrowRight,
@@ -154,6 +156,7 @@ function DashboardPreview() {
 
   return (
     <div
+      data-product-reveal
       className="w-full max-w-[520px] rounded-[20px] bg-[#f3faf9] p-5 text-[#082327] shadow-[0_22px_44px_#0006] max-[900px]:mt-[110px] max-[900px]:rounded-[15px] max-[900px]:p-[15px]"
       aria-label="Exemplo ilustrativo de um painel de avaliações"
     >
@@ -241,6 +244,7 @@ function DiagnosisNote() {
       <div className="mt-4 grid gap-4 max-[900px]:mt-3 max-[900px]:gap-2.5">
         {items.map(({ icon: Icon, desktop, mobile }) => (
           <div
+      data-product-reveal
             key={desktop}
             className="flex items-center gap-2.5 rounded-[10px] bg-[#f7fbfa] px-[13px] py-3 text-xs font-semibold text-[#284749] max-[900px]:text-[11px]"
           >
@@ -259,9 +263,9 @@ function DiagnosisNote() {
 export default function Resultados() {
   return (
     <div className="field-notes">
-      <section id="resultados-hero" className="bg-[#03171b]">
+      <ProductSection hero id="resultados-hero" className="bg-[#03171b]">
         <div className="mx-auto w-[min(calc(100%_-_128px),1312px)] pt-7 pb-[62px] max-[900px]:w-[calc(100%_-_32px)] max-[900px]:pt-[18px] max-[900px]:pb-[35px]">
-          <div className="relative left-1/2 w-[min(calc(100vw_-_152px),1288px)] -translate-x-1/2 max-[850px]:w-[calc(100vw_-_40px)] max-[380px]:w-[calc(100vw_-_24px)]">
+          <div className={publicNavigationWidth}>
             <ProductNavigation />
           </div>
           <div className="flex min-h-[518px] items-center justify-between gap-12 pt-[68px] max-[900px]:block max-[900px]:min-h-0 max-[900px]:px-1.5 max-[900px]:pt-[46px]">
@@ -291,9 +295,9 @@ export default function Resultados() {
             <DashboardPreview />
           </div>
         </div>
-      </section>
+      </ProductSection>
 
-      <section
+      <ProductSection
         aria-label="Princípios dos resultados"
         className="bg-[#08282d] py-9 max-[900px]:bg-[#061d22] max-[900px]:py-[34px]"
       >
@@ -315,9 +319,9 @@ export default function Resultados() {
             ),
           )}
         </div>
-      </section>
+      </ProductSection>
 
-      <section
+      <ProductSection
         id="tres-lentes"
         className="bg-[#f5faf9] py-[84px] text-[#082327] max-[900px]:py-[54px]"
       >
@@ -362,9 +366,9 @@ export default function Resultados() {
             ))}
           </div>
         </div>
-      </section>
+      </ProductSection>
 
-      <section id="contexto" className="bg-[#03171b] py-[82px] max-[900px]:py-[54px]">
+      <ProductSection id="contexto" className="bg-[#03171b] py-[82px] max-[900px]:py-[54px]">
         <div className={container}>
           <SectionHeader
             dark
@@ -397,9 +401,9 @@ export default function Resultados() {
             ))}
           </div>
         </div>
-      </section>
+      </ProductSection>
 
-      <section id="diagnostico" className="bg-[#f5faf9] py-20 text-[#082327] max-[900px]:py-[54px]">
+      <ProductSection id="diagnostico" className="bg-[#f5faf9] py-20 text-[#082327] max-[900px]:py-[54px]">
         <div className={`${container} flex items-center justify-between gap-16 max-[900px]:block`}>
           <div className="max-w-[640px]">
             <p className={`${eyebrow} text-[#087e75]`}>DIAGNÓSTICO DO ESCOPO ✦ IA</p>
@@ -420,9 +424,9 @@ export default function Resultados() {
           </div>
           <DiagnosisNote />
         </div>
-      </section>
+      </ProductSection>
 
-      <section
+      <ProductSection
         id="precisao-resultados"
         className="bg-[#ddeeeb] py-[72px] text-[#082327] max-[900px]:py-[50px]"
       >
@@ -450,9 +454,9 @@ export default function Resultados() {
             ))}
           </div>
         </div>
-      </section>
+      </ProductSection>
 
-      <section className="bg-[#f5faf9] py-[70px] text-center text-[#082327] max-[900px]:py-14">
+      <ProductSection className="bg-[#f5faf9] py-[70px] text-center text-[#082327] max-[900px]:py-14">
         <div className={container}>
           <p className={`${eyebrow} text-[#087e75]`}>CLAREZA PARA A PRÓXIMA DECISÃO</p>
           <h2 className="!mx-auto !my-[22px] max-w-[900px] !text-[44px] !leading-[1.12] !font-[650] max-[900px]:!my-5 max-[900px]:!text-[34px]">
@@ -468,7 +472,7 @@ export default function Resultados() {
             Criar minha conta <LuArrowRight className="text-[#35d0c3]" aria-hidden="true" />
           </Link>
         </div>
-      </section>
+      </ProductSection>
       <HomeFooter />
     </div>
   );

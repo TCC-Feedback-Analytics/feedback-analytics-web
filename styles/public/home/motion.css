@@ -41,6 +41,12 @@
 .fn-nav-links a,.fn-footer-links a {
   transition: color .2s ease;
 }
+.fn-nav-links a[aria-current="page"] {
+  color: #35d0c3;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 7px;
+}
 .fn-blueprint-cell-top svg {
   transition: transform .25s ease;
 }

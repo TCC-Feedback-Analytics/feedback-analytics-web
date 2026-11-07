@@ -1,3 +1,4 @@
+import { publicNavigationWidth } from 'components/public/product/layoutClasses';
 import { Children, isValidElement } from 'react';
 import { Link } from 'react-router-dom';
 import { LuChevronDown, LuFileText, LuMail, LuShieldCheck } from 'react-icons/lu';
@@ -43,7 +44,7 @@ export default function LegalPage({ title, intro, related, children }: LegalPage
     <div className="field-notes">
       <header className="bg-[#03171b]">
         <div className="mx-auto w-[min(calc(100%_-_128px),1312px)] pt-7 pb-[62px] max-[900px]:w-[calc(100%_-_32px)] max-[900px]:pt-[18px] max-[900px]:pb-[54px]">
-          <div className="relative left-1/2 w-[min(calc(100vw_-_152px),1288px)] -translate-x-1/2 max-[850px]:w-[calc(100vw_-_40px)] max-[380px]:w-[calc(100vw_-_24px)]">
+          <div className={publicNavigationWidth}>
             <ProductNavigation />
           </div>
           <div className="mt-14 max-[900px]:mt-12 max-[900px]:px-1.5">
@@ -70,7 +71,7 @@ export default function LegalPage({ title, intro, related, children }: LegalPage
                     to={to}
                     aria-current={active ? 'page' : undefined}
                     aria-label={label}
-                    className={`inline-flex min-h-[46px] items-center justify-center gap-2 rounded-[10px] border px-4 text-[13px] font-bold max-[900px]:flex-1 max-[900px]:px-2 max-[900px]:text-xs ${active ? 'border-[#35d0c3] bg-[#35d0c3] text-[#042327]' : 'border-[#285158] bg-[#0d3035] text-[#d6e3e1]'}`}
+                    className={`inline-flex min-h-[46px] items-center justify-center gap-2 rounded-[10px] border px-4 text-[13px] font-bold transition-colors motion-reduce:transition-none max-[900px]:flex-1 max-[900px]:px-2 max-[900px]:text-xs ${active ? 'border-[#35d0c3] bg-[#35d0c3] text-[#042327]' : 'border-[#285158] bg-[#0d3035] text-[#d6e3e1] hover:border-[#35d0c3] hover:text-white'}`}
                   >
                     <Icon className="text-base" aria-hidden="true" />
                     <span className="max-[900px]:hidden">{label}</span>
@@ -117,7 +118,7 @@ export default function LegalPage({ title, intro, related, children }: LegalPage
           </aside>
 
           <details className="group hidden rounded-xl bg-[#e6f1ef] text-[#082327] max-[900px]:block">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3.5 [&::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-xl px-4 py-3.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#087e75] [&::-webkit-details-marker]:hidden">
               <span>
                 <span className={`${eyebrow} block text-[8px] text-[#087e75]`}>
                   {contentsLabel}

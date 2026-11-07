@@ -1,3 +1,5 @@
+import ProductSection from 'components/public/product/ProductSection';
+import { publicNavigationWidth, productContainer } from 'components/public/product/layoutClasses';
 import { Link } from 'react-router-dom';
 import {
   LuArrowRight,
@@ -80,6 +82,7 @@ function ResponsiveCopy({ desktop, mobile }: { desktop: string; mobile?: string 
 function Artifact() {
   return (
     <div
+      data-product-reveal
       className="co-artifact flex-[0_0_430px] rounded-[20px] bg-[#f3faf9] p-[22px] text-[#082327] shadow-[0_22px_40px_#0005] [&_i]:h-[7px] [&_i]:w-[7px] [&_i]:rounded-full [&_i]:bg-[#16a394] max-[900px]:mt-[60px] max-[900px]:flex max-[900px]:items-center max-[900px]:gap-[14px] max-[900px]:rounded-[15px] max-[900px]:p-[15px]"
       aria-label="Exemplo de coleta ativa por QR Code, link e NFC"
     >
@@ -112,12 +115,12 @@ function Artifact() {
 export default function Coleta() {
   return (
     <div className="field-notes coleta-page [--co-body:#526c6c] [--co-pale:#e6f1ef] [--co-teal:#087e75]">
-      <section
+      <ProductSection hero
         className="co-hero bg-[#03171b] [&_h1]:!my-[22px] [&_h1]:text-[clamp(42px,4.05vw,58px)] [&_h1]:leading-[1.06] [&_h1]:tracking-[-1px] [&_h1]:font-[650] max-[900px]:[&_h1]:!my-[17px] max-[900px]:[&_h1]:text-[42px] max-[900px]:[&_h1]:tracking-[-.7px] max-[360px]:[&_h1]:text-[37px]"
         id="coleta-hero"
       >
         <div className="co-hero-inner mx-auto w-[min(calc(100%_-_128px),1312px)] pt-7 pb-16 max-[900px]:w-[calc(100%_-_32px)] max-[900px]:pt-[18px] max-[900px]:pb-[68px]">
-          <div className="relative left-1/2 w-[min(calc(100vw_-_152px),1288px)] -translate-x-1/2 max-[850px]:w-[calc(100vw_-_40px)] max-[380px]:w-[calc(100vw_-_24px)]">
+          <div className={publicNavigationWidth}>
             <ProductNavigation />
           </div>
           <div className="co-hero-content flex min-h-[498px] items-center justify-between gap-[50px] pt-[70px] max-[900px]:block max-[900px]:min-h-0 max-[900px]:px-1.5 max-[900px]:pt-[46px]">
@@ -143,12 +146,12 @@ export default function Coleta() {
             <Artifact />
           </div>
         </div>
-      </section>
-      <section
+      </ProductSection>
+      <ProductSection
         className="co-principles bg-[#08282d] py-9 max-[900px]:bg-[#061d22] max-[900px]:py-[34px] [&_.fn-eyebrow]:text-xs [&_.fn-eyebrow]:font-bold [&_.fn-eyebrow]:tracking-[1px] max-[900px]:[&_.fn-eyebrow]:text-[10px]"
         aria-label="Princípios da coleta"
       >
-        <div className="co-container co-principles-inner mx-auto w-[min(calc(100%_-_152px),1288px)] max-[900px]:w-[min(calc(100%_-_40px),700px)] flex items-center justify-between gap-6 max-[900px]:grid max-[900px]:gap-5">
+        <div className={`co-container co-principles-inner ${productContainer} flex items-center justify-between gap-6 max-[900px]:grid max-[900px]:gap-5`}>
           <p className="fn-eyebrow">UM SCAN. UM TOQUE. UMA RESPOSTA.</p>
           {[
             ['Sem cadastro', 'O cliente entra direto.'],
@@ -167,12 +170,12 @@ export default function Coleta() {
             </div>
           ))}
         </div>
-      </section>
-      <section
+      </ProductSection>
+      <ProductSection
         className="co-section co-channels py-[86px] max-[900px]:py-[54px] [&_.fn-eyebrow]:font-bold [&_.fn-eyebrow]:tracking-[1px] bg-[#f5faf9] text-[#082327] [&_.fn-eyebrow]:!text-[#087e75] [&_.co-section-header>p]:text-[#526c6c]"
         id="canais-de-coleta"
       >
-        <div className="co-container mx-auto w-[min(calc(100%_-_152px),1288px)] max-[900px]:w-[min(calc(100%_-_40px),700px)]">
+        <div className={`co-container ${productContainer}`}>
           <div className="co-section-header mb-11 flex items-end justify-between gap-[50px] [&_h2]:!mt-[14px] [&_h2]:max-w-[760px] [&>p]:w-[410px] [&>p]:shrink-0 [&>p]:text-[15px] [&>p]:leading-[1.55] max-[900px]:mb-[22px] max-[900px]:block max-[900px]:[&_h2]:!mt-[22px] max-[900px]:[&_h2]:!text-[34px] max-[900px]:[&_h2]:!leading-[1.1] max-[900px]:[&>p]:!mt-[22px] max-[900px]:[&>p]:w-auto max-[900px]:[&>p]:leading-normal">
             <div>
               <p className="fn-eyebrow">CANAIS DE COLETA</p>
@@ -208,12 +211,12 @@ export default function Coleta() {
             ))}
           </div>
         </div>
-      </section>
-      <section
+      </ProductSection>
+      <ProductSection
         className="co-section co-scopes py-[86px] max-[900px]:py-[54px] [&_.fn-eyebrow]:font-bold [&_.fn-eyebrow]:tracking-[1px] bg-[#03171b] [&_.co-section-header>p]:w-[390px] [&_.co-section-header>p]:text-[#a9bebc] max-[900px]:[&_.co-section-header>p]:w-auto"
         id="formularios-por-escopo"
       >
-        <div className="co-container mx-auto w-[min(calc(100%_-_152px),1288px)] max-[900px]:w-[min(calc(100%_-_40px),700px)]">
+        <div className={`co-container ${productContainer}`}>
           <div className="co-section-header mb-11 flex items-end justify-between gap-[50px] [&_h2]:!mt-[14px] [&_h2]:max-w-[760px] [&>p]:w-[410px] [&>p]:shrink-0 [&>p]:text-[15px] [&>p]:leading-[1.55] max-[900px]:mb-[22px] max-[900px]:block max-[900px]:[&_h2]:!mt-[22px] max-[900px]:[&_h2]:!text-[34px] max-[900px]:[&_h2]:!leading-[1.1] max-[900px]:[&>p]:!mt-[22px] max-[900px]:[&>p]:w-auto max-[900px]:[&>p]:leading-normal">
             <div>
               <p className="fn-eyebrow">UM FORMULÁRIO POR ESCOPO</p>
@@ -246,12 +249,12 @@ export default function Coleta() {
             ))}
           </div>
         </div>
-      </section>
-      <section
+      </ProductSection>
+      <ProductSection
         className="co-section co-trust py-[86px] max-[900px]:py-[54px] [&_.fn-eyebrow]:font-bold [&_.fn-eyebrow]:tracking-[1px] bg-[#f5faf9] text-[#082327] [&_.fn-eyebrow]:!text-[#087e75] [&>div>h2]:!mt-3 [&>div>h2]:max-w-[900px] [&>div>h2]:!text-[42px] [&_.co-icon]:text-[26px] [&_.co-icon]:text-[#087e75] [&_h3]:!mt-3 [&_h3]:text-xl [&_h3]:font-[650] max-[900px]:[&>div>h2]:!mt-[22px] max-[900px]:[&>div>h2]:!text-[34px] max-[900px]:[&>div>h2]:!leading-[1.1] max-[900px]:[&_.co-icon]:grid max-[900px]:[&_.co-icon]:h-11 max-[900px]:[&_.co-icon]:w-11 max-[900px]:[&_.co-icon]:flex-[0_0_44px] max-[900px]:[&_.co-icon]:place-items-center max-[900px]:[&_.co-icon]:rounded-[11px] max-[900px]:[&_.co-icon]:bg-[#ddeeeb] max-[900px]:[&_.co-icon]:text-xl max-[900px]:[&_h3]:!mt-0 max-[900px]:[&_h3]:text-[17px]"
         id="coleta-confiavel"
       >
-        <div className="co-container mx-auto w-[min(calc(100%_-_152px),1288px)] max-[900px]:w-[min(calc(100%_-_40px),700px)]">
+        <div className={`co-container ${productContainer}`}>
           <p className="fn-eyebrow">COLETA CONFIÁVEL</p>
           <h2>
             <ResponsiveCopy
@@ -278,12 +281,12 @@ export default function Coleta() {
             ))}
           </div>
         </div>
-      </section>
-      <section
+      </ProductSection>
+      <ProductSection
         className="co-final bg-[#ddeeeb] py-[70px] text-center text-[#082327] [&_.fn-eyebrow]:font-bold [&_.fn-eyebrow]:tracking-[1px] [&_.fn-eyebrow]:!text-[#087e75] [&_h2]:mx-auto [&_h2]:!my-[22px] [&_h2]:max-w-[900px] [&_p:not(.fn-eyebrow)]:text-base [&_p:not(.fn-eyebrow)]:text-[#526c6c] [&_.co-button]:mt-[22px] [&_.co-button]:text-[#f2faf9] [&_.co-button_svg]:text-[#35d0c3] max-[900px]:py-14 max-[900px]:[&_h2]:!my-5 max-[900px]:[&_h2]:!text-[34px] max-[900px]:[&_h2]:!leading-[1.1] max-[900px]:[&_p:not(.fn-eyebrow)]:text-[15px] max-[900px]:[&_.co-button]:mt-5 max-[900px]:[&_.co-button]:min-h-[52px] max-[900px]:[&_.co-button]:w-full"
         id="proximo-ponto-de-escuta"
       >
-        <div className="co-container mx-auto w-[min(calc(100%_-_152px),1288px)] max-[900px]:w-[min(calc(100%_-_40px),700px)]">
+        <div className={`co-container ${productContainer}`}>
           <p className="fn-eyebrow">SEU PRÓXIMO PONTO DE ESCUTA</p>
           <h2>
             <ResponsiveCopy
@@ -299,7 +302,7 @@ export default function Coleta() {
             Começar coleta <LuArrowRight aria-hidden="true" />
           </Link>
         </div>
-      </section>
+      </ProductSection>
       <HomeFooter />
     </div>
   );

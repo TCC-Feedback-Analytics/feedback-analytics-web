@@ -11,7 +11,7 @@ export default function HomeFooter() {
             <Brand />
             <p>A voz dos seus clientes ajudando a decidir — com apoio de IA.</p>
           </div>
-          <div className="fn-footer-links">
+          <div className="fn-footer-links [&_a]:rounded-sm [&_a]:transition-colors motion-reduce:[&_a]:transition-none">
             <div>
               <strong>Produto</strong>
               <Link to="/produto/coleta">Coleta</Link>
