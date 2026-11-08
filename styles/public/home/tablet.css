@@ -1,0 +1,131 @@
+/* Tablet layouts */
+.fn-hero {
+  background-repeat: no-repeat;
+}
+@media (min-width:651px) and (max-width:1100px) {
+  .fn-container {
+    width: calc(100% - 4rem);
+  }
+  .fn-hero {
+    min-height: 0;
+    background-size: cover;
+    background-position: 58% center;
+    background-repeat: no-repeat;
+  }
+  .fn-hero::before {
+    background: linear-gradient(90deg,#03171be8 0%,#03171bc7 48%,#03171b80 100%);
+  }
+  .fn-hero-inner {
+    min-height: 0;
+    padding-bottom: 48px;
+  }
+  .fn-hero-copy {
+    max-width: 590px;
+    margin-top: 72px;
+  }
+  .fn-hero h1 {
+    font-size: clamp(42px,5.3vw,54px);
+  }
+  .fn-live-card {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    margin: 32px 0 0 auto;
+  }
+  .fn-evidence-grid {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+  .fn-evidence-copy {
+    min-height: 0;
+  }
+  .fn-evidence-action {
+    margin-top: 40px;
+  }
+  .fn-evidence-board {
+    width: min(100%,784px);
+    margin-inline: auto;
+  }
+  .fn-final-inner {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 255px;
+    gap: 32px;
+    align-items: center;
+    padding-block: 64px;
+  }
+  .fn-final-copy {
+    max-width: none;
+    min-width: 0;
+  }
+  .fn-ticket {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 100%;
+    height: auto;
+    min-height: 330px;
+    padding: 20px;
+    transform: rotate(-2deg);
+    transform-origin: center;
+  }
+  .fn-ticket h3 {
+    font-size: 19px;
+    white-space: normal;
+  }
+  .fn-ticket-top img {
+    width: 150px;
+  }
+  .fn-ticket-channels {
+    min-height: 140px;
+  }
+  @media (hover:hover) {
+    .fn-ticket:hover {
+      transform: translateY(-5px) rotate(-2deg);
+    }
+  }
+}
+@media (min-width:651px) and (max-width:760px) {
+  .fn-nav-links {
+    display: none;
+  }
+  .fn-blueprint-board {
+    overflow: visible;
+    background: transparent;
+    border: 0;
+  }
+  .fn-blueprint-heading {
+    display: none;
+  }
+  .fn-blueprint-row {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 12px;
+    margin-top: 16px;
+    padding: 18px;
+    border: 1px solid #d4e5e2;
+    border-radius: 15px;
+    background: #ecf5f3;
+  }
+  .fn-blueprint-row:nth-child(3) {
+    background: #e2f0ee;
+  }
+  .fn-blueprint-lane {
+    grid-column: 1/-1;
+    padding: 0 0 4px;
+  }
+  .fn-blueprint-cell {
+    height: 78px;
+    padding: 12px;
+  }
+  .fn-blueprint-note {
+    flex-wrap: wrap;
+  }
+  .fn-channel {
+    padding: 12px;
+    gap: 9px;
+  }
+  .fn-channel-icon {
+    width: 38px;
+    height: 38px;
+  }
+}
