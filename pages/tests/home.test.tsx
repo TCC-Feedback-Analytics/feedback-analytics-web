@@ -29,11 +29,12 @@ describe('[Unidade] Home Page', () => {
     );
 
     expect(
-      screen.getByText('Entenda seus clientes com análises inteligentes e rápidas.'),
+      screen.getByText('A melhor decisão começa onde a experiência acontece.'),
     ).toBeInTheDocument();
-    expect(screen.getByText('Feedback Analytics · IA')).toBeInTheDocument();
-    expect(screen.getByText('Começar agora')).toBeInTheDocument();
-    expect(screen.getByText('Ver como funciona')).toBeInTheDocument();
+    expect(screen.getByText('O cliente faz pouco. O sistema faz o trabalho pesado.')).toBeInTheDocument();
+    expect(screen.getByText('Veja a história por trás da média.')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Ver o fluxo/i })).toHaveAttribute('href', '#coleta');
+    expect(screen.getAllByRole('link', { name: /Começar teste grátis/i })[0]).toHaveAttribute('href', '/register');
   });
 
   it('deve ter a estrutura HTML correta', () => {

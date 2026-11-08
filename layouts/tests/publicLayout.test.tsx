@@ -5,7 +5,9 @@ import '@testing-library/jest-dom';
 import Public from '../public';
 
 // O setup global usa um mock mínimo do roteador; este teste precisa do roteador real.
-vi.mock('react-router-dom', async () => vi.importActual<typeof import('react-router-dom')>('react-router-dom'));
+vi.mock('react-router-dom', async () =>
+  vi.importActual<typeof import('react-router-dom')>('react-router-dom'),
+);
 
 vi.mock('components/public/layout/header', () => ({
   default: () => <div data-testid="public-header">Cabeçalho público</div>,
@@ -32,6 +34,12 @@ describe('layout pública', () => {
   });
 
   it.each([
+    '/',
+    '/produto/coleta',
+    '/produto/analise',
+    '/produto/resultados',
+    '/privacidade',
+    '/termos',
     '/login',
     '/register',
     '/forgot-password',
@@ -48,7 +56,7 @@ describe('layout pública', () => {
   });
 
   it('mantém o cabeçalho nas demais páginas públicas', () => {
-    renderLayout('/termos');
+    renderLayout('/alguma-pagina');
 
     expect(screen.getByTestId('public-header')).toBeInTheDocument();
   });
