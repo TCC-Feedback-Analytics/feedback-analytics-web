@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRevalidator } from "react-router-dom";
 import {
   FaArrowRight,
@@ -14,6 +14,7 @@ import { questionsGenerationBlockedMessage } from "src/lib/utils/questionsGenera
 import { ServiceRetryCompanyQuestions, type QuestionsGenerationResult } from "src/services/serviceFeedbacks";
 import { useCompanyQuestionsGenerationState } from "src/lib/context/companyQuestionsGenerationContext";
 import { getCompanyQuestionsFailureNotice } from "src/lib/hooks/useCompanyQuestionsGeneration";
+import { useLatestRef } from "src/lib/hooks/useLatestRef";
 import type {
   InitialSetupItemStatus,
   InitialSetupProgressDialogProps,
@@ -65,18 +66,28 @@ export default function InitialSetupProgressDialog({ open, onFinish, model }: In
   const [retrying, setRetrying] = useState(false);
   // Motivo de uma nova tentativa não ter saído (intervalo, limite diário...).
   const [retryMessage, setRetryMessage] = useState<string | null>(null);
-  const onFinishRef = useRef(onFinish);
-  onFinishRef.current = onFinish;
-  const revalidateRef = useRef(revalidator.revalidate);
-  revalidateRef.current = revalidator.revalidate;
+  const onFinishRef = useLatestRef(onFinish);
+  const revalidateRef = useLatestRef(revalidator.revalidate);
+
+  // Fechar zera a espera desta abertura. Aberta, a tela segue o modelo salvo pelo
+  // layout, que muda depois de uma troca feita aqui.
+  const [synced, setSynced] = useState({ open, model });
+  if (synced.open !== open || synced.model !== model) {
+    setSynced({ open, model });
+    if (open) {
+      setCurrentModel(model);
+    } else {
+      setReady(false);
+      setSlow(false);
+      setGivenUp(false);
+      setAttempt(0);
+      setRetryMessage(null);
+    }
+  }
 
   // O estado só vale depois da consulta desta abertura (evita um resultado antigo).
   useEffect(() => {
-    if (!open) {
-      setReady(false);
-      setSlow(false);
-      return;
-    }
+    if (!open) return;
     let cancelled = false;
     void track().finally(() => {
       if (!cancelled) setReady(true);
@@ -90,20 +101,10 @@ export default function InitialSetupProgressDialog({ open, onFinish, model }: In
 
   // A saída com as perguntas padrão conta desde a abertura, sem recomeçar na troca.
   useEffect(() => {
-    if (!open) {
-      setGivenUp(false);
-      setAttempt(0);
-      setRetryMessage(null);
-      return;
-    }
+    if (!open) return;
     const giveUpTimer = window.setTimeout(() => setGivenUp(true), INITIAL_SETUP_GIVE_UP_AFTER_MS);
     return () => window.clearTimeout(giveUpTimer);
   }, [open]);
-
-  // O layout passa o modelo salvo; ele muda depois de uma troca feita aqui.
-  useEffect(() => {
-    if (open) setCurrentModel(model);
-  }, [open, model]);
 
   // Nova tentativa (troca de modelo ou "Tentar de novo"): acompanha o pedido de novo,
   // ou mostra por que ele não saiu.
@@ -141,7 +142,7 @@ export default function InitialSetupProgressDialog({ open, onFinish, model }: In
     void revalidateRef.current();
     const timer = window.setTimeout(() => onFinishRef.current("dashboard"), REDIRECT_AFTER_DONE_MS);
     return () => window.clearTimeout(timer);
-  }, [open, isDone]);
+  }, [open, isDone, revalidateRef, onFinishRef]);
 
   if (!open) return null;
 

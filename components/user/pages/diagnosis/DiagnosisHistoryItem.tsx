@@ -18,10 +18,16 @@ export default function DiagnosisHistoryItem({ item, defaultOpen = false }: Diag
   const [failed, setFailed] = useState(false);
   const panelId = useId();
 
+  // Abrir de novo depois de uma falha tenta outra vez, sem o aviso anterior.
+  const [wasOpen, setWasOpen] = useState(open);
+  if (wasOpen !== open) {
+    setWasOpen(open);
+    if (open) setFailed(false);
+  }
+
   useEffect(() => {
     if (!open || full) return;
     let cancelled = false;
-    setFailed(false);
     ServiceGetScopeDiagnosis(item.id)
       .then((data) => {
         if (!cancelled) setFull(data);

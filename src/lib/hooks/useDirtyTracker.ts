@@ -1,4 +1,5 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useLatestRef } from './useLatestRef';
 
 /**
  * Replacer que ordena as chaves de objetos para uma serialização ESTÁVEL
@@ -41,14 +42,13 @@ type DirtyTracker = {
  */
 export function useDirtyTracker<T>(value: T): DirtyTracker {
   const [baseline, setBaseline] = useState<string>(() => stableStringify(value));
-  const valueRef = useRef<T>(value);
-  valueRef.current = value;
+  const valueRef = useLatestRef<T>(value);
 
   const isDirty = stableStringify(value) !== baseline;
 
   const markPristine = useCallback((next?: unknown) => {
     setBaseline(stableStringify(next === undefined ? valueRef.current : next));
-  }, []);
+  }, [valueRef]);
 
   return { isDirty, markPristine };
 }

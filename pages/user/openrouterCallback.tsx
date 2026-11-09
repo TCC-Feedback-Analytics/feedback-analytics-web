@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { FaSpinner } from 'react-icons/fa6';
 import { useToast } from 'components/public/forms/messages/useToast';
@@ -20,10 +20,8 @@ export default function OpenRouterCallback() {
   const [error, setError] = useState<{ message: string; returnTo: string } | null>(null);
   const startedRef = useRef(false);
 
-  useEffect(() => {
-    if (startedRef.current) return;
-    startedRef.current = true;
-
+  // Troca o código pela chave uma vez só: o pedido guardado na saída é de uso único.
+  const connect = useEffectEvent(() => {
     const code = searchParams.get('code');
     const pending = takePendingOpenRouterConnect();
     if (!code || !pending) {
@@ -46,7 +44,13 @@ export default function OpenRouterCallback() {
           returnTo: pending.returnTo,
         });
       });
-  }, [searchParams, navigate, toast]);
+  });
+
+  useEffect(() => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    connect();
+  }, []);
 
   return (
     <div className="font-work-sans mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center gap-4 text-center">

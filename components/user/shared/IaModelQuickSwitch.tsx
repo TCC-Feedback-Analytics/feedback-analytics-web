@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useId, useRef, useState } from 'react';
 import { useFetcher, useRouteLoaderData } from 'react-router-dom';
 import { FaArrowsRotate, FaSpinner } from 'react-icons/fa6';
 import { Select, type SelectOption } from 'components/ui/select';
@@ -35,16 +35,20 @@ export default function IaModelQuickSwitch({ onChanged, className = '' }: IaMode
     label: `${model.isAutomatic ? 'Roteamento automático' : model.name} (${model.id})${isFreeIaModel(model.id) ? ' — Gratuito' : ''}`,
   }));
 
+  // A resposta da action chega pelo fetcher, um sistema externo ao componente.
+  const handleSaveResult = useEffectEvent((model: string, result: IaSettingsActionResult) => {
+    if (!result.ok) return;
+    setChoice('');
+    onChanged?.(model, result.iaConfig?.questionsGeneration);
+  });
+
   useEffect(() => {
     const result = fetcher.data;
     const model = submittedRef.current;
     if (fetcher.state !== 'idle' || !result || !model) return;
     submittedRef.current = null;
-    if (result.ok) {
-      setChoice('');
-      onChanged?.(model, result.iaConfig?.questionsGeneration);
-    }
-  }, [fetcher.state, fetcher.data, onChanged]);
+    handleSaveResult(model, result);
+  }, [fetcher.state, fetcher.data]);
 
   if (!iaConfig?.hasKey) return null;
 

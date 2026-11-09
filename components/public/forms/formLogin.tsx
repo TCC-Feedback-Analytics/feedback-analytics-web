@@ -239,15 +239,18 @@ export default function FormLogin() {
   // Só volta a "Entrar" quando a navegação termina SEM sair da página (ex.: erro de
   // login, que mantém o usuário em /login). No sucesso, o redirect desmonta este
   // form, então o loading persiste naturalmente até o dashboard aparecer.
-  useEffect(() => {
+  const [lastNavigationState, setLastNavigationState] = useState(navigation.state);
+  if (lastNavigationState !== navigation.state) {
+    setLastNavigationState(navigation.state);
     if (navigation.state === 'idle') setIsSubmitting(false);
-  }, [navigation.state]);
+  }
 
-  useEffect(() => {
-    if (showConfirmationHelp) {
-      setIsLoginHelpOpen(true);
-    }
-  }, [showConfirmationHelp]);
+  // A ajuda abre quando o erro de credenciais aparece (inclusive na primeira tela).
+  const [hadConfirmationHelp, setHadConfirmationHelp] = useState(false);
+  if (hadConfirmationHelp !== showConfirmationHelp) {
+    setHadConfirmationHelp(showConfirmationHelp);
+    if (showConfirmationHelp) setIsLoginHelpOpen(true);
+  }
 
   const {
     register,

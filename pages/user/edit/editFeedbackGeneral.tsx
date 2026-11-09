@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useEffectEvent, useRef, useState } from 'react';
 import { useFetcher, useLoaderData, useRouteLoaderData } from 'react-router-dom';
 import { useEnterpriseFeedbackLink } from 'src/lib/hooks/useEnterpriseFeedbackLink';
 import { useToast } from 'components/public/forms/messages/useToast';
@@ -28,10 +28,8 @@ export default function EditFeedbackGeneral() {
 
   const qrLoading = qrFetcher.state !== 'idle';
 
-  useEffect(() => {
-    const actionResult = qrFetcher.data;
-    if (!actionResult) return;
-
+  // A resposta da action chega pelo fetcher, um sistema externo ao componente.
+  const handleQrResult = useEffectEvent((actionResult: QrCodeEnterpriseActionResponse) => {
     if (actionResult.error) {
       setQrError(actionResult.error);
       toast.error('Erro na operação', actionResult.error);
@@ -48,7 +46,16 @@ export default function EditFeedbackGeneral() {
           : 'Coleta de feedback pausada',
       );
     }
-  }, [qrFetcher.data, toast]);
+  });
+
+  // Cada resposta é tratada uma vez só, mesmo que o fetcher a conserve.
+  const handledQrResultRef = useRef<QrCodeEnterpriseActionResponse | undefined>(undefined);
+  useEffect(() => {
+    const actionResult = qrFetcher.data;
+    if (!actionResult || handledQrResultRef.current === actionResult) return;
+    handledQrResultRef.current = actionResult;
+    handleQrResult(actionResult);
+  }, [qrFetcher.data]);
 
   const {
     feedbackUrl,

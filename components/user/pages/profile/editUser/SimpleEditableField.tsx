@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useEffectEvent } from 'react';
 import { useSubmit, useActionData } from 'react-router-dom';
 import { useToast } from 'components/public/forms/messages/useToast';
 import { FaCircleExclamation, FaFloppyDisk, FaPenToSquare, FaSpinner, FaXmark } from 'react-icons/fa6';
@@ -35,14 +35,14 @@ export default function SimpleEditableField({
   }
 
   // Sincronizar inputValue com prop value quando ela muda
-  useEffect(() => {
+  const [syncedValue, setSyncedValue] = useState(value);
+  if (syncedValue !== value) {
+    setSyncedValue(value);
     setInputValue(value || '');
-  }, [value]);
+  }
 
-  // Handle action response
-  useEffect(() => {
-    if (!actionData) return;
-
+  // A resposta da action chega pela navegação, um sistema externo ao componente.
+  const handleActionResult = useEffectEvent((actionData: ActionData) => {
     if (actionData.ok) {
       toast.success(successMessage);
       setIsEditing(false);
@@ -55,7 +55,15 @@ export default function SimpleEditableField({
       setError(actionData.message || 'Erro desconhecido');
       setIsSubmitting(false);
     }
-  }, [actionData, toast, successMessage, errorMessage, value]);
+  });
+
+  // Cada resposta é tratada uma vez só.
+  const handledActionDataRef = useRef<ActionData | undefined>(undefined);
+  useEffect(() => {
+    if (!actionData || handledActionDataRef.current === actionData) return;
+    handledActionDataRef.current = actionData;
+    handleActionResult(actionData);
+  }, [actionData]);
 
   // Trava o Salvar até o valor mudar (e enquanto envia). Reseta sozinho após salvar,
   // pois o inputValue volta a refletir `value`.

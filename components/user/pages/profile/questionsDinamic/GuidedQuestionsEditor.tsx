@@ -1,7 +1,7 @@
 import type { CompanyFeedbackQuestionInput } from 'lib/interfaces/entities/enterprise.entity';
 import type { QrcodeScopeType } from 'lib/interfaces/contracts/qrcode/scope.contract';
 import type { ActionData } from 'lib/interfaces/contracts/action-data.contract';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
 import { useFetcher } from 'react-router-dom';
 import { FaArrowLeft, FaArrowRight, FaCircleInfo, FaExpand, FaFloppyDisk, FaPlus, FaTrashCan } from 'react-icons/fa6';
 import { useToast } from 'components/public/forms/messages/useToast';
@@ -108,9 +108,8 @@ export default function GuidedQuestionsEditor({
   const { isDirty, markPristine } = useDirtyTracker(questions);
   const isSaving = fetcher.state !== 'idle';
 
-  useEffect(() => {
-    const data = fetcher.data as (ActionData & { error?: string }) | undefined;
-    if (!data) return;
+  // A resposta da action chega pelo fetcher, um sistema externo ao componente.
+  const handleSaveResult = useEffectEvent((data: ActionData & { error?: string }) => {
     if (data.ok) {
       markPristine();
       toast.success('Perguntas atualizadas!', data.message || 'As perguntas do feedback geral foram salvas.');
@@ -119,7 +118,16 @@ export default function GuidedQuestionsEditor({
     } else {
       toast.error('Não foi possível salvar', data.message || data.error || 'Tente novamente em instantes.');
     }
-  }, [fetcher.data, markPristine, toast]);
+  });
+
+  // Cada resposta é tratada uma vez só, mesmo que o fetcher a conserve.
+  const handledResultRef = useRef<unknown>(undefined);
+  useEffect(() => {
+    const data = fetcher.data as (ActionData & { error?: string }) | undefined;
+    if (!data || handledResultRef.current === data) return;
+    handledResultRef.current = data;
+    handleSaveResult(data);
+  }, [fetcher.data]);
 
   const reviewStep = questionCount + 1;
   const availableCounts = minQuestions === 0 ? [0, 1, 2, 3] : [1, 2, 3];

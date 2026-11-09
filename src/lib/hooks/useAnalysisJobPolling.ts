@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useLatestRef } from './useLatestRef';
 import {
   ServiceGetAnalysisJob,
   type IaAnalysisJob,
@@ -23,23 +24,25 @@ export function useAnalysisJobPolling({
   const [isPolling, setIsPolling] = useState(false);
   const [connectionError, setConnectionError] = useState(false);
 
-  const onCompletedRef = useRef(onCompleted);
-  onCompletedRef.current = onCompleted;
+  const onCompletedRef = useLatestRef(onCompleted);
+  const onFailedRef = useLatestRef(onFailed);
 
-  const onFailedRef = useRef(onFailed);
-  onFailedRef.current = onFailed;
+  // Um job novo (ou o fim do acompanhamento) começa sem o estado do anterior.
+  const pollingKey = jobId && enabled ? jobId : null;
+  const [trackedKey, setTrackedKey] = useState(pollingKey);
+  if (trackedKey !== pollingKey) {
+    setTrackedKey(pollingKey);
+    setJob(null);
+    setIsPolling(false);
+    setConnectionError(false);
+  }
 
   useEffect(() => {
-    if (!jobId || !enabled) {
-      setJob(null);
-      setIsPolling(false);
-      return;
-    }
+    if (!jobId || !enabled) return;
 
     let isMounted = true;
     let timerId: number | null = null;
     let failures = 0;
-    setConnectionError(false);
 
     const poll = async () => {
       setIsPolling(true);
@@ -88,7 +91,7 @@ export function useAnalysisJobPolling({
         window.clearTimeout(timerId);
       }
     };
-  }, [jobId, enabled, pollIntervalMs]);
+  }, [jobId, enabled, pollIntervalMs, onCompletedRef, onFailedRef]);
 
   return {
     job,

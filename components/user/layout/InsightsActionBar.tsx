@@ -46,12 +46,18 @@ export default function InsightsActionBar() {
   const [switchOpen, setSwitchOpen] = useState(false);
   const [slowAttempt, setSlowAttempt] = useState(0);
 
-  useEffect(() => {
+  // O aviso some quando o processamento termina.
+  const [wasProcessing, setWasProcessing] = useState(isProcessing);
+  if (wasProcessing !== isProcessing) {
+    setWasProcessing(isProcessing);
     if (!isProcessing) {
       setSlow(false);
       setSwitchOpen(false);
-      return;
     }
+  }
+
+  useEffect(() => {
+    if (!isProcessing) return;
     const timer = window.setTimeout(() => setSlow(true), IA_SLOW_AFTER_MS);
     return () => window.clearTimeout(timer);
   }, [isProcessing, slowAttempt]);

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
 import { Link, useFetcher, useLoaderData, useRouteLoaderData } from 'react-router-dom';
 import type { CatalogItem, CatalogItemInput, CollectingDataEnterprise } from 'lib/interfaces/entities/enterprise.entity';
 import type { ActionData } from 'lib/interfaces/contracts/action-data.contract';
@@ -61,9 +61,8 @@ export default function CatalogItemsList({ kindSlug }: CatalogItemsListProps) {
   const busy = fetcher.state !== 'idle';
   const hasActiveFilters = Boolean(search.trim()) || qrStatus !== 'ALL';
 
-  useEffect(() => {
-    const data = fetcher.data;
-    if (!data) return;
+  // A resposta da action chega pelo fetcher, um sistema externo ao componente.
+  const handleSaveResult = useEffectEvent((data: NonNullable<typeof fetcher.data>) => {
     if (data.ok) {
       toast.success('Catálogo atualizado!', data.message || 'Lista salva.');
       setDialogOpen(false);
@@ -72,7 +71,16 @@ export default function CatalogItemsList({ kindSlug }: CatalogItemsListProps) {
     } else {
       toast.error('Erro ao salvar', data.message || 'Tente novamente em instantes.');
     }
-  }, [fetcher.data, toast]);
+  });
+
+  // Cada resposta é tratada uma vez só, mesmo que o fetcher a conserve.
+  const handledResultRef = useRef<typeof fetcher.data>(undefined);
+  useEffect(() => {
+    const data = fetcher.data;
+    if (!data || handledResultRef.current === data) return;
+    handledResultRef.current = data;
+    handleSaveResult(data);
+  }, [fetcher.data]);
 
   const submitList = useCallback((nextItems: CatalogItemInput[]) => {
     fetcher.submit({ intent: config.saveIntent, catalog_items: JSON.stringify(nextItems) }, { method: 'post' });

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type {
   FeedbackAnalysisSummary,
   FeedbackInsightsReport,
@@ -8,8 +8,7 @@ import {
   ServiceGetFeedbackAnalysis,
   ServiceGetFeedbackInsightsReport,
 } from 'src/services/serviceFeedbacks';
-import { ALL_TIME_PERIOD, metricsPeriodParams } from 'src/lib/utils/metricsPeriod';
-import { useLatestRequest } from './useLatestRequest';
+import { ALL_TIME_PERIOD, metricsPeriodKey, metricsPeriodParams } from 'src/lib/utils/metricsPeriod';
 
 type UseScopedInsightsReportOptions = {
   /**
@@ -49,79 +48,69 @@ export function useScopedInsightsReport(
   // Sem a análise, o período não muda nada: não recarrega o relatório à toa.
   const analysisPeriod = withAnalysis ? period : ALL_TIME_PERIOD;
 
-  const wasAnalyzingRawRef = useRef(false);
-  const wasRegeneratingRef = useRef(false);
+  // Recarrega quando a análise bruta ou a geração de insights conclui (true -> false),
+  // ou quando a tela pede (`reload`).
+  const [refreshCount, setRefreshCount] = useState(0);
+  const [running, setRunning] = useState({ isAnalyzingRaw, isRegeneratingInsights });
+  if (running.isAnalyzingRaw !== isAnalyzingRaw || running.isRegeneratingInsights !== isRegeneratingInsights) {
+    const finished =
+      (running.isAnalyzingRaw && !isAnalyzingRaw) ||
+      (running.isRegeneratingInsights && !isRegeneratingInsights);
+    setRunning({ isAnalyzingRaw, isRegeneratingInsights });
+    if (finished) setRefreshCount((count) => count + 1);
+  }
+  const reload = useCallback(() => setRefreshCount((count) => count + 1), []);
 
-  const [report, setReport] = useState<FeedbackInsightsReport | null>(null);
-  const [summary, setSummary] = useState<FeedbackAnalysisSummary | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const startRequest = useLatestRequest();
+  const key = `${scope}:${catalogItemId}:${withAnalysis}:${metricsPeriodKey(analysisPeriod)}:${refreshCount}`;
+  // O relatório anterior continua na tela enquanto o novo carrega.
+  const [result, setResult] = useState<{
+    key: string;
+    report: FeedbackInsightsReport | null;
+    summary: FeedbackAnalysisSummary | null;
+    error: string | null;
+  }>({ key: '', report: null, summary: null, error: null });
 
-  const fetchReportData = useCallback(async () => {
-    const isLatest = startRequest();
-    setLoading(true);
-    setError(null);
-
-    const scopeParam = scope;
-    const catalogParam =
-      scopeParam !== 'COMPANY' ? catalogItemId || undefined : undefined;
-
-    try {
-      const [reportData, analysisData] = await Promise.all([
-        ServiceGetFeedbackInsightsReport({
-          scope_type: scopeParam,
-          catalog_item_id: catalogParam,
-        }).catch(() => null),
-        withAnalysis
-          ? ServiceGetFeedbackAnalysis({
-              scope_type: scopeParam,
-              catalog_item_id: catalogParam,
-              ...metricsPeriodParams(analysisPeriod),
-            }).catch(() => null)
-          : Promise.resolve(null),
-      ]);
-      if (!isLatest()) return;
-
-      setReport(reportData);
-      setSummary(analysisData?.summary ?? null);
-
-      if (reportData === null && (!withAnalysis || analysisData === null)) {
-        setError('Erro ao carregar relatório de insights');
-      }
-    } catch {
-      if (isLatest()) setError('Erro ao carregar relatório de insights');
-    } finally {
-      if (isLatest()) setLoading(false);
-    }
-  }, [scope, catalogItemId, withAnalysis, analysisPeriod, startRequest]);
-
-  // Recarrega ao montar e ao trocar escopo/item.
   useEffect(() => {
-    fetchReportData();
-  }, [fetchReportData]);
+    let cancelled = false;
+    const catalogParam = scope !== 'COMPANY' ? catalogItemId || undefined : undefined;
 
-  // Recarrega quando a análise bruta conclui (transição true -> false).
-  useEffect(() => {
-    if (isAnalyzingRaw) {
-      wasAnalyzingRawRef.current = true;
-      return;
-    }
-    if (!wasAnalyzingRawRef.current) return;
-    wasAnalyzingRawRef.current = false;
-    fetchReportData();
-  }, [isAnalyzingRaw, fetchReportData]);
+    Promise.all([
+      ServiceGetFeedbackInsightsReport({
+        scope_type: scope,
+        catalog_item_id: catalogParam,
+      }).catch(() => null),
+      withAnalysis
+        ? ServiceGetFeedbackAnalysis({
+            scope_type: scope,
+            catalog_item_id: catalogParam,
+            ...metricsPeriodParams(analysisPeriod),
+          }).catch(() => null)
+        : Promise.resolve(null),
+    ])
+      .then(([reportData, analysisData]) => {
+        if (cancelled) return;
+        const failed = reportData === null && (!withAnalysis || analysisData === null);
+        setResult({
+          key,
+          report: reportData,
+          summary: analysisData?.summary ?? null,
+          error: failed ? 'Erro ao carregar relatório de insights' : null,
+        });
+      })
+      .catch(() => {
+        if (!cancelled) setResult((previous) => ({ ...previous, key, error: 'Erro ao carregar relatório de insights' }));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [key, scope, catalogItemId, withAnalysis, analysisPeriod]);
 
-  // Recarrega quando a geração de insights conclui (transição true -> false).
-  useEffect(() => {
-    if (isRegeneratingInsights) {
-      wasRegeneratingRef.current = true;
-      return;
-    }
-    if (!wasRegeneratingRef.current) return;
-    wasRegeneratingRef.current = false;
-    fetchReportData();
-  }, [isRegeneratingInsights, fetchReportData]);
-
-  return { report, summary, loading, error, reload: fetchReportData };
+  const fresh = result.key === key;
+  return {
+    report: result.report,
+    summary: result.summary,
+    loading: !fresh,
+    error: fresh ? result.error : null,
+    reload,
+  };
 }

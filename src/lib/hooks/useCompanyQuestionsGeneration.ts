@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAnalysisJobPolling } from './useAnalysisJobPolling';
+import { useLatestRef } from './useLatestRef';
 import { getIaFailureNotice, type IaFailureNotice } from 'src/lib/utils/iaErrorMapper';
 import {
   ServiceGetLatestCompanyQuestionsJob,
@@ -62,12 +63,10 @@ export function useCompanyQuestionsGeneration({
   const [phase, setPhase] = useState<CompanyQuestionsGenerationPhase>('idle');
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [applied, setApplied] = useState(false);
-  const callbacks = useRef({ onCompleted, onFailed });
-  callbacks.current = { onCompleted, onFailed };
+  const callbacksRef = useLatestRef({ onCompleted, onFailed });
   // Job cujo fim o polling já acompanhou: uma leitura atrasada não o reabre.
   const finishedJobId = useRef<string | null>(null);
-  const jobIdRef = useRef(jobId);
-  jobIdRef.current = jobId;
+  const jobIdRef = useLatestRef(jobId);
 
   const follow = useCallback((job: CompanyQuestionsJob) => {
     if (job.id === finishedJobId.current) return;
@@ -125,8 +124,8 @@ export function useCompanyQuestionsGeneration({
     setJobId(null);
     setPhase('completed');
     setApplied(wasApplied);
-    callbacks.current.onCompleted(wasApplied);
-  }, []);
+    callbacksRef.current.onCompleted(wasApplied);
+  }, [callbacksRef]);
 
   const handleFailed = useCallback((code: string | null) => {
     finishedJobId.current = jobIdRef.current;
@@ -139,8 +138,8 @@ export function useCompanyQuestionsGeneration({
     setPhase('failed');
     setErrorCode(code);
     setApplied(false);
-    callbacks.current.onFailed(code);
-  }, []);
+    callbacksRef.current.onFailed(code);
+  }, [callbacksRef, jobIdRef]);
 
   useAnalysisJobPolling({
     jobId,
