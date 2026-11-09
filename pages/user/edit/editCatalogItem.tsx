@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import {
   Link,
   useFetcher,
@@ -95,10 +95,8 @@ function CatalogItemConfig() {
     }
   }, [dataFetcher.data, toast, markDataPristine]);
 
-  useEffect(() => {
-    if (qrFetcher.state !== "idle" || !qrFetcher.data) return;
-    const data = qrFetcher.data;
-
+  // A resposta da action chega pelo fetcher, um sistema externo ao componente.
+  const handleQrResult = useEffectEvent((data: NonNullable<typeof qrFetcher.data>) => {
     if (data.error) {
       toast.error("Erro na operação", data.error);
       return;
@@ -116,7 +114,16 @@ function CatalogItemConfig() {
           : "Coleta de feedback do item pausada.",
       );
     }
-  }, [qrFetcher.state, qrFetcher.data, toast]);
+  });
+
+  // Cada resposta é tratada uma vez só, mesmo que o fetcher a conserve.
+  const handledQrResultRef = useRef<typeof qrFetcher.data>(undefined);
+  useEffect(() => {
+    const data = qrFetcher.data;
+    if (qrFetcher.state !== "idle" || !data || handledQrResultRef.current === data) return;
+    handledQrResultRef.current = data;
+    handleQrResult(data);
+  }, [qrFetcher.state, qrFetcher.data]);
 
   const handleSaveData = useCallback(() => {
     if (!config || !item) return;

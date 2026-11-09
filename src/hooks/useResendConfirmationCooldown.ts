@@ -15,7 +15,8 @@ export function formatResendCountdown(totalSeconds: number): string {
 
 export function useResendConfirmationCooldown() {
   const [deadline, setDeadline] = useState<number | null>(null);
-  const [remainingSeconds, setRemainingSeconds] = useState(0);
+  // Relógio da contagem: anda a cada segundo enquanto há prazo.
+  const [now, setNow] = useState(() => Date.now());
 
   const startCooldown = useCallback((retryAfterSeconds: unknown) => {
     if (
@@ -26,32 +27,24 @@ export function useResendConfirmationCooldown() {
       return;
     }
 
-    setDeadline(Date.now() + retryAfterSeconds * 1000);
+    const startedAt = Date.now();
+    setNow(startedAt);
+    setDeadline(startedAt + retryAfterSeconds * 1000);
   }, []);
 
   useEffect(() => {
-    if (deadline === null) {
-      setRemainingSeconds(0);
-      return;
-    }
+    if (deadline === null) return;
 
-    const updateRemainingTime = () => {
-      const nextRemainingSeconds = Math.max(
-        0,
-        Math.ceil((deadline - Date.now()) / 1000),
-      );
-      setRemainingSeconds(nextRemainingSeconds);
-
-      if (nextRemainingSeconds === 0) {
-        setDeadline(null);
-      }
-    };
-
-    updateRemainingTime();
-    const intervalId = window.setInterval(updateRemainingTime, 1000);
+    const intervalId = window.setInterval(() => {
+      const currentTime = Date.now();
+      setNow(currentTime);
+      if (currentTime >= deadline) setDeadline(null);
+    }, 1000);
 
     return () => window.clearInterval(intervalId);
   }, [deadline]);
+
+  const remainingSeconds = deadline === null ? 0 : Math.max(0, Math.ceil((deadline - now) / 1000));
 
   return {
     remainingSeconds,

@@ -18,11 +18,15 @@ export default function TestFormDialog({ open, onOpenChange, feedbackUrl, onResu
   // O teste do dono conta como feedback, mas não aparece como canal de coleta.
   const testUrl = withChannel(feedbackUrl, 'TEST');
 
+  // Fechar descarta o resultado: a próxima abertura começa do formulário.
+  const [wasOpen, setWasOpen] = useState(open);
+  if (wasOpen !== open) {
+    setWasOpen(open);
+    if (!open) setResult(null);
+  }
+
   useEffect(() => {
-    if (!open) {
-      setResult(null);
-      return;
-    }
+    if (!open) return;
     const onMessage = (event: MessageEvent) => {
       const received = readEmbeddedFormResult(event, frameRef.current?.contentWindow);
       if (!received) return;

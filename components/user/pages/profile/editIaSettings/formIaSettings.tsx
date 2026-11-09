@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useEffectEvent, useRef } from 'react';
 import ConnectOpenRouterButton from 'components/user/shared/ConnectOpenRouterButton';
 import { useFetcher, useLoaderData, useRevalidator } from 'react-router-dom';
 import { useToast } from 'components/public/forms/messages/useToast';
@@ -43,34 +43,39 @@ export default function FormIaSettings() {
   const lastResult = useRef<IaSettingsActionResult | undefined>(undefined);
   const { catalog, loading, error: catalogError, reload: reloadModels } = useIaModels(iaConfig);
 
-  useEffect(() => {
-    setIaConfig(loaderData?.iaConfig ?? null);
+  // A configuração salva vem do loader; cada revalidação a substitui.
+  const loaderIaConfig = loaderData?.iaConfig ?? null;
+  const [syncedIaConfig, setSyncedIaConfig] = useState(loaderIaConfig);
+  if (syncedIaConfig !== loaderIaConfig) {
+    setSyncedIaConfig(loaderIaConfig);
+    setIaConfig(loaderIaConfig);
     setNeedsReload(false);
-  }, [loaderData?.iaConfig]);
+  }
 
   // Revalidação de uma config idêntica não deve apagar a tentativa que falhou.
-  useEffect(() => {
+  const configIdentity = `${iaConfig?.hasKey}:${iaConfig?.model}:${iaConfig?.keyHint}:${iaConfig?.provider}`;
+  const [shownConfigIdentity, setShownConfigIdentity] = useState(configIdentity);
+  if (shownConfigIdentity !== configIdentity) {
+    setShownConfigIdentity(configIdentity);
     setModelOption(null);
     setApiKey('');
     setShowKey(false);
-  }, [iaConfig?.hasKey, iaConfig?.model, iaConfig?.keyHint, iaConfig?.provider]);
+  }
 
   const isSubmitting = fetcher.state !== 'idle';
   const isBusy = isSubmitting || revalidator.state !== 'idle';
 
-  useEffect(() => {
-    if (!fetcher.data || lastResult.current === fetcher.data) return;
-    lastResult.current = fetcher.data;
-
-    if (fetcher.data.ok && fetcher.data.iaConfig) {
-      const updatedConfig = fetcher.data.iaConfig;
+  // A resposta da action chega pelo fetcher, um sistema externo ao componente.
+  const handleSaveResult = useEffectEvent((data: IaSettingsActionResult) => {
+    if (data.ok && data.iaConfig) {
+      const updatedConfig = data.iaConfig;
       setIaConfig(updatedConfig);
       setApiKey('');
       setShowKey(false);
       setModelOption(null);
       setNeedsReload(false);
 
-      if (fetcher.data.operation === 'model') {
+      if (data.operation === 'model') {
         toast.success('Modelo de IA atualizado!', 'A chave OpenRouter foi mantida sem alterações.');
       } else if (updatedConfig.hasKey) {
         toast.success(
@@ -83,14 +88,20 @@ export default function FormIaSettings() {
           'As análises ficarão indisponíveis até uma nova chave OpenRouter ser configurada.',
         );
       }
-    } else if (fetcher.data.ok === false) {
-      if (['ia_config_changed', 'ia_config_required'].includes(fetcher.data.error || '')) setNeedsReload(true);
+    } else if (data.ok === false) {
+      if (['ia_config_changed', 'ia_config_required'].includes(data.error || '')) setNeedsReload(true);
       toast.error(
         'Erro na configuração de IA',
-        fetcher.data.message || 'Não foi possível atualizar a configuração de IA.',
+        data.message || 'Não foi possível atualizar a configuração de IA.',
       );
     }
-  }, [fetcher.data, toast]);
+  });
+
+  useEffect(() => {
+    if (!fetcher.data || lastResult.current === fetcher.data) return;
+    lastResult.current = fetcher.data;
+    handleSaveResult(fetcher.data);
+  }, [fetcher.data]);
 
   const activeModel = iaConfig?.hasKey ? iaConfig.model || 'openrouter/auto' : null;
   const effectiveModel = modelOption ?? activeModel ?? catalog?.models.find((model) =>
