@@ -24,13 +24,15 @@ export function saveOnboardingDraft(sessionKey: string | null, values: Onboardin
   }
 }
 
-/** Lê e apaga o rascunho; `null` sem rascunho, de outro usuário ou vencido. */
-export function takeOnboardingDraft(sessionKey: string | null, now = Date.now()): OnboardingDraftValues | null {
+/**
+ * Lê o rascunho sem apagar, para poder ser chamado no render; `null` sem
+ * rascunho, de outro usuário ou vencido. Depois de usar, chame `clearOnboardingDraft`.
+ */
+export function readOnboardingDraft(sessionKey: string | null, now = Date.now()): OnboardingDraftValues | null {
   if (!sessionKey) return null;
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    sessionStorage.removeItem(STORAGE_KEY);
     const draft = JSON.parse(raw) as StoredDraft;
     if (draft.sessionKey !== sessionKey || now - Number(draft.savedAt) > MAX_AGE_MS) return null;
     const { business_summary, company_objective, analytics_goal } = draft.values ?? {};
@@ -38,5 +40,14 @@ export function takeOnboardingDraft(sessionKey: string | null, now = Date.now())
     return { business_summary, company_objective, analytics_goal };
   } catch {
     return null;
+  }
+}
+
+/** Apaga o rascunho: ele é de uso único, valha ou não para a sessão atual. */
+export function clearOnboardingDraft(): void {
+  try {
+    sessionStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // Sem storage, não há rascunho guardado.
   }
 }

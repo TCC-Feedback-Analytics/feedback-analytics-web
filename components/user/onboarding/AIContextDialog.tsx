@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from "react";
 import { useFetcher, useRouteLoaderData } from "react-router-dom";
 import type { CollectingDataEnterprise } from "lib/interfaces/entities/enterprise.entity";
 import type { ActionData } from "lib/interfaces/contracts/action-data.contract";
@@ -13,7 +13,7 @@ import { isFreeIaModel } from "src/lib/utils/isFreeIaModel";
 import { filterIaModelsByPrice, startsWithFreeModelsOnly } from "src/lib/utils/iaModelPriceFilter";
 import HelpHint from "components/user/shared/HelpHint";
 import ConnectOpenRouterButton from "components/user/shared/ConnectOpenRouterButton";
-import { saveOnboardingDraft, takeOnboardingDraft } from "src/lib/utils/onboardingDraft";
+import { clearOnboardingDraft, readOnboardingDraft, saveOnboardingDraft } from "src/lib/utils/onboardingDraft";
 import {
   FaWandMagicSparkles,
   FaCheck,
@@ -122,14 +122,15 @@ export default function AIContextDialog({
   const collectingFetcher = useFetcher<ActionData>();
   const iaFetcher = useFetcher<IaSettingsActionResult>();
   const toast = useToast();
-  const [values, setValues] = useState(() => getContextValues(collecting));
+  // Voltando do OpenRouter: o contexto digitado antes de sair volta, já na etapa da IA.
+  const [values, setValues] = useState(() => readOnboardingDraft(sessionKey) ?? getContextValues(collecting));
   const [iaConfig, setIaConfig] = useState<IaConfigResponse | null>(routeData?.iaConfig ?? null);
   const [apiKey, setApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
   const [selectedModelId, setSelectedModelId] = useState("");
   // Começa só com os gratuitos; o usuário pode pedir para ver também os pagos.
   const [showPaidModels, setShowPaidModels] = useState(() => !startsWithFreeModelsOnly(routeData?.iaConfig));
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(() => (readOnboardingDraft(sessionKey) ? LLM_STEP_INDEX : 0));
   const dialogContentRef = useRef<HTMLDivElement>(null);
   const serverValuesRef = useRef(getContextValues(collecting));
   const lastCollectingResult = useRef<ActionData | undefined>(undefined);
@@ -149,31 +150,37 @@ export default function AIContextDialog({
     }
   }, [open, step]);
 
-  // O layout permanece montado durante a troca de sessão. Limpar aqui evita
-  // que outro usuário veja, ainda que por um render, a etapa ou a chave da
+  // O layout permanece montado durante a troca de sessão. Zerar ainda no render
+  // evita que outro usuário veja, mesmo por um instante, a etapa ou a chave da
   // sessão anterior.
-  useLayoutEffect(() => {
-    const nextValues = getContextValues(collecting);
-    serverValuesRef.current = nextValues;
-    setValues(nextValues);
+  const [shownSessionKey, setShownSessionKey] = useState(sessionKey);
+  if (shownSessionKey !== sessionKey) {
+    setShownSessionKey(sessionKey);
+    const draft = readOnboardingDraft(sessionKey);
+    setValues(draft ?? getContextValues(collecting));
     setIaConfig(routeData?.iaConfig ?? null);
     setApiKey("");
     setShowApiKey(false);
     setSelectedModelId("");
     setShowPaidModels(!startsWithFreeModelsOnly(routeData?.iaConfig));
-    setStep(0);
-    // Voltando do OpenRouter: o contexto digitado antes de sair volta, já na etapa da IA.
-    const draft = takeOnboardingDraft(sessionKey);
-    if (draft) {
-      setValues(draft);
-      setStep(LLM_STEP_INDEX);
-    }
+    setStep(draft ? LLM_STEP_INDEX : 0);
+  }
+
+  // Os envios em andamento valem só para a sessão em que começaram. Lê os dados
+  // atuais dos fetchers, que não devem refazer a limpeza quando mudam.
+  const resetSubmissionsForSession = useEffectEvent(() => {
+    serverValuesRef.current = getContextValues(collecting);
     contextSubmitPendingRef.current = false;
     iaSubmitPendingRef.current = false;
     allowCloseRef.current = false;
     lastCollectingResult.current = collectingFetcher.data;
     lastIaResult.current = iaFetcher.data;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  });
+
+  useLayoutEffect(() => {
+    // O rascunho é de uso único: já entrou no estado, no render.
+    clearOnboardingDraft();
+    resetSubmissionsForSession();
   }, [sessionKey]);
 
   const isSaving = collectingFetcher.state !== "idle" || iaFetcher.state !== "idle";
@@ -239,9 +246,13 @@ export default function AIContextDialog({
     });
   }, [collecting]);
 
-  useEffect(() => {
-    setIaConfig(routeData?.iaConfig ?? null);
-  }, [routeData?.iaConfig]);
+  // A configuração salva vem do loader; cada revalidação a substitui.
+  const loaderIaConfig = routeData?.iaConfig ?? null;
+  const [syncedIaConfig, setSyncedIaConfig] = useState(loaderIaConfig);
+  if (syncedIaConfig !== loaderIaConfig) {
+    setSyncedIaConfig(loaderIaConfig);
+    setIaConfig(loaderIaConfig);
+  }
 
   const setValue = (key: keyof typeof values, value: string) =>
     setValues((previous) => ({ ...previous, [key]: value }));
@@ -298,11 +309,8 @@ export default function AIContextDialog({
     toast.error("Erro ao salvar informações", data.message || "Tente novamente em instantes.");
   }, [collectingFetcher.data, requestClose, toast, onSetupSaved, iaConfig]);
 
-  useEffect(() => {
-    const data = iaFetcher.data;
-    if (!data || lastIaResult.current === data) return;
-    lastIaResult.current = data;
-
+  // A resposta da action chega pelo fetcher, um sistema externo ao componente.
+  const handleIaResult = useEffectEvent((data: IaSettingsActionResult) => {
     const wasExplicitlySubmitted = iaSubmitPendingRef.current;
     iaSubmitPendingRef.current = false;
 
@@ -322,7 +330,14 @@ export default function AIContextDialog({
     setSelectedModelId("");
     toast.success("IA configurada!", "Agora complete o contexto da sua empresa.");
     submitContext();
-  }, [iaFetcher.data, submitContext, toast]);
+  });
+
+  useEffect(() => {
+    const data = iaFetcher.data;
+    if (!data || lastIaResult.current === data) return;
+    lastIaResult.current = data;
+    handleIaResult(data);
+  }, [iaFetcher.data]);
 
   if (!open) return null;
 
