@@ -50,26 +50,29 @@ export default function CommentFieldSettings({ scopeType, catalogItemId, ofTarge
   const sectionRef = useRef<HTMLElement>(null);
   const [saved, setSaved] = useState<CommentFieldValue>(DEFAULT_COMMENT_FIELD);
   const [draft, setDraft] = useState<CommentFieldValue>(DEFAULT_COMMENT_FIELD);
-  const [loading, setLoading] = useState(true);
-  const [loadFailed, setLoadFailed] = useState(false);
+  // A leitura guarda o escopo a que pertence: enquanto não é a do escopo atual, carrega.
+  const loadKey = `${scopeType}:${catalogItemId}`;
+  const [loadResult, setLoadResult] = useState<{ key: string; failed: boolean } | null>(null);
+  const loading = loadResult?.key !== loadKey;
+  const loadFailed = !loading && loadResult.failed;
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
-    setLoadFailed(false);
     ServiceGetCommentField({ scopeType, catalogItemId })
       .then((settings) => {
         if (!active) return;
         setSaved(settings);
         setDraft(settings);
+        setLoadResult({ key: loadKey, failed: false });
       })
-      .catch(() => active && setLoadFailed(true))
-      .finally(() => active && setLoading(false));
+      .catch(() => {
+        if (active) setLoadResult({ key: loadKey, failed: true });
+      });
     return () => {
       active = false;
     };
-  }, [scopeType, catalogItemId]);
+  }, [scopeType, catalogItemId, loadKey]);
 
   // Chegou pelo aviso "Configurar o comentário": rola até o cartão.
   useEffect(() => {

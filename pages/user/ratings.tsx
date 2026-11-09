@@ -7,7 +7,7 @@ import SectionPeakTimes from 'components/user/pages/dashboard/SectionPeakTimes';
 import SectionReturningCustomers from 'components/user/pages/dashboard/SectionReturningCustomers';
 import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { ServiceGetFeedbackStats } from 'src/services/serviceFeedbacks';
-import { metricsPeriodParams } from 'src/lib/utils/metricsPeriod';
+import { metricsPeriodKey, metricsPeriodParams } from 'src/lib/utils/metricsPeriod';
 import { usePreviousPeriodStats } from 'src/lib/hooks/usePreviousPeriod';
 import type { FeedbackStats } from 'lib/interfaces/domain/feedback.domain';
 
@@ -19,36 +19,34 @@ import type { FeedbackStats } from 'lib/interfaces/domain/feedback.domain';
  */
 export default function Ratings() {
   const { scope, catalogItemId, period } = useInsightsControls();
-  const [stats, setStats] = useState<FeedbackStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
+  const key = `${scope}:${catalogItemId}:${metricsPeriodKey(period)}`;
+  // A última resposta continua na tela até chegar a do recorte atual.
+  const [result, setResult] = useState<{ key: string; stats: FeedbackStats | null; failed: boolean }>({
+    key: '',
+    stats: null,
+    failed: false,
+  });
+  const { stats, failed } = result;
+  const loading = result.key !== key;
   const previous = usePreviousPeriodStats();
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
     ServiceGetFeedbackStats({
       scope_type: scope,
       catalog_item_id: scope !== 'COMPANY' ? catalogItemId || undefined : undefined,
       ...metricsPeriodParams(period),
     })
       .then((data) => {
-        if (cancelled) return;
-        setStats(data);
-        setFailed(false);
+        if (!cancelled) setResult({ key, stats: data, failed: false });
       })
       .catch(() => {
-        if (cancelled) return;
-        setStats(null);
-        setFailed(true);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setResult({ key, stats: null, failed: true });
       });
     return () => {
       cancelled = true;
     };
-  }, [scope, catalogItemId, period]);
+  }, [key, scope, catalogItemId, period]);
 
   return (
     // Alvo do passo "Todas as métricas de estrelas" do guia.

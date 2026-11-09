@@ -24,27 +24,28 @@ export function useFormQuestionsConfig(): FormQuestionsConfigState {
   const { scope, catalogItemId } = useInsightsControls();
   const routeData = useRouteLoaderData('user') as { collecting?: CollectingDataEnterprise | null } | undefined;
   const companyQuestions = routeData?.collecting?.company_feedback_questions;
-  const [itemState, setItemState] = useState<FormQuestionsConfigState>({ status: 'loading', questions: [] });
+  const itemKey = `${scope}:${catalogItemId}`;
+  // A resposta guarda o item a que pertence: enquanto não é a do item atual, carrega.
+  const [itemResult, setItemResult] = useState<{ key: string; state: FormQuestionsConfigState } | null>(null);
 
   useEffect(() => {
     if (scope === 'COMPANY' || !catalogItemId) return;
     let cancelled = false;
-    setItemState({ status: 'loading', questions: [] });
     ServiceGetQrCatalogStatus(scope)
       .then(({ items }) => {
         if (cancelled) return;
         const item = items.find((candidate) => candidate.catalog_item_id === catalogItemId);
-        setItemState({ status: 'ready', questions: activeFormQuestions(item?.questions) });
+        setItemResult({ key: itemKey, state: { status: 'ready', questions: activeFormQuestions(item?.questions) } });
       })
       .catch(() => {
-        if (!cancelled) setItemState({ status: 'error', questions: [] });
+        if (!cancelled) setItemResult({ key: itemKey, state: { status: 'error', questions: [] } });
       });
     return () => {
       cancelled = true;
     };
-  }, [scope, catalogItemId]);
+  }, [scope, catalogItemId, itemKey]);
 
   if (scope === 'COMPANY') return { status: 'ready', questions: activeFormQuestions(companyQuestions) };
   if (!catalogItemId) return { status: 'pick-item', questions: [] };
-  return itemState;
+  return itemResult?.key === itemKey ? itemResult.state : { status: 'loading', questions: [] };
 }
