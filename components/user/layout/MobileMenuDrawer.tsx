@@ -32,15 +32,21 @@ export default function MobileMenuDrawer({
   const [rendered, setRendered] = useState(isOpen);
   const [visible, setVisible] = useState(false);
 
+  // Abrir monta a gaveta antes da animação; fechar começa a animação de saída.
+  const [wasOpen, setWasOpen] = useState(isOpen);
+  if (wasOpen !== isOpen) {
+    setWasOpen(isOpen);
+    if (isOpen) setRendered(true);
+    else setVisible(false);
+  }
+
   useEffect(() => {
     if (isOpen) {
-      setRendered(true);
       const timer = setTimeout(() => {
         setVisible(true);
       }, 20);
       return () => clearTimeout(timer);
     } else {
-      setVisible(false);
       const timer = setTimeout(() => {
         setRendered(false);
       }, 300);

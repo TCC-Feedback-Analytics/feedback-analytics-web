@@ -50,9 +50,15 @@ function UserOnboardingManager({
   const [setupOpen, setSetupOpen] = useState(false);
   const arrivedAtIaSettings = useRef(false);
 
-  useEffect(() => {
+  const [hadCompletedAIContext, setHadCompletedAIContext] = useState(hasCompletedAIContext);
+  if (hadCompletedAIContext !== hasCompletedAIContext) {
+    setHadCompletedAIContext(hasCompletedAIContext);
     setMandatoryOpen(!hasCompletedAIContext);
-    // O tour só começa depois da tela de configuração inicial.
+  }
+
+  // O tour só começa depois da tela de configuração inicial. O estado é do
+  // provider de onboarding, então a marcação fica num efeito.
+  useEffect(() => {
     if (!hasCompletedAIContext) setInitialSetupRunning(true);
   }, [hasCompletedAIContext, setInitialSetupRunning]);
 

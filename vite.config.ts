@@ -21,27 +21,27 @@ const gitVersion = getGitVersionTag();
 
 // https://vite.dev/config/
 export default defineConfig({
-  root: __dirname,
+  root: import.meta.dirname,
   plugins: [react(), tailwindcss()],
   define: {
     __APP_VERSION__: JSON.stringify(gitVersion),
   },
   build: {
-    outDir: path.resolve(__dirname, './dist'),
+    outDir: path.resolve(import.meta.dirname, './dist'),
     emptyOutDir: true,
   },
   resolve: {
     alias: {
       // Os schemas do @feedback/lib-shared (alias `lib`) importam o zod: força o da Web.
-      zod: path.resolve(__dirname, './node_modules/zod'),
-      src: path.resolve(__dirname, './src'),
-      layouts: path.resolve(__dirname, './layouts'),
-      pages: path.resolve(__dirname, './pages'),
-      'lib/utils': path.resolve(__dirname, './src/lib/utils'),
-      'lib/constants': path.resolve(__dirname, './src/lib/constants'),
-      lib: path.resolve(__dirname, './node_modules/@feedback/lib-shared/dist'),
-      components: path.resolve(__dirname, './components'),
-      styles: path.resolve(__dirname, './styles'),
+      zod: path.resolve(import.meta.dirname, './node_modules/zod'),
+      src: path.resolve(import.meta.dirname, './src'),
+      layouts: path.resolve(import.meta.dirname, './layouts'),
+      pages: path.resolve(import.meta.dirname, './pages'),
+      'lib/utils': path.resolve(import.meta.dirname, './src/lib/utils'),
+      'lib/constants': path.resolve(import.meta.dirname, './src/lib/constants'),
+      lib: path.resolve(import.meta.dirname, './node_modules/@feedback/lib-shared/dist'),
+      components: path.resolve(import.meta.dirname, './components'),
+      styles: path.resolve(import.meta.dirname, './styles'),
     },
   },
   server: {
@@ -56,7 +56,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: [path.resolve(__dirname, './tests/setup.ts')],
+    setupFiles: [path.resolve(import.meta.dirname, './tests/setup.ts')],
     exclude: ['**/node_modules/**', '**/dist/**', '**/tests/setup.ts'],
     coverage: {
       provider: 'v8',

@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useEffectEvent, useRef, useState } from 'react';
 import { useFetcher } from 'react-router-dom';
 import { useAnalysisJobPolling } from './useAnalysisJobPolling';
+import { useLatestRef } from './useLatestRef';
 import { getIaErrorMessage } from 'src/lib/utils/iaErrorMapper';
 import type { IaOperationStatus } from 'src/lib/context/insightsControls.types';
 import { ServiceGetActiveAnalysisJobs, type IaAnalysisJob } from 'src/services/serviceFeedbacks';
@@ -30,8 +31,7 @@ export function useIaOperation({ kind, onSuccess, onError, enterpriseId }: {
   const activeRef = useRef(Boolean(jobId));
   const requestDetails = useRef<Pick<IaAnalysisJob, 'scopeType' | 'catalogItemId' | 'phase'>>({ scopeType: 'COMPANY', catalogItemId: null });
   const awaitingResponse = useRef(false);
-  const callbacks = useRef({ onSuccess, onError });
-  callbacks.current = { onSuccess, onError };
+  const callbacksRef = useLatestRef({ onSuccess, onError });
 
   const remember = useCallback((id: string | null) => {
     try {
@@ -73,16 +73,16 @@ export function useIaOperation({ kind, onSuccess, onError, enterpriseId }: {
     remember(null);
     setError(message);
     setStatus('failed');
-    callbacks.current.onError(message, errorCode);
-  }, [remember]);
+    callbacksRef.current.onError(message, errorCode);
+  }, [remember, callbacksRef]);
 
   const succeed = useCallback((result: Result) => {
     activeRef.current = false;
     setJobId(null);
     remember(null);
     setStatus('succeeded');
-    callbacks.current.onSuccess(result);
-  }, [remember]);
+    callbacksRef.current.onSuccess(result);
+  }, [remember, callbacksRef]);
 
   const polling = useAnalysisJobPolling({
     jobId,
@@ -97,10 +97,9 @@ export function useIaOperation({ kind, onSuccess, onError, enterpriseId }: {
     onFailed: (code) => fail(getIaErrorMessage(code), code),
   });
 
-  useEffect(() => {
-    if (fetcher.state !== 'idle' || !awaitingResponse.current) return;
-    awaitingResponse.current = false;
-    const data = fetcher.data as Response | undefined;
+  // A resposta da action chega pelo fetcher, um sistema externo ao componente:
+  // o tratamento é um evento do efeito, não um estado derivado do render.
+  const handleActionResponse = useEffectEvent((data: Response | undefined) => {
     if (!data?.ok) {
       fail(data?.error || 'Não foi possível concluir o processamento de IA. Tente novamente.', data?.errorCode ?? null);
     } else if (data.jobId) {
@@ -114,7 +113,13 @@ export function useIaOperation({ kind, onSuccess, onError, enterpriseId }: {
         ? 'Nenhum resumo foi gerado. Verifique se há feedbacks analisados suficientes e tente novamente.'
         : 'A análise não confirmou sua conclusão. Tente novamente.');
     }
-  }, [fetcher.state, fetcher.data, kind, fail, remember]);
+  });
+
+  useEffect(() => {
+    if (fetcher.state !== 'idle' || !awaitingResponse.current) return;
+    awaitingResponse.current = false;
+    handleActionResponse(fetcher.data as Response | undefined);
+  }, [fetcher.state, fetcher.data]);
 
   const submit = useCallback((form: FormData) => {
     if (activeRef.current) return;

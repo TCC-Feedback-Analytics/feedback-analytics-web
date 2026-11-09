@@ -137,7 +137,8 @@ export default function UserInteractiveTour({
   }, [isTourActive, targetSelector]);
 
   useEffect(() => {
-    updateSpotlight();
+    // A medida do alvo vem do DOM: a primeira sai no próximo quadro, já com o layout pronto.
+    const frameId = window.requestAnimationFrame(updateSpotlight);
     const timer = setTimeout(updateSpotlight, 200);
     const interval = setInterval(updateSpotlight, 800);
     const visualViewport = window.visualViewport;
@@ -147,6 +148,7 @@ export default function UserInteractiveTour({
     visualViewport?.addEventListener("scroll", updateSpotlight);
 
     return () => {
+      window.cancelAnimationFrame(frameId);
       clearTimeout(timer);
       clearInterval(interval);
       window.removeEventListener("resize", updateSpotlight);

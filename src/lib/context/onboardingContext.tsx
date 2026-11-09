@@ -49,35 +49,28 @@ export function OnboardingProvider({ children, collecting, iaConfig = null, sess
   const [isInitialSetupRunning, setInitialSetupRunning] = useState(false);
   const [isTourDeferred, setTourDeferred] = useState(false);
   const requestEpoch = useRef(0);
-  const setupSessionKey = useRef(sessionKey);
-  const currentSessionKey = useRef(sessionKey);
-  const sessionChanged = currentSessionKey.current !== sessionKey;
+  const [loadedSessionKey, setLoadedSessionKey] = useState(sessionKey);
 
-  if (sessionChanged) {
-    currentSessionKey.current = sessionKey;
-    // Invalida imediatamente respostas pendentes antes mesmo do efeito de limpeza.
-    requestEpoch.current += 1;
-  }
-
-  // A sessão pode mudar sem desmontar o layout. Cada troca invalida estado e
-  // respostas anteriores para que um usuário nunca herde o tour de outro.
-  useEffect(() => {
-    const controller = new AbortController();
-    const epoch = ++requestEpoch.current;
-
+  // A sessão pode mudar sem desmontar o layout. A troca zera o estado ainda no
+  // render, antes de os filhos verem o tour do usuário anterior. Na montagem nada
+  // é zerado: o onboarding já pode ter marcado a configuração inicial.
+  if (loadedSessionKey !== sessionKey) {
+    setLoadedSessionKey(sessionKey);
     setIsTourActive(false);
     setCurrentTourStep(0);
     setGuide(null);
     setGuideLoaded(false);
     setIsTourSaving(false);
     setTourSaveError(null);
-    // Os efeitos dos filhos rodam antes deste: na montagem o onboarding já pode
-    // ter marcado a configuração inicial. Só uma troca real de sessão a desfaz.
-    if (setupSessionKey.current !== sessionKey) {
-      setupSessionKey.current = sessionKey;
-      setInitialSetupRunning(false);
-      setTourDeferred(false);
-    }
+    setInitialSetupRunning(false);
+    setTourDeferred(false);
+  }
+
+  // Cada sessão invalida as respostas da anterior, para que um usuário nunca
+  // herde o tour de outro.
+  useEffect(() => {
+    const controller = new AbortController();
+    const epoch = ++requestEpoch.current;
 
     void ServiceGetSystemGuide(controller.signal)
       .then((response) => {
@@ -161,18 +154,18 @@ export function OnboardingProvider({ children, collecting, iaConfig = null, sess
   return (
     <OnboardingContext.Provider
       value={{
-        isTourActive: sessionChanged ? false : isTourActive,
+        isTourActive,
         currentTourStep,
-        isTourSaving: sessionChanged ? false : isTourSaving,
+        isTourSaving,
         hasCompletedAIContext,
         hasConfiguredAI,
         hasCompletedAISetup,
-        isTourDismissed: !sessionChanged && guide ? guide.status !== "pending" : false,
-        isGuidePending: sessionChanged ? false : isGuidePending,
-        tourSaveError: sessionChanged ? null : tourSaveError,
-        isInitialSetupRunning: sessionChanged ? false : isInitialSetupRunning,
+        isTourDismissed: guide ? guide.status !== "pending" : false,
+        isGuidePending,
+        tourSaveError,
+        isInitialSetupRunning,
         setInitialSetupRunning,
-        isTourDeferred: sessionChanged ? false : isTourDeferred,
+        isTourDeferred,
         setTourDeferred,
         startTour,
         completeTour,

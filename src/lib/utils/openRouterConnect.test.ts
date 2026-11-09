@@ -6,7 +6,7 @@ import {
   prepareOpenRouterConnect,
   takePendingOpenRouterConnect,
 } from './openRouterConnect';
-import { saveOnboardingDraft, takeOnboardingDraft } from './onboardingDraft';
+import { clearOnboardingDraft, readOnboardingDraft, saveOnboardingDraft } from './onboardingDraft';
 
 const base64Url = (buffer: Buffer) => buffer.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 
@@ -42,16 +42,17 @@ describe('Conectar com OpenRouter (PKCE)', () => {
 describe('rascunho da configuração inicial', () => {
   const values = { business_summary: 'Padaria', company_objective: 'Crescer', analytics_goal: 'Entender' };
 
-  it('volta para o mesmo usuário, uma vez só', () => {
+  it('volta para o mesmo usuário até ser apagado', () => {
     saveOnboardingDraft('user-1', values);
-    expect(takeOnboardingDraft('user-1')).toEqual(values);
-    expect(takeOnboardingDraft('user-1')).toBeNull();
+    expect(readOnboardingDraft('user-1')).toEqual(values);
+    expect(readOnboardingDraft('user-1')).toEqual(values);
+    clearOnboardingDraft();
+    expect(readOnboardingDraft('user-1')).toBeNull();
   });
 
   it('não vale para outro usuário nem depois de 30 minutos', () => {
     saveOnboardingDraft('user-1', values);
-    expect(takeOnboardingDraft('user-2')).toBeNull();
-    saveOnboardingDraft('user-1', values);
-    expect(takeOnboardingDraft('user-1', Date.now() + 31 * 60_000)).toBeNull();
+    expect(readOnboardingDraft('user-2')).toBeNull();
+    expect(readOnboardingDraft('user-1', Date.now() + 31 * 60_000)).toBeNull();
   });
 });

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useEffectEvent, useRef } from 'react';
 import { useSubmit, useActionData } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,7 +16,8 @@ import type { PhoneEditableFieldProps } from './ui.types';
 export default function PhoneEditableField({ currentPhone, className = '' }: PhoneEditableFieldProps) {
   const [mode, setMode] = useState<'view' | 'edit'>('view');
   const [isSaving, setIsSaving] = useState(false);
-  const [actionDataAtSubmit, setActionDataAtSubmit] = useState<ActionData | undefined>(undefined);
+  // Resposta que já existia ao salvar: só uma resposta nova encerra o envio.
+  const pendingSubmitRef = useRef<{ actionDataAtSubmit: ActionData | undefined } | null>(null);
 
   // Garantir que currentPhone nunca seja undefined
   const safeCurrentPhone = currentPhone || '';
@@ -30,20 +31,23 @@ export default function PhoneEditableField({ currentPhone, className = '' }: Pho
     defaultValues: { phone: safeCurrentPhone },
   });
 
-  useEffect(() => {
-    if (!isSaving) return;
-    if (!actionData) return;
-    if (actionData === actionDataAtSubmit) return;
-
-    if (actionData.ok) {
+  // A resposta da action chega pela navegação, um sistema externo ao componente.
+  const handleSaveResult = useEffectEvent((data: ActionData) => {
+    if (data.ok) {
       toast.success('Telefone atualizado!', 'Alterações salvas com sucesso');
       setMode('view');
     } else {
-      toast.error('Erro ao atualizar telefone', actionData.message || 'Tente novamente');
+      toast.error('Erro ao atualizar telefone', data.message || 'Tente novamente');
     }
     setIsSaving(false);
-    setActionDataAtSubmit(undefined);
-  }, [actionData, actionDataAtSubmit, toast, isSaving]);
+  });
+
+  useEffect(() => {
+    const pending = pendingSubmitRef.current;
+    if (!pending || !actionData || actionData === pending.actionDataAtSubmit) return;
+    pendingSubmitRef.current = null;
+    handleSaveResult(actionData);
+  }, [actionData]);
 
   const handleEdit = () => {
     setMode('edit');
@@ -52,12 +56,12 @@ export default function PhoneEditableField({ currentPhone, className = '' }: Pho
   const handleCancel = () => {
     phoneForm.reset({ phone: safeCurrentPhone });
     setIsSaving(false);
-    setActionDataAtSubmit(undefined);
+    pendingSubmitRef.current = null;
     setMode('view');
   };
 
   const handlePhoneSubmit = (data: { phone: string }) => {
-    setActionDataAtSubmit(actionData);
+    pendingSubmitRef.current = { actionDataAtSubmit: actionData };
     setIsSaving(true);
     const fd = new FormData();
     fd.set('intent', INTENT_PROFILE_START_PHONE);
@@ -100,7 +104,7 @@ export default function PhoneEditableField({ currentPhone, className = '' }: Pho
   // Modo de edição (alterar número)
   return (
     <div className={`bg-(--bg-secondary) border-2 border-(--primary-color) rounded-lg p-4 shadow-lg transition-all ${className}`}>
-      <form onSubmit={phoneForm.handleSubmit(handlePhoneSubmit)} className="space-y-3">
+      <form onSubmit={(event) => phoneForm.handleSubmit(handlePhoneSubmit)(event)} className="space-y-3">
         <div>
           <label className="block text-sm font-medium text-(--text-primary) mb-2">
             Novo número de telefone

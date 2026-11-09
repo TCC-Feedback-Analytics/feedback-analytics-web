@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useEffectEvent, useRef, useState } from 'react';
 import {
   Link,
   useLoaderData,
@@ -49,7 +49,7 @@ import {
   COMMENTS_SUMMARY_SOURCE,
   COMMENTS_SUMMARY_TITLE,
 } from 'src/lib/constants/commentsSummary';
-import { hasMetricsPeriod, metricsPeriodParams } from 'src/lib/utils/metricsPeriod';
+import { hasMetricsPeriod, metricsPeriodKey, metricsPeriodParams } from 'src/lib/utils/metricsPeriod';
 import { activeFormQuestions } from 'src/lib/utils/formQuestions';
 import {
   ServiceGetFeedbackStats,
@@ -100,17 +100,18 @@ export default function Dashboard() {
   // em vez de mostrar por um instante os números de outro recorte.
   const seedIsCurrent = scope === 'COMPANY' && !catalogItemId && !hasMetricsPeriod(period);
   const [scopedLoading, setScopedLoading] = useState(!seedIsCurrent);
-  // Com o seed valendo, o 1º fetch o reaproveita — só mostramos o skeleton nas
-  // TROCAS de escopo seguintes, para não piscar no carregamento inicial.
-  const firstScopedFetchRef = useRef(true);
+  // Com o seed valendo, a 1ª busca o reaproveita — só mostramos o skeleton nas
+  // TROCAS de escopo ou período seguintes, para não piscar no carregamento inicial.
+  const scopedKey = `${scope}:${catalogItemId || ''}:${metricsPeriodKey(period)}`;
+  const [shownScopedKey, setShownScopedKey] = useState(scopedKey);
+  if (shownScopedKey !== scopedKey) {
+    setShownScopedKey(scopedKey);
+    setScopedLoading(true);
+  }
   const error = dashboardLoaderData?.dashboardError ?? null;
 
   // Métricas seguem o escopo e o período selecionados no header (Geral = só o QR da empresa).
-  // `silent`: atualização em segundo plano (marcos da coleta), sem skeleton.
-  const fetchScopedData = useCallback(async (silent = false) => {
-    const showSkeleton = !silent && !firstScopedFetchRef.current;
-    if (showSkeleton) setScopedLoading(true);
-
+  const loadScopedData = useCallback(async () => {
     const catalogParam =
       scope !== 'COMPANY' ? catalogItemId || undefined : undefined;
 
@@ -136,17 +137,36 @@ export default function Dashboard() {
         : Promise.resolve(null),
     ]);
 
-    setStats(statsData);
-    setAllTimeStats(withPeriod ? allTimeData : statsData);
-    setStatsScopeKey(`${scope}:${catalogItemId || ''}`);
-    setQuestions(questionsData?.questions ?? []);
-    firstScopedFetchRef.current = false;
-    setScopedLoading(false);
+    return {
+      stats: statsData,
+      allTimeStats: withPeriod ? allTimeData : statsData,
+      scopeKey: `${scope}:${catalogItemId || ''}`,
+      questions: questionsData?.questions ?? [],
+    };
   }, [scope, catalogItemId, period]);
 
+  const applyScopedData = useCallback((data: Awaited<ReturnType<typeof loadScopedData>>) => {
+    setStats(data.stats);
+    setAllTimeStats(data.allTimeStats);
+    setStatsScopeKey(data.scopeKey);
+    setQuestions(data.questions);
+    setScopedLoading(false);
+  }, []);
+
   useEffect(() => {
-    fetchScopedData();
-  }, [fetchScopedData]);
+    let cancelled = false;
+    void loadScopedData().then((data) => {
+      if (!cancelled) applyScopedData(data);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [loadScopedData, applyScopedData]);
+
+  // Atualização em segundo plano (marcos da coleta, teste do formulário), sem skeleton.
+  const refreshScopedData = useCallback(() => {
+    void loadScopedData().then(applyScopedData);
+  }, [loadScopedData, applyScopedData]);
 
   // Análise dos comentários (tom + resumo e recomendações da IA), filtrada por escopo.
   const { report, summary, loading: reportLoading } = useScopedInsightsReport({ withAnalysis: true });
@@ -184,7 +204,7 @@ export default function Dashboard() {
     watching: isAccountEmpty || (scopeTotal !== null && scopeTotal < MIN_FEEDBACKS_FOR_AI),
     refresh: () => {
       revalidator.revalidate();
-      void fetchScopedData(true);
+      refreshScopedData();
     },
     // Com o guia pendente, o convite do guia é que comemora o primeiro feedback.
     celebrateFirst: !isGuidePending,
@@ -201,14 +221,23 @@ export default function Dashboard() {
   const showFirstSteps = Boolean(enterprise) && firstSteps.visible;
   const enterpriseId = enterprise?.id;
   const [guideInvite, setGuideInvite] = useState<GuideInviteVariant | null>(null);
+  // O convite lê e grava o histórico no armazenamento do navegador, fora do React.
+  const checkGuideInvite = useEffectEvent((id: string, hasFeedback: boolean) => {
+    const result = nextGuideInvite(readGuideInvite(id), {
+      sessionId: currentBrowserSessionId(),
+      hasFeedback,
+    });
+    saveGuideInvite(id, result.state);
+    if (result.offer) setGuideInvite(result.offer);
+  });
+  // Uma consulta por empresa e total de feedbacks: o mesmo quadro não convida de novo.
+  const lastInviteCheckRef = useRef<string | null>(null);
   useEffect(() => {
     if (!isGuidePending || isTourActive || !enterpriseId || accountTotalFeedbacks === null) return;
-    const result = nextGuideInvite(readGuideInvite(enterpriseId), {
-      sessionId: currentBrowserSessionId(),
-      hasFeedback: accountTotalFeedbacks > 0,
-    });
-    saveGuideInvite(enterpriseId, result.state);
-    if (result.offer) setGuideInvite(result.offer);
+    const checkKey = `${enterpriseId}:${accountTotalFeedbacks}`;
+    if (lastInviteCheckRef.current === checkKey) return;
+    lastInviteCheckRef.current = checkKey;
+    checkGuideInvite(enterpriseId, accountTotalFeedbacks > 0);
   }, [isGuidePending, isTourActive, enterpriseId, accountTotalFeedbacks]);
 
   const closeGuideInvite = (postponed: boolean) => {
@@ -283,7 +312,7 @@ export default function Dashboard() {
           steps={firstSteps}
           onFeedbackSent={() => {
             revalidator.revalidate();
-            void fetchScopedData(true);
+            refreshScopedData();
           }}
         />
       )}

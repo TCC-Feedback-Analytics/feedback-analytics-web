@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { useFetcher } from 'react-router-dom';
 import { useToast } from 'components/public/forms/messages/useToast';
 import type {
@@ -53,10 +53,9 @@ export function useQrCodeFeedbackController({
 
   const isSubmitting = fetcher.state !== 'idle';
 
-  useEffect(() => {
-    if (fetcher.state !== 'idle' || !fetcher.data) return;
-
-    if (fetcher.data.ok) {
+  // A resposta da action chega pelo fetcher, um sistema externo ao componente.
+  const handleSubmitResult = useEffectEvent((data: NonNullable<typeof fetcher.data>) => {
+    if (data.ok) {
       toast.success('Obrigado pelo feedback!', 'Sua opinião é muito importante');
       setTimeout(() => {
         setIsSubmitted(true);
@@ -64,24 +63,36 @@ export function useQrCodeFeedbackController({
       return;
     }
 
-    if (fetcher.data.alreadySubmitted) {
+    if (data.alreadySubmitted) {
       setHasAlreadySubmitted(true);
       return;
     }
 
-    if (fetcher.data.error) {
-      toast.error('Erro ao enviar feedback', fetcher.data.error);
-      setError(fetcher.data.error);
+    if (data.error) {
+      toast.error('Erro ao enviar feedback', data.error);
+      setError(data.error);
     }
-  }, [fetcher.state, fetcher.data, toast]);
+  });
 
+  // Cada resposta é tratada uma vez só, mesmo que o fetcher a conserve.
+  const handledResultRef = useRef<typeof fetcher.data>(undefined);
   useEffect(() => {
+    const data = fetcher.data;
+    if (fetcher.state !== 'idle' || !data || handledResultRef.current === data) return;
+    handledResultRef.current = data;
+    handleSubmitResult(data);
+  }, [fetcher.state, fetcher.data]);
+
+  // Perguntas novas descartam as respostas das que saíram do formulário.
+  const [answeredQuestions, setAnsweredQuestions] = useState(questions);
+  if (answeredQuestions !== questions) {
+    setAnsweredQuestions(questions);
     setFormData((prev) => ({
       ...prev,
       answers: filterAnswersForQuestions(prev.answers, questions),
       subanswers: filterSubanswersForQuestions(prev.subanswers, questions),
     }));
-  }, [questions]);
+  }
 
   const handleFormDataChange = (data: Partial<FeedbackData>) => {
     setFormData((prev) => ({ ...prev, ...data }));

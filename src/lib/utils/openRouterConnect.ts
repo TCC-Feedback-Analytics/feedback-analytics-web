@@ -55,7 +55,7 @@ export async function prepareOpenRouterConnect(params: { returnTo: string; model
 
 /** Lê e apaga o pedido pendente (uso único). `null` sem pedido, vencido ou ilegível. */
 export function takePendingOpenRouterConnect(now = Date.now()): PendingOpenRouterConnect | null {
-  let raw: string | null = null;
+  let raw: string | null;
   try {
     raw = sessionStorage.getItem(STORAGE_KEY);
     sessionStorage.removeItem(STORAGE_KEY);

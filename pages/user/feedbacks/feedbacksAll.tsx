@@ -41,11 +41,11 @@ export default function FeedbacksAll() {
     navigation.state === 'loading' &&
     navigation.location?.pathname === '/user/feedbacks/all';
 
-  useEffect(() => {
-    if (navigation.state === 'idle') {
-      setSuppressOverlay(false);
-    }
-  }, [navigation.state]);
+  const [lastNavigationState, setLastNavigationState] = useState(navigation.state);
+  if (lastNavigationState !== navigation.state) {
+    setLastNavigationState(navigation.state);
+    if (navigation.state === 'idle') setSuppressOverlay(false);
+  }
 
   const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(
     null,

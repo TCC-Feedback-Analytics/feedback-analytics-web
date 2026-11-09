@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { FaChevronDown } from 'react-icons/fa6';
 import type { MenuItem } from './ui.types';
@@ -48,11 +48,12 @@ function MenuItemView({
   const isSectionActive = hasChildren ? hasActiveDescendant(item, currentPathname) : false;
   const [isOpen, setIsOpen] = useState(isSectionActive);
 
-  useEffect(() => {
-    if (isSectionActive) {
-      setIsOpen(true);
-    }
-  }, [isSectionActive]);
+  // Entrar numa página da seção abre a seção; sair não a fecha.
+  const [wasSectionActive, setWasSectionActive] = useState(isSectionActive);
+  if (wasSectionActive !== isSectionActive) {
+    setWasSectionActive(isSectionActive);
+    if (isSectionActive) setIsOpen(true);
+  }
 
   const Icon = item.icon;
 

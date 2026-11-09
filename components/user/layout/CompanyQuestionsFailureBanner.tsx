@@ -35,21 +35,23 @@ export default function CompanyQuestionsFailureBanner() {
   const [switchOpen, setSwitchOpen] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
-  const loadLatest = useCallback(async () => {
-    try {
-      const { job, stillDefault } = await ServiceGetLatestCompanyQuestionsJob();
-      const showNotice = job?.status === 'failed' && stillDefault === true && !job.dismissed;
-      setFailedJob(showNotice ? job : null);
-    } catch {
-      // Sem a leitura agora; a próxima mudança de fase tenta de novo.
-    }
-  }, []);
-
   // Relê ao abrir e a cada fim de tentativa (falhou de novo ou deu certo).
   useEffect(() => {
     if (!iaConfig?.hasKey || phase === 'running') return;
-    void loadLatest();
-  }, [iaConfig?.hasKey, phase, loadLatest]);
+    let cancelled = false;
+    ServiceGetLatestCompanyQuestionsJob()
+      .then(({ job, stillDefault }) => {
+        if (cancelled) return;
+        const showNotice = job?.status === 'failed' && stillDefault === true && !job.dismissed;
+        setFailedJob(showNotice ? job : null);
+      })
+      .catch(() => {
+        // Sem a leitura agora; a próxima mudança de fase tenta de novo.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [iaConfig?.hasKey, phase]);
 
   const follow = useCallback((result: QuestionsGenerationResult | undefined) => {
     const blocked = questionsGenerationBlockedMessage(result);
