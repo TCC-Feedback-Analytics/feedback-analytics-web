@@ -152,7 +152,7 @@ describe('[Unidade] Dashboard Page', () => {
     ).toBeInTheDocument();
   });
 
-  it('exibe a Avaliação por estrelas com média, positivas e críticas', async () => {
+  it('exibe a Avaliação por estrelas com média, positivas, neutras e críticas', async () => {
     render(
       <MemoryRouter>
         <Dashboard />
@@ -168,20 +168,23 @@ describe('[Unidade] Dashboard Page', () => {
     expect(within(section).getByText('Boa')).toBeInTheDocument();
     expect(within(section).getByText('12 avaliações')).toBeInTheDocument();
 
-    // Positivas (4–5★) = 3 + 5 = 8 de 12 → 67%; críticas (1–2★) = 2 → 17%.
+    // Positivas (4–5★) = 3 + 5 = 8 de 12 → 67%; neutras (3★) = 2 → 17%; críticas (1–2★) = 2 → 17%.
     expect(within(section).getByText('Positivas (4–5★)')).toBeInTheDocument();
     expect(within(section).getByText('8')).toBeInTheDocument();
     expect(within(section).getByText('· 67%')).toBeInTheDocument();
+    expect(within(section).getByText('Neutras (3★)')).toBeInTheDocument();
     expect(within(section).getByText('Críticas (1–2★)')).toBeInTheDocument();
-    expect(within(section).getByText('· 17%')).toBeInTheDocument();
+    expect(within(section).getAllByText('· 17%')).toHaveLength(2);
 
     // Saem do Dashboard: card de recebidos, distribuição e "Satisfação e sentimento".
     expect(screen.queryByText('Feedbacks recebidos')).not.toBeInTheDocument();
     expect(screen.queryByText('Distribuição das avaliações')).not.toBeInTheDocument();
     expect(screen.queryByText('Satisfação e sentimento')).not.toBeInTheDocument();
 
-    expect(within(section).getByRole('link', { name: /Ver todas as métricas de estrelas/ }))
+    expect(within(section).getByRole('link', { name: /Ver a nota completa/ }))
       .toHaveAttribute('href', '/user/ratings');
+    // O movimento fica na página Nota: o Dashboard mostra um resumo por grupo.
+    expect(screen.queryByRole('region', { name: /Movimento das avaliações/ })).not.toBeInTheDocument();
   });
 
   it('oferece comparar dois itens só quando há 2 do mesmo tipo', async () => {
@@ -290,7 +293,6 @@ describe('[Unidade] Dashboard Page', () => {
     // O guia passa pelas seções do Dashboard logo após o cadastro.
     expect(container.querySelector('[data-tour="tour-dashboard-diagnosis"]')).toBeInTheDocument();
     expect(container.querySelector('[data-tour="tour-star-ratings"]')).toBeInTheDocument();
-    expect(container.querySelector('[data-tour="tour-movement"]')).toBeInTheDocument();
     expect(container.querySelector('[data-tour="tour-form-questions"]')).toBeInTheDocument();
     expect(container.querySelector('[data-tour="tour-dashboard-comments"]')).toBeInTheDocument();
 
