@@ -42,10 +42,10 @@ export const METRIC_EXPLANATIONS: Record<MetricTermKey, MetricExplanation> = {
     example: '4,2 /5 Boa · 128 avaliações.',
   },
   ratingShares: {
-    title: 'Avaliações positivas e críticas',
+    title: 'Avaliações positivas, neutras e críticas',
     paragraphs: [
-      'Positivas são as avaliações com 4 ou 5 estrelas; críticas, com 1 ou 2. As de 3 estrelas são neutras e aparecem na página de todas as métricas de estrelas.',
-      'O percentual mostra quantas, de cada 100 avaliações, foram positivas ou críticas.',
+      'Positivas são as avaliações com 4 ou 5 estrelas; neutras, com 3; críticas, com 1 ou 2. As três somam 100%.',
+      'O percentual mostra quantas, de cada 100 avaliações, foram positivas, neutras ou críticas.',
     ],
     example: '82 · 64% = 82 avaliações positivas, 64 de cada 100.',
   },

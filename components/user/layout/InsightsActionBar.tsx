@@ -22,6 +22,7 @@ export default function InsightsActionBar() {
   const isScopeRoute =
     isMatch("/user/dashboard", pathname) ||
     isMatch("/user/ratings", pathname) ||
+    isMatch("/user/customers", pathname) ||
     isMatch("/user/questions", pathname) ||
     isMatch("/user/insights", pathname);
 

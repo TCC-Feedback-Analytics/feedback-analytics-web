@@ -1,4 +1,5 @@
-import { FaLink, FaNfcSymbol, FaQrcode } from 'react-icons/fa6';
+import { Link } from 'react-router-dom';
+import { FaArrowRight, FaLink, FaNfcSymbol, FaQrcode } from 'react-icons/fa6';
 import MetricHelp from 'components/user/shared/MetricHelp';
 import PrecisionBadge from 'components/user/shared/PrecisionBadge';
 import ScopeTag from 'components/user/shared/ScopeTag';
@@ -18,9 +19,10 @@ const CHANNEL_INFO = {
  * "Por onde chegaram" (etapa 06): quantas avaliações e a média de estrelas por
  * canal de coleta, no escopo e no período. Com um canal só, vira uma linha; as
  * avaliações sem a marca de canal (anteriores a ela, QR Codes antigos) ficam à
- * parte, numa linha discreta, porque não são um canal.
+ * parte, numa linha discreta, porque não são um canal. No Dashboard, é o resumo
+ * de Clientes e canais e leva à página.
  */
-export default function SectionChannels({ stats }: SectionChannelsProps) {
+export default function SectionChannels({ stats, variant = 'dashboard' }: SectionChannelsProps) {
   const { scope, catalogItemId, catalogItemOptions, period } = useInsightsControls();
   const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions, period });
   const breakdown = stats?.channelBreakdown ?? [];
@@ -91,6 +93,18 @@ export default function SectionChannels({ stats }: SectionChannelsProps) {
           </p>
         )}
       </div>
+
+      {variant === 'dashboard' && (
+        <div className="flex justify-end">
+          <Link
+            to="/user/customers"
+            className="inline-flex items-center gap-1.5 text-sm text-(--text-secondary) transition-colors hover:text-(--text-primary)"
+          >
+            Ver horários de pico e clientes que voltam
+            <FaArrowRight className="text-xs" aria-hidden />
+          </Link>
+        </div>
+      )}
     </section>
   );
 }

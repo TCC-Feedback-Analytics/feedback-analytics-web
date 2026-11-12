@@ -1,16 +1,24 @@
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import '@testing-library/jest-dom';
+import type { ReactElement } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import type { FeedbackStats } from 'lib/interfaces/domain/feedback.domain';
 
 vi.mock('src/lib/context/insightsControls', () => ({
   useInsightsControls: () => ({ scope: 'COMPANY', catalogItemId: '', catalogItemOptions: [], period: { preset: 'ALL' } }),
 }));
 vi.mock('components/user/shared/ScopeTag', () => ({ default: () => null }));
+// O setup global troca o react-router-dom por um mock mínimo; aqui usamos o real, por causa do link.
+vi.mock('react-router-dom', async () => vi.importActual<typeof import('react-router-dom')>('react-router-dom'));
 
 import SectionChannels from './SectionChannels';
 
 afterEach(cleanup);
+
+function renderInRouter(ui: ReactElement) {
+  return render(<MemoryRouter>{ui}</MemoryRouter>);
+}
 
 const ci = { lower: 3.8, upper: 4.8 };
 function stats(channelBreakdown: FeedbackStats['channelBreakdown']): FeedbackStats {
@@ -19,7 +27,7 @@ function stats(channelBreakdown: FeedbackStats['channelBreakdown']): FeedbackSta
 
 describe('Por onde chegaram', () => {
   it('mostra cada canal com avaliações, percentual e média', () => {
-    render(
+    renderInRouter(
       <SectionChannels
         stats={stats([
           { channel: 'QR', count: 30, mean: 4.2, ci },
@@ -37,13 +45,13 @@ describe('Por onde chegaram', () => {
   });
 
   it('com um canal só, vira uma linha', () => {
-    render(<SectionChannels stats={stats([{ channel: 'QR', count: 12, mean: 4.5, ci }])} />);
+    renderInRouter(<SectionChannels stats={stats([{ channel: 'QR', count: 12, mean: 4.5, ci }])} />);
     expect(screen.getByText(/vieram pelo/)).toHaveTextContent('vieram pelo QR Code (12 avaliações)');
     expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
   });
 
   it('as sem marca de canal ficam à parte, com a dica de baixar o QR de novo', () => {
-    render(
+    renderInRouter(
       <SectionChannels
         stats={stats([
           { channel: 'NFC', count: 4, mean: 5, ci },
@@ -56,8 +64,13 @@ describe('Por onde chegaram', () => {
     expect(screen.getByText(/vieram pelo/)).toHaveTextContent('Etiqueta NFC');
   });
 
+  it('no Dashboard, leva a Clientes e canais', () => {
+    renderInRouter(<SectionChannels stats={stats([{ channel: 'QR', count: 12, mean: 4.5, ci }])} />);
+    expect(screen.getByRole('link', { name: /Ver horários de pico e clientes que voltam/ })).toHaveAttribute('href', '/user/customers');
+  });
+
   it('sem avaliações não aparece', () => {
-    const { container } = render(<SectionChannels stats={stats([])} />);
+    const { container } = renderInRouter(<SectionChannels stats={stats([])} />);
     expect(container).toBeEmptyDOMElement();
   });
 });

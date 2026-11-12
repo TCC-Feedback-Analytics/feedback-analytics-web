@@ -3,8 +3,6 @@ import PageHeader from 'components/user/shared/PageHeader';
 import SectionRatings from 'components/user/pages/dashboard/SectionRatings';
 import SectionEvaluationDistribution from 'components/user/pages/dashboard/SectionEvaluationDistribution';
 import SectionMovement from 'components/user/pages/dashboard/SectionMovement';
-import SectionPeakTimes from 'components/user/pages/dashboard/SectionPeakTimes';
-import SectionReturningCustomers from 'components/user/pages/dashboard/SectionReturningCustomers';
 import { useInsightsControls } from 'src/lib/context/insightsControls';
 import { ServiceGetFeedbackStats } from 'src/services/serviceFeedbacks';
 import { metricsPeriodKey, metricsPeriodParams } from 'src/lib/utils/metricsPeriod';
@@ -12,10 +10,10 @@ import { usePreviousPeriodStats } from 'src/lib/hooks/usePreviousPeriod';
 import type { FeedbackStats } from 'lib/interfaces/domain/feedback.domain';
 
 /**
- * "Todas as métricas de estrelas": o detalhe da Avaliação por estrelas do
- * Dashboard, pelo escopo do cabeçalho — média, positivas, neutras e críticas, e a
- * distribuição de 1 a 5★, o movimento das avaliações no tempo, os dias e
- * horários de pico e os clientes que voltam.
+ * "Nota" (grupo "Como estou?", decisão de 12/11/2026): o detalhe da Avaliação por
+ * estrelas do Dashboard, pelo escopo do cabeçalho — média, positivas, neutras e
+ * críticas, a distribuição de 1 a 5★ e o movimento das avaliações no tempo. Os
+ * horários de pico e os clientes que voltam ficam em Clientes e canais.
  */
 export default function Ratings() {
   const { scope, catalogItemId, period } = useInsightsControls();
@@ -49,7 +47,7 @@ export default function Ratings() {
   }, [key, scope, catalogItemId, period]);
 
   return (
-    // Alvo do passo "Todas as métricas de estrelas" do guia.
+    // Alvo do passo "Nota" do guia.
     <div className="font-work-sans space-y-6" data-tour="tour-ratings-page">
       <PageHeader />
 
@@ -63,9 +61,7 @@ export default function Ratings() {
         <>
           <SectionRatings stats={stats} previous={previous} variant="detail" />
           {stats && stats.totalFeedbacks > 0 && <SectionEvaluationDistribution stats={stats} />}
-          <SectionMovement variant="detail" />
-          <SectionPeakTimes />
-          <SectionReturningCustomers />
+          <SectionMovement />
         </>
       )}
     </div>
