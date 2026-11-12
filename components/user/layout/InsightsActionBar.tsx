@@ -6,6 +6,8 @@ import { isMatch } from "src/lib/utils/navMatch";
 import InsightsControlsBar from "components/user/pages/feedbacksInsightsReport/InsightsControlsBar";
 import GenerateInsightsDialog from "components/user/pages/feedbacksInsightsReport/GenerateInsightsDialog";
 import IaModelQuickSwitch from "components/user/shared/IaModelQuickSwitch";
+import ShareQrButton from "components/user/pages/dashboard/ShareQrButton";
+import { formConfigPath } from "src/lib/utils/formConfigPath";
 import { useIaSlowNoticePreference } from "src/lib/hooks/useIaSlowNoticePreference";
 import { IA_SLOW_AFTER_MS } from "src/lib/utils/iaSlowNotice";
 
@@ -26,7 +28,12 @@ export default function InsightsActionBar() {
     isMatch("/user/questions", pathname) ||
     isMatch("/user/insights", pathname);
 
+  // No Dashboard, o atalho do QR vem para a barra (a página não tem mais cabeçalho próprio).
+  const isDashboard = isMatch("/user/dashboard", pathname);
+
   const {
+    scope,
+    catalogItemId,
     isAnalyzingRaw,
     isRegeneratingInsights,
     rawStatus,
@@ -71,7 +78,7 @@ export default function InsightsActionBar() {
 
   return (
     <>
-      {(isScopeRoute || isProcessing) && <div className="relative z-20 mb-5 flex w-full max-w-full flex-col gap-3 rounded-xl border border-(--quaternary-color)/12 bg-(--bg-secondary) p-3 sm:flex-row sm:flex-wrap sm:items-center">
+      {(isScopeRoute || isProcessing) && <div className="relative z-20 mb-5 flex w-full max-w-full flex-col gap-2 rounded-xl border border-(--quaternary-color)/12 bg-(--bg-secondary) p-2 sm:flex-row sm:flex-wrap sm:items-center">
         {isScopeRoute && <>
         <InsightsControlsBar />
         </>}
@@ -82,10 +89,14 @@ export default function InsightsActionBar() {
         </p>}
 
         <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
+          {/* O link segue o escopo: empresa → QR geral; item escolhido → QR do item;
+              tipo sem item → catálogo do tipo, para o gestor escolher o item. */}
+          {isDashboard && <ShareQrButton to={formConfigPath(scope, catalogItemId)} />}
           <button
             type="button"
             onClick={() => setGenerateDialogOpen(true)}
-            className="btn-primary font-poppins inline-flex min-h-11 w-full items-center justify-center gap-2 px-4 py-2 text-[13px] font-semibold shadow-md transition-all hover:scale-[1.02] sm:w-auto"
+            // Mesmo desenho do botão do QR Code, ao lado dele.
+            className="font-poppins inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-(--primary-color)/25 bg-(--primary-color)/8 px-3 text-xs font-semibold text-(--text-primary) transition-colors hover:border-(--primary-color)/50 hover:bg-(--primary-color)/12 sm:min-h-9 sm:w-auto"
           >
             {isProcessing ? (
               <>

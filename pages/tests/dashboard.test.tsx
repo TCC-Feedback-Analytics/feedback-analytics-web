@@ -135,21 +135,18 @@ describe('[Unidade] Dashboard Page', () => {
     window.sessionStorage.clear();
   });
 
-  it('renderiza título e saudação com dados do loader', async () => {
+  it('começa direto nas métricas, sem cabeçalho próprio', async () => {
     render(
       <MemoryRouter>
         <Dashboard />
       </MemoryRouter>,
     );
 
-    await waitFor(() => {
-      expect(screen.getByText('Olá, Usuário Teste')).toBeInTheDocument();
-    });
-
-    // Sem feedbacks pendentes (pendingCount ausente) → linha de status "em dia".
-    expect(
-      screen.getByText('Tudo em dia — nenhum comentário aguardando análise neste escopo.'),
-    ).toBeInTheDocument();
+    await screen.findByRole('region', { name: 'Avaliação por estrelas' });
+    // A saudação saiu; os pendentes estão no sino e o QR, na barra de escopo do layout.
+    expect(screen.queryByText(/Olá, /)).not.toBeInTheDocument();
+    expect(screen.queryByText(/aguardando análise/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Compartilhar o formulário de feedback pelo QR Code/ })).not.toBeInTheDocument();
   });
 
   it('exibe a Avaliação por estrelas com média, positivas, neutras e críticas', async () => {
@@ -278,11 +275,9 @@ describe('[Unidade] Dashboard Page', () => {
     );
 
     expect(await screen.findByRole('region', { name: 'Seu painel está pronto. Falta o primeiro feedback.' })).toBeInTheDocument();
-    // Os Primeiros passos vêm logo abaixo do cabeçalho, e o atalho do QR do cabeçalho sai.
-    expect(screen.getByText('Ative a coleta para começar a receber feedbacks.')).toBeInTheDocument();
+    // Os Primeiros passos abrem a página, antes das boas-vindas.
     const firstSteps = screen.getByRole('region', { name: 'Primeiros passos' });
     expect(firstSteps.compareDocumentPosition(screen.getByRole('region', { name: 'Seu painel está pronto. Falta o primeiro feedback.' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(screen.queryByRole('link', { name: /Compartilhar o formulário de feedback pelo QR Code/ })).not.toBeInTheDocument();
 
     const preview = screen.getByRole('region', { name: 'O que vai aparecer aqui' });
     // As perguntas são as reais do formulário, só as ativas e na ordem.
@@ -317,7 +312,7 @@ describe('[Unidade] Dashboard Page', () => {
     expect(screen.queryByRole('region', { name: 'O que vai aparecer aqui' })).not.toBeInTheDocument();
   });
 
-  it('com período, as seções seguem o período e o aviso de pendentes e o mínimo da IA, o histórico inteiro', async () => {
+  it('com período, as seções seguem o período e o mínimo da IA, o histórico inteiro', async () => {
     mocks.useInsightsControls.mockReturnValue({
       scope: 'COMPANY',
       catalogItemId: '',
@@ -338,7 +333,6 @@ describe('[Unidade] Dashboard Page', () => {
 
     // O seed do loader é do histórico inteiro: não aparece com o período escolhido.
     expect(screen.getByLabelText('Carregando métricas do escopo')).toBeInTheDocument();
-    expect(await screen.findByText('4 comentários aguardando análise da IA neste escopo.')).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByLabelText('Carregando métricas do escopo')).not.toBeInTheDocument());
     const periodCall = mocks.getFeedbackStats.mock.calls.find(([params]) => params.start_date);
     expect(periodCall?.[0]).toEqual(expect.objectContaining({ scope_type: 'COMPANY', end_date: expect.any(String) }));
@@ -460,7 +454,7 @@ describe('[Unidade] Dashboard Page', () => {
       }
       window.sessionStorage.clear();
       renderDashboard();
-      await screen.findByText('Olá, Usuário Teste');
+      await screen.findByRole('region', { name: 'Avaliação por estrelas' });
       expect(screen.queryByText('Seu primeiro feedback chegou! 🎉')).not.toBeInTheDocument();
       expect(mocks.onboarding.startTour).not.toHaveBeenCalled();
     });
@@ -468,7 +462,7 @@ describe('[Unidade] Dashboard Page', () => {
     it('guia já concluído ou pulado: nada de convite', async () => {
       withAccount(5);
       renderDashboard();
-      await screen.findByText('Olá, Usuário Teste');
+      await screen.findByRole('region', { name: 'Avaliação por estrelas' });
       expect(screen.queryByRole('button', { name: 'Começar o guia' })).not.toBeInTheDocument();
     });
 

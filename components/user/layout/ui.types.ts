@@ -21,6 +21,25 @@ export interface HeaderNavProps {
 }
 
 /**
+ * Item de topo do menu já resolvido para o cabeçalho: destino, se está ativo e a âncora do guia.
+ * Usado em: components/user/layout/HeaderNav.tsx e HeaderNavMore.tsx.
+ */
+export interface HeaderNavEntry {
+  label: string;
+  to: string;
+  active: boolean;
+  tourAttr?: string;
+}
+
+/**
+ * Props do botão "Mais" do cabeçalho, com os itens que não couberam na largura.
+ * Usado em: components/user/layout/HeaderNavMore.tsx.
+ */
+export interface HeaderNavMoreProps {
+  entries: HeaderNavEntry[];
+}
+
+/**
  * Estrutura de item de menu (com suporte a submenu).
  * Usado em: components/user/layout/Menu.tsx.
  */
