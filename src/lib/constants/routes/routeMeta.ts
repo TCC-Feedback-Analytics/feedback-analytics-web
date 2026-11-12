@@ -34,9 +34,14 @@ const ROUTE_META: Record<string, RouteMeta> = {
     breadcrumb: [{ label: 'Visão geral' }],
   },
   '/user/ratings': {
-    title: 'Todas as métricas de estrelas',
-    description: 'Média, positivas, neutras, críticas, a distribuição de 1 a 5 estrelas, o movimento no tempo, os dias e horários de pico e os clientes que voltam.',
-    breadcrumb: [{ label: 'Visão geral', to: '/user/dashboard' }, { label: 'Avaliação por estrelas' }],
+    title: 'Nota',
+    description: 'Como estou? A média, as positivas, neutras e críticas, a distribuição de 1 a 5 estrelas e o movimento no tempo.',
+    breadcrumb: [{ label: 'Visão geral', to: '/user/dashboard' }, { label: 'Nota' }],
+  },
+  '/user/customers': {
+    title: 'Clientes e canais',
+    description: 'Quem avalia, quando e por onde: os canais de coleta, os dias e horários de pico e os clientes que voltam.',
+    breadcrumb: [{ label: 'Visão geral', to: '/user/dashboard' }, { label: 'Clientes e canais' }],
   },
   '/user/openrouter/callback': {
     title: 'Conectando ao OpenRouter',
@@ -68,7 +73,7 @@ const ROUTE_META: Record<string, RouteMeta> = {
   '/user/insights/overview': {
     title: 'Análise dos comentários',
     description: 'O que os clientes escreveram, lido pela IA: tom, assuntos que mais impactam e recomendações.',
-    breadcrumb: [{ label: SECTION_COMMENTS }, { label: 'Visão geral' }],
+    breadcrumb: [{ label: SECTION_COMMENTS }, { label: 'Resumo' }],
   },
   '/user/insights/comments': {
     title: 'Comentários',
