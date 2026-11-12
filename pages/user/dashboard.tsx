@@ -6,14 +6,12 @@ import {
   useRouteLoaderData,
   useSearchParams,
 } from 'react-router-dom';
-import CardSimple from 'components/user/shared/cards/cardSimple';
 import {
   FaArrowRight,
 } from 'react-icons/fa';
 import SectionRatings from 'components/user/pages/dashboard/SectionRatings';
 import SectionChannels from 'components/user/pages/dashboard/SectionChannels';
 import SectionScopeDiagnosis from 'components/user/pages/dashboard/SectionScopeDiagnosis';
-import ShareQrCard from 'components/user/pages/dashboard/ShareQrCard';
 import SectionFormQuestions from 'components/user/pages/questions/SectionFormQuestions';
 import DashboardScopedSkeleton from 'components/user/pages/dashboard/DashboardScopedSkeleton';
 import InsightsReportContent from 'components/user/pages/feedbacksInsightsReport/InsightsReportContent';
@@ -41,7 +39,7 @@ import { usePreviousPeriodQuestions, usePreviousPeriodStats } from 'src/lib/hook
 import { useFeedbackMilestones } from 'src/lib/hooks/useFeedbackMilestones';
 import { useFirstSteps } from 'src/lib/hooks/useFirstSteps';
 import { MIN_FEEDBACKS_FOR_AI } from 'src/lib/utils/feedbackMilestones';
-import { commentFieldConfigPath, formConfigPath } from 'src/lib/utils/formConfigPath';
+import { commentFieldConfigPath } from 'src/lib/utils/formConfigPath';
 import { scopeText } from 'src/lib/utils/scopeText';
 import {
   COMMENTS_SUMMARY_PERIOD_NOTE,
@@ -79,7 +77,6 @@ export default function Dashboard() {
     nextSearchParams.delete('login');
     setSearchParams(nextSearchParams, { replace: true });
   }, [searchParams, setSearchParams, toast]);
-  const user = userLoaderData?.user;
   const enterprise = userLoaderData?.enterprise;
   const [stats, setStats] = useState<FeedbackStats | null>(
     dashboardLoaderData?.stats ?? null,
@@ -177,16 +174,7 @@ export default function Dashboard() {
   const milestoneInScope = scopeText({ scope, catalogItemId, catalogItemOptions }).inScope;
   const withPeriod = hasMetricsPeriod(period);
 
-  // O link de compartilhar segue o escopo selecionado no header: empresa → QR
-  // geral; produto/serviço/departamento com item escolhido → QR do item; tipo
-  // selecionado sem item → catálogo do tipo, para o gestor escolher o item.
-  const shareFormPath = formConfigPath(scope, catalogItemId);
-
-  const displayName =
-    user?.user_metadata?.full_name || enterprise?.full_name || user?.email || 'Dashboard';
-
   const totalFeedbacks = allTimeStats?.totalFeedbacks ?? 0;
-  const pendingCount = allTimeStats?.pendingCount ?? 0;
   // Conta inteira sem nenhum feedback: boas-vindas e prévia no lugar das seções vazias.
   const isAccountEmpty = dashboardLoaderData?.accountTotalFeedbacks === 0;
   const feedbacksUntilAnalysis = Math.max(0, MIN_FEEDBACKS_FOR_AI - totalFeedbacks);
@@ -264,41 +252,8 @@ export default function Dashboard() {
 
   return (
     <div className="font-work-sans space-y-6">
-      <CardSimple type="header">
-        <div className="min-w-0 flex-1 space-y-2">
-          <p className="text-xs uppercase tracking-wide text-(--text-tertiary)">Visão geral</p>
-          <h1 className="font-montserrat text-lg font-semibold text-(--text-primary) sm:text-xl md:text-2xl">
-            Olá, {displayName}
-          </h1>
-          <p className="flex items-center gap-1.5 text-sm text-(--text-secondary)">
-            {pendingCount > 0 && (
-              <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-(--primary-color)" />
-            )}
-            {showFirstSteps && !firstSteps.qrActive
-              ? 'Ative a coleta para começar a receber feedbacks.'
-              : isAccountEmpty
-              ? 'Vamos coletar os primeiros feedbacks.'
-              : totalFeedbacks === 0
-              ? 'Compartilhe o formulário pelo QR Code, pelo link ou pela etiqueta NFC para começar a coletar feedbacks.'
-              : pendingCount > 0
-                ? `${pendingCount} ${pendingCount === 1 ? 'comentário aguardando' : 'comentários aguardando'} análise da IA neste escopo.`
-                : 'Tudo em dia — nenhum comentário aguardando análise neste escopo.'}
-          </p>
-          <Link
-            to="/user/feedbacks/all"
-            className="inline-flex min-h-11 w-full items-center gap-1.5 text-sm font-medium text-(--text-secondary) transition-colors hover:text-(--text-primary) sm:min-h-0 sm:w-auto">
-            Ver feedbacks
-            <FaArrowRight className="text-[0.6rem]" />
-          </Link>
-        </div>
-        {/* Na conta nova, o compartilhar está nos Primeiros passos logo abaixo. */}
-        {!showFirstSteps && (
-          <div className="w-full md:w-auto md:self-center">
-            <ShareQrCard to={shareFormPath} />
-          </div>
-        )}
-      </CardSimple>
-
+      {/* Sem cabeçalho próprio: o nome da página está no breadcrumb, os comentários
+          aguardando análise estão no sino e o atalho do QR, na barra de escopo. */}
       {error ? (
         <div className="rounded-xl border border-(--negative)/30 bg-(--negative)/10 px-4 py-3 text-sm text-(--text-primary)">
           {error}
