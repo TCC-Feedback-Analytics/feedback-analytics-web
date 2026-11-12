@@ -18,6 +18,8 @@ import {
   FaBrain,
   FaScaleBalanced,
   FaClipboardCheck,
+  FaRankingStar,
+  FaUsers,
 } from 'react-icons/fa6';
 import { isMatch } from 'src/lib/utils/navMatch';
 import type { MobileMenuDrawerProps } from './ui.types';
@@ -141,6 +143,34 @@ export default function MobileMenuDrawer({
               <span className="text-sm font-bold text-(--text-primary)">Visão Geral</span>
             </NavLink>
             <NavLink
+              to="/user/ratings"
+              onClick={onClose}
+              className={`group mt-2 flex items-center gap-3 rounded-2xl border p-3.5 transition-all duration-150 active:scale-98 ${
+                isMatch('/user/ratings', pathname)
+                  ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--primary-color) font-bold shadow-xs'
+                  : 'border-(--quaternary-color)/12 bg-(--seventh-color)/40 text-(--text-secondary) hover:bg-(--seventh-color)'
+              }`}
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--primary-color)/15 text-(--primary-color)">
+                <FaRankingStar className="h-5 w-5" />
+              </div>
+              <span className="text-sm font-bold text-(--text-primary)">Nota</span>
+            </NavLink>
+            <NavLink
+              to="/user/customers"
+              onClick={onClose}
+              className={`group mt-2 flex items-center gap-3 rounded-2xl border p-3.5 transition-all duration-150 active:scale-98 ${
+                isMatch('/user/customers', pathname)
+                  ? 'border-(--primary-color) bg-(--primary-color)/15 text-(--primary-color) font-bold shadow-xs'
+                  : 'border-(--quaternary-color)/12 bg-(--seventh-color)/40 text-(--text-secondary) hover:bg-(--seventh-color)'
+              }`}
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--primary-color)/15 text-(--primary-color)">
+                <FaUsers className="h-5 w-5" />
+              </div>
+              <span className="text-sm font-bold text-(--text-primary)">Clientes e canais</span>
+            </NavLink>
+            <NavLink
               to="/user/compare"
               onClick={onClose}
               className={`group mt-2 flex items-center gap-3 rounded-2xl border p-3.5 transition-all duration-150 active:scale-98 ${
@@ -212,7 +242,7 @@ export default function MobileMenuDrawer({
                 }`}
               >
                 <FaChartSimple className="h-5 w-5 shrink-0 text-emerald-400" />
-                <span className="text-xs font-bold text-(--text-primary)">Visão geral</span>
+                <span className="text-xs font-bold text-(--text-primary)">Resumo</span>
               </NavLink>
 
               <NavLink
