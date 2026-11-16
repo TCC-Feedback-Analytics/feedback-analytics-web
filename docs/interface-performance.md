@@ -27,10 +27,11 @@ Na área logada, o `layouts/user.tsx` olha o `useNavigation()`: enquanto `naviga
 
 ### Carregamento dentro da página
 
-Os dados que dependem do escopo e do período do header são buscados no cliente pelos hooks de `src/lib/hooks` (ver [Arquitetura e Estrutura](./arquitetura-estrutura.md)), sem trocar de rota. Cada página decide o que mostrar enquanto eles carregam:
+Os dados que dependem do escopo e do período da barra abaixo do cabeçalho são buscados no cliente pelos hooks de `src/lib/hooks` (ver [Arquitetura e Estrutura](./arquitetura-estrutura.md)), sem trocar de rota. Cada página decide o que mostrar enquanto eles carregam:
 
 - **Dashboard:** `DashboardScopedSkeleton` ao trocar de escopo. A primeira carga usa os dados do loader, e as atualizações em segundo plano (ex.: depois de um feedback de teste) são silenciosas, sem skeleton.
-- **Visão geral dos comentários:** `InsightsReportSkeleton` só na primeira busca, enquanto ainda não há relatório nem resumo na tela.
+- **Resumo da análise dos comentários:** `InsightsReportSkeleton` só na primeira busca, enquanto ainda não há relatório nem resumo na tela.
+- **Nota e Clientes e canais:** a última resposta fica na tela até chegar a do novo recorte. Na primeira carga, Nota mostra "Carregando avaliações…".
 - **Lista de feedbacks:** filtros, busca e página vão para a URL e o loader roda de novo. Nessas trocas a lista atual continua na tela; o `FeedbacksAllLoadingOverlay` (spinner sobre a lista) só aparece quando a mesma rota recarrega por outro motivo.
 
 ### Requisições em paralelo
@@ -45,7 +46,7 @@ A imagem do QR Code (`components/user/pages/qrcodeEnterprise/CollectionChannelsS
 
 - **Medidor de força de senha:** o `zxcvbn` (`@zxcvbn-ts/core` e os dicionários) é carregado por `import()` dinâmico só quando a pessoa digita a primeira letra da senha (`loadPasswordScorer`, em `src/lib/utils/passwordStrength.ts`, usado pelo `usePasswordStrength`). A promessa fica guardada, então o pacote é baixado uma vez só. O Vite separa esse import em um chunk próprio.
 
-> **Pendente:** nenhuma rota usa `lazy`. O `source.tsx` tem uma linha comentada (`// lazy: () => import('./root')`), e o `vite.config.ts` não define `manualChunks`: todas as páginas saem no bundle principal.
+> **Pendente:** nenhuma rota usa `lazy`, e não há `React.lazy` nem `Suspense`. O `vite.config.ts` não define `manualChunks`. Todas as páginas saem no bundle principal.
 
 ### Cache
 
@@ -68,7 +69,7 @@ Não há throttle genérico. Os formulários desabilitam o botão de envio enqua
 
 ### Cancelamento
 
-O `useIaModels` e o `onboardingContext` passam um `AbortController` para o service e descartam a resposta se o componente desmontar antes. Parte dos hooks de escopo (`useScopedStats`, `useScopedTimeline`, `useScopedHeatmap`, `useScopedCustomers`, `usePreviousPeriod`, `useFormQuestionsConfig`) usa uma flag de cancelamento no `useEffect` para descartar a resposta que chega depois de trocar o escopo ou de desmontar. Os que também recarregam por `reload` ou ao concluir uma análise (`useScopedInsightsReport`, `useScopedFeedbackAnalysis`, `useScopedFeedbackQuestions`, `useScopedPendingCount`) usam o `useLatestRequest`: cada busca ganha um número, e só a mais recente grava no estado.
+O `useIaModels` e o `onboardingContext` passam um `AbortController` para o service e descartam a resposta se o componente desmontar antes. Parte dos hooks de escopo (`useScopedStats`, `useScopedTimeline`, `useScopedHeatmap`, `useScopedCustomers`, `useScopedInsightsReport`, `useScopedPendingCount`, `useScopeDiagnosis`, `usePreviousPeriod`, `useFormQuestionsConfig`) usa uma flag de cancelamento no `useEffect` para descartar a resposta que chega depois de trocar o escopo ou de desmontar. O `useScopedFeedbackAnalysis` e o `useScopedFeedbackQuestions` usam o `useLatestRequest`: cada busca ganha um número, e só a mais recente grava no estado.
 
 ### Acompanhamento dos jobs de IA
 
@@ -104,7 +105,7 @@ Exibido quando o loader, o hook ou a action retorna uma falha. Erros que escapam
 |---|---|---|---|
 | Feedbacks (lista) | `FeedbacksAllSkeleton` + `FeedbacksAllLoadingOverlay` | `FeedbacksAllEmptyState` | `FeedbacksAllErrorState` (borda e fundo `rose-500`) |
 | Dashboard | `DashboardSkeleton` + `DashboardScopedSkeleton` | `DashboardWelcome` + `WelcomePreview` quando a conta ainda não tem feedback | Faixa inline com a mensagem do loader (`dashboardError`) |
-| Visão geral dos comentários | `InsightsReportSkeleton` | — | `InsightsReportErrorState` (modal que pode ser fechado) |
+| Resumo da análise dos comentários | `InsightsReportSkeleton` | — | `InsightsReportErrorState` (modal que pode ser fechado) |
 | Comentários analisados | Texto inline "Carregando os comentários…" | Mensagem inline (sem comentários analisados no escopo, ou nenhum no filtro, com botão "Ver todos os comentários") | Caixa inline com borda `--negative` |
 
 ---
@@ -118,7 +119,7 @@ A tela que o cliente final vê ao escanear o QR Code. O loader (`LoaderPublicQrC
 | Formulário disponível | `PublicQrFeedbackTemplateRenderer` |
 | Feedback já enviado anteriormente | `stateSentPreviousFeedback` |
 | Enviado com sucesso | `stateSubmitted` |
-| Erro (empresa não encontrada etc.) | `stateError` |
+| Erro ao abrir (formulário desativado ou endereço inválido). A frase é a mesma para QR Code, link e NFC | `stateError` |
 
 Os três estados finais usam o mesmo `FeedbackStatusLayout`. Quando o formulário está embutido no Dashboard (feedback de teste), a página avisa a tela de cima pelo `notifyEmbeddedFormResult` ao enviar ou ao detectar envio anterior.
 

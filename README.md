@@ -4,7 +4,7 @@ Frontend do [Feedback Analytics](https://github.com/TCC-Feedback-Analytics/feedb
 
 O frontend **não fala com o banco nem com o provedor de auth diretamente**: toda comunicação passa pelo **API Gateway**, pelos caminhos `/api/*` (via `src/lib/utils/http.ts`, com `credentials: 'include'` — a sessão é um cookie httpOnly gerenciado pela API). A autenticação do backend usa **Better Auth**: a Web chama os endpoints de auth do gateway (`/api/public/auth/...`) e, para entrar com o Google e excluir a conta, as rotas nativas do Better Auth (`/api/auth/...`), também pelo gateway.
 
-- **Stack:** React 19 · Vite 7 · React Router DOM 7 (loaders/actions) · Tailwind CSS v4 · TypeScript
+- **Stack:** React 19 · Vite 8 · React Router DOM 7 (loaders/actions) · Tailwind CSS v4 · TypeScript · Vitest 5
 - **Formulários:** React Hook Form + Zod
 - **Contratos:** tipos e schemas de [`@feedback/lib-shared`](https://github.com/TCC-Feedback-Analytics/feedback-analytics-contracts) (git tag `v1.9.0`, consumidos via alias `lib`)
 - **Deploy:** Vercel — build estático (SPA); o `vercel.json` repassa `/api/*` ao API Gateway e o resto cai no `index.html`
@@ -32,7 +32,7 @@ npm run preview         # serve o build de dist/
 > **Em produção na Vercel**, a Web repassa `/api/*` ao API Gateway (`rewrites` do `vercel.json`). Assim, o cookie de sessão é do próprio site: Safari e Samsung Internet bloqueiam cookie de outro domínio, e o login não se mantinha. As variáveis ficam assim:
 >
 > - `VITE_API_BASE_URL` **vazia**, para chamar `/api` no próprio site.
-> - `VITE_PUBLIC_API_BASE_URL` com a URL pública do gateway. É usada nas rotas públicas que contam por IP: o formulário do cliente e o reenvio da confirmação.
+> - `VITE_PUBLIC_API_BASE_URL` com a URL pública do gateway. É usada no formulário do cliente e no reenvio da confirmação. Essas chamadas vão direto ao gateway, para o limite por IP ver o IP do cliente. O login, o cadastro e o esqueci a senha passam pelo repasse da Vercel.
 > - No gateway, `COOKIE_CROSS_SITE=false` e `BETTER_AUTH_URL` com a URL da Web.
 >
 > Trocar o endereço do gateway é mudar o `vercel.json` e a `VITE_PUBLIC_API_BASE_URL`.

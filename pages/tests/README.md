@@ -7,18 +7,21 @@ Este diretório contém os testes para as páginas do projeto usando Vitest e Re
 ### Páginas Testadas
 
 - **home.test.tsx** - Página Home (pública)
+- **resultados.test.tsx** - Página pública Resultados, do produto
 - **login.test.tsx** - Página Login (pública)
 - **register.test.tsx** - Página Register (pública)
+- **forgotPassword.test.tsx** - Recuperação de senha, com o aviso do link vencido (`?error=`)
 - **dashboard.test.tsx** - Dashboard, incluindo o convite do guia
 - **profile.test.tsx** - Perfil
-- **ratings.test.tsx** - Todas as métricas de estrelas, com a comparação com o período anterior
+- **ratings.test.tsx** - Nota, com a comparação com o período anterior
+- **customers.test.tsx** - Clientes e canais: canais, horários de pico e clientes que voltam
 - **compare.test.tsx** - Comparar itens do catálogo
 - **diagnosis.test.tsx** - Histórico de diagnósticos
 - **comments.test.tsx** - Comentários analisados (filtros pela URL)
 - **question.test.tsx** - Página de uma pergunta do formulário
 - **openrouterCallback.test.tsx** - Volta do OpenRouter e botão "Conectar com OpenRouter"
 
-Os blocos `describe` usam o prefixo `[Unidade]` ou `[Integração]` (este último só aparece nos testes de actions e helpers de carga em `src/routes/`). Nem todos seguem: `diagnosis.test.tsx` e `openrouterCallback.test.tsx` não têm prefixo.
+Os blocos `describe` usam o prefixo `[Unidade]` ou `[Integração]` (este último só aparece nos testes de actions e helpers de carga em `src/routes/`). Nem todos seguem: `diagnosis.test.tsx`, `openrouterCallback.test.tsx` e `resultados.test.tsx` não têm prefixo.
 
 ### Onde ficam os outros testes
 
@@ -76,7 +79,7 @@ vi.mock('components/public/forms/formLogin', () => ({
 }));
 ```
 
-#### 4. Páginas que buscam dados no cliente (Ratings, Compare, Dashboard)
+#### 4. Páginas que buscam dados no cliente (Ratings, Customers, Compare, Dashboard)
 
 Os services, o contexto de escopo e os hooks de dados são mockados; os valores ficam em `vi.hoisted` para estarem prontos quando o `vi.mock` roda:
 
