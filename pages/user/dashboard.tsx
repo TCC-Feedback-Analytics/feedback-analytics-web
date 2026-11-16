@@ -252,7 +252,7 @@ export default function Dashboard() {
 
   return (
     <div className="font-work-sans space-y-6">
-      {/* Sem cabeçalho próprio: o nome da página está no breadcrumb, os comentários
+      {/* Sem cabeçalho próprio, nem título nem breadcrumb: os comentários
           aguardando análise estão no sino e o atalho do QR, na barra de escopo. */}
       {error ? (
         <div className="rounded-xl border border-(--negative)/30 bg-(--negative)/10 px-4 py-3 text-sm text-(--text-primary)">
