@@ -1,13 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@100..900&display=swap');
-
 :root {
-  --font-title: 'Montserrat', Arial, sans-serif;
-  --font-body: 'Inter', Arial, sans-serif;
+  --font-title: 'Montserrat Variable', Arial, sans-serif;
+  --font-body: 'Inter Variable', Arial, sans-serif;
   --font-button: 'Poppins', Arial, sans-serif;
 
   font-family: var(--font-body), system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -251,7 +244,7 @@
 }
 
 .font-inter {
-  font-family: 'Inter', Arial, sans-serif;
+  font-family: 'Inter Variable', Arial, sans-serif;
 }
 
 .font-montserrat {
@@ -259,7 +252,7 @@
 }
 
 .font-work-sans {
-  font-family: 'Work Sans', 'Roboto', sans-serif;
+  font-family: 'Work Sans Variable', 'Roboto Variable', sans-serif;
 }
 
 .font-poppins {
