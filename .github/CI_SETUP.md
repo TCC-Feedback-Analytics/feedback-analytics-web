@@ -39,7 +39,7 @@ voltar a ser privado, este passo precisaria injetar um PAT com read no repo.
 
 ## Vercel
 
-O deploy é por **CLI com token** (`npx vercel deploy --yes --prod --local-config vercel.json`),
+O deploy é por **CLI com token** (`npx vercel deploy --yes --prod --token "$VERCEL_TOKEN" --local-config vercel.json`),
 disparado manualmente (`workflow_dispatch`). O `vercel.json` já aponta para a raiz
 do repo (build de `package.json` com `@vercel/static-build`, saída em `dist`) e define dois `rewrites`:
 `/api/*` vai para o gateway (`https://feedback-analytics-api-gateway.vercel.app/api/*`), e o resto

@@ -4,8 +4,8 @@
 
 O frontend (`feedback-analytics-web`) é uma aplicação **React 19** com duas áreas distintas:
 
-- **Área pública** — landing page, login (por e-mail e senha ou com o Google), cadastro, "Complete seu cadastro", recuperação de senha, reenvio da confirmação de e-mail, Política de Privacidade, Termos de Serviço e o formulário público de coleta de feedback, aberto por QR Code, link ou etiqueta NFC (sem autenticação)
-- **Área protegida (`/user/*`)** — painel da empresa: onboarding e guia do sistema, Dashboard com métricas por escopo e período, comparação de itens, diagnóstico do escopo pela IA, análise dos comentários, feedbacks recebidos, configuração da coleta (avaliação da empresa, catálogo, canais de coleta, campo de comentário), configuração de IA e perfil
+- **Área pública** — landing page, login (por e-mail e senha ou com o Google), cadastro, "Complete seu cadastro", recuperação de senha, reenvio da confirmação de e-mail, Política de Privacidade, Termos de Serviço, as páginas do produto (Coleta, Análise e Resultados) e o formulário público de coleta de feedback, aberto por QR Code, link ou etiqueta NFC (sem autenticação)
+- **Área protegida (`/user/*`)** — painel da empresa: onboarding e guia do sistema, Dashboard com métricas por escopo e período, Nota, Clientes e canais, comparação de itens, diagnóstico do escopo pela IA, análise dos comentários, feedbacks recebidos, configuração da coleta (avaliação da empresa, catálogo, canais de coleta, campo de comentário), configuração de IA e perfil
 
 O frontend só conversa com o **API Gateway**, pelos caminhos `/api/*`. Em produção, a Vercel repassa `/api/*` ao gateway (`rewrites` do `vercel.json`); localmente, a base vem de `VITE_API_BASE_URL` (ver `.env.example`) e, com ela vazia, o proxy do `vite.config.ts` repassa `/api` para `http://localhost:3000`. Tipos e schemas dos contratos vêm do pacote `@feedback/lib-shared`.
 
@@ -18,39 +18,41 @@ O frontend só conversa com o **API Gateway**, pelos caminhos `/api/*`. Em produ
 | **React** | 19.x | Biblioteca de UI |
 | **React Router DOM** | 7.x | Roteamento SPA + data fetching (loaders/actions) |
 | **React Hook Form** | 7.x | Gerenciamento de estado de formulários |
-| **@hookform/resolvers** | 5.x | Integração do React Hook Form com schemas Zod |
+| **@hookform/resolvers** | 7.x | Integração do React Hook Form com schemas Zod |
 | **Zod** | 4.x | Validação e parsing de schemas |
 | **@feedback/lib-shared** | tag `v1.9.0` | Contratos compartilhados (tipos e schemas), importados pelo alias `lib` |
 | **@zxcvbn-ts** (core, common, pt-br) | 4.x | Medidor de força da senha no cadastro |
 | **qrcode** | 1.5.x | Gera a imagem do QR Code no navegador, sem serviço de terceiros |
 | **Tailwind CSS** | 4.x | Estilização utilitária |
 | **React Icons** | 5.x | Biblioteca de ícones |
+| **@fontsource** (Inter, Montserrat, Work Sans, Roboto, Poppins, Geist Mono, Space Grotesk) | 5.x | Fontes servidas pela própria Web, sem Google Fonts |
+| **framer-motion** | 14.x | Animações das páginas do produto |
 | **TypeScript** | 5.8.x | Tipagem estática |
 
 ### Build
 
 | Tecnologia | Versão | Papel |
 |---|---|---|
-| **Vite** | 7.x | Build tool e dev server |
-| **@vitejs/plugin-react** | 4.x | Suporte a React (Fast Refresh + JSX) no Vite |
+| **Vite** | 8.x | Build tool e dev server |
+| **@vitejs/plugin-react** | 6.x | Suporte a React (Fast Refresh + JSX) no Vite |
 | **@tailwindcss/vite** | 4.x | Plugin do Tailwind CSS no Vite |
 
 ### Testes
 
 | Tecnologia | Versão | Papel |
 |---|---|---|
-| **Vitest** | 3.x | Runner de testes unitários |
-| **@vitest/coverage-v8** | 3.x | Relatório de cobertura de código via V8 |
+| **Vitest** | 5.x | Runner de testes unitários |
+| **@vitest/coverage-v8** | 5.x | Relatório de cobertura de código via V8 |
 | **@testing-library/react** | 16.x | Renderização de componentes em testes |
 | **@testing-library/user-event** | 14.x | Simulação de interações do usuário |
-| **@testing-library/jest-dom** | 6.x | Matchers customizados para DOM |
-| **jsdom** | 27.x | Ambiente DOM simulado para os testes |
+| **@testing-library/jest-dom** | 7.x | Matchers customizados para DOM |
+| **jsdom** | 31.x | Ambiente DOM simulado para os testes |
 
 ### Qualidade de Código
 
 | Tecnologia | Versão | Papel |
 |---|---|---|
-| **ESLint** | 9.x | Linting de código |
+| **ESLint** | 10.x | Linting de código |
 | **typescript-eslint** | 8.x | Regras de lint específicas para TypeScript |
 
 ---
@@ -64,10 +66,13 @@ As rotas são declaradas em `src/routes/public.tsx` e `src/routes/user.tsx`, mon
 | Rota | Descrição |
 |---|---|
 | `/` | Landing page |
+| `/produto/coleta` | Página do produto: coleta |
+| `/produto/analise` | Página do produto: análise |
+| `/produto/resultados` | Página do produto: resultados |
 | `/login` | Login da empresa; mostra "Continuar com Google" quando `VITE_GOOGLE_AUTH_ENABLED=true` |
 | `/register` | Cadastro (nome do negócio, e-mail, celular, senha com medidor de força e aceite dos termos); também com Google |
 | `/auth/complete-signup` | "Complete seu cadastro": primeira entrada com o Google, pede nome do negócio, celular e aceite dos termos |
-| `/forgot-password` | Recuperação de senha |
+| `/forgot-password` | Recuperação de senha. Com `?error=` (ex.: `INVALID_TOKEN`), avisa que o link de redefinição venceu ou já foi usado |
 | `/auth/reset-password` | Redefinição de senha |
 | `/resend-confirmation` | Reenvio do e-mail de confirmação do cadastro |
 | `/auth/success` | Confirmação de autenticação (e-mail verificado) |
@@ -80,15 +85,16 @@ As rotas são declaradas em `src/routes/public.tsx` e `src/routes/user.tsx`, mon
 
 | Rota | Descrição |
 |---|---|
-| `/user/dashboard` | Visão geral: primeiros passos da conta nova, métricas de estrelas, "Por onde chegaram" (canais QR, link e NFC), movimento das avaliações, perguntas do formulário, análise dos comentários e diagnóstico do escopo |
-| `/user/ratings` | Todas as métricas de estrelas: distribuição de 1 a 5, movimento no tempo, dias e horários de pico e clientes que voltam |
+| `/user/dashboard` | Visão geral, sem título nem breadcrumb. Mostra os primeiros passos da conta nova, o resumo das estrelas, as perguntas do formulário, "Por onde chegaram" (QR, link e NFC), a análise dos comentários e o diagnóstico do escopo. Cada resumo leva à sua página de detalhe |
+| `/user/ratings` | Nota: média, positivas, neutras e críticas, distribuição de 1 a 5 estrelas e movimento no tempo, com a comparação com o período anterior |
+| `/user/customers` | Clientes e canais: por onde as avaliações chegaram, dias e horários de pico e clientes que voltam |
 | `/user/questions/:questionId` | Página de uma pergunta do formulário, com subperguntas, distribuição e histórico |
 | `/user/questions/removed` | Perguntas que saíram do formulário, mas ainda têm respostas no escopo |
 | `/user/compare` | Comparar dois itens do catálogo do mesmo tipo, no mesmo período |
 | `/user/diagnosis` | Histórico dos diagnósticos da IA já gerados para o escopo |
 | `/user/feedbacks/all` | Feedbacks recebidos, com filtros, canal de chegada, marca "Teste" e detalhe em janela |
 | `/user/feedbacks/:id` | Detalhe de um feedback (tela provisória, sem conteúdo além do id) |
-| `/user/insights/overview` | Análise dos comentários › Visão geral: tom, assuntos que mais impactam e resumo com recomendações |
+| `/user/insights/overview` | Análise dos comentários › Resumo: tom, assuntos que mais impactam e resumo com recomendações |
 | `/user/insights/comments` | Análise dos comentários › Comentários, com filtros por tom e pela divergência entre nota e texto |
 | `/user/profile` | Perfil: dados pessoais e acesso, dados da empresa, contexto da empresa para a IA e "Excluir minha conta" (ver [Fluxo de Autenticação](./fluxo-autenticacao.md)) |
 | `/user/edit/feedback-general` | Avaliação da empresa: perguntas gerais, campo de comentário e canais de coleta (QR Code, link e etiqueta NFC) |
@@ -99,8 +105,8 @@ As rotas são declaradas em `src/routes/public.tsx` e `src/routes/user.tsx`, mon
 | `/user/edit/feedback/:kind/:itemId` | Configuração por item do catálogo: dados, perguntas, campo de comentário e canais de coleta |
 | `/user/edit/ia-settings` | Configuração de IA (chave OpenRouter, "Conectar com OpenRouter" e modelo) — ver [Configuração de IA](./configuracao-ia.md) |
 | `/user/openrouter/callback` | Volta do "Conectar com OpenRouter": troca o código pela chave no gateway e retorna à tela de origem |
-| `/user/edit/customers` | Clientes (tela "Em breve", ainda não implementada) |
-| `/user/edit/collecting-data-enterprise` | Redireciona para `/user/profile#dados-da-empresa`; a action da rota segue recebendo o contexto da empresa salvo pelo onboarding |
+| `/user/edit/customers` | Tela antiga "Clientes", fora do menu, ainda "Em breve". Não é a página Clientes e canais (`/user/customers`) |
+| `/user/edit/collecting-data-enterprise` | Redireciona para `/user/profile#contexto-da-ia`; a action da rota segue recebendo o contexto da empresa salvo pelo onboarding |
 
 **Rotas antigas que redirecionam** (links salvos continuam funcionando):
 
@@ -114,11 +120,11 @@ As rotas são declaradas em `src/routes/public.tsx` e `src/routes/user.tsx`, mon
 | `/user/edit/feedback-settings` | `/user/edit/types-feedback` |
 | `/user/qrcode/enterprise` | `/user/edit/feedback-general` |
 
-> **Wayfinding e menu** — a navegação interna é padronizada por `routeMeta.ts` (mapeia `pathname` → título/descrição/breadcrumb) consumido pelo `PageHeader` (breadcrumb + título no topo de cada página). O menu (`src/lib/constants/menu.ts`) tem Visão geral, Comparar itens, Diagnósticos, Feedbacks, Análise dos comentários e **"Configuração da coleta"** (Avaliação da empresa, Catálogo e Configuração de IA). No celular, a navegação vai para a barra inferior e a gaveta de menu. O Perfil e o Guia do Sistema ficam no menu da conta, no cabeçalho.
+> **Wayfinding e menu** — a navegação interna é padronizada por `routeMeta.ts` (mapeia `pathname` → título/descrição/breadcrumb) consumido pelo `PageHeader`, que mostra o breadcrumb e o título no topo da página. O Dashboard não usa o `PageHeader`. O menu (`src/lib/constants/menu.ts`) tem Visão geral, Nota, Clientes e canais, Comparar itens, Diagnósticos, Feedbacks (Recebidos), Análise dos comentários (Resumo e Comentários) e **"Configuração da coleta"** (Avaliação da empresa, Catálogo e Configuração de IA). No computador, o menu do cabeçalho mostra as páginas que cabem na largura, e as outras ficam no botão "Mais". No celular, a navegação vai para a barra inferior e a gaveta de menu. O Perfil e o Guia do Sistema ficam no menu da conta, no cabeçalho.
 
 ### Controles de escopo e período
 
-Abaixo do cabeçalho, a barra de controles (`InsightsActionBar`) aparece no Dashboard, em `/user/ratings`, nas páginas de pergunta e na Análise dos comentários. Ela escolhe o **escopo** (empresa ou um item de produto, serviço ou departamento), o **período** (todo o período, 7 ou 30 dias, 3 ou 6 meses, personalizado) com a comparação com o período anterior, e dispara "Analisar comentários com IA". O estado fica no contexto `insightsControls`, compartilhado por todas as telas da área logada. O sino do cabeçalho mostra os feedbacks do escopo aguardando análise.
+Abaixo do cabeçalho, a barra de controles (`InsightsActionBar`) aparece no Dashboard, em `/user/ratings`, em `/user/customers`, nas páginas de pergunta e na Análise dos comentários. No Dashboard, a barra também traz o atalho do QR Code. Ela escolhe o **escopo** (empresa ou um item de produto, serviço ou departamento), o **período** (todo o período, 7 ou 30 dias, 3 ou 6 meses, personalizado) com a comparação com o período anterior, e dispara "Analisar comentários com IA". O estado fica no contexto `insightsControls`, compartilhado por todas as telas da área logada. O sino do cabeçalho mostra os feedbacks do escopo aguardando análise.
 
 ### Onboarding e guia do sistema
 

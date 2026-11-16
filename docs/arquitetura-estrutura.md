@@ -9,7 +9,7 @@ O sistema usa o React Router v7 (`createBrowserRouter`, em `src/routes/source.ts
 O caminho principal até o service tem três passos (as exceções estão em "O que isso significa na prática"):
 
 1. **Tela (UI):** Captura a ação do usuário (acessar uma página ou enviar um form).
-2. **Rota (Loader/Action)** ou **hook de dados (`src/lib/hooks`)**: a rota cuida do que é carregado na navegação e do que é enviado por formulário; o hook cuida dos dados que mudam com o escopo e o período escolhidos no header da área logada, buscados no cliente sem trocar de rota.
+2. **Rota (Loader/Action)** ou **hook de dados (`src/lib/hooks`)**: a rota cuida do que é carregado na navegação e do que é enviado por formulário; o hook cuida dos dados que mudam com o escopo e o período escolhidos na barra abaixo do cabeçalho da área logada, buscados no cliente sem trocar de rota.
 3. **Serviço (Service):** Monta a requisição HTTP (URL, método, body) e fala com a API.
 
 ```mermaid
@@ -58,7 +58,7 @@ graph TD
 
 - **Para escrever (Actions):** O usuário preenche um `<Form>` (ou um `useFetcher`) e submete. A `action` (ex.: `ActionCollectingData`) extrai os dados do formulário e chama o service correspondente em `serviceEnterprise.ts`, que faz o POST/PATCH. A `action` apenas recebe a confirmação e avisa a tela. Quando uma rota tem mais de uma operação, a `action` despacha pelo campo `intent` (constantes em `src/lib/constants/routes/intents.ts`) — ex.: `ActionFeedbackGeneralPage` repassa para `ActionQrCodeEnterprise` ou `ActionFeedbackSettings`.
 
-- **Chamadas pontuais:** algumas telas e componentes chamam o service direto, sem rota nem hook — ex.: `pages/user/ratings.tsx` e `pages/user/compare.tsx` (`ServiceGetFeedbackStats`), `pages/user/diagnosis.tsx`, `pages/user/openrouterCallback.tsx`, `DeleteAccountSection` e `CommentFieldSettings`. Mesmo assim, o `fetch` continua só no `http.ts`.
+- **Chamadas pontuais:** algumas telas e componentes chamam o service direto, sem rota nem hook — ex.: `pages/user/ratings.tsx`, `pages/user/customers.tsx`, `pages/user/compare.tsx` e o Dashboard ao trocar de escopo (`ServiceGetFeedbackStats`), `pages/user/diagnosis.tsx`, `pages/user/openrouterCallback.tsx`, `DeleteAccountSection` e `CommentFieldSettings`. Mesmo assim, o `fetch` continua só no `http.ts`.
 
 - **Endereço da API:** os services chamam caminhos relativos `/api/...`. Em produção, a Web chama o próprio domínio e a Vercel repassa `/api/*` ao gateway (`rewrites` do `vercel.json`); localmente, com `VITE_API_BASE_URL` vazia (padrão do `.env.example`), o proxy do `vite.config.ts` repassa `/api → http://localhost:3000`. As rotas públicas que contam por IP (formulário do cliente e reenvio da confirmação) usam `requestPublicApi`/`postPublicJson`, que vão direto ao gateway por `VITE_PUBLIC_API_BASE_URL`, sem cookie. As variáveis estão no `.env.example`; a sessão, no [Fluxo de autenticação](./fluxo-autenticacao.md).
 
@@ -71,7 +71,7 @@ Para manter o código fácil de dar manutenção, separamos as responsabilidades
 
 3. **Rotas (`src/routes/`)** — **Os Controladores:** Onde vivem Loaders e Actions. Eles conectam a tela ao motor de dados. A árvore de rotas fica em `source.tsx` (raiz), `public.tsx` e `user.tsx`.
 
-4. **Infraestrutura (`src/services/` + `src/lib/utils/http.ts`)** — **O coração da comunicação**. Os services montam as URLs da API; o `http.ts` centraliza o `fetch` (`requestApi`, `getJson`, `postJson`, `patchJson`, `putJson`) com `credentials: 'include'` (a sessão vai no **cookie httpOnly** — não há injeção de token) e transforma resposta não-OK em erro com `status` e `code`.
+4. **Infraestrutura (`src/services/` + `src/lib/utils/http.ts`)** — **O coração da comunicação**. Os services montam as URLs da API; o `http.ts` centraliza o `fetch` (`requestApi`, `getJson`, `postJson`, `patchJson`, `putJson`, `deleteJson` e, para as rotas públicas, `requestPublicApi` e `postPublicJson`) com `credentials: 'include'` (a sessão vai no **cookie httpOnly** — não há injeção de token) e transforma resposta não-OK em erro com `status` e `code`.
 
 ### Convenções que o lint cobra
 
@@ -98,7 +98,7 @@ feedback-analytics-web/
 │   │   ├── public.tsx          → Rotas públicas (layout público)
 │   │   ├── user.tsx            → Rotas /user/* (layout autenticado, LoaderUserProtected, redirects de rotas antigas)
 │   │   ├── actions/            → Funções de mutation (POST, PATCH, DELETE), algumas despachando por intent
-│   │   ├── loaders/            → Funções de leitura (GET), uma por rota
+│   │   ├── loaders/            → Funções de leitura (GET) das rotas; algumas servem a mais de uma rota
 │   │   └── load/               → Helpers compartilhados chamados pelos loaders e por alguns hooks
 │   ├── services/               → Serviços HTTP (onde as requisições são montadas)
 │   │   ├── serviceAuth.ts
@@ -113,14 +113,13 @@ feedback-analytics-web/
 │   │   └── serviceUser.ts
 │   ├── hooks/                  → Hooks avulsos (useIaModels, useResendConfirmationCooldown)
 │   └── lib/
-│       ├── constants/          → Constantes de domínio (catálogo, escopos, ajuda, métricas, textos legais) e routes/ (errors, intents, routeMeta)
+│       ├── constants/          → Constantes de domínio (catálogo, escopos, ajuda, métricas, textos legais, resumo dos comentários), menu.ts (menu da área logada, usado pelo Menu, HeaderNav e sectionSiblings) e routes/ (errors, intents, routeMeta)
 │       ├── context/            → Contextos React (insightsControls, onboardingContext, companyQuestionsGenerationContext)
 │       ├── hooks/              → Hooks de dados por escopo (useScopedStats, useScopedInsightsReport, useScopedFeedbackAnalysis…) e de operação da IA (useIaOperation, useAnalysisJobPolling)
-│       ├── constants/          → inclui menu.ts: definição do menu da área logada (usada pelo Menu, HeaderNav e sectionSiblings)
 │       └── utils/              → Utilitários puros (formatação, validação, estatística, http)
 ├── pages/                      → Montagem das telas (composição de componentes)
-│   ├── public/                 → Páginas públicas (home, login, register, senha, termos, privacidade, qrcode)
-│   ├── user/                   → Páginas autenticadas (dashboard, ratings, compare, diagnosis, profile, feedbacks, insights, questions, edit…)
+│   ├── public/                 → Páginas públicas (home, páginas do produto coleta, analise e resultados, login, register, complete signup, senha, reenvio, auth, termos, privacidade, qrcode)
+│   ├── user/                   → Páginas autenticadas (dashboard, ratings, customers, compare, diagnosis, profile, feedbacks, insights, questions, edit…)
 │   └── tests/                  → Testes das páginas (ver pages/tests/README.md)
 ├── layouts/                    → Layouts base (public.tsx e user.tsx) e seus testes (tests/)
 ├── components/
@@ -130,12 +129,14 @@ feedback-analytics-web/
 │   ├── ui/                     → Primitivos de interface (checkbox, dialog, input, select, sidebar, spinner, switch, toast…)
 │   ├── public/                 → Componentes da área pública
 │   │   ├── forms/              → Formulários (login, register, complete signup, qrcode, forgot/reset password, reenvio da confirmação) e seus campos
+│   │   ├── home/               → Seções da landing page
 │   │   ├── layout/             → Header público
 │   │   ├── legal/              → Página de termos e privacidade
+│   │   ├── product/            → Navegação e seções das páginas do produto
 │   │   ├── qrcode/enterprise/  → Formulário público e seus estados (error, submitted, feedback já enviado…)
 │   │   └── shared/             → Peças comuns da área pública (AuthShell, card)
 │   └── user/
-│       ├── layout/             → Estrutura base autenticada (Menu, Sidebar, Header, navegação mobile, barra de ações da IA)
+│       ├── layout/             → Estrutura base autenticada (Menu, Sidebar, Header, menu do cabeçalho com o botão "Mais", menu da conta, sino, navegação mobile e barra de escopo e período)
 │       ├── onboarding/         → Configuração inicial, tour guiado e diálogos de contexto da IA
 │       ├── shared/             → Peças comuns (Cards, Avatares, Skeletons, Badge), wayfinding (PageHeader, SectionTabs), selos (PrecisionBadge, ScopeTag, PeriodDelta), ajuda contextual (HelpPopover, HelpHint, MetricHelp) e seletor de modelo da IA
 │       └── pages/              → Peças específicas de cada tela
@@ -154,7 +155,7 @@ feedback-analytics-web/
 │           ├── qrcodeCatalog/  → Só ui.types.ts
 │           ├── qrcodeEnterprise/
 │           └── questions/
-├── styles/                     → Estilos (Tailwind v4 em tailwind.css, index.css e imports por área: public/ e user/)
+├── styles/                     → Estilos (fonts.css carrega as fontes locais do @fontsource; Tailwind v4 em tailwind.css; index.css e imports por área: public/ e user/)
 └── tests/setup.ts              → Setup global do Vitest
 ```
 
