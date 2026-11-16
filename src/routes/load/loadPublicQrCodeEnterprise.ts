@@ -2,6 +2,7 @@ import { ServiceGetEnterprisePublic } from 'src/services/serviceEnterprise';
 import type { FeedbackQuestionPublic } from 'lib/interfaces/contracts/qrcode/question.contract';
 import { DEFAULT_COMMENT_FIELD, type CommentFieldSettings } from 'lib/schemas/public/commentField';
 import { CHANNEL_URL_PARAM, channelFromUrlValue, type FeedbackChannel } from 'lib/schemas/public/feedbackChannel';
+import { FORM_UNAVAILABLE_MESSAGE } from 'src/lib/utils/publicQrFeedbackErrorMessage';
 
 export type PublicQrCodeEnterpriseLoadData = {
   enterpriseId: string | null;
@@ -48,7 +49,7 @@ export async function loadPublicQrCodeEnterpriseData(
 
     // O envio exige um collection_point QR ativo (resolvido pelo servidor). Sem
     // ele, o submit retornaria 404. Não renderiza um formulário que nunca poderia
-    // ser enviado — mostra erro amigável (igual ao QR inválido), em vez de deixar
+    // ser enviado — mostra a mesma frase do 404 no envio, em vez de deixar
     // o usuário preencher tudo para falhar no envio.
     const resolvedCollectionPointId = enterprise.collection_point_id ?? null;
 
@@ -62,8 +63,7 @@ export async function loadPublicQrCodeEnterpriseData(
         itemKind: null,
         questions: [],
         commentField: DEFAULT_COMMENT_FIELD,
-        error:
-          'QR Code indisponível: não há ponto de coleta ativo para este código. Verifique o QR Code ou contate a empresa.',
+        error: FORM_UNAVAILABLE_MESSAGE,
       };
     }
 
