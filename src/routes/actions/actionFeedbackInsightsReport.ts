@@ -107,7 +107,7 @@ export async function ActionFeedbackInsightsReport({
       return {
         errorCode: 'ia_config_required',
         error:
-          'Configure sua chave OpenRouter em Editar > Configuração de IA antes de iniciar uma análise.',
+          'Configure sua chave OpenRouter em Configuração da coleta > Configuração de IA antes de iniciar uma análise.',
       };
     }
 

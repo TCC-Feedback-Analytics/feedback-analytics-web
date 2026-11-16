@@ -56,7 +56,7 @@ describe('[Integração] ActionFeedbackInsightsReport', () => {
     await expect(ActionFeedbackInsightsReport(createArgs())).resolves.toEqual({
       errorCode: 'ia_config_required',
       error:
-        'Configure sua chave OpenRouter em Editar > Configuração de IA antes de iniciar uma análise.',
+        'Configure sua chave OpenRouter em Configuração da coleta > Configuração de IA antes de iniciar uma análise.',
     });
   });
 

@@ -11,7 +11,7 @@ describe('[Unidade] getIaErrorMessage', () => {
   });
   it('orienta a configurar o OpenRouter quando a chave da empresa está ausente', () => {
     expect(getIaErrorMessage('ia_config_required')).toBe(
-      'Configure sua chave OpenRouter em Editar > Configuração de IA antes de iniciar uma análise.',
+      'Configure sua chave OpenRouter em Configuração da coleta > Configuração de IA antes de iniciar uma análise.',
     );
   });
 });
