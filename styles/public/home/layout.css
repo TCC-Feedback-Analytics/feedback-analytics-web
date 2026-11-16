@@ -7,7 +7,7 @@
   --fn-light: #f5faf9;
   background: var(--fn-dark);
   color: #f2faf9;
-  font-family: Inter,Arial,sans-serif;
+  font-family: 'Inter Variable',Arial,sans-serif;
   overflow: hidden;
 }
 .field-notes * {
@@ -20,7 +20,7 @@
   margin: 0;
 }
 .field-notes h1,.field-notes h2,.field-notes h3 {
-  font-family: 'Space Grotesk',Inter,sans-serif;
+  font-family: 'Space Grotesk','Inter Variable',sans-serif;
 }
 .field-notes h2 {
   font-size: clamp(2rem,3.1vw,44px);

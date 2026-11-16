@@ -1,0 +1,46 @@
+/* Fontes servidas pela própria Web (pacotes @fontsource), sem chamar o Google
+   Fonts: assim o IP e o navegador de quem visita não vão para o Google.
+   Os pacotes "-variable" registram a família com o sufixo " Variable". */
+
+/* Inter (corpo): pesos 100–900 e tamanho óptico, normal e itálico */
+@import '@fontsource-variable/inter/opsz.css';
+@import '@fontsource-variable/inter/opsz-italic.css';
+
+/* Montserrat (títulos): pesos 100–900, normal e itálico */
+@import '@fontsource-variable/montserrat/wght.css';
+@import '@fontsource-variable/montserrat/wght-italic.css';
+
+/* Work Sans e Roboto (reserva da Work Sans): pesos 100–900, normal e itálico */
+@import '@fontsource-variable/work-sans/wght.css';
+@import '@fontsource-variable/work-sans/wght-italic.css';
+@import '@fontsource-variable/roboto/wght.css';
+@import '@fontsource-variable/roboto/wght-italic.css';
+
+/* Poppins (botões): não tem versão variável, então vai peso a peso, 100–900 */
+@import '@fontsource/poppins/100.css';
+@import '@fontsource/poppins/100-italic.css';
+@import '@fontsource/poppins/200.css';
+@import '@fontsource/poppins/200-italic.css';
+@import '@fontsource/poppins/300.css';
+@import '@fontsource/poppins/300-italic.css';
+@import '@fontsource/poppins/400.css';
+@import '@fontsource/poppins/400-italic.css';
+@import '@fontsource/poppins/500.css';
+@import '@fontsource/poppins/500-italic.css';
+@import '@fontsource/poppins/600.css';
+@import '@fontsource/poppins/600-italic.css';
+@import '@fontsource/poppins/700.css';
+@import '@fontsource/poppins/700-italic.css';
+@import '@fontsource/poppins/800.css';
+@import '@fontsource/poppins/800-italic.css';
+@import '@fontsource/poppins/900.css';
+@import '@fontsource/poppins/900-italic.css';
+
+/* Geist Mono e Space Grotesk (páginas legais): os mesmos pesos de antes */
+@import '@fontsource/geist-mono/400.css';
+@import '@fontsource/geist-mono/500.css';
+@import '@fontsource/geist-mono/600.css';
+@import '@fontsource/space-grotesk/400.css';
+@import '@fontsource/space-grotesk/500.css';
+@import '@fontsource/space-grotesk/600.css';
+@import '@fontsource/space-grotesk/700.css';

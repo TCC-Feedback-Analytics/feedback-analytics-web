@@ -2,7 +2,7 @@
 import { nameSchema } from 'lib/schemas/user/nameSchema';
 import { emailUpdateSchema } from 'lib/schemas/user/emailUpdateSchema';
 import { INTENT_PROFILE_UPDATE_FULL_NAME, INTENT_PROFILE_UPDATE_EMAIL } from 'src/lib/constants/routes/intents';
-import { FaEnvelope, FaUser } from 'react-icons/fa6';
+import { FaEnvelope, FaStore } from 'react-icons/fa6';
 import EditableFieldFixed from './EditableFieldFixed';
 import PhoneEditableField from './PhoneEditableField';
 import type { InformationProps } from './ui.types';
@@ -21,14 +21,14 @@ export default function Information({
     <div className="space-y-5">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <EditableFieldFixed
-          label="Nome completo"
+          label="Nome do negócio"
           value={safeName}
-          placeholder="Digite seu nome completo"
+          placeholder="Digite o nome do negócio"
           type="text"
-          icon={<FaUser aria-hidden="true" className="text-(--primary-color)" />}
+          icon={<FaStore aria-hidden="true" className="text-(--primary-color)" />}
           schema={nameSchema}
           intent={INTENT_PROFILE_UPDATE_FULL_NAME}
-          hint="Use seu nome real para melhor identificação"
+          hint="O nome que identifica o seu negócio na plataforma"
           successMessage="Nome atualizado!"
           errorMessage="Erro ao atualizar nome"
           className="md:col-span-1"
