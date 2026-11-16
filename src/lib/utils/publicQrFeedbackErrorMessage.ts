@@ -7,8 +7,9 @@ type PublicQrFeedbackErrorParams = {
 const DEFAULT_PUBLIC_QR_FEEDBACK_ERROR =
   'Erro ao enviar feedback. Tente novamente.';
 
-// Vale para quem chegou pelo QR Code, pelo link ou pela etiqueta NFC.
-const FORM_UNAVAILABLE_MESSAGE =
+// Vale para quem chegou pelo QR Code, pelo link ou pela etiqueta NFC. O loader
+// do formulário usa a mesma frase, para a abertura e o envio dizerem o mesmo.
+export const FORM_UNAVAILABLE_MESSAGE =
   'Este formulário está desativado ou o endereço é inválido. Peça um novo QR Code ou link ao estabelecimento.';
 
 const CODE_ERROR_MESSAGE_MAP: Record<string, string> = {
@@ -23,8 +24,9 @@ const CODE_ERROR_MESSAGE_MAP: Record<string, string> = {
     'Não foi possível processar seu envio agora. Tente novamente em instantes.',
   feedback_insert_failed:
     'Não foi possível registrar seu feedback agora. Tente novamente em instantes.',
+  // O bloqueio não vence sozinho (só sai pelo banco), então a frase não promete prazo.
   DEVICE_BLOCKED:
-    'Seu dispositivo está temporariamente bloqueado para novos envios.',
+    'Este dispositivo está bloqueado para novos envios neste estabelecimento.',
   internal_server_error:
     'Erro interno ao processar feedback. Tente novamente em instantes.',
 };
