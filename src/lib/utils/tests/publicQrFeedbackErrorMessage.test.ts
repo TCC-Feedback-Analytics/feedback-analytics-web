@@ -20,7 +20,7 @@ describe('[Unidade] getPublicQrFeedbackErrorMessage', () => {
     });
 
     expect(message).toBe(
-      'Seu dispositivo está temporariamente bloqueado para novos envios.',
+      'Este dispositivo está bloqueado para novos envios neste estabelecimento.',
     );
   });
 

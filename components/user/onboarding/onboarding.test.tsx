@@ -429,21 +429,26 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
       '[data-tour="tour-period"]',
       '[data-tour="tour-dashboard-diagnosis"]',
       '[data-tour="tour-star-ratings"]',
-      '[data-tour="tour-movement"]',
       '[data-tour="tour-form-questions"]',
       '[data-tour="tour-dashboard-comments"]',
       '[data-tour="mobile-nav-insights"]',
       '[data-tour="tour-comments-list"]',
       '[data-tour="tour-compare-items"]',
+      // O detalhe de cada grupo: a Nota (com o movimento) e Clientes e canais.
       '[data-tour="tour-ratings-page"]',
+      '[data-tour="tour-movement"]',
+      '[data-tour="tour-customers-page"]',
       '[data-tour="mobile-nav-feedback"]',
-      '[data-tour="mobile-nav-menu"]',
     ]);
     expect(INTERACTIVE_STEPS[13]).toMatchObject({
-      mobileSelector: '[data-tour="mobile-nav-ia-settings"]',
+      mobileSelector: '[data-tour="mobile-nav-menu"]',
       openMobileDrawer: true,
     });
     expect(INTERACTIVE_STEPS[14]).toMatchObject({
+      mobileSelector: '[data-tour="mobile-nav-ia-settings"]',
+      openMobileDrawer: true,
+    });
+    expect(INTERACTIVE_STEPS[15]).toMatchObject({
       mobileSelector: '[data-tour="mobile-nav-profile"]',
       openMobileDrawer: true,
     });
@@ -481,9 +486,9 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
       expect(card.className).toContain("max-h-[48dvh]");
       expect(screen.getByText("Próximo")).toBeInTheDocument();
 
-      // Balão compacto: texto curto, contador e barra de progresso no lugar dos 16 pontos.
+      // Balão compacto: texto curto, contador e barra de progresso no lugar dos 17 pontos.
       expect(screen.getByText("Na barra de baixo, toque em Visão geral para ver os principais números.")).toBeInTheDocument();
-      expect(screen.getByText("1/16")).toBeInTheDocument();
+      expect(screen.getByText("1/17")).toBeInTheDocument();
       expect(screen.getByRole("progressbar", { name: "Progresso do guia" })).toHaveAttribute("aria-valuenow", "1");
       expect(screen.queryByRole("button", { name: "Ir para passo 2" })).not.toBeInTheDocument();
 
@@ -563,8 +568,8 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
 
     // Tour começa apenas após a confirmação de pending pelo servidor.
     expect(await screen.findByText("Dashboard de Resultados")).toBeInTheDocument();
-    // Com 16 passos, o contador fica numa linha própria, ao lado dos pontos.
-    expect(screen.getByText("1 de 16")).toBeInTheDocument();
+    // Com 17 passos, o contador fica numa linha própria, ao lado dos pontos.
+    expect(screen.getByText("1 de 17")).toBeInTheDocument();
 
     // Escopo e período, as seções do Dashboard e depois cada página da Análise dos comentários.
     fireEvent.click(screen.getByText("Próximo"));
@@ -581,9 +586,6 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     expect(screen.getByText(/A etiqueta no canto diz de qual escopo/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("Próximo"));
-    expect(screen.getByText("Movimento das avaliações")).toBeInTheDocument();
-
-    fireEvent.click(screen.getByText("Próximo"));
     expect(screen.getByText("Perguntas do formulário")).toBeInTheDocument();
     expect(screen.getByText(/mesmo sem a IA configurada/)).toBeInTheDocument();
 
@@ -593,7 +595,7 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     expect(screen.getByText(/A análise completa fica na página Análise dos comentários/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("Próximo"));
-    expect(screen.getByText("Visão geral da análise")).toBeInTheDocument();
+    expect(screen.getByText("Resumo da análise")).toBeInTheDocument();
     expect(screen.getByText(/pelo menos 10 feedbacks/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("Próximo"));
@@ -605,7 +607,14 @@ describe("[Unidade] Componentes e Contexto de Onboarding", () => {
     expect(screen.getByText(/a partir de 2 itens do mesmo tipo/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("Próximo"));
-    expect(screen.getByText("Todas as métricas de estrelas")).toBeInTheDocument();
+    expect(screen.getByText("Nota")).toBeInTheDocument();
+    expect(screen.getByText(/a distribuição de 1 a 5 estrelas/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Próximo"));
+    expect(screen.getByText("Movimento das avaliações")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Próximo"));
+    expect(screen.getByText("Clientes e canais")).toBeInTheDocument();
     expect(screen.getByText(/os clientes que voltam/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("Próximo"));

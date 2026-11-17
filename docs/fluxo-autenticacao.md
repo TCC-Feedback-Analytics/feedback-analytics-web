@@ -10,7 +10,7 @@ Este documento descreve como o frontend decide o que mostrar para cada usuário:
 
 | Tipo | Rotas | Acesso |
 |---|---|---|
-| **Pública** | `/`, `/login`, `/register`, `/forgot-password`, `/resend-confirmation`, `/auth/reset-password`, `/auth/success`, `/auth/link-expired`, `/feedback/qrcode`, `/privacidade`, `/termos` | Qualquer visitante, sem verificação |
+| **Pública** | `/`, `/produto/coleta`, `/produto/analise`, `/produto/resultados`, `/login`, `/register`, `/forgot-password`, `/resend-confirmation`, `/auth/reset-password`, `/auth/success`, `/auth/link-expired`, `/feedback/qrcode`, `/privacidade`, `/termos` | Qualquer visitante, sem verificação |
 | **Pública com sessão** | `/auth/complete-signup` | Fica fora de `/user`, mas o `LoaderCompleteSignup` exige sessão (ver [Login com Google](#login-com-google)) |
 | **Protegida** | Tudo em `/user/*`, inclusive `/user/openrouter/callback` | Exige sessão válida e telefone cadastrado — verificados antes de renderizar |
 
@@ -69,7 +69,7 @@ A sessão trafega via **cookie httpOnly**, definido e gerenciado **pelo backend*
 
 Em produção a Web chama `/api/*` no próprio domínio e a Vercel repassa ao gateway (`vercel.json`). Por isso o cookie de sessão é do próprio site, e não de outro domínio: Safari e Samsung Internet bloqueiam cookie de outro site, e o login não se mantinha.
 
-> **Nota:** a autenticação do backend migrou do **Supabase Auth** para o **Better Auth**. Os fluxos de login, logout, cadastro, reenvio e recuperação continuam em `/api/public/auth/...`. Login com Google, lista de contas e exclusão de conta chamam direto as rotas nativas do Better Auth em `/api/auth/...`. O contrato de cada rota está no `docs/endpoints.md` do repositório `feedback-analytics-api-gateway`.
+> **Nota:** a autenticação do backend migrou do **Supabase Auth** para o **Better Auth**. Login, logout, cadastro, reenvio e pedido de recuperação usam `/api/public/auth/...`. A nova senha usa `PATCH /api/protected/user/password`. Login com Google, lista de contas e exclusão de conta chamam as rotas nativas do Better Auth em `/api/auth/...`. A Web não chama as rotas nativas de e-mail e senha (`sign-in/email`, `sign-up/email`, `request-password-reset`, `reset-password`). No gateway, elas respondem 404, para ninguém contornar o limite de tentativas. O contrato de cada rota está no `docs/endpoints.md` do repositório `feedback-analytics-api-gateway`.
 
 ### Validade e renovação
 
@@ -118,7 +118,8 @@ Os erros aparecem em toast (título e descrição), conforme o `error` devolvido
 | Conta não confirmada (e-mail pendente) | **Mesma** mensagem e mesmas opções genéricas de ajuda — por segurança (RNE-014, proteção contra enumeração de usuários) o gateway responde `invalid_credentials` e a UI não revela que a conta existe ou está pendente. |
 | Dados inválidos (`invalid_payload`) | "E-mail inválido." ou "Senha inválida.", pelo campo apontado em `issues` |
 | Rate limit (429) | "Muitas tentativas de login." — "Aguarde alguns instantes antes de tentar novamente." |
-| Servidor indisponível (5xx) | "Serviço de login temporariamente indisponível." |
+| Servidor indisponível (503 ou 5xx sem corpo) | "Serviço de login temporariamente indisponível." |
+| Erro interno do gateway (500 `internal_error`) | O toast genérico de falha no login, com a mensagem do gateway na descrição |
 | Sem conexão | "Falha de conexão." — "Não foi possível conectar ao servidor de login. Verifique sua internet e tente novamente." |
 
 > A opção fixa **"Problemas para entrar?"** abre um dialog com **"Redefinir senha"** (`/forgot-password`) e **"Reenviar e-mail de confirmação"** (`/resend-confirmation`). Após uma tentativa rejeitada com `invalid_credentials`, o dialog abre automaticamente e destaca a orientação de confirmação. Nenhuma opção inclui o e-mail na URL, e a tela de reenvio mantém uma resposta genérica, sem confirmar se a conta existe ou se está pendente.
@@ -198,19 +199,30 @@ Resposta sempre genérica (não revela se o e-mail existe), em toast "E-mail env
 
 Falhas (rate limit, 5xx, rede, e-mail malformado) aparecem em toast "Não foi possível enviar".
 
+O gateway limita os pedidos por IP e por e-mail. Acima do limite, responde `429 rate_limited` com "Muitos pedidos de nova senha. Aguarde e tente novamente.", e a tela mostra essa mensagem no mesmo toast.
+
 ### Etapa 2 — Redefinir senha (`/auth/reset-password`)
 
 ```
 Usuário clica no link recebido por e-mail
         ↓
-GET /api/public/auth/callback do gateway grava o token no cookie httpOnly ba_reset
-(vale 1 h, só é enviado para PATCH /user/password) e vai direto para /auth/reset-password
+GET /api/auth/reset-password/:token (Better Auth) confere o token
+        ↓
+GET /api/public/auth/callback?type=recovery do gateway
+    ┌───┴───────────────────┐
+  token válido           link vencido ou já usado
+    ↓                         ↓
+grava o token no cookie   /forgot-password?error=INVALID_TOKEN
+httpOnly ba_reset (vale   (aviso "O link de redefinição expirou
+1 h, só vai para          ou já foi usado. Peça um novo abaixo.")
+PATCH /user/password)
+e vai para /auth/reset-password
         ↓
 Usuário define nova senha
         ↓
 ActionResetPassword → ServiceResetPassword
         ↓
-PATCH /api/protected/user/password  (usa o cookie ba_reset, não a sessão)
+PATCH /api/protected/user/password  (usa o cookie ba_reset, com ou sem sessão aberta)
         ↓
     ┌───┴───┐
   ok: true   Erro (ex.: 401 reset_password_invalid_token)
@@ -220,6 +232,8 @@ redirect       toast "Erro ao redefinir senha" com a mensagem do gateway
 ```
 
 > Ao chegar com `?reset=success`, a tela de login mostra "Senha alterada. Entre com a nova senha."
+>
+> A nova senha encerra todas as sessões da conta. Quem estava logado entra de novo com a nova senha.
 
 ---
 
@@ -262,7 +276,7 @@ O reenvio aparece em três lugares, todos com `ServiceResendConfirmation` → `P
 - A chamada usa `requestPublicApi`: vai direto ao gateway, sem cookie, porque o limite de reenvio conta por IP do cliente.
 - A resposta de sucesso é sempre genérica: "Se existir uma conta pendente para este e-mail, enviaremos uma nova confirmação."
 - **Tempo de espera:** o `retryAfterSeconds` do corpo (ou, sem ele, o header `Retry-After`) inicia a contagem em `useResendConfirmationCooldown`, tanto no sucesso quanto no `429 rate_limited`. Enquanto conta, o botão fica desabilitado e mostra "Solicitar novamente em mm:ss" (ou `hh:mm:ss` acima de uma hora). Os limites (intervalo por e-mail, por hora e por IP) estão no `endpoints.md` do gateway.
-- Erros aparecem com título próprio: "Muitas tentativas", "Falha de conexão" ou "Serviço indisponível" (5xx).
+- No `/resend-confirmation` e na tela "Confirme seu e-mail", os erros aparecem em toast com título próprio: "Muitas tentativas", "Falha de conexão" ou "Serviço indisponível" (5xx). No `/auth/link-expired`, a mensagem aparece abaixo do campo de e-mail.
 
 ---
 
@@ -315,7 +329,7 @@ O utilitário `http.ts` monta a URL a partir de duas variáveis:
 | **Local** | `VITE_API_BASE_URL` vazia (como no `.env.example`): os caminhos ficam relativos (`/api/...`) e o proxy do `vite.config.ts` repassa para `http://localhost:3000`, o mesmo caminho da produção. Com `VITE_API_BASE_URL=http://localhost:3000`, a Web chama o gateway direto. |
 | **Vercel (produção ou preview)** | `VITE_API_BASE_URL` vazia: a Web chama `/api/*` no próprio domínio e o `vercel.json` repassa para `https://feedback-analytics-api-gateway.vercel.app/api/*`, mantendo o cookie de sessão no domínio do site. |
 
-`VITE_PUBLIC_API_BASE_URL` vale só para as rotas públicas que contam por IP (reenvio da confirmação e envio do formulário público de feedback): elas vão direto ao gateway, com `credentials: 'omit'`, porque atrás do repasse da Vercel todos os pedidos poderiam chegar com o mesmo IP. Sem a variável, usa a mesma base de `VITE_API_BASE_URL`.
+`VITE_PUBLIC_API_BASE_URL` vale só para o reenvio da confirmação e o envio do formulário público de feedback. Essas chamadas vão direto ao gateway, com `credentials: 'omit'`, para o limite por IP ver o IP do cliente, e não o do repasse da Vercel. O login, o cadastro e o esqueci a senha também têm limite por IP e por e-mail no gateway, mas passam pelo repasse; por isso o limite por IP do login é largo. Sem a variável, usa a mesma base de `VITE_API_BASE_URL`.
 
 ---
 

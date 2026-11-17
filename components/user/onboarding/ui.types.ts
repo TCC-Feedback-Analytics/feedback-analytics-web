@@ -17,6 +17,7 @@ import {
   FaChartColumn,
   FaRankingStar,
   FaClipboardCheck,
+  FaUsers,
 } from "react-icons/fa6";
 
 export interface AIContextDialogProps {
@@ -113,17 +114,9 @@ export const INTERACTIVE_STEPS: TourStepData[] = [
     selector: '[data-tour="tour-star-ratings"]',
     route: "/user/dashboard",
     title: "Avaliação por estrelas",
-    mobileSummary: "Média, positivas e críticas das estrelas. Toque na etiqueta para trocar o escopo.",
+    mobileSummary: "Média, positivas, neutras e críticas das estrelas. Toque na etiqueta para trocar o escopo.",
     icon: FaStar,
-    description: "A nota de 1 a 5 que os clientes marcaram: a média, as avaliações positivas (4–5★) e as críticas (1–2★). A etiqueta no canto diz de qual escopo são os números; clique nela para trocar. Em \"Ver todas as métricas de estrelas\" ficam a distribuição completa e as neutras.",
-  },
-  {
-    selector: '[data-tour="tour-movement"]',
-    route: "/user/dashboard",
-    title: "Movimento das avaliações",
-    mobileSummary: "Quantas avaliações chegam e se a nota sobe ou cai com o tempo.",
-    icon: FaChartColumn,
-    description: "As barras mostram quantas avaliações chegaram em cada dia, semana ou mês; a linha embaixo, a média das estrelas no mesmo intervalo. Dá para ver se as avaliações estão aumentando e se a nota vem subindo ou caindo.",
+    description: "A nota de 1 a 5 que os clientes marcaram: a média e as avaliações positivas (4–5★), neutras (3★) e críticas (1–2★). A etiqueta no canto diz de qual escopo são os números; clique nela para trocar. Em \"Ver a nota completa\" ficam a distribuição de 1 a 5 e o movimento no tempo.",
   },
   {
     selector: '[data-tour="tour-form-questions"]',
@@ -145,7 +138,7 @@ export const INTERACTIVE_STEPS: TourStepData[] = [
     selector: '[data-tour="tour-comments-overview"]',
     mobileSelector: '[data-tour="mobile-nav-insights"]',
     route: "/user/insights/overview",
-    title: "Visão geral da análise",
+    title: "Resumo da análise",
     mobileSummary: "Tom, assuntos e recomendações da IA. Precisa da IA configurada e de 10 feedbacks.",
     icon: FaChartSimple,
     description: "A IA lê o que os clientes escreveram e mostra o tom dos comentários, os assuntos que mais impactam e um resumo com recomendações para a empresa, um produto, um serviço ou um setor. Para atualizar, use Analisar comentários com IA. É preciso ter a IA configurada, o contexto da empresa preenchido e pelo menos 10 feedbacks no escopo escolhido.",
@@ -169,10 +162,26 @@ export const INTERACTIVE_STEPS: TourStepData[] = [
   {
     selector: '[data-tour="tour-ratings-page"]',
     route: "/user/ratings",
-    title: "Todas as métricas de estrelas",
-    mobileSummary: "Distribuição, movimento, horários de pico e clientes que voltam.",
+    title: "Nota",
+    mobileSummary: "Como estou? A média, a distribuição de 1 a 5 e o movimento no tempo.",
     icon: FaRankingStar,
-    description: "O detalhe da nota: a distribuição de 1 a 5 estrelas, o movimento no tempo, os dias e horários em que os clientes mais avaliam (e onde a nota cai) e os clientes que voltam, com a nota de quem volta comparada à de quem avalia pela primeira vez.",
+    description: "Responde \"como estou?\": a média, as positivas, neutras e críticas e a distribuição de 1 a 5 estrelas, no escopo e no período escolhidos.",
+  },
+  {
+    selector: '[data-tour="tour-movement"]',
+    route: "/user/ratings",
+    title: "Movimento das avaliações",
+    mobileSummary: "Quantas avaliações chegam e se a nota sobe ou cai com o tempo.",
+    icon: FaChartColumn,
+    description: "As barras mostram quantas avaliações chegaram em cada dia, semana ou mês; a linha embaixo, a média das estrelas no mesmo intervalo. Dá para ver se as avaliações estão aumentando e se a nota vem subindo ou caindo.",
+  },
+  {
+    selector: '[data-tour="tour-customers-page"]',
+    route: "/user/customers",
+    title: "Clientes e canais",
+    mobileSummary: "Por onde chegaram, os horários de pico e os clientes que voltam.",
+    icon: FaUsers,
+    description: "Responde \"quem avalia, quando e por onde?\": quantas avaliações vieram pelo QR Code, pelo link e pela etiqueta NFC, os dias e horários em que os clientes mais avaliam (e onde a nota cai) e os clientes que voltam, com a nota de quem volta comparada à de quem avalia pela primeira vez.",
   },
   {
     selector: '[data-tour="tour-feedback-general"]',

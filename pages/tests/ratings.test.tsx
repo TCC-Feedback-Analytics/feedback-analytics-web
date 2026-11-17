@@ -42,7 +42,7 @@ function renderPage() {
   );
 }
 
-describe('[Unidade] Página Todas as métricas de estrelas', () => {
+describe('[Unidade] Página Nota', () => {
   beforeEach(() => {
     mocks.useInsightsControls.mockReturnValue({
       scope: 'PRODUCT',

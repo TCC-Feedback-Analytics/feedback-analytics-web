@@ -20,9 +20,10 @@ import { comparableKinds } from 'src/lib/utils/compareItems';
 import type { RatingCardsProps, SectionRatingsProps, ShareValueProps } from './ui.types';
 
 /**
- * "Avaliação por estrelas" (decisão de 16/10/2026): só a nota de 1 a 5. No
- * Dashboard, 3 cards — média com parâmetro, positivas e críticas com %. Na página
- * "Todas as métricas de estrelas" (variant 'detail'), também as neutras.
+ * "Avaliação por estrelas" (decisão de 16/10/2026): só a nota de 1 a 5, em 4
+ * cards — média com parâmetro, positivas, neutras e críticas com %. As neutras
+ * aparecem em todo lugar (decisão D4 de 12/11/2026): sem elas, positivas e
+ * críticas não somam 100%. No Dashboard (variant 'dashboard'), leva à página Nota.
  */
 export default function SectionRatings({ stats, previous = null, variant = 'dashboard' }: SectionRatingsProps) {
   const { scope, catalogItemId, catalogItemOptions, period } = useInsightsControls();
@@ -51,7 +52,6 @@ export default function SectionRatings({ stats, previous = null, variant = 'dash
           stats={stats}
           total={total}
           ofScope={scopeInfo.ofScope}
-          showNeutral={variant === 'detail'}
           previous={previous}
         />
       )}
@@ -71,7 +71,7 @@ export default function SectionRatings({ stats, previous = null, variant = 'dash
             to="/user/ratings"
             className="inline-flex items-center gap-1.5 text-sm text-(--text-secondary) transition-colors hover:text-(--text-primary)"
           >
-            Ver todas as métricas de estrelas
+            Ver a nota completa
             <FaArrowRight className="text-xs" aria-hidden />
           </Link>
         </div>
@@ -80,7 +80,7 @@ export default function SectionRatings({ stats, previous = null, variant = 'dash
   );
 }
 
-function RatingCards({ stats, total, ofScope, showNeutral, previous }: RatingCardsProps) {
+function RatingCards({ stats, total, ofScope, previous }: RatingCardsProps) {
   const shares = ratingShares(stats.ratingDistribution, total);
   const average = stats.averageRating;
 
@@ -102,7 +102,7 @@ function RatingCards({ stats, total, ofScope, showNeutral, previous }: RatingCar
     ) : null;
 
   return (
-    <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${showNeutral ? 'xl:grid-cols-4' : 'xl:grid-cols-3'}`}>
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <MetricCard
         title={
           <span className="inline-flex items-center gap-1">
@@ -162,14 +162,12 @@ function RatingCards({ stats, total, ofScope, showNeutral, previous }: RatingCar
         }
         icon={FaFaceSmile}
       />
-      {showNeutral && (
-        <MetricCard
-          title="Neutras (3★)"
-          value={<ShareValue count={shares.neutral.count} pct={shares.neutral.pct} />}
-          helper="das avaliações"
-          icon={FaFaceMeh}
-        />
-      )}
+      <MetricCard
+        title="Neutras (3★)"
+        value={<ShareValue count={shares.neutral.count} pct={shares.neutral.pct} />}
+        helper="das avaliações"
+        icon={FaFaceMeh}
+      />
       <MetricCard
         title="Críticas (1–2★)"
         value={<ShareValue count={shares.critical.count} pct={shares.critical.pct} />}

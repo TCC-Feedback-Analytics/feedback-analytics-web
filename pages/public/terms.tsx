@@ -15,8 +15,8 @@ export default function Terms() {
       }>
       <LegalSection title="1. O serviço">
         <p>
-          O Feedback Analytics ajuda negócios a coletar a opinião dos clientes por QR Code e a entender essas
-          opiniões com métricas e análises feitas por inteligência artificial (IA).
+          O Feedback Analytics ajuda negócios a coletar a opinião dos clientes por QR Code, link ou etiqueta NFC
+          e a entender essas opiniões com métricas e análises feitas por inteligência artificial (IA).
         </p>
       </LegalSection>
 
@@ -29,7 +29,10 @@ export default function Terms() {
       </LegalSection>
 
       <LegalSection title="3. Os feedbacks dos seus clientes">
-        <p>Os feedbacks coletados pelo seu QR Code são do seu negócio. Ao usá-lo, você se compromete a:</p>
+        <p>
+          Os feedbacks coletados pelo seu QR Code, link ou etiqueta NFC são do seu negócio. Ao usar esses canais,
+          você se compromete a:
+        </p>
         <ul>
           <li>informar seus clientes de que a opinião será analisada, inclusive por IA;</li>
           <li>não pedir, nas perguntas do formulário, dados sensíveis nem dados que não precisa;</li>

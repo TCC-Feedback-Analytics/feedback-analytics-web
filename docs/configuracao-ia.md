@@ -42,7 +42,7 @@ Com a IA configurada e o contexto da empresa completo, o Gateway enfileira a ger
 
 - **Perfil:** o card "Contexto e LLM da empresa" mostra "Configurado" só com contexto completo e modelo salvo; senão, "Incompleto" e "Chave e modelo não configurados". "Editar contexto e LLM" abre o mesmo `AIContextDialog` do onboarding.
 - **Dashboard:** o diagnóstico do escopo mostra "Configure a IA para receber o diagnóstico." com o link "Configurar a IA".
-- **Análises:** o erro `ia_config_required` vira "Configure sua chave OpenRouter em Editar > Configuração de IA antes de iniciar uma análise."
+- **Análises:** o erro `ia_config_required` vira "Configure sua chave OpenRouter em Configuração da coleta > Configuração de IA antes de iniciar uma análise."
 
 ## Contrato HTTP
 

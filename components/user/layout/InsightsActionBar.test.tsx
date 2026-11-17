@@ -41,6 +41,21 @@ describe('progresso de IA fora da tela de insights', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 });
+describe('atalho do QR Code', () => {
+  const qrLink = { name: 'Compartilhar o formulário de feedback pelo QR Code' };
+
+  it('no Dashboard, fica na barra e leva ao formulário do escopo', () => {
+    m.running = false;
+    render(<MemoryRouter initialEntries={['/user/dashboard']}><InsightsActionBar /></MemoryRouter>);
+    expect(screen.getByRole('link', qrLink)).toHaveAttribute('href', '/user/edit/feedback-general');
+  });
+
+  it('nas outras telas de escopo, não aparece', () => {
+    m.running = false;
+    render(<MemoryRouter initialEntries={['/user/ratings']}><InsightsActionBar /></MemoryRouter>);
+    expect(screen.queryByRole('link', qrLink)).not.toBeInTheDocument();
+  });
+});
 describe('aviso de IA lenta', () => {
   beforeEach(() => { vi.useFakeTimers(); });
   afterEach(() => { vi.useRealTimers(); });

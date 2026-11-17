@@ -1,6 +1,7 @@
 import ErrorPage from "components/user/shared/handling/errorPage";
 import Dashboard from "pages/user/dashboard";
 import Ratings from "pages/user/ratings";
+import Customers from "pages/user/customers";
 import CompareItems from "pages/user/compare";
 import DiagnosisHistory from "pages/user/diagnosis";
 import OpenRouterCallback from "pages/user/openrouterCallback";
@@ -59,6 +60,7 @@ export function RouteUser() {
         element={<Dashboard />}
       />
       <Route path="ratings" element={<Ratings />} />
+      <Route path="customers" element={<Customers />} />
       <Route path="compare" element={<CompareItems />} />
       <Route path="diagnosis" element={<DiagnosisHistory />} />
       <Route path="openrouter/callback" element={<OpenRouterCallback />} />

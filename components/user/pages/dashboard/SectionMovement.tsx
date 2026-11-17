@@ -6,7 +6,7 @@ import { formatRating } from 'src/lib/utils/ratingLabel';
 import { scopeText } from 'src/lib/utils/scopeText';
 import { countLabel } from 'src/lib/utils/plural';
 import { BUCKET_BAR_MEANING, BUCKET_PEAK_LABEL, BUCKET_PLURAL, BUCKET_WORD, formatBucketLabel } from 'src/lib/utils/timeline';
-import type { MovementChartProps, SectionMovementProps } from './ui.types';
+import type { MovementChartProps } from './ui.types';
 
 /** Abaixo disso, a média do intervalo é pouco confiável (bolinha vazada). */
 const FEW_RATINGS = 5;
@@ -19,9 +19,9 @@ const MIN_INTERVALS_WITH_RATINGS = 2;
 /** Até aqui, cada barra ganha embaixo a data e a quantidade; acima, só três datas de referência. */
 const MAX_LABELED_BARS = 8;
 
-function MovementChart({ points, bucket, compact }: MovementChartProps) {
-  const barsHeight = compact ? 80 : 130;
-  const lineHeight = compact ? 56 : 90;
+function MovementChart({ points, bucket }: MovementChartProps) {
+  const barsHeight = 130;
+  const lineHeight = 90;
   const gap = 14;
   const height = barsHeight + gap + lineHeight;
 
@@ -146,9 +146,9 @@ function MovementChart({ points, bucket, compact }: MovementChartProps) {
  * "Movimento das avaliações" (métricas novas, 1): quantas avaliações chegaram e
  * a média das estrelas em cada dia, semana ou mês, no escopo e no período do
  * cabeçalho. É a primeira métrica que não sai só da nota: mostra o volume e a
- * tendência no tempo.
+ * tendência no tempo. Fica na página Nota (decisão D2 de 12/11/2026).
  */
-export default function SectionMovement({ variant = 'dashboard' }: SectionMovementProps) {
+export default function SectionMovement() {
   const { scope, catalogItemId, catalogItemOptions, period } = useInsightsControls();
   const scopeInfo = scopeText({ scope, catalogItemId, catalogItemOptions, period });
   const { data, loading, failed } = useScopedTimeline();
@@ -194,7 +194,7 @@ export default function SectionMovement({ variant = 'dashboard' }: SectionMoveme
             </p>
           )}
         </div>
-        <MovementChart points={data.points} bucket={data.bucket} compact={variant === 'dashboard'} />
+        <MovementChart points={data.points} bucket={data.bucket} />
         <table className="sr-only">
           <caption>Avaliações e média por {BUCKET_WORD[data.bucket]}</caption>
           <thead>
@@ -222,7 +222,7 @@ export default function SectionMovement({ variant = 'dashboard' }: SectionMoveme
     <section
       className="font-work-sans space-y-4 rounded-2xl border border-(--quaternary-color)/10 bg-linear-to-br from-(--bg-secondary) to-(--sixth-color) p-6"
       aria-labelledby="movement-section-title"
-      data-tour={variant === 'dashboard' ? 'tour-movement' : undefined}
+      data-tour="tour-movement"
     >
       <header className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="movement-section-title" className="flex items-center gap-1 font-montserrat text-lg font-semibold text-(--text-primary)">

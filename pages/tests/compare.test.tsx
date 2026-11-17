@@ -85,6 +85,10 @@ describe('[Unidade] Comparar itens', () => {
     const critical = within(table).getByRole('row', { name: /^Críticas/ });
     expect(within(critical).getByText('(20 pontos a menos)')).toBeInTheDocument();
     expect(within(table).queryByText(/p\.p\./)).not.toBeInTheDocument();
+    // As neutras fecham a conta das positivas e críticas, sem veredito: mais neutras não é melhor nem pior.
+    const neutral = within(table).getByRole('row', { name: /^Neutras/ });
+    expect(within(neutral).getByText('10%')).toBeInTheDocument();
+    expect(within(neutral).getByText('20%')).toBeInTheDocument();
 
     const tone = within(table).getByRole('row', { name: /^Tom dos comentários/ });
     expect(within(tone).getByText('Sem comentários analisados')).toBeInTheDocument();

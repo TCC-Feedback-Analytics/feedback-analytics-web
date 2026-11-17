@@ -83,7 +83,7 @@ export function getIaErrorMessage(errorCode: string | null | undefined): string 
   }
 
   if (code === 'ia_config_required') {
-    return 'Configure sua chave OpenRouter em Editar > Configuração de IA antes de iniciar uma análise.';
+    return 'Configure sua chave OpenRouter em Configuração da coleta > Configuração de IA antes de iniciar uma análise.';
   }
 
   if (code === 'insights_not_generated') {

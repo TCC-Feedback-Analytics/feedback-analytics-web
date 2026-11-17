@@ -16,7 +16,7 @@ export interface SectionRatingsProps {
   stats: FeedbackStats | null;
   /** Mesmo escopo no período anterior (comparação ligada); `null`/ausente = sem comparação. */
   previous?: PreviousPeriod<FeedbackStats> | null;
-  /** 'detail' (página de estrelas): inclui as neutras (3★) e omite o link "ver todas". */
+  /** 'detail' (página Nota): omite os links para a Nota e o Comparar. */
   variant?: 'dashboard' | 'detail';
 }
 
@@ -24,7 +24,6 @@ export interface RatingCardsProps {
   stats: FeedbackStats;
   total: number;
   ofScope: string;
-  showNeutral: boolean;
   previous?: PreviousPeriod<FeedbackStats> | null;
 }
 
@@ -128,22 +127,12 @@ export interface WelcomePreviewCardProps {
 }
 
 /**
- * Props da seção "Movimento das avaliações" (métricas novas, 1).
- * Usado em: components/user/pages/dashboard/SectionMovement.tsx.
- */
-export interface SectionMovementProps {
-  /** 'dashboard' = gráfico mais baixo; 'detail' = página de todas as métricas de estrelas. */
-  variant?: 'dashboard' | 'detail';
-}
-
-/**
  * Props do gráfico do movimento: barras com a quantidade e linha com a média.
  * Usado em: components/user/pages/dashboard/SectionMovement.tsx.
  */
 export interface MovementChartProps {
   points: FeedbackTimelinePoint[];
   bucket: TimelineBucket;
-  compact: boolean;
 }
 
 /**
@@ -175,4 +164,6 @@ export interface SectionScopeDiagnosisProps {
  */
 export interface SectionChannelsProps {
   stats: FeedbackStats | null;
+  /** 'detail' (página Clientes e canais): omite o link para ela. */
+  variant?: 'dashboard' | 'detail';
 }

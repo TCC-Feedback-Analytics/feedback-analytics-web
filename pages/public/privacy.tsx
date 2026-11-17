@@ -17,7 +17,8 @@ export default function Privacy() {
           O Feedback Analytics é o controlador dos dados da conta do negócio (quem se cadastra na plataforma).
         </p>
         <p>
-          Os feedbacks que os clientes do negócio deixam pelo QR Code pertencem ao negócio, que é o controlador
+          Os feedbacks que os clientes do negócio deixam pelo QR Code, pelo link ou pela etiqueta NFC pertencem
+          ao negócio, que é o controlador
           desses dados. O Feedback Analytics os trata em nome do negócio, como operador, só para guardá-los e
           gerar as análises que o próprio negócio pede.
         </p>
@@ -27,17 +28,20 @@ export default function Privacy() {
         <p>Da conta do negócio:</p>
         <ul>
           <li>nome do negócio, e-mail e telefone;</li>
-          <li>senha, guardada só de forma cifrada (hash), nunca em texto;</li>
+          <li>senha, guardada só como hash, nunca em texto;</li>
           <li>ao entrar com o Google: nome, e-mail e foto do perfil que o Google informa;</li>
           <li>o contexto do negócio digitado na configuração (o que faz e quais são os objetivos);</li>
           <li>a chave de API do OpenRouter, guardada criptografada, e o modelo de IA escolhido;</li>
           <li>dados da sessão: endereço IP e navegador usados para entrar.</li>
         </ul>
-        <p>Dos clientes que deixam feedback pelo QR Code:</p>
+        <p>Dos clientes que deixam feedback pelo QR Code, pelo link ou pela etiqueta NFC:</p>
         <ul>
           <li>a nota, o comentário (opcional) e as respostas às perguntas do formulário;</li>
           <li>nome, e-mail e gênero, só se a pessoa quiser informar;</li>
-          <li>endereço IP, navegador e um identificador do aparelho, para evitar envios repetidos e spam.</li>
+          <li>
+            endereço IP, navegador e um identificador do aparelho, para evitar envios repetidos e spam. O
+            identificador do aparelho também serve para contar os clientes que voltam a avaliar.
+          </li>
         </ul>
         <p>Não pedimos CPF, CNPJ nem dados sensíveis (como saúde, religião ou opinião política).</p>
       </LegalSection>
@@ -67,8 +71,9 @@ export default function Privacy() {
           <li>Brevo, que envia os e-mails da conta;</li>
           <li>Google, quando a pessoa escolhe entrar com o Google;</li>
           <li>
-            OpenRouter e o provedor do modelo de IA escolhido pelo negócio, que recebem os comentários, as
-            respostas e o contexto do negócio para gerar as análises, usando a chave de API do próprio negócio.
+            OpenRouter e o provedor do modelo de IA escolhido pelo negócio, que recebem os comentários, as notas,
+            as respostas, os nomes dos itens avaliados e o contexto do negócio para gerar as análises, usando a
+            chave de API do próprio negócio. O nome, o e-mail, o gênero e o IP de quem respondeu não são enviados.
           </li>
         </ul>
         <p>
@@ -79,8 +84,13 @@ export default function Privacy() {
 
       <LegalSection title="6. Cookies e armazenamento no navegador">
         <p>
-          Usamos um cookie essencial para manter a sessão de quem entra na conta. O navegador também guarda
-          preferências, como o tema e o andamento do guia.
+          Usamos cookies essenciais para manter a sessão de quem entra na conta e para concluir a troca de senha
+          e o login com o Google.
+        </p>
+        <p>
+          O navegador também guarda alguns ajustes do painel: o aviso de IA lenta, o convite do guia, a análise
+          em andamento e os marcos de feedbacks já comemorados. Durante a configuração, a aba guarda por pouco
+          tempo o rascunho do contexto do negócio e os dados da conexão com o OpenRouter, que somem ao fechar a aba.
         </p>
         <p>Não usamos cookies de publicidade nem de rastreamento.</p>
       </LegalSection>
@@ -90,7 +100,10 @@ export default function Privacy() {
           Os dados ficam guardados enquanto a conta do negócio existir. Quando a conta é excluída, os dados da
           conta e os feedbacks dela são apagados, salvo o que a lei obrigar a manter.
         </p>
-        <p>Os registros de sessão e de controle de envios são apagados quando deixam de ser necessários.</p>
+        <p>
+          A sessão é apagada quando a pessoa sai da conta. O IP, o navegador e o identificador do aparelho de
+          quem envia feedback ficam guardados enquanto a conta do negócio existir.
+        </p>
       </LegalSection>
 
       <LegalSection title="8. Seus direitos">
@@ -115,7 +128,10 @@ export default function Privacy() {
           Os dados trafegam com criptografia (HTTPS). A senha é guardada só em hash e a chave de API, criptografada.
           Cada negócio só acessa os próprios dados.
         </p>
-        <p>Se houver um incidente que traga risco a você, avisaremos você e a ANPD.</p>
+        <p>
+          Se houver um incidente que traga risco aos dados da sua conta, avisaremos você e a ANPD. Se o
+          incidente atingir os feedbacks, avisaremos o negócio, que avisa os clientes dele e a ANPD.
+        </p>
       </LegalSection>
 
       <LegalSection title="10. Mudanças nesta política">

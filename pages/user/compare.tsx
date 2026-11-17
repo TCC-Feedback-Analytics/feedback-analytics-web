@@ -24,7 +24,7 @@ function hasRatings(stats: FeedbackStats | null): stats is FeedbackStats {
   return Boolean(stats && stats.totalFeedbacks > 0);
 }
 
-function shareOf(stats: FeedbackStats, key: 'positive' | 'critical') {
+function shareOf(stats: FeedbackStats, key: 'positive' | 'neutral' | 'critical') {
   const share = ratingShares(stats.ratingDistribution, stats.totalFeedbacks)[key];
   return { value: share.pct, interval: wilsonPctInterval(share.count, stats.totalFeedbacks) };
 }
@@ -47,7 +47,7 @@ function buildRows(stats: CompareItemsStats): CompareItemsRow[] {
         <span className="text-(--text-tertiary)"> /5 · {ratingLabel(s.averageRating)}</span>
       </span>
     ) : EMPTY;
-  const pct = (s: FeedbackStats | null, key: 'positive' | 'critical') =>
+  const pct = (s: FeedbackStats | null, key: 'positive' | 'neutral' | 'critical') =>
     s ? <span className="font-semibold">{shareOf(s, key).value}%</span> : EMPTY;
   const tone = (s: FeedbackStats | null) => {
     const value = toneOf(s);
@@ -98,6 +98,14 @@ function buildRows(stats: CompareItemsStats): CompareItemsRow[] {
       a: pct(a, 'positive'),
       b: pct(b, 'positive'),
       result: verdict(a && shareOf(a, 'positive'), b && shareOf(b, 'positive')),
+      kind: 'points',
+    },
+    {
+      // Mais neutras não é melhor nem pior: a linha fecha a conta das positivas e críticas.
+      metric: 'Neutras (3★)',
+      a: pct(a, 'neutral'),
+      b: pct(b, 'neutral'),
+      result: null,
       kind: 'points',
     },
     {

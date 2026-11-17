@@ -92,7 +92,7 @@ describe('SectionMovement', () => {
     mocks.getFeedbackTimeline
       .mockResolvedValueOnce(week(weeks, 'week'))
       .mockResolvedValueOnce(week([['2026-01-01', 10, 4], ['2026-02-01', 20, 4.5]], 'month'));
-    render(<SectionMovement variant="detail" />);
+    render(<SectionMovement />);
 
     expect(await screen.findByRole('table', { name: 'Avaliações e média por mês' })).toBeInTheDocument();
     expect(mocks.getFeedbackTimeline).toHaveBeenNthCalledWith(1, expect.objectContaining({ bucket: 'week' }));

@@ -12,6 +12,8 @@ import {
   FaBrain,
   FaScaleBalanced,
   FaClipboardCheck,
+  FaRankingStar,
+  FaUsers,
 } from 'react-icons/fa6';
 
 export const menuData: MenuItem[] = [
@@ -20,6 +22,17 @@ export const menuData: MenuItem[] = [
     to: "/user/dashboard",
     icon: FaChartPie,
     tourAttr: "nav-dashboard",
+  },
+  // O detalhe de cada grupo do Dashboard (organização das métricas, 12/11/2026).
+  {
+    label: "Nota",
+    to: "/user/ratings",
+    icon: FaRankingStar,
+  },
+  {
+    label: "Clientes e canais",
+    to: "/user/customers",
+    icon: FaUsers,
   },
   {
     // Dois itens do mesmo tipo lado a lado, no mesmo período (etapa 02).
@@ -46,7 +59,7 @@ export const menuData: MenuItem[] = [
     icon: FaWandMagicSparkles,
     tourAttr: "nav-insights",
     children: [
-      { label: "Visão geral", to: "/user/insights/overview", icon: FaChartSimple },
+      { label: "Resumo", to: "/user/insights/overview", icon: FaChartSimple },
       { label: "Comentários", to: "/user/insights/comments", icon: FaList },
     ],
   },

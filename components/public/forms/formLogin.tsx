@@ -215,7 +215,7 @@ function getLoginErrorMessage(actionData: ActionData) {
   }
 
   return {
-    message: 'Não foi possivel realizar o login.',
+    message: 'Não foi possível realizar o login.',
     description: actionData.message ?? 'Tente novamente em instantes.',
   };
 }

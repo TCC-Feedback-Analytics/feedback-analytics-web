@@ -100,7 +100,7 @@ describe('[Integração] loadPublicQrCodeEnterpriseData', () => {
       questions: [],
       commentField: { mode: 'DEFAULT', prompt: null },
       error:
-        'QR Code indisponível: não há ponto de coleta ativo para este código. Verifique o QR Code ou contate a empresa.',
+        'Este formulário está desativado ou o endereço é inválido. Peça um novo QR Code ou link ao estabelecimento.',
     });
   });
 

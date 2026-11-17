@@ -23,7 +23,7 @@ function PreviewCard({ title, description, example = false, tourId, className = 
 
 /**
  * "O que vai aparecer aqui": as cinco seções do Dashboard em prévia enquanto a
- * conta não tem feedbacks. Diagnóstico, estrelas, movimento e comentários usam dados de exemplo
+ * conta não tem feedbacks. Diagnóstico, estrelas, canais e comentários usam dados de exemplo
  * (apagados e com selo); as perguntas são as reais do formulário. Mantém as
  * âncoras do guia, que passa por estas seções logo após o cadastro.
  */
@@ -65,11 +65,11 @@ export default function WelcomePreview({ questions }: WelcomePreviewProps) {
 
         <PreviewCard
           title="Avaliação por estrelas"
-          description="A média das estrelas e quantas avaliações foram positivas e críticas, no período que você escolher e comparadas com o período anterior."
+          description="A média das estrelas e quantas avaliações foram positivas, neutras e críticas, no período que você escolher e comparadas com o período anterior."
           example
           tourId="tour-star-ratings"
         >
-          <div className="welcome-ghost grid grid-cols-3 gap-2" aria-hidden>
+          <div className="welcome-ghost grid grid-cols-2 gap-2" aria-hidden>
             <div className="rounded-lg bg-(--seventh-color) p-2.5">
               <p className="text-[10px] text-(--text-tertiary)">Média</p>
               <p className="flex items-center gap-1 text-base font-semibold text-(--text-primary)">
@@ -83,32 +83,18 @@ export default function WelcomePreview({ questions }: WelcomePreviewProps) {
               <p className="text-[10px] text-(--text-tertiary)">4–5★</p>
             </div>
             <div className="rounded-lg bg-(--seventh-color) p-2.5">
+              <p className="text-[10px] text-(--text-tertiary)">Neutras</p>
+              <p className="text-base font-semibold text-(--text-primary)">28%</p>
+              <p className="text-[10px] text-(--text-tertiary)">3★</p>
+            </div>
+            <div className="rounded-lg bg-(--seventh-color) p-2.5">
               <p className="text-[10px] text-(--text-tertiary)">Críticas</p>
               <p className="text-base font-semibold text-(--negative)">8%</p>
               <p className="text-[10px] text-(--text-tertiary)">1–2★</p>
             </div>
-            <p className="col-span-3 inline-flex items-center gap-1 text-[11px] font-semibold text-(--positive)">
+            <p className="col-span-2 inline-flex items-center gap-1 text-[11px] font-semibold text-(--positive)">
               <FaArrowUp className="text-[0.6rem]" /> +0,3 vs. 30 dias anteriores
             </p>
-          </div>
-        </PreviewCard>
-
-        <PreviewCard
-          title="Movimento das avaliações"
-          description="Quantas avaliações chegam por dia ou semana e se a nota vem subindo ou caindo."
-          example
-          tourId="tour-movement"
-        >
-          <div className="welcome-ghost space-y-1.5" aria-hidden>
-            <div className="flex h-14 items-end gap-1">
-              {[3, 5, 4, 7, 6, 9, 8].map((height, index) => (
-                <div key={index} className="flex-1 rounded-sm bg-(--primary-color)/55" style={{ height: `${height * 10}%` }} />
-              ))}
-            </div>
-            <svg viewBox="0 0 70 16" className="block h-4 w-full" preserveAspectRatio="none">
-              <polyline points="5,11 15,10 25,11 35,7 45,8 55,5 65,4" fill="none" stroke="var(--text-primary)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
-            </svg>
-            <p className="text-[11px] text-(--text-tertiary)">Mais avaliações e média subindo</p>
           </div>
         </PreviewCard>
 
@@ -131,6 +117,30 @@ export default function WelcomePreview({ questions }: WelcomePreviewProps) {
           ) : (
             <p className="text-sm text-(--text-tertiary)">O formulário geral não tem perguntas ativas.</p>
           )}
+        </PreviewCard>
+
+        <PreviewCard
+          title="Por onde chegaram"
+          description="Quantas avaliações vieram pelo QR Code, pelo link e pela etiqueta NFC. Em Clientes e canais ficam também os horários de pico e os clientes que voltam."
+          example
+        >
+          <ul className="welcome-ghost space-y-2" aria-hidden>
+            {[
+              { label: 'QR Code', share: 70 },
+              { label: 'Link', share: 20 },
+              { label: 'Etiqueta NFC', share: 10 },
+            ].map(({ label, share }) => (
+              <li key={label} className="space-y-1">
+                <p className="flex justify-between text-[11px] text-(--text-secondary)">
+                  <span>{label}</span>
+                  <span>{share}%</span>
+                </p>
+                <div className="h-1.5 overflow-hidden rounded-full bg-(--seventh-color)">
+                  <div className="h-full rounded-full bg-(--primary-color)/55" style={{ width: `${share}%` }} />
+                </div>
+              </li>
+            ))}
+          </ul>
         </PreviewCard>
 
         <PreviewCard

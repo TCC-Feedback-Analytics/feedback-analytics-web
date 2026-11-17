@@ -3,15 +3,28 @@ import { menuData } from './menu';
 import { getSectionSiblings } from 'src/lib/utils/sectionSiblings';
 
 describe('menu lateral', () => {
-  it('"Comparar itens" fica logo depois da Visão geral, como página própria', () => {
-    expect(menuData.map((item) => item.label).slice(0, 2)).toEqual(['Visão geral', 'Comparar itens']);
-    expect(menuData[1].to).toBe('/user/compare');
-    // Página de topo: sem abas de seção, como a Visão geral.
-    expect(getSectionSiblings('/user/compare')).toEqual([]);
+  it('o detalhe de cada grupo do Dashboard vem logo depois da Visão geral, como página própria', () => {
+    expect(menuData.slice(0, 3)).toMatchObject([
+      { label: 'Visão geral', to: '/user/dashboard' },
+      { label: 'Nota', to: '/user/ratings' },
+      { label: 'Clientes e canais', to: '/user/customers' },
+    ]);
+    // Páginas de topo: sem abas de seção, como a Visão geral.
+    expect(getSectionSiblings('/user/ratings')).toEqual([]);
+    expect(getSectionSiblings('/user/customers')).toEqual([]);
   });
 
-  it("o histórico de diagnósticos vem depois de Comparar itens, também como página própria", () => {
-    expect(menuData[2]).toMatchObject({ label: 'Diagnósticos ✨', to: '/user/diagnosis' });
+  it('"Comparar itens" e o histórico de diagnósticos vêm em seguida, também como páginas próprias', () => {
+    expect(menuData.slice(3, 5)).toMatchObject([
+      { label: 'Comparar itens', to: '/user/compare' },
+      { label: 'Diagnósticos ✨', to: '/user/diagnosis' },
+    ]);
+    expect(getSectionSiblings('/user/compare')).toEqual([]);
     expect(getSectionSiblings('/user/diagnosis')).toEqual([]);
+  });
+
+  it('o resumo da Análise dos comentários não repete o nome "Visão geral"', () => {
+    const comments = menuData.find((item) => item.label.startsWith('Análise dos comentários'));
+    expect(comments?.children?.map((child) => child.label)).toEqual(['Resumo', 'Comentários']);
   });
 });

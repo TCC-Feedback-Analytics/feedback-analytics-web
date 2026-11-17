@@ -14,10 +14,10 @@ A hierarquia de componentes segue uma regra de escopo: quanto mais próximo de u
 | **Fallbacks de carregamento** | `components/fallbacks/` | Telas de espera do nível de aplicação (`FallbackType01`) |
 | **Primitivos de UI** | `components/ui/` | Peças genéricas usadas nas duas áreas: `Dialog`, `Select`, `Switch`, `Checkbox`, `Input`, `Textarea`, `Label`, `Spinner`, `Toast` e `Sidebar` |
 | **SVG / Ícones inline** | `components/svg/` | Assets SVG convertidos em componentes React |
-| **Compartilhado — área pública** | `components/public/shared/` e `components/public/layout/` | Peças comuns entre páginas públicas (ex: `AuthShell`, a moldura das telas de acesso) e o cabeçalho público |
+| **Compartilhado — área pública** | `components/public/shared/`, `components/public/layout/` e `components/public/product/` | Peças comuns entre páginas públicas (ex: `AuthShell`, a moldura das telas de acesso), o cabeçalho público e a navegação e as seções das páginas do produto |
 | **Compartilhado — área logada** | `components/user/shared/` | Cards, Avatar, Badge, Skeletons, `PageHeader`, `SectionTabs`, `ScopeTag` e ajuda contextual |
 | **Moldura da área logada** | `components/user/layout/` e `components/user/onboarding/` | Cabeçalho, menu lateral, navegação do celular e barra de escopo e período; onboarding e guia do sistema |
-| **Específico de tela** | `components/public/{forms,legal,qrcode}/` e `components/user/pages/{feature}/` | Componentes que pertencem a uma única rota ou fluxo |
+| **Específico de tela** | `components/public/{forms,home,legal,qrcode}/` e `components/user/pages/{feature}/` | Componentes que pertencem a uma única rota ou fluxo |
 
 A árvore completa de pastas está em [Arquitetura e Estrutura](./arquitetura-estrutura.md).
 
@@ -49,6 +49,10 @@ Os valores de cor, fundo e texto são definidos como variáveis CSS customizadas
 
 Cada área reatribui as variáveis numa classe própria: `.public-theme` (área pública), `.private-user-theme` (área logada) e `.feedback-form-experience` (formulário do cliente). O tema escuro é o padrão; o claro entra pela preferência do sistema (`@media (prefers-color-scheme: light)`), que reatribui as mesmas variáveis — os componentes não mudam. Menus e janelas abertos com `createPortal` ficam fora dessas classes; `src/lib/utils/portalTheme.ts` devolve a classe do tema para o portal herdar as cores.
 
+### Fontes
+
+As fontes são servidas pela própria Web, pelos pacotes `@fontsource`. O `styles/fonts.css` importa Inter, Montserrat, Work Sans, Roboto, Poppins, Geist Mono e Space Grotesk. Não há chamada ao Google Fonts, então o IP e o navegador de quem visita não vão para o Google. As famílias entram pelas variáveis `--font-title`, `--font-body` e `--font-button` do `styles/index.css`.
+
 ### Ícones
 
 **React Icons** (v5) é a biblioteca de ícones. Importar sempre de um sub-pacote específico (ex: `react-icons/fa6`) para evitar importar a coleção inteira.
@@ -69,6 +73,7 @@ No roteador raiz (`src/routes/source.tsx`), o `errorElement` captura qualquer er
 
 ```tsx
 {
+  id: 'root',
   path: '/',
   errorElement: <ErrorPage />,        // captura erros da árvore inteira
   hydrateFallbackElement: <FallbackType01 />,
@@ -79,7 +84,7 @@ No roteador raiz (`src/routes/source.tsx`), o `errorElement` captura qualquer er
 O `ErrorPage` global está em `components/globals/handling/errorPage.tsx` e também é o `errorElement` da rota da área pública (`src/routes/public.tsx`).  
 A rota `/user` (`src/routes/user.tsx`) usa a versão da área logada, em `components/user/shared/handling/errorPage.tsx`.
 
-O `ErrorPage` global mostra "Página não encontrada" no 404 e "Algo deu errado" nos outros erros, com "Tentar de novo" (recarrega a página) e "Voltar ao início", e registra o erro no console. A versão da área logada usa o mesmo componente, com "Voltar ao início" levando a `/user/dashboard`.
+O `ErrorPage` global mostra "Página não encontrada" no 404 e "Algo deu errado" nos outros erros. Fora do 404, oferece "Tentar de novo", que recarrega a página, e registra o erro no console. Os dois casos têm "Voltar ao início". A versão da área logada usa o mesmo componente, com "Voltar ao início" levando a `/user/dashboard`.
 
 ---
 

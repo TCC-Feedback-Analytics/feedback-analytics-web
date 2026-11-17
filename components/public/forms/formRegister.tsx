@@ -86,14 +86,14 @@ function inferRegisterErrorByMessage(rawMessage?: string): RegisterErrorMessage 
 
   if (normalized.includes('email') && isInvalid) {
     return {
-      message: 'E-mail invalido.',
-      description: 'Informe um e-mail valido para continuar.',
+      message: 'E-mail inválido.',
+      description: 'Informe um e-mail válido para continuar.',
     };
   }
 
   if ((normalized.includes('phone') || normalized.includes('telefone')) && isInvalid) {
     return {
-      message: 'Telefone invalido.',
+      message: 'Telefone inválido.',
       description: 'Use o formato +55DDXXXXXXXXX para continuar.',
     };
   }
@@ -103,7 +103,7 @@ function inferRegisterErrorByMessage(rawMessage?: string): RegisterErrorMessage 
     (normalized.includes('nao confer') || normalized.includes('diferente') || normalized.includes('mismatch'))
   ) {
     return {
-      message: 'As senhas nao conferem.',
+      message: 'As senhas não conferem.',
       description: 'Digite a mesma senha nos dois campos para continuar.',
     };
   }
@@ -111,7 +111,7 @@ function inferRegisterErrorByMessage(rawMessage?: string): RegisterErrorMessage 
   if (normalized.includes('terms') || normalized.includes('termos')) {
     return {
       message: 'Aceite os termos para continuar.',
-      description: 'Marque o aceite dos termos de servico e politica de privacidade.',
+      description: 'Marque o aceite dos termos de serviço e política de privacidade.',
     };
   }
 
@@ -135,7 +135,7 @@ function inferRegisterErrorByMessage(rawMessage?: string): RegisterErrorMessage 
     normalized.includes('cadastro temporariamente indisponivel')
   ) {
     return {
-      message: 'Cadastro temporariamente indisponivel.',
+      message: 'Cadastro temporariamente indisponível.',
       description: 'Tente novamente em instantes.',
     };
   }
@@ -157,15 +157,15 @@ function inferRegisterErrorByMessage(rawMessage?: string): RegisterErrorMessage 
     normalized.includes('nao foi possivel enviar o e-mail de confirmacao')
   ) {
     return {
-      message: 'Nao foi possivel enviar o e-mail de confirmacao.',
+      message: 'Não foi possível enviar o e-mail de confirmação.',
       description: 'Tente novamente em alguns instantes.',
     };
   }
 
   if (normalized.includes('captcha') || normalized.includes('validacao de seguranca')) {
     return {
-      message: 'Falha na validacao de seguranca.',
-      description: 'Recarregue a pagina e tente novamente.',
+      message: 'Falha na validação de segurança.',
+      description: 'Recarregue a página e tente novamente.',
     };
   }
 
@@ -176,7 +176,7 @@ function inferRegisterErrorByMessage(rawMessage?: string): RegisterErrorMessage 
     normalized.includes('conexao')
   ) {
     return {
-      message: 'Falha de conexao.',
+      message: 'Falha de conexão.',
       description: 'Verifique sua internet e tente novamente.',
     };
   }
@@ -187,7 +187,7 @@ function inferRegisterErrorByMessage(rawMessage?: string): RegisterErrorMessage 
     normalized.includes('internal server error')
   ) {
     return {
-      message: 'Servico temporariamente indisponivel.',
+      message: 'Serviço temporariamente indisponível.',
       description: 'Tente novamente em alguns instantes.',
     };
   }
@@ -206,43 +206,43 @@ function getInvalidPayloadErrorMessage(actionData: ActionData): RegisterErrorMes
 
     if (field === 'email') {
       return {
-        message: 'E-mail invalido.',
-        description: issueMessage || 'Informe um e-mail valido para continuar.',
+        message: 'E-mail inválido.',
+        description: issueMessage || 'Informe um e-mail válido para continuar.',
       };
     }
 
     if (field === 'phone') {
       return {
-        message: 'Telefone invalido.',
+        message: 'Telefone inválido.',
         description: issueMessage || 'Use o formato +55DDXXXXXXXXX para continuar.',
       };
     }
 
     if (field === 'confirmPassword') {
       return {
-        message: 'As senhas nao conferem.',
+        message: 'As senhas não conferem.',
         description: issueMessage || 'Digite a mesma senha nos dois campos para continuar.',
       };
     }
 
     if (field === 'password') {
       return {
-        message: 'Senha invalida.',
+        message: 'Senha inválida.',
         description: issueMessage || 'A senha deve ter ao menos 10 caracteres.',
       };
     }
 
     if (field === 'fullName') {
       return {
-        message: 'Nome invalido.',
-        description: issueMessage || 'Informe um nome valido para continuar.',
+        message: 'Nome inválido.',
+        description: issueMessage || 'Informe um nome válido para continuar.',
       };
     }
 
     if (field === 'terms') {
       return {
         message: 'Aceite os termos para continuar.',
-        description: issueMessage || 'Marque o aceite dos termos de servico e politica de privacidade.',
+        description: issueMessage || 'Marque o aceite dos termos de serviço e política de privacidade.',
       };
     }
 
@@ -265,7 +265,7 @@ function getInvalidPayloadErrorMessage(actionData: ActionData): RegisterErrorMes
   }
 
   return {
-    message: 'Dados de cadastro invalidos.',
+    message: 'Dados de cadastro inválidos.',
     description: actionData.message ?? 'Revise os campos e tente novamente.',
   };
 }
@@ -277,8 +277,8 @@ function getRegisterErrorMessage(actionData: ActionData): RegisterErrorMessage {
 
   if (actionData.error === 'network_error') {
     return {
-      message: 'Falha de conexao.',
-      description: 'Nao foi possivel conectar ao servidor. Verifique sua internet e tente novamente.',
+      message: 'Falha de conexão.',
+      description: 'Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.',
     };
   }
 
@@ -291,14 +291,14 @@ function getRegisterErrorMessage(actionData: ActionData): RegisterErrorMessage {
 
   if (actionData.error === 'service_unavailable') {
     return {
-      message: 'Cadastro temporariamente indisponivel.',
+      message: 'Cadastro temporariamente indisponível.',
       description: 'Tente novamente em alguns instantes.',
     };
   }
 
   if (actionData.error === 'register_failed') {
     return {
-      message: 'Nao foi possivel concluir seu cadastro.',
+      message: 'Não foi possível concluir seu cadastro.',
       description: actionData.message ?? 'Revise os dados informados e tente novamente.',
     };
   }
@@ -331,7 +331,7 @@ function getRegisterErrorMessage(actionData: ActionData): RegisterErrorMessage {
 
   if (actionData.error === 'signup_failed') {
     return {
-      message: 'Nao foi possivel concluir seu cadastro.',
+      message: 'Não foi possível concluir seu cadastro.',
       description:
         actionData.message ??
         'Verifique os dados informados e tente novamente em instantes.',
@@ -352,13 +352,13 @@ function getRegisterErrorMessage(actionData: ActionData): RegisterErrorMessage {
     actionData.error === 'internal_server_error'
   ) {
     return {
-      message: 'Falha temporaria ao criar sua conta.',
+      message: 'Falha temporária ao criar sua conta.',
       description: 'Tente novamente em alguns instantes.',
     };
   }
 
   return {
-    message: 'Nao foi possivel criar sua conta.',
+    message: 'Não foi possível criar sua conta.',
     description: actionData.message ?? 'Tente novamente em instantes.',
   };
 }
