@@ -184,7 +184,9 @@ it('deve renderizar o conteúdo da página home', () => {
       <Home />
     </MemoryRouter>,
   );
-  expect(screen.getByText('Começar agora')).toBeInTheDocument();
+  expect(
+    screen.getByText('A melhor decisão começa onde a experiência acontece.'),
+  ).toBeInTheDocument();
 });
 ```
 
