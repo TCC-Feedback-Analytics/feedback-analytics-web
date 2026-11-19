@@ -56,7 +56,7 @@ Das fontes estáticas (Poppins, Geist Mono e Space Grotesk), o `styles/fonts.css
 
 ### Cabeçalhos de segurança
 
-O `vercel.json` manda em todas as respostas: `Content-Security-Policy` (scripts, fontes e estilos só do próprio site, chamadas só para o próprio site e para o Gateway, imagens do site, `data:` e `blob:`, que o QR Code usa, e iframe só do próprio site, para o "Testar o formulário" do painel), `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin` e `Permissions-Policy` sem câmera, microfone, localização, pagamento e USB. O HSTS já vem da Vercel. Os estilos aceitam `'unsafe-inline'` porque componentes e animações aplicam estilo direto nos elementos.
+O `vercel.json` manda em todas as respostas: `Content-Security-Policy` (scripts, fontes e estilos só do próprio site, chamadas só para o próprio site e para o Gateway, imagens do site, `data:` e `blob:`, que o QR Code usa, e iframe só do próprio site, para o "Testar o formulário" do painel), `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin` e `Permissions-Policy` sem câmera, microfone, localização, pagamento e USB, além de `Cross-Origin-Opener-Policy: same-origin` (uma janela de outro site não consegue controlar a do Feedback Analytics) e `Cross-Origin-Resource-Policy: same-origin` (outros sites não carregam os arquivos do site). Os dois não atrapalham o "Continuar com Google", que troca de página em vez de abrir janela, nem os e-mails, que não usam imagens do site. O HSTS já vem da Vercel. Os estilos aceitam `'unsafe-inline'` porque componentes e animações aplicam estilo direto nos elementos.
 
 ### Imagens da página inicial
 
