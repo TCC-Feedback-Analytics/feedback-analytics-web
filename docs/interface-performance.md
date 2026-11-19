@@ -44,9 +44,23 @@ A imagem do QR Code (`components/user/pages/qrcodeEnterprise/CollectionChannelsS
 
 ### Code splitting
 
+- **Rotas sob demanda:** as páginas públicas (inicial, login, cadastro, formulário do QR Code, produto e páginas legais) ficam no bundle principal, porque são onde as pessoas chegam direto e carregar sob demanda atrasaria a primeira pintura delas. A área logada (o `layouts/user` e cada página de `/user`) usa a propriedade `lazy` do React Router, pelo helper `lazyPage` de `src/routes/lazyPage.ts`. O loader e a action da rota vêm no mesmo `lazy`. O Vite gera um chunk por tela. Na primeira carga de uma URL, o `FallbackType01` cobre o tempo de baixar o chunk. Nas navegações seguintes, o React Router só troca de tela depois que ele chega, e os skeletons da área logada continuam valendo.
+- **Pré-carregamento por rota:** o plugin `config/routePreload.ts` gera um script pequeno (`assets/route-preload-<hash>.js`, carregado no `<head>`) que, ao abrir `/user` ou `/user/dashboard` direto, pede ao navegador os chunks dessa rota junto com o bundle principal (`<link rel="modulepreload">`), em vez de esperar o bundle principal rodar para descobri-los. O script fica num arquivo próprio, e não embutido no HTML, porque a Content-Security-Policy do `vercel.json` não libera scripts embutidos.
 - **Medidor de força de senha:** o `zxcvbn` (`@zxcvbn-ts/core` e os dicionários) é carregado por `import()` dinâmico só quando a pessoa digita a primeira letra da senha (`loadPasswordScorer`, em `src/lib/utils/passwordStrength.ts`, usado pelo `usePasswordStrength`). A promessa fica guardada, então o pacote é baixado uma vez só. O Vite separa esse import em um chunk próprio.
 
-> **Pendente:** nenhuma rota usa `lazy`, e não há `React.lazy` nem `Suspense`. O `vite.config.ts` não define `manualChunks`. Todas as páginas saem no bundle principal.
+Com a divisão por rota, o JavaScript principal caiu de 362 KB para 237 KB (gzip), medido no build de produção.
+
+### Fontes
+
+Das fontes estáticas (Poppins, Geist Mono e Space Grotesk), o `styles/fonts.css` importa só os alfabetos latin e latin-ext, que cobrem o português. O `vite.config.ts` não deixa arquivo de fonte virar base64 dentro do CSS (`assetsInlineLimit`). Antes, os arquivos pequenos de outros alfabetos iam embutidos no CSS, que bloqueia a primeira pintura. O CSS principal caiu de 80 KB para 38 KB (gzip).
+
+### Cabeçalhos de segurança
+
+O `vercel.json` manda em todas as respostas: `Content-Security-Policy` (scripts, fontes e estilos só do próprio site, chamadas só para o próprio site e para o Gateway, imagens do site, `data:` e `blob:`, que o QR Code usa, e iframe só do próprio site, para o "Testar o formulário" do painel), `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin` e `Permissions-Policy` sem câmera, microfone, localização, pagamento e USB, além de `Cross-Origin-Opener-Policy: same-origin` (uma janela de outro site não consegue controlar a do Feedback Analytics) e `Cross-Origin-Resource-Policy: same-origin` (outros sites não carregam os arquivos do site). Os dois não atrapalham o "Continuar com Google", que troca de página em vez de abrir janela, nem os e-mails, que não usam imagens do site. O HSTS já vem da Vercel. Os estilos aceitam `'unsafe-inline'` porque componentes e animações aplicam estilo direto nos elementos.
+
+### Imagens da página inicial
+
+As imagens de `public/field-notes/` estão em WebP: a foto de fundo do topo (`hero.webp`, 39 KB, antes 518 KB em PNG), os logos (`logo-dark.webp` e `logo-light.webp`, reduzidos a 640 px de largura, que é o dobro do tamanho exibido) e o símbolo (`symbol.webp`). As tags `<img>` declaram `width` e `height`, para o navegador reservar o espaço antes de a imagem chegar. O logo do topo, que é o maior elemento visível ao abrir a página no celular, tem `fetchPriority="high"`, e o logo do rodapé usa `loading="lazy"`.
 
 ### Cache
 
