@@ -73,7 +73,7 @@
 .fn-hero {
   position: relative;
   min-height: 729px;
-  background: linear-gradient(90deg,rgba(3,23,27,.35),rgba(3,23,27,.05)),url('/field-notes/hero.png') center/cover no-repeat;
+  background: linear-gradient(90deg,rgba(3,23,27,.35),rgba(3,23,27,.05)),url('/field-notes/hero.webp') center/cover no-repeat;
 }
 .fn-hero::before {
   content: '';
