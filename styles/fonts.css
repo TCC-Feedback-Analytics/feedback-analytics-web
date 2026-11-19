@@ -1,6 +1,9 @@
 /* Fontes servidas pela própria Web (pacotes @fontsource), sem chamar o Google
    Fonts: assim o IP e o navegador de quem visita não vão para o Google.
-   Os pacotes "-variable" registram a família com o sufixo " Variable". */
+   Os pacotes "-variable" registram a família com o sufixo " Variable".
+   Das fontes estáticas entram só os alfabetos latin e latin-ext, que cobrem o
+   português: os demais (cirílico, grego, vietnamita, devanágari, símbolos) eram
+   arquivos pequenos que o Vite embutia no CSS e atrasavam a primeira pintura. */
 
 /* Inter (corpo): pesos 100–900 e tamanho óptico, normal e itálico */
 @import '@fontsource-variable/inter/opsz.css';
@@ -17,30 +20,55 @@
 @import '@fontsource-variable/roboto/wght-italic.css';
 
 /* Poppins (botões): não tem versão variável, então vai peso a peso, 100–900 */
-@import '@fontsource/poppins/100.css';
-@import '@fontsource/poppins/100-italic.css';
-@import '@fontsource/poppins/200.css';
-@import '@fontsource/poppins/200-italic.css';
-@import '@fontsource/poppins/300.css';
-@import '@fontsource/poppins/300-italic.css';
-@import '@fontsource/poppins/400.css';
-@import '@fontsource/poppins/400-italic.css';
-@import '@fontsource/poppins/500.css';
-@import '@fontsource/poppins/500-italic.css';
-@import '@fontsource/poppins/600.css';
-@import '@fontsource/poppins/600-italic.css';
-@import '@fontsource/poppins/700.css';
-@import '@fontsource/poppins/700-italic.css';
-@import '@fontsource/poppins/800.css';
-@import '@fontsource/poppins/800-italic.css';
-@import '@fontsource/poppins/900.css';
-@import '@fontsource/poppins/900-italic.css';
+@import '@fontsource/poppins/latin-100.css';
+@import '@fontsource/poppins/latin-ext-100.css';
+@import '@fontsource/poppins/latin-100-italic.css';
+@import '@fontsource/poppins/latin-ext-100-italic.css';
+@import '@fontsource/poppins/latin-200.css';
+@import '@fontsource/poppins/latin-ext-200.css';
+@import '@fontsource/poppins/latin-200-italic.css';
+@import '@fontsource/poppins/latin-ext-200-italic.css';
+@import '@fontsource/poppins/latin-300.css';
+@import '@fontsource/poppins/latin-ext-300.css';
+@import '@fontsource/poppins/latin-300-italic.css';
+@import '@fontsource/poppins/latin-ext-300-italic.css';
+@import '@fontsource/poppins/latin-400.css';
+@import '@fontsource/poppins/latin-ext-400.css';
+@import '@fontsource/poppins/latin-400-italic.css';
+@import '@fontsource/poppins/latin-ext-400-italic.css';
+@import '@fontsource/poppins/latin-500.css';
+@import '@fontsource/poppins/latin-ext-500.css';
+@import '@fontsource/poppins/latin-500-italic.css';
+@import '@fontsource/poppins/latin-ext-500-italic.css';
+@import '@fontsource/poppins/latin-600.css';
+@import '@fontsource/poppins/latin-ext-600.css';
+@import '@fontsource/poppins/latin-600-italic.css';
+@import '@fontsource/poppins/latin-ext-600-italic.css';
+@import '@fontsource/poppins/latin-700.css';
+@import '@fontsource/poppins/latin-ext-700.css';
+@import '@fontsource/poppins/latin-700-italic.css';
+@import '@fontsource/poppins/latin-ext-700-italic.css';
+@import '@fontsource/poppins/latin-800.css';
+@import '@fontsource/poppins/latin-ext-800.css';
+@import '@fontsource/poppins/latin-800-italic.css';
+@import '@fontsource/poppins/latin-ext-800-italic.css';
+@import '@fontsource/poppins/latin-900.css';
+@import '@fontsource/poppins/latin-ext-900.css';
+@import '@fontsource/poppins/latin-900-italic.css';
+@import '@fontsource/poppins/latin-ext-900-italic.css';
 
-/* Geist Mono e Space Grotesk (páginas legais): os mesmos pesos de antes */
-@import '@fontsource/geist-mono/400.css';
-@import '@fontsource/geist-mono/500.css';
-@import '@fontsource/geist-mono/600.css';
-@import '@fontsource/space-grotesk/400.css';
-@import '@fontsource/space-grotesk/500.css';
-@import '@fontsource/space-grotesk/600.css';
-@import '@fontsource/space-grotesk/700.css';
+/* Geist Mono e Space Grotesk (página inicial, produto e páginas legais) */
+@import '@fontsource/geist-mono/latin-400.css';
+@import '@fontsource/geist-mono/latin-ext-400.css';
+@import '@fontsource/geist-mono/latin-500.css';
+@import '@fontsource/geist-mono/latin-ext-500.css';
+@import '@fontsource/geist-mono/latin-600.css';
+@import '@fontsource/geist-mono/latin-ext-600.css';
+@import '@fontsource/space-grotesk/latin-400.css';
+@import '@fontsource/space-grotesk/latin-ext-400.css';
+@import '@fontsource/space-grotesk/latin-500.css';
+@import '@fontsource/space-grotesk/latin-ext-500.css';
+@import '@fontsource/space-grotesk/latin-600.css';
+@import '@fontsource/space-grotesk/latin-ext-600.css';
+@import '@fontsource/space-grotesk/latin-700.css';
+@import '@fontsource/space-grotesk/latin-ext-700.css';

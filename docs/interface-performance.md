@@ -44,10 +44,15 @@ A imagem do QR Code (`components/user/pages/qrcodeEnterprise/CollectionChannelsS
 
 ### Code splitting
 
-- **Rotas sob demanda:** só a página inicial (`pages/public/home`) e o layout público saem no bundle principal. As demais telas públicas e toda a área logada (o `layouts/user` e cada página de `/user`) usam a propriedade `lazy` do React Router, pelo helper `lazyPage` de `src/routes/lazyPage.ts`. O loader e a action da rota vêm no mesmo `lazy`, então as validações (zod) e os services também só são baixados quando a tela é aberta. O Vite gera um chunk por tela. Na primeira carga de uma URL, o `FallbackType01` cobre o tempo de baixar o chunk. Nas navegações seguintes, o React Router só troca de tela depois que ele chega, e os skeletons da área logada continuam valendo.
+- **Rotas sob demanda:** as páginas públicas (inicial, login, cadastro, formulário do QR Code, produto e páginas legais) ficam no bundle principal, porque são onde as pessoas chegam direto e carregar sob demanda atrasaria a primeira pintura delas. A área logada (o `layouts/user` e cada página de `/user`) usa a propriedade `lazy` do React Router, pelo helper `lazyPage` de `src/routes/lazyPage.ts`. O loader e a action da rota vêm no mesmo `lazy`. O Vite gera um chunk por tela. Na primeira carga de uma URL, o `FallbackType01` cobre o tempo de baixar o chunk. Nas navegações seguintes, o React Router só troca de tela depois que ele chega, e os skeletons da área logada continuam valendo.
+- **Pré-carregamento por rota:** o plugin `config/routePreload.ts` escreve no `index.html` um script que, ao abrir `/user` ou `/user/dashboard` direto, pede ao navegador os chunks dessa rota junto com o bundle principal (`<link rel="modulepreload">`), em vez de esperar o bundle principal rodar para descobri-los.
 - **Medidor de força de senha:** o `zxcvbn` (`@zxcvbn-ts/core` e os dicionários) é carregado por `import()` dinâmico só quando a pessoa digita a primeira letra da senha (`loadPasswordScorer`, em `src/lib/utils/passwordStrength.ts`, usado pelo `usePasswordStrength`). A promessa fica guardada, então o pacote é baixado uma vez só. O Vite separa esse import em um chunk próprio.
 
-Com a divisão por rota, o JavaScript principal caiu de 362 KB para 131 KB (gzip), medido no build de produção.
+Com a divisão por rota, o JavaScript principal caiu de 362 KB para 237 KB (gzip), medido no build de produção.
+
+### Fontes
+
+Das fontes estáticas (Poppins, Geist Mono e Space Grotesk), o `styles/fonts.css` importa só os alfabetos latin e latin-ext, que cobrem o português. O `vite.config.ts` não deixa arquivo de fonte virar base64 dentro do CSS (`assetsInlineLimit`). Antes, os arquivos pequenos de outros alfabetos iam embutidos no CSS, que bloqueia a primeira pintura. O CSS principal caiu de 80 KB para 38 KB (gzip).
 
 ### Imagens da página inicial
 

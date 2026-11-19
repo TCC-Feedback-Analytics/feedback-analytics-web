@@ -2,6 +2,7 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import * as path from 'path';
 import tailwindcss from '@tailwindcss/vite';
+import { routePreload } from './config/routePreload';
 import { execSync } from 'child_process';
 
 function getGitVersionTag(): string {
@@ -22,13 +23,16 @@ const gitVersion = getGitVersionTag();
 // https://vite.dev/config/
 export default defineConfig({
   root: import.meta.dirname,
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), routePreload()],
   define: {
     __APP_VERSION__: JSON.stringify(gitVersion),
   },
   build: {
     outDir: path.resolve(import.meta.dirname, './dist'),
     emptyOutDir: true,
+    // Fonte nunca vira base64 dentro do CSS: o CSS bloqueia a primeira pintura, e o
+    // navegador só baixa o arquivo da fonte quando a página usa aqueles caracteres.
+    assetsInlineLimit: (filePath) => (/\.woff2?$/.test(filePath) ? false : undefined),
   },
   resolve: {
     alias: {
