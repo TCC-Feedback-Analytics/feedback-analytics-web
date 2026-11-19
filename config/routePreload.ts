@@ -1,13 +1,19 @@
+import { createHash } from 'node:crypto';
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import type { Plugin } from 'vite';
 
 /**
  * Pré-carregamento por rota.
  *
  * As telas são carregadas sob demanda (`lazy` do React Router, ver `src/routes/lazyPage.ts`).
- * Sem ajuda, quem abre `/login` direto baixa o pacote principal e só depois descobre que precisa
- * do arquivo da tela de login: dois downloads em fila. Este plugin escreve no `index.html` um
- * script pequeno que olha a URL aberta e pede ao navegador, logo de início, os arquivos daquela
- * rota (`<link rel="modulepreload">`). Eles baixam junto com o pacote principal.
+ * Sem ajuda, quem abre `/user/dashboard` direto baixa o pacote principal e só depois descobre
+ * que precisa do arquivo da tela: dois downloads em fila. Este plugin gera um script pequeno que
+ * olha a URL aberta e pede ao navegador, logo de início, os arquivos daquela rota
+ * (`<link rel="modulepreload">`). Eles baixam junto com o pacote principal.
+ *
+ * O script fica num arquivo próprio (`assets/route-preload-<hash>.js`), e não embutido no HTML,
+ * para a Content-Security-Policy do `vercel.json` poder proibir scripts embutidos.
  *
  * As páginas públicas vêm no pacote principal, então só a área logada entra aqui.
  * Cada entrada liga o começo da URL aos módulos que a rota carrega (tela, loader e action).
@@ -31,6 +37,8 @@ type Chunk = {
 const semExtensao = (id: string) => id.replace(/\\/g, '/').replace(/\.[cm]?[jt]sx?$/, '');
 
 export function routePreload(): Plugin {
+  let arquivo: { nome: string; conteudo: string } | null = null;
+
   return {
     name: 'feedback-route-preload',
     apply: 'build',
@@ -83,8 +91,14 @@ export function routePreload(): Plugin {
           `if(v[f])continue;v[f]=1;var l=document.createElement('link');l.rel='modulepreload';` +
           `l.crossOrigin='';l.href='/'+f;document.head.appendChild(l);}}}})();`;
 
-        return [{ tag: 'script', children: script, injectTo: 'head-prepend' }];
+        const nome = `assets/route-preload-${createHash('sha256').update(script).digest('hex').slice(0, 8)}.js`;
+        arquivo = { nome, conteudo: script };
+        return [{ tag: 'script', attrs: { src: `/${nome}` }, injectTo: 'head-prepend' }];
       },
+    },
+    writeBundle(options) {
+      if (!arquivo || !options.dir) return;
+      writeFileSync(join(options.dir, arquivo.nome), arquivo.conteudo);
     },
   };
 }
