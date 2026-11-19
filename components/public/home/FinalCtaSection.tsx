@@ -20,7 +20,7 @@ export default function FinalCtaSection() {
         </div>
         <div className="fn-ticket bg-[#fff] rounded-[4px] flex flex-col gap-[18px]" aria-hidden="true">
           <div className="fn-ticket-top flex items-center justify-between overflow-hidden">
-            <img src="/field-notes/logo-light.png" alt="" />
+            <img src="/field-notes/logo-light.webp" alt="" width={640} height={113} loading="lazy" />
             <span>#001</span>
           </div>
           <div className="fn-ticket-rule h-[1px] bg-[#d4e5e2]" />

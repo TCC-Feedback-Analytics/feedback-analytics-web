@@ -1,7 +1,7 @@
 /* Field Notes reference details */
 .fn-hero {
   background-color: #03171b;
-  background-image: url('/field-notes/hero.png');
+  background-image: url('/field-notes/hero.webp');
   background-size: 112% auto;
   background-position: calc(50% + 4vw) center;
 }

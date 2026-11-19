@@ -4,7 +4,7 @@ import type { SectionIntroProps } from './ui.types';
 export function Brand() {
   return (
     <Link to="/" className="fn-brand items-center overflow-hidden" aria-label="Feedback Analytics, página inicial">
-      <img src="/field-notes/logo-dark.png" alt="Feedback Analytics" />
+      <img src="/field-notes/logo-dark.webp" alt="Feedback Analytics" width={640} height={113} fetchPriority="high" />
     </Link>
   );
 }
