@@ -1,46 +1,66 @@
 import Public from 'layouts/public';
 import Home from 'pages/public/home';
+import Coleta from 'pages/public/coleta';
+import Analise from 'pages/public/analise';
+import Resultados from 'pages/public/resultados';
+import Login from 'pages/public/login';
+import Register from 'pages/public/register';
+import FeedbackQRCodeEnterprise from 'pages/public/qrcode/enterprise';
 import { Route } from 'react-router-dom';
 import { ActionLogin } from './actions/actionLogin';
 import { ActionRegister } from './actions/actionRegister';
+import AuthSuccess from 'pages/public/authSuccess';
+import AuthLinkExpired from 'pages/public/authLinkExpired';
+import Privacy from 'pages/public/privacy';
+import Terms from 'pages/public/terms';
+import CompleteSignup from 'pages/public/completeSignup';
 import { LoaderCompleteSignup } from './loaders/loaderCompleteSignup';
 import ErrorPage from 'components/globals/handling/errorPage';
 import { LoaderPublicQrCodeEnterprise } from './loaders/loaderPublicQrCodeEnterprise';
 import { ActionPublicQrCodeFeedback } from './actions/actionPublicQrCodeFeedback';
+import ForgotPassword from 'pages/public/forgotPassword';
 import { ActionForgotPassword } from './actions/actionForgotPassword';
+import ResetPassword from 'pages/public/resetPassword';
 import { ActionResetPassword } from './actions/actionResetPassword';
+import ResendConfirmation from 'pages/public/resendConfirmation';
 import { ActionResendConfirmation } from './actions/actionResendConfirmation';
 
+/**
+ * Páginas públicas no pacote principal, sem `lazy`: é por elas que as pessoas chegam direto
+ * (o cliente pelo QR Code, o gestor pelo login). Carregar sob demanda baixaria o pacote e a
+ * página um depois do outro e derrubou o login de 100 para cerca de 90 no PageSpeed
+ * (ver docs/interface-performance.md). Só a área logada (/user) é carregada sob demanda.
+ */
 export function RoutePublic() {
   return (
     <Route path="/" element={<Public />} errorElement={<ErrorPage />}>
       <Route path="/" element={<Home />} />
-      <Route path="produto/coleta" lazy={async () => ({ Component: (await import("pages/public/coleta")).default })} />
-      <Route path="produto/analise" lazy={async () => ({ Component: (await import("pages/public/analise")).default })} />
-      <Route path="produto/resultados" lazy={async () => ({ Component: (await import("pages/public/resultados")).default })} />
-      <Route path="login" lazy={async () => ({ Component: (await import("pages/public/login")).default })} action={ActionLogin} />
-      <Route path="register" lazy={async () => ({ Component: (await import("pages/public/register")).default })} action={ActionRegister} />
-      <Route path="forgot-password" lazy={async () => ({ Component: (await import("pages/public/forgotPassword")).default })} action={ActionForgotPassword} />
+      <Route path="produto/coleta" element={<Coleta />} />
+      <Route path="produto/analise" element={<Analise />} />
+      <Route path="produto/resultados" element={<Resultados />} />
+      <Route path="login" element={<Login />} action={ActionLogin} />
+      <Route path="register" element={<Register />} action={ActionRegister} />
+      <Route path="forgot-password" element={<ForgotPassword />} action={ActionForgotPassword} />
       <Route
         path="resend-confirmation"
-        lazy={async () => ({ Component: (await import("pages/public/resendConfirmation")).default })}
+        element={<ResendConfirmation />}
         action={ActionResendConfirmation}
       />
-      <Route path="auth/reset-password" lazy={async () => ({ Component: (await import("pages/public/resetPassword")).default })} action={ActionResetPassword} />
+      <Route path="auth/reset-password" element={<ResetPassword />} action={ActionResetPassword} />
       <Route
         path="feedback/qrcode"
         loader={LoaderPublicQrCodeEnterprise}
         action={ActionPublicQrCodeFeedback}
-        lazy={async () => ({ Component: (await import("pages/public/qrcode/enterprise")).default })}
+        element={<FeedbackQRCodeEnterprise />}
       />
-      <Route path="auth/success" lazy={async () => ({ Component: (await import("pages/public/authSuccess")).default })} />
-      <Route path="auth/link-expired" lazy={async () => ({ Component: (await import("pages/public/authLinkExpired")).default })} />
-      <Route path="privacidade" lazy={async () => ({ Component: (await import("pages/public/privacy")).default })} />
-      <Route path="termos" lazy={async () => ({ Component: (await import("pages/public/terms")).default })} />
+      <Route path="auth/success" element={<AuthSuccess />} />
+      <Route path="auth/link-expired" element={<AuthLinkExpired />} />
+      <Route path="privacidade" element={<Privacy />} />
+      <Route path="termos" element={<Terms />} />
       <Route
         path="auth/complete-signup"
         loader={LoaderCompleteSignup}
-        lazy={async () => ({ Component: (await import("pages/public/completeSignup")).default })}
+        element={<CompleteSignup />}
       />
     </Route>
   );
