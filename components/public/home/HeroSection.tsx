@@ -40,7 +40,7 @@ export default function HeroSection() {
         >
           <div className="fn-live-head justify-between">
             <span>
-              <img src="/field-notes/symbol.png" alt="" /> 3 canais ativos · Balcão
+              <img src="/field-notes/symbol.webp" alt="" width={96} height={96} /> 3 canais ativos · Balcão
             </span>
             <strong>
               <span className="fn-live-dot" /> ATIVO
