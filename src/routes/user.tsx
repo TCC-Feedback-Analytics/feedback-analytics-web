@@ -1,73 +1,44 @@
 import ErrorPage from "components/user/shared/handling/errorPage";
-import Dashboard from "pages/user/dashboard";
-import Ratings from "pages/user/ratings";
-import Customers from "pages/user/customers";
-import CompareItems from "pages/user/compare";
-import DiagnosisHistory from "pages/user/diagnosis";
-import OpenRouterCallback from "pages/user/openrouterCallback";
-import EditCustomer from "pages/user/edit/editCustomers";
-import FeedbacksAll from "pages/user/feedbacks/feedbacksAll";
-import Feedbacks from "pages/user/feedbacks/feedbacks";
-import CommentsOverview from "pages/user/feedbacks/insights/overview";
-import CommentsPage from "pages/user/feedbacks/insights/comments";
-import LayoutUser from "layouts/user";
 import { Route, redirect } from "react-router-dom";
-import { LoaderUserProtected } from "src/routes/loaders/loaderUserProtected";
-import { LoaderUserDashboard } from "src/routes/loaders/loaderUserDashboard";
-import { LoaderFeedbacksAll } from "src/routes/loaders/loaderFeedbacksAll";
-import { LoaderCommentsAnalysis } from "src/routes/loaders/loaderCommentsAnalysis";
-import { LoaderFormQuestions } from "./loaders/loaderFormQuestions";
-import Profile from "pages/user/profile";
-import QuestionPage from "pages/user/questions/question";
-import RemovedQuestionsPage from "pages/user/questions/removed";
-import { ActionCollectingData } from "./actions/actionCollectingData";
-import { ActionTypesFeedback } from "./actions/actionTypesFeedback";
-import { ActionFeedbackInsightsReport } from "./actions/actionFeedbackInsightsReport";
-import EditTypeFeedbacks from "pages/user/edit/editTypeFeedbacks";
-import EditFeedbackProducts from "pages/user/edit/editFeedbackProducts";
-import EditFeedbackServices from "pages/user/edit/editFeedbackServices";
-import EditFeedbackDepartments from "pages/user/edit/editFeedbackDepartments";
-import EditCompanyData from "pages/user/edit/editCompanyData";
-import EditFeedbackGeneral from "pages/user/edit/editFeedbackGeneral";
-import EditCatalogItem from "pages/user/edit/editCatalogItem";
-import { ActionProfile } from "./actions/actionProfile";
-import { ActionLogout } from "./actions/actionLogout";
-import { ActionFeedbackCatalogPage } from "./actions/actionFeedbackCatalogPage";
-import { ActionFeedbackGeneralPage } from "./actions/actionFeedbackGeneralPage";
-import { LoaderQrCodeProducts } from "./loaders/loaderQrCodeProducts";
-import { LoaderQrCodeServices } from "./loaders/loaderQrCodeServices";
-import { LoaderQrCodeDepartments } from "./loaders/loaderQrCodeDepartments";
-import { LoaderFeedbackGeneral } from "./loaders/loaderFeedbackGeneral";
-import { LoaderCatalogItem } from "./loaders/loaderCatalogItem";
-import EditIaSettings from "pages/user/edit/editIaSettings";
-import { ActionIaSettings } from "./actions/actionIaSettings";
-import { LoaderIaSettings } from "./loaders/loaderIaSettings";
+import { lazyPage } from "./lazyPage";
 
-
+// Todas as telas da área logada (e o layout dela), com os loaders e actions de cada uma,
+// são carregadas só quando acessadas. Quem abre a página inicial não baixa nada disto.
 export function RouteUser() {
   return (
     <Route
       id="user"
       path="/user"
       errorElement={<ErrorPage />}
-      element={<LayoutUser />}
-      loader={LoaderUserProtected}
-      action={ActionLogout}
+      lazy={lazyPage(
+        () => import("layouts/user"),
+        async () => {
+          const [loader, action] = await Promise.all([
+            import("./loaders/loaderUserProtected"),
+            import("./actions/actionLogout"),
+          ]);
+          return { loader: loader.LoaderUserProtected, action: action.ActionLogout };
+        },
+      )}
     >
       <Route
         path="dashboard"
-        loader={LoaderUserDashboard}
-        element={<Dashboard />}
+        lazy={lazyPage(
+          () => import("pages/user/dashboard"),
+          () => import("./loaders/loaderUserDashboard").then((m) => ({ loader: m.LoaderUserDashboard })),
+        )}
       />
-      <Route path="ratings" element={<Ratings />} />
-      <Route path="customers" element={<Customers />} />
-      <Route path="compare" element={<CompareItems />} />
-      <Route path="diagnosis" element={<DiagnosisHistory />} />
-      <Route path="openrouter/callback" element={<OpenRouterCallback />} />
+      <Route path="ratings" lazy={lazyPage(() => import("pages/user/ratings"))} />
+      <Route path="customers" lazy={lazyPage(() => import("pages/user/customers"))} />
+      <Route path="compare" lazy={lazyPage(() => import("pages/user/compare"))} />
+      <Route path="diagnosis" lazy={lazyPage(() => import("pages/user/diagnosis"))} />
+      <Route path="openrouter/callback" lazy={lazyPage(() => import("pages/user/openrouterCallback"))} />
       <Route
         path="profile"
-        element={<Profile />}
-        action={ActionProfile}
+        lazy={lazyPage(
+          () => import("pages/user/profile"),
+          () => import("./actions/actionProfile").then((m) => ({ action: m.ActionProfile })),
+        )}
       />
       <Route
         path="qrcode/enterprise"
@@ -75,21 +46,33 @@ export function RouteUser() {
       />
       <Route
         path="feedbacks/all"
-        loader={LoaderFeedbacksAll}
-        element={<FeedbacksAll />}
+        lazy={lazyPage(
+          () => import("pages/user/feedbacks/feedbacksAll"),
+          () => import("./loaders/loaderFeedbacksAll").then((m) => ({ loader: m.LoaderFeedbacksAll })),
+        )}
       />
-      <Route path="feedbacks/:id" element={<Feedbacks />} />
+      <Route path="feedbacks/:id" lazy={lazyPage(() => import("pages/user/feedbacks/feedbacks"))} />
       {/* "Análise dos comentários": Visão geral (com a action de análise da IA) e Comentários. */}
       <Route path="insights" loader={() => redirect("/user/insights/overview")} />
       <Route
         path="insights/overview"
-        action={ActionFeedbackInsightsReport}
-        element={<CommentsOverview />}
+        lazy={lazyPage(
+          () => import("pages/user/feedbacks/insights/overview"),
+          () =>
+            import("./actions/actionFeedbackInsightsReport").then((m) => ({
+              action: m.ActionFeedbackInsightsReport,
+            })),
+        )}
       />
       <Route
         path="insights/comments"
-        loader={LoaderCommentsAnalysis}
-        element={<CommentsPage />}
+        lazy={lazyPage(
+          () => import("pages/user/feedbacks/insights/comments"),
+          () =>
+            import("./loaders/loaderCommentsAnalysis").then((m) => ({
+              loader: m.LoaderCommentsAnalysis,
+            })),
+        )}
       />
       {/* Páginas antigas, absorvidas pela nova estrutura: links salvos continuam funcionando. */}
       <Route path="insights/reports" loader={() => redirect("/user/insights/overview")} />
@@ -100,25 +83,48 @@ export function RouteUser() {
       <Route path="feedbacks/analytics/negative" loader={() => redirect("/user/insights/comments?filtro=negativos")} />
       {/* As perguntas ficam no Dashboard ("Perguntas do formulário"), uma página por pergunta. */}
       <Route path="insights/questions" loader={() => redirect("/user/dashboard")} />
-      <Route path="questions/removed" loader={LoaderFormQuestions} element={<RemovedQuestionsPage />} />
-      <Route path="questions/:questionId" loader={LoaderFormQuestions} element={<QuestionPage />} />
-      <Route path="edit/customers" element={<EditCustomer />} />
+      <Route
+        path="questions/removed"
+        lazy={lazyPage(
+          () => import("pages/user/questions/removed"),
+          () => import("./loaders/loaderFormQuestions").then((m) => ({ loader: m.LoaderFormQuestions })),
+        )}
+      />
+      <Route
+        path="questions/:questionId"
+        lazy={lazyPage(
+          () => import("pages/user/questions/question"),
+          () => import("./loaders/loaderFormQuestions").then((m) => ({ loader: m.LoaderFormQuestions })),
+        )}
+      />
+      <Route path="edit/customers" lazy={lazyPage(() => import("pages/user/edit/editCustomers"))} />
       <Route
         path="edit/collecting-data-enterprise"
-        element={<EditCompanyData />}
-        action={ActionCollectingData}
+        lazy={lazyPage(
+          () => import("pages/user/edit/editCompanyData"),
+          () => import("./actions/actionCollectingData").then((m) => ({ action: m.ActionCollectingData })),
+        )}
       />
       <Route
         path="edit/ia-settings"
-        loader={LoaderIaSettings}
-        element={<EditIaSettings />}
-        action={ActionIaSettings}
+        lazy={lazyPage(
+          () => import("pages/user/edit/editIaSettings"),
+          async () => {
+            const [loader, action] = await Promise.all([
+              import("./loaders/loaderIaSettings"),
+              import("./actions/actionIaSettings"),
+            ]);
+            return { loader: loader.LoaderIaSettings, action: action.ActionIaSettings };
+          },
+        )}
       />
 
       <Route
         path="edit/types-feedback"
-        element={<EditTypeFeedbacks />}
-        action={ActionTypesFeedback}
+        lazy={lazyPage(
+          () => import("pages/user/edit/editTypeFeedbacks"),
+          () => import("./actions/actionTypesFeedback").then((m) => ({ action: m.ActionTypesFeedback })),
+        )}
       />
       <Route
         path="edit/feedback-settings"
@@ -126,33 +132,68 @@ export function RouteUser() {
       />
       <Route
         path="edit/feedback-products"
-        loader={LoaderQrCodeProducts}
-        element={<EditFeedbackProducts />}
-        action={ActionFeedbackCatalogPage}
+        lazy={lazyPage(
+          () => import("pages/user/edit/editFeedbackProducts"),
+          async () => {
+            const [loader, action] = await Promise.all([
+              import("./loaders/loaderQrCodeProducts"),
+              import("./actions/actionFeedbackCatalogPage"),
+            ]);
+            return { loader: loader.LoaderQrCodeProducts, action: action.ActionFeedbackCatalogPage };
+          },
+        )}
       />
       <Route
         path="edit/feedback-services"
-        loader={LoaderQrCodeServices}
-        element={<EditFeedbackServices />}
-        action={ActionFeedbackCatalogPage}
+        lazy={lazyPage(
+          () => import("pages/user/edit/editFeedbackServices"),
+          async () => {
+            const [loader, action] = await Promise.all([
+              import("./loaders/loaderQrCodeServices"),
+              import("./actions/actionFeedbackCatalogPage"),
+            ]);
+            return { loader: loader.LoaderQrCodeServices, action: action.ActionFeedbackCatalogPage };
+          },
+        )}
       />
       <Route
         path="edit/feedback-departments"
-        loader={LoaderQrCodeDepartments}
-        element={<EditFeedbackDepartments />}
-        action={ActionFeedbackCatalogPage}
+        lazy={lazyPage(
+          () => import("pages/user/edit/editFeedbackDepartments"),
+          async () => {
+            const [loader, action] = await Promise.all([
+              import("./loaders/loaderQrCodeDepartments"),
+              import("./actions/actionFeedbackCatalogPage"),
+            ]);
+            return { loader: loader.LoaderQrCodeDepartments, action: action.ActionFeedbackCatalogPage };
+          },
+        )}
       />
       <Route
         path="edit/feedback/:kind/:itemId"
-        loader={LoaderCatalogItem}
-        element={<EditCatalogItem />}
-        action={ActionFeedbackCatalogPage}
+        lazy={lazyPage(
+          () => import("pages/user/edit/editCatalogItem"),
+          async () => {
+            const [loader, action] = await Promise.all([
+              import("./loaders/loaderCatalogItem"),
+              import("./actions/actionFeedbackCatalogPage"),
+            ]);
+            return { loader: loader.LoaderCatalogItem, action: action.ActionFeedbackCatalogPage };
+          },
+        )}
       />
       <Route
         path="edit/feedback-general"
-        loader={LoaderFeedbackGeneral}
-        element={<EditFeedbackGeneral />}
-        action={ActionFeedbackGeneralPage}
+        lazy={lazyPage(
+          () => import("pages/user/edit/editFeedbackGeneral"),
+          async () => {
+            const [loader, action] = await Promise.all([
+              import("./loaders/loaderFeedbackGeneral"),
+              import("./actions/actionFeedbackGeneralPage"),
+            ]);
+            return { loader: loader.LoaderFeedbackGeneral, action: action.ActionFeedbackGeneralPage };
+          },
+        )}
       />
     </Route>
   );

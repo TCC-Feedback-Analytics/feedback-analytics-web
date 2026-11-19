@@ -44,9 +44,14 @@ A imagem do QR Code (`components/user/pages/qrcodeEnterprise/CollectionChannelsS
 
 ### Code splitting
 
+- **Rotas sob demanda:** só a página inicial (`pages/public/home`) e o layout público saem no bundle principal. As demais telas públicas e toda a área logada (o `layouts/user` e cada página de `/user`) usam a propriedade `lazy` do React Router, pelo helper `lazyPage` de `src/routes/lazyPage.ts`. O loader e a action da rota vêm no mesmo `lazy`, então as validações (zod) e os services também só são baixados quando a tela é aberta. O Vite gera um chunk por tela. Na primeira carga de uma URL, o `FallbackType01` cobre o tempo de baixar o chunk. Nas navegações seguintes, o React Router só troca de tela depois que ele chega, e os skeletons da área logada continuam valendo.
 - **Medidor de força de senha:** o `zxcvbn` (`@zxcvbn-ts/core` e os dicionários) é carregado por `import()` dinâmico só quando a pessoa digita a primeira letra da senha (`loadPasswordScorer`, em `src/lib/utils/passwordStrength.ts`, usado pelo `usePasswordStrength`). A promessa fica guardada, então o pacote é baixado uma vez só. O Vite separa esse import em um chunk próprio.
 
-> **Pendente:** nenhuma rota usa `lazy`, e não há `React.lazy` nem `Suspense`. O `vite.config.ts` não define `manualChunks`. Todas as páginas saem no bundle principal.
+Com a divisão por rota, o JavaScript principal caiu de 362 KB para 131 KB (gzip), medido no build de produção.
+
+### Imagens da página inicial
+
+As imagens de `public/field-notes/` estão em WebP: a foto de fundo do topo (`hero.webp`, 39 KB, antes 518 KB em PNG), os logos (`logo-dark.webp` e `logo-light.webp`, reduzidos a 640 px de largura, que é o dobro do tamanho exibido) e o símbolo (`symbol.webp`). As tags `<img>` declaram `width` e `height`, para o navegador reservar o espaço antes de a imagem chegar. O logo do topo, que é o maior elemento visível ao abrir a página no celular, tem `fetchPriority="high"`, e o logo do rodapé usa `loading="lazy"`.
 
 ### Cache
 
