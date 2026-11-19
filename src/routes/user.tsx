@@ -1,35 +1,13 @@
 import ErrorPage from "components/user/shared/handling/errorPage";
-import Dashboard from "pages/user/dashboard";
-import Ratings from "pages/user/ratings";
-import Customers from "pages/user/customers";
-import CompareItems from "pages/user/compare";
-import DiagnosisHistory from "pages/user/diagnosis";
-import OpenRouterCallback from "pages/user/openrouterCallback";
-import EditCustomer from "pages/user/edit/editCustomers";
-import FeedbacksAll from "pages/user/feedbacks/feedbacksAll";
-import Feedbacks from "pages/user/feedbacks/feedbacks";
-import CommentsOverview from "pages/user/feedbacks/insights/overview";
-import CommentsPage from "pages/user/feedbacks/insights/comments";
-import LayoutUser from "layouts/user";
 import { Route, redirect } from "react-router-dom";
 import { LoaderUserProtected } from "src/routes/loaders/loaderUserProtected";
 import { LoaderUserDashboard } from "src/routes/loaders/loaderUserDashboard";
 import { LoaderFeedbacksAll } from "src/routes/loaders/loaderFeedbacksAll";
 import { LoaderCommentsAnalysis } from "src/routes/loaders/loaderCommentsAnalysis";
 import { LoaderFormQuestions } from "./loaders/loaderFormQuestions";
-import Profile from "pages/user/profile";
-import QuestionPage from "pages/user/questions/question";
-import RemovedQuestionsPage from "pages/user/questions/removed";
 import { ActionCollectingData } from "./actions/actionCollectingData";
 import { ActionTypesFeedback } from "./actions/actionTypesFeedback";
 import { ActionFeedbackInsightsReport } from "./actions/actionFeedbackInsightsReport";
-import EditTypeFeedbacks from "pages/user/edit/editTypeFeedbacks";
-import EditFeedbackProducts from "pages/user/edit/editFeedbackProducts";
-import EditFeedbackServices from "pages/user/edit/editFeedbackServices";
-import EditFeedbackDepartments from "pages/user/edit/editFeedbackDepartments";
-import EditCompanyData from "pages/user/edit/editCompanyData";
-import EditFeedbackGeneral from "pages/user/edit/editFeedbackGeneral";
-import EditCatalogItem from "pages/user/edit/editCatalogItem";
 import { ActionProfile } from "./actions/actionProfile";
 import { ActionLogout } from "./actions/actionLogout";
 import { ActionFeedbackCatalogPage } from "./actions/actionFeedbackCatalogPage";
@@ -39,7 +17,6 @@ import { LoaderQrCodeServices } from "./loaders/loaderQrCodeServices";
 import { LoaderQrCodeDepartments } from "./loaders/loaderQrCodeDepartments";
 import { LoaderFeedbackGeneral } from "./loaders/loaderFeedbackGeneral";
 import { LoaderCatalogItem } from "./loaders/loaderCatalogItem";
-import EditIaSettings from "pages/user/edit/editIaSettings";
 import { ActionIaSettings } from "./actions/actionIaSettings";
 import { LoaderIaSettings } from "./loaders/loaderIaSettings";
 
@@ -50,23 +27,23 @@ export function RouteUser() {
       id="user"
       path="/user"
       errorElement={<ErrorPage />}
-      element={<LayoutUser />}
+      lazy={async () => ({ Component: (await import("layouts/user")).default })}
       loader={LoaderUserProtected}
       action={ActionLogout}
     >
       <Route
         path="dashboard"
         loader={LoaderUserDashboard}
-        element={<Dashboard />}
+        lazy={async () => ({ Component: (await import("pages/user/dashboard")).default })}
       />
-      <Route path="ratings" element={<Ratings />} />
-      <Route path="customers" element={<Customers />} />
-      <Route path="compare" element={<CompareItems />} />
-      <Route path="diagnosis" element={<DiagnosisHistory />} />
-      <Route path="openrouter/callback" element={<OpenRouterCallback />} />
+      <Route path="ratings" lazy={async () => ({ Component: (await import("pages/user/ratings")).default })} />
+      <Route path="customers" lazy={async () => ({ Component: (await import("pages/user/customers")).default })} />
+      <Route path="compare" lazy={async () => ({ Component: (await import("pages/user/compare")).default })} />
+      <Route path="diagnosis" lazy={async () => ({ Component: (await import("pages/user/diagnosis")).default })} />
+      <Route path="openrouter/callback" lazy={async () => ({ Component: (await import("pages/user/openrouterCallback")).default })} />
       <Route
         path="profile"
-        element={<Profile />}
+        lazy={async () => ({ Component: (await import("pages/user/profile")).default })}
         action={ActionProfile}
       />
       <Route
@@ -76,20 +53,20 @@ export function RouteUser() {
       <Route
         path="feedbacks/all"
         loader={LoaderFeedbacksAll}
-        element={<FeedbacksAll />}
+        lazy={async () => ({ Component: (await import("pages/user/feedbacks/feedbacksAll")).default })}
       />
-      <Route path="feedbacks/:id" element={<Feedbacks />} />
+      <Route path="feedbacks/:id" lazy={async () => ({ Component: (await import("pages/user/feedbacks/feedbacks")).default })} />
       {/* "Análise dos comentários": Visão geral (com a action de análise da IA) e Comentários. */}
       <Route path="insights" loader={() => redirect("/user/insights/overview")} />
       <Route
         path="insights/overview"
         action={ActionFeedbackInsightsReport}
-        element={<CommentsOverview />}
+        lazy={async () => ({ Component: (await import("pages/user/feedbacks/insights/overview")).default })}
       />
       <Route
         path="insights/comments"
         loader={LoaderCommentsAnalysis}
-        element={<CommentsPage />}
+        lazy={async () => ({ Component: (await import("pages/user/feedbacks/insights/comments")).default })}
       />
       {/* Páginas antigas, absorvidas pela nova estrutura: links salvos continuam funcionando. */}
       <Route path="insights/reports" loader={() => redirect("/user/insights/overview")} />
@@ -100,24 +77,24 @@ export function RouteUser() {
       <Route path="feedbacks/analytics/negative" loader={() => redirect("/user/insights/comments?filtro=negativos")} />
       {/* As perguntas ficam no Dashboard ("Perguntas do formulário"), uma página por pergunta. */}
       <Route path="insights/questions" loader={() => redirect("/user/dashboard")} />
-      <Route path="questions/removed" loader={LoaderFormQuestions} element={<RemovedQuestionsPage />} />
-      <Route path="questions/:questionId" loader={LoaderFormQuestions} element={<QuestionPage />} />
-      <Route path="edit/customers" element={<EditCustomer />} />
+      <Route path="questions/removed" loader={LoaderFormQuestions} lazy={async () => ({ Component: (await import("pages/user/questions/removed")).default })} />
+      <Route path="questions/:questionId" loader={LoaderFormQuestions} lazy={async () => ({ Component: (await import("pages/user/questions/question")).default })} />
+      <Route path="edit/customers" lazy={async () => ({ Component: (await import("pages/user/edit/editCustomers")).default })} />
       <Route
         path="edit/collecting-data-enterprise"
-        element={<EditCompanyData />}
+        lazy={async () => ({ Component: (await import("pages/user/edit/editCompanyData")).default })}
         action={ActionCollectingData}
       />
       <Route
         path="edit/ia-settings"
         loader={LoaderIaSettings}
-        element={<EditIaSettings />}
+        lazy={async () => ({ Component: (await import("pages/user/edit/editIaSettings")).default })}
         action={ActionIaSettings}
       />
 
       <Route
         path="edit/types-feedback"
-        element={<EditTypeFeedbacks />}
+        lazy={async () => ({ Component: (await import("pages/user/edit/editTypeFeedbacks")).default })}
         action={ActionTypesFeedback}
       />
       <Route
@@ -127,31 +104,31 @@ export function RouteUser() {
       <Route
         path="edit/feedback-products"
         loader={LoaderQrCodeProducts}
-        element={<EditFeedbackProducts />}
+        lazy={async () => ({ Component: (await import("pages/user/edit/editFeedbackProducts")).default })}
         action={ActionFeedbackCatalogPage}
       />
       <Route
         path="edit/feedback-services"
         loader={LoaderQrCodeServices}
-        element={<EditFeedbackServices />}
+        lazy={async () => ({ Component: (await import("pages/user/edit/editFeedbackServices")).default })}
         action={ActionFeedbackCatalogPage}
       />
       <Route
         path="edit/feedback-departments"
         loader={LoaderQrCodeDepartments}
-        element={<EditFeedbackDepartments />}
+        lazy={async () => ({ Component: (await import("pages/user/edit/editFeedbackDepartments")).default })}
         action={ActionFeedbackCatalogPage}
       />
       <Route
         path="edit/feedback/:kind/:itemId"
         loader={LoaderCatalogItem}
-        element={<EditCatalogItem />}
+        lazy={async () => ({ Component: (await import("pages/user/edit/editCatalogItem")).default })}
         action={ActionFeedbackCatalogPage}
       />
       <Route
         path="edit/feedback-general"
         loader={LoaderFeedbackGeneral}
-        element={<EditFeedbackGeneral />}
+        lazy={async () => ({ Component: (await import("pages/user/edit/editFeedbackGeneral")).default })}
         action={ActionFeedbackGeneralPage}
       />
     </Route>
