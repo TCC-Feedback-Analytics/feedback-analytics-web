@@ -60,7 +60,11 @@ O `vercel.json` manda em todas as respostas: `Content-Security-Policy` (scripts,
 
 ### Imagens da página inicial
 
-As imagens de `public/field-notes/` estão em WebP: a foto de fundo do topo (`hero.webp`, 39 KB, antes 518 KB em PNG), os logos (`logo-dark.webp` e `logo-light.webp`, reduzidos a 640 px de largura, que é o dobro do tamanho exibido) e o símbolo (`symbol.webp`). As tags `<img>` declaram `width` e `height`, para o navegador reservar o espaço antes de a imagem chegar. O logo do topo, que é o maior elemento visível ao abrir a página no celular, tem `fetchPriority="high"`, e o logo do rodapé usa `loading="lazy"`.
+As imagens de `public/field-notes/` estão em WebP: a foto de fundo do topo (`hero.webp`, 28 KB, antes 518 KB em PNG), os logos (`logo-dark.webp` e `logo-light.webp`, reduzidos a 640 px de largura, que é o dobro do tamanho exibido) e o símbolo (`symbol.webp`). As tags `<img>` declaram `width` e `height`, para o navegador reservar o espaço antes de a imagem chegar. O logo do topo, que é o maior elemento visível ao abrir a página no celular, tem `fetchPriority="high"`, e o logo do rodapé usa `loading="lazy"`.
+
+### SEO e prévia nos links
+
+O `index.html` traz título e descrição da página, as tags Open Graph e Twitter Card (com a imagem `field-notes/social-preview.jpg`, 1200×800) para a prévia quando o link é compartilhado, e o ícone `field-notes/symbol.webp`. O `public/robots.txt` libera o site para os buscadores.
 
 ### Cache
 
