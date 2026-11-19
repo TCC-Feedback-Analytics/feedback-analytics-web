@@ -9,6 +9,7 @@ import AIContextProfileCard from "components/user/pages/profile/AIContextProfile
 import CompanyProfileSection from "components/user/pages/profile/CompanyProfileSection";
 import CardSimple from "components/user/shared/cards/cardSimple";
 import DeleteAccountSection from "components/user/pages/profile/DeleteAccountSection";
+import CreatePasswordSection from "components/user/pages/profile/CreatePasswordSection";
 import { FaUser } from "react-icons/fa6";
 
 export default function Profile() {
@@ -50,6 +51,8 @@ export default function Profile() {
               />
             </div>
           </CardSimple>
+
+          <CreatePasswordSection email={email} />
         </section>
 
         <CompanyProfileSection enterprise={enterprise} />
