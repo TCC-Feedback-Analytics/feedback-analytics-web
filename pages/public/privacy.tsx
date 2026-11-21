@@ -39,8 +39,8 @@ export default function Privacy() {
           <li>a nota, o comentário (opcional) e as respostas às perguntas do formulário;</li>
           <li>nome, e-mail e gênero, só se a pessoa quiser informar;</li>
           <li>
-            endereço IP, navegador e um identificador do aparelho, para evitar envios repetidos e spam. O
-            identificador do aparelho também serve para contar os clientes que voltam a avaliar.
+            um identificador do aparelho, calculado a partir do IP e do navegador sem guardar os dois, para evitar
+            envios repetidos e spam. Ele também serve para contar os clientes que voltam a avaliar.
           </li>
         </ul>
         <p>Não pedimos CPF, CNPJ nem dados sensíveis (como saúde, religião ou opinião política).</p>
@@ -102,8 +102,8 @@ export default function Privacy() {
           desistir, e então os dados da conta e os feedbacks dela são apagados, salvo o que a lei obrigar a manter.
         </p>
         <p>
-          A sessão é apagada quando a pessoa sai da conta. O IP, o navegador e o identificador do aparelho de
-          quem envia feedback ficam guardados enquanto a conta do negócio existir.
+          A sessão é apagada quando a pessoa sai da conta. O identificador do aparelho de quem envia feedback
+          fica guardado enquanto a conta do negócio existir. O IP e o navegador de quem envia não são guardados.
         </p>
       </LegalSection>
 

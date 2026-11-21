@@ -103,7 +103,7 @@ export default function FormQRCodeFeedback({
       <div className="flex items-center justify-center gap-2 px-1 text-xs leading-5 text-(--text-tertiary)">
         <FaShieldHalved className="mt-0.5 h-3.5 w-3.5 shrink-0 text-(--primary-color)" aria-hidden />
         <p>
-          Seus dados são protegidos e usados apenas para melhorar sua experiência. Ao enviar, você concorda com a{' '}
+          Seus dados são protegidos. Veja como tratamos suas respostas na{' '}
           <a href={PRIVACY_PATH} target="_blank" rel="noopener noreferrer" className="font-medium text-(--secondary-color) underline-offset-2 hover:underline">
             Política de Privacidade
           </a>
