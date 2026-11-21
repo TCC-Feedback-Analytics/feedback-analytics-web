@@ -73,8 +73,10 @@ export default function Terms() {
       <LegalSection title="7. Encerramento">
         <p>
           Você pode excluir a conta a qualquer momento na página Perfil, no botão "Excluir minha conta", ou
-          pedir pelo e-mail <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a>. A exclusão apaga a conta, a
-          empresa e todos os feedbacks, sem volta. Podemos suspender ou encerrar contas que descumpram estes termos.
+          pedir pelo e-mail <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a>. O pedido é confirmado por um
+          link enviado ao e-mail da conta. Depois da confirmação, a conta fica parada por 15 dias: nesse prazo, basta entrar
+          de novo para desistir. No fim do prazo, a conta, a empresa e todos os feedbacks são apagados, sem volta. Podemos
+          suspender ou encerrar contas que descumpram estes termos.
         </p>
       </LegalSection>
 

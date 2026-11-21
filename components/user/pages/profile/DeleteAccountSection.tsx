@@ -1,9 +1,14 @@
 import { useState } from 'react';
-import { FaCircleCheck, FaSpinner, FaTrashCan, FaTriangleExclamation } from 'react-icons/fa6';
+import { FaEnvelope, FaSpinner, FaTrashCan, FaTriangleExclamation } from 'react-icons/fa6';
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from 'components/ui/dialog';
 import { Input } from 'components/ui/input';
 import { Label } from 'components/ui/label';
-import { ServiceAccountHasPassword, ServiceDeleteAccount } from 'src/services/serviceUser';
+import {
+  ServiceAccountHasPassword,
+  ServiceRequestAccountDeletion,
+  type DeletionRequestOutcome,
+} from 'src/services/serviceUser';
+import { ACCOUNT_DELETION_GRACE_DAYS } from 'src/lib/utils/accountDeletion';
 import type { DeleteAccountStep } from './ui.types';
 
 /** O que a pessoa digita para liberar o botão: evita excluir por um clique distraído. */
@@ -16,18 +21,20 @@ const WHAT_GOES = [
   'a chave de IA e as configurações.',
 ];
 
-const OUTCOME_MESSAGE = {
+const OUTCOME_MESSAGE: Record<Exclude<DeletionRequestOutcome, 'email_sent'>, string> = {
   wrong_password: 'Senha incorreta. Confira e tente de novo.',
+  password_required: 'Digite a sua senha para continuar.',
   login_again: 'Por segurança, saia, entre de novo e volte aqui para excluir a conta.',
-  failed: 'Não foi possível excluir a conta agora. Tente de novo em instantes.',
-  no_password: 'Não foi possível excluir a conta agora. Tente de novo em instantes.',
-} as const;
+  rate_limited: 'Muitos pedidos seguidos. Aguarde um pouco e tente de novo.',
+  failed: 'Não foi possível enviar o pedido agora. Tente de novo em instantes.',
+};
 
 /**
- * "Excluir minha conta" no Perfil (etapa 07, LGPD art. 18): apaga a conta, a
- * empresa e tudo dela, sem volta. Pede a senha a quem tem uma e a palavra
- * EXCLUIR para liberar o botão. Quem só entra pelo Google não tem senha: o
- * gateway aceita se a entrada foi recente e, senão, pede para entrar de novo.
+ * "Excluir minha conta" no Perfil (LGPD art. 18), passo 1 de 3: pede a senha a
+ * quem tem uma e a palavra EXCLUIR, e o gateway manda um link ao e-mail da conta.
+ * Só o clique nesse link começa a exclusão, e a conta ainda fica parada por 15 dias
+ * antes de ser apagada. Quem só entra pelo Google não tem senha: o gateway aceita se
+ * a entrada foi recente e, senão, pede para entrar de novo.
  */
 export default function DeleteAccountSection() {
   const [open, setOpen] = useState(false);
@@ -46,22 +53,17 @@ export default function DeleteAccountSection() {
     void ServiceAccountHasPassword().then(setHasPassword);
   };
 
-  // Sem saber se há senha, pede: o gateway recusa a errada e aceita a certa.
+  // Sem saber se há senha, pede: o gateway confere a de quem tem e ignora a de quem não tem.
   const needsPassword = hasPassword !== false;
-  const canDelete =
-    confirmation.trim().toUpperCase() === DELETE_CONFIRMATION_WORD && (!needsPassword || password.length > 0) && step !== 'deleting';
+  const canRequest =
+    confirmation.trim().toUpperCase() === DELETE_CONFIRMATION_WORD && (!needsPassword || password.length > 0) && step === 'confirm';
 
-  const deleteAccount = async () => {
+  const requestDeletion = async () => {
     setError(null);
-    setStep('deleting');
-    let outcome = await ServiceDeleteAccount(needsPassword ? password : undefined);
-    // Sem saber se havia senha, ela foi junto; a conta não tem: repete sem senha.
-    if (outcome === 'no_password') {
-      setHasPassword(false);
-      outcome = await ServiceDeleteAccount();
-    }
-    if (outcome === 'deleted') {
-      setStep('deleted');
+    setStep('sending');
+    const outcome = await ServiceRequestAccountDeletion(needsPassword ? password : undefined);
+    if (outcome === 'email_sent') {
+      setStep('sent');
       return;
     }
     setError(OUTCOME_MESSAGE[outcome]);
@@ -77,7 +79,7 @@ export default function DeleteAccountSection() {
               Excluir minha conta
             </h2>
             <p className="mt-1 text-sm text-(--text-secondary)">
-              Apaga a conta, a empresa e todos os feedbacks. Não dá para desfazer.
+              A conta fica parada por {ACCOUNT_DELETION_GRACE_DAYS} dias e depois é apagada, com a empresa e todos os feedbacks.
             </p>
           </div>
           <button
@@ -90,26 +92,31 @@ export default function DeleteAccountSection() {
         </div>
       </div>
 
-      <Dialog open={open} onOpenChange={(next) => step !== 'deleting' && step !== 'deleted' && setOpen(next)}>
-        <DialogContent className="max-w-lg" showClose={step === 'confirm'}>
-          {step === 'deleted' ? (
+      <Dialog open={open} onOpenChange={(next) => step !== 'sending' && setOpen(next)}>
+        <DialogContent className="max-w-lg" showClose={step !== 'sending'}>
+          {step === 'sent' ? (
             <div role="status" className="flex flex-col items-center gap-3 p-8 text-center">
-              <FaCircleCheck aria-hidden className="text-4xl text-(--positive)" />
-              <p className="font-montserrat text-lg font-semibold text-(--text-primary)">Sua conta foi excluída.</p>
-              <p className="text-sm text-(--text-secondary)">Apagamos a conta, a empresa e todos os dados dela.</p>
+              <FaEnvelope aria-hidden className="text-4xl text-(--primary-color)" />
+              <p className="font-montserrat text-lg font-semibold text-(--text-primary)">Confira o seu e-mail.</p>
+              <p className="text-sm text-(--text-secondary)">
+                Enviamos um link para confirmar a exclusão. Abra no navegador em que você está logado: ele vale 1 hora.
+                Nada foi apagado ainda.
+              </p>
               <button
                 type="button"
-                onClick={() => window.location.assign('/')}
+                onClick={() => setOpen(false)}
                 className="mt-2 rounded-lg bg-(--primary-color) px-4 py-2 text-sm font-semibold text-(--on-primary) transition-opacity hover:opacity-90"
               >
-                Ir para o início
+                Entendi
               </button>
             </div>
           ) : (
             <>
               <DialogHeader>
                 <DialogTitle>Excluir minha conta</DialogTitle>
-                <DialogDescription>Isso apaga tudo para sempre. Não há como recuperar depois.</DialogDescription>
+                <DialogDescription>
+                  Vamos mandar um link para o seu e-mail. A exclusão só começa depois que você clicar nele.
+                </DialogDescription>
               </DialogHeader>
               <DialogBody className="space-y-5">
                 <div className="flex gap-3 rounded-xl border border-(--negative)/30 bg-(--negative)/10 p-4 text-sm text-(--text-secondary)">
@@ -121,6 +128,10 @@ export default function DeleteAccountSection() {
                         <li key={item}>{item}</li>
                       ))}
                     </ul>
+                    <p className="mt-2">
+                      Depois da confirmação, a conta fica parada por {ACCOUNT_DELETION_GRACE_DAYS} dias. Nesse prazo, dá para
+                      desistir entrando de novo. Depois, tudo é apagado para sempre.
+                    </p>
                   </div>
                 </div>
 
@@ -159,19 +170,19 @@ export default function DeleteAccountSection() {
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  disabled={step === 'deleting'}
+                  disabled={step === 'sending'}
                   className="btn-ghost font-poppins min-h-11 px-4 py-2 text-sm"
                 >
                   Cancelar
                 </button>
                 <button
                   type="button"
-                  onClick={() => void deleteAccount()}
-                  disabled={!canDelete}
+                  onClick={() => void requestDeletion()}
+                  disabled={!canRequest}
                   className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-(--negative) px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {step === 'deleting' ? <FaSpinner aria-hidden className="animate-spin" /> : <FaTrashCan aria-hidden />}
-                  {step === 'deleting' ? 'Excluindo…' : 'Excluir para sempre'}
+                  {step === 'sending' ? <FaSpinner aria-hidden className="animate-spin" /> : <FaEnvelope aria-hidden />}
+                  {step === 'sending' ? 'Enviando…' : 'Enviar link de confirmação'}
                 </button>
               </DialogFooter>
             </>

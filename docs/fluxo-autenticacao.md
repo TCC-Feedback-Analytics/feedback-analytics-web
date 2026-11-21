@@ -282,9 +282,14 @@ O reenvio aparece em três lugares, todos com `ServiceResendConfirmation` → `P
 
 ## Perfil: troca de e-mail
 
-Na seção "Dados pessoais e acesso" do Perfil (`/user/profile`), o campo **Email** é editável (`EditableFieldFixed`), com a dica "Após alterar, confirme pelo link enviado ao novo e-mail". Ao salvar, envia `intent=update_email` para a `ActionProfile`, que chama `ServiceUpdateEmail` → `PATCH /api/protected/user/email`.
+Na seção "Dados pessoais e acesso" do Perfil (`/user/profile`), o campo **Email** é editável (`EditableFieldFixed`), com a dica "Primeiro aprove no e-mail atual, depois confirme no novo". Ao salvar, envia `intent=update_email` para a `ActionProfile`, que chama `ServiceUpdateEmail` → `PATCH /api/protected/user/email`, e a tela mostra o toast "Aprove a troca no seu e-mail atual!".
 
-O gateway pede a troca ao `changeEmail` do Better Auth, que manda o e-mail "Confirme seu novo e-mail" para o endereço novo; a tela mostra o toast "Confirme no novo e-mail!". A troca só vale depois do clique no link, que passa pelo `/api/auth/verify-email` e volta para `/auth/success`.
+A troca tem dois passos, para que quem roube a sessão não leve a conta para um e-mail dele:
+
+1. O gateway manda "Aprove a troca do e-mail da sua conta" para o endereço **atual**. O link volta para `/auth/success?tipo=troca-aprovada`, que diz que o link foi para o endereço novo (e não redireciona).
+2. O endereço novo recebe "Confirme seu novo e-mail". O link volta para `/auth/success?tipo=email-trocado`, que avisa e leva ao Dashboard.
+
+Os dois links passam pelo `/api/auth/verify-email` do Better Auth. Sem `tipo`, a `/auth/success` é a confirmação do cadastro.
 
 Se o gateway recusar, a `ActionProfile` devolve `{ error }` em vez de lançar, e a tela mostra o toast "Erro ao atualizar email" sem sair do Perfil. O mesmo vale para nome e telefone.
 
@@ -292,34 +297,45 @@ Se o gateway recusar, a `ActionProfile` devolve `{ error }` em vez de lançar, e
 
 ## Exclusão de conta
 
-No fim do Perfil, a seção **"Excluir minha conta"** (`DeleteAccountSection`) apaga a conta, a empresa e todos os dados dela, sem volta.
+"Excluir minha conta" tem três passos (LGPD, art. 18). Nem um clique distraído nem uma sessão roubada apagam os dados na hora.
 
 ```
-Usuário clica em "Excluir minha conta"
+Perfil → "Excluir minha conta" (DeleteAccountSection)
         ↓
-Dialog abre e consulta ServiceAccountHasPassword → GET /api/auth/list-accounts
+Dialog consulta ServiceAccountHasPassword → GET /api/auth/list-accounts
+e pede a senha (se a conta tem uma ou se não deu para saber) e a palavra EXCLUIR
         ↓
-Pede a senha se a conta tem login por senha (ou se não deu para saber)
-e a palavra EXCLUIR para liberar o botão "Excluir para sempre"
+ServiceRequestAccountDeletion → POST /api/protected/user/account-deletion
         ↓
-ServiceDeleteAccount → POST /api/auth/delete-user  ({ password } ou {})
+"Confira o seu e-mail": o link vale 1 hora e precisa ser aberto no navegador logado
         ↓
-Se veio CREDENTIAL_ACCOUNT_NOT_FOUND (mandou senha a uma conta só do Google,
-porque o list-accounts falhou), marca a conta como sem senha e repete sem senha
+/conta/excluir?token=… (AccountDeletionConfirm): só o clique em "Confirmar a exclusão"
+chama ServiceConfirmAccountDeletion → POST /api/protected/user/account-deletion/confirm
+        ↓
+"Exclusão agendada": a conta fica parada por 15 dias e todas as sessões caem
+        ↓
+Quem entra de novo: LoaderUserProtected vê deletion_scheduled_for no auth_user
+e leva a /conta/exclusao-agendada (AccountDeletionPending)
+        ↓
+"Cancelar exclusão" → POST /api/protected/user/account-deletion/cancel → Dashboard
+"Sair" → logout, e a exclusão continua marcada
 ```
 
-| Resposta | O que a tela mostra |
+| Resposta do pedido | O que a tela mostra |
 |---|---|
-| Sucesso | "Sua conta foi excluída." |
-| `INVALID_PASSWORD` | "Senha incorreta. Confira e tente de novo." |
-| `SESSION_EXPIRED` | "Por segurança, saia, entre de novo e volte aqui para excluir a conta." |
-| Outro código ou falha de rede | "Não foi possível excluir a conta agora. Tente de novo em instantes." |
+| `202` | "Confira o seu e-mail." |
+| `invalid_password` | "Senha incorreta. Confira e tente de novo." |
+| `password_required` | "Digite a sua senha para continuar." |
+| `login_again` | "Por segurança, saia, entre de novo e volte aqui para excluir a conta." |
+| `rate_limited` | "Muitos pedidos seguidos. Aguarde um pouco e tente de novo." |
+| Outro código ou falha de rede | "Não foi possível enviar o pedido agora. Tente de novo em instantes." |
 
-- Quem só entra pelo Google não tem senha: o pedido vai sem senha, e o gateway só aceita se a entrada foi recente (24 h); senão, cai em `SESSION_EXPIRED`.
-- Durante a exclusão e depois dela o dialog não fecha. A tela final tem o botão "Ir para o início", que recarrega a página em `/`.
+- Quem só entra pelo Google não tem senha: o gateway aceita o pedido se a entrada foi recente (24 h). Uma senha mandada por engano é ignorada.
+- Abrir o link não confirma nada: a página pede o clique, para que um leitor de e-mail que abre os links sozinho não comece a exclusão.
+- Na página do link, `401` vira "Abra este link no navegador em que você está logado", e link usado ou vencido vira "Peça a exclusão de novo no Perfil".
+- Entrar sozinho não cancela a exclusão: a pessoa escolhe entre "Cancelar exclusão" e "Sair".
 
 ---
-
 ## Resolução da URL da API
 
 O utilitário `http.ts` monta a URL a partir de duas variáveis:
