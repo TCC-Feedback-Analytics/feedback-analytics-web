@@ -4,7 +4,7 @@ import type { EnterpriseContext } from 'lib/interfaces/entities/enterprise.entit
  * Etapas da janela "Excluir minha conta".
  * Usado em: components/user/pages/profile/DeleteAccountSection.tsx.
  */
-export type DeleteAccountStep = 'confirm' | 'deleting' | 'deleted';
+export type DeleteAccountStep = 'confirm' | 'sending' | 'sent';
 
 /** Etapas do "Entrar também com senha": enviar o link para o e-mail da conta. */
 export type CreatePasswordStep = 'idle' | 'sending' | 'sent';

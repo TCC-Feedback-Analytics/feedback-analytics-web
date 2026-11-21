@@ -1,9 +1,8 @@
-import { ServiceGetUser } from 'src/services/serviceUser';
+import { ServiceGetUser, type AuthUserWithDeletion } from 'src/services/serviceUser';
 import {
   ServiceGetCollectingDataEnterprise,
   ServiceGetEnterprise,
 } from 'src/services/serviceEnterprise';
-import type { AuthUser } from 'lib/interfaces/entities/auth-user.entity';
 import type {
   ApiEnterpriseResponse,
   CollectingDataEnterprise,
@@ -16,7 +15,7 @@ export async function loadUserContextData() {
     ServiceGetUser(),
     ServiceGetEnterprise().catch(() => null),
     ServiceGetIaConfig().catch(() => null),
-  ])) as [AuthUser, ApiEnterpriseResponse | null, IaConfigResponse | null];
+  ])) as [AuthUserWithDeletion, ApiEnterpriseResponse | null, IaConfigResponse | null];
 
   const user = auth.user;
   const collecting = enterprisePayload
@@ -47,5 +46,7 @@ export async function loadUserContextData() {
     enterprise,
     collecting,
     iaConfig,
+    // Conta com exclusão agendada: a área logada dá lugar ao aviso para desistir.
+    deletionScheduledFor: auth.deletion_scheduled_for ?? null,
   };
 }

@@ -24,6 +24,9 @@ import ResetPassword from 'pages/public/resetPassword';
 import { ActionResetPassword } from './actions/actionResetPassword';
 import ResendConfirmation from 'pages/public/resendConfirmation';
 import { ActionResendConfirmation } from './actions/actionResendConfirmation';
+import AccountDeletionConfirm from 'pages/public/accountDeletionConfirm';
+import AccountDeletionPending from 'pages/public/accountDeletionPending';
+import { ACCOUNT_DELETION_CONFIRM_PATH, ACCOUNT_DELETION_PENDING_PATH } from 'src/lib/utils/accountDeletion';
 
 /**
  * Páginas públicas no pacote principal, sem `lazy`: é por elas que as pessoas chegam direto
@@ -57,6 +60,9 @@ export function RoutePublic() {
       <Route path="auth/link-expired" element={<AuthLinkExpired />} />
       <Route path="privacidade" element={<Privacy />} />
       <Route path="termos" element={<Terms />} />
+      {/* "Excluir minha conta": o link do e-mail e o aviso da conta parada, com a opção de desistir. */}
+      <Route path={ACCOUNT_DELETION_CONFIRM_PATH} element={<AccountDeletionConfirm />} />
+      <Route path={ACCOUNT_DELETION_PENDING_PATH} element={<AccountDeletionPending />} />
       <Route
         path="auth/complete-signup"
         loader={LoaderCompleteSignup}

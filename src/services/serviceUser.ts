@@ -10,13 +10,16 @@ type MetadadosResponse = {
 };
 type EmailUpdateResponse = {
   user: { id: string; email: string | null } | null;
-  /** E-mail pedido, que só vale depois da confirmação pelo link. */
+  /** E-mail pedido: vale depois da aprovação no endereço atual e da confirmação no novo. */
   pending_email: string;
 };
 type OkResponse = { ok: boolean };
 
+/** `deletion_scheduled_for`: data (ISO) em que a conta será apagada, ou null se ela está ativa. */
+export type AuthUserWithDeletion = AuthUser & { deletion_scheduled_for?: string | null };
+
 export function ServiceGetUser() {
-  return getJson<AuthUser>('/api/protected/user/auth_user');
+  return getJson<AuthUserWithDeletion>('/api/protected/user/auth_user');
 }
 
 export function ServiceUpdateMetadados(full_name: string) {
@@ -48,8 +51,31 @@ export function ServiceCompleteSignup(payload: { fullName: string; phone: string
   return postJson<OkResponse>('/api/protected/user/complete-signup', payload);
 }
 
-/** Resultado de "Excluir minha conta", já traduzido dos códigos do Better Auth. */
-export type DeleteAccountOutcome = 'deleted' | 'wrong_password' | 'login_again' | 'no_password' | 'failed';
+/** Pedido de "Excluir minha conta" no Perfil, já traduzido dos códigos do gateway. */
+export type DeletionRequestOutcome =
+  | 'email_sent'
+  | 'wrong_password'
+  | 'password_required'
+  | 'login_again'
+  | 'rate_limited'
+  | 'failed';
+
+/** Link do e-mail aberto na página /conta/excluir. */
+export type DeletionConfirmResult =
+  | { outcome: 'scheduled'; scheduledFor: string }
+  | { outcome: 'invalid_link' | 'not_logged_in' | 'failed' };
+
+const DELETION_REQUEST_ERRORS: Record<string, DeletionRequestOutcome> = {
+  invalid_password: 'wrong_password',
+  password_required: 'password_required',
+  login_again: 'login_again',
+  rate_limited: 'rate_limited',
+};
+
+async function readApiError(res: Response): Promise<string | undefined> {
+  const payload = (await res.json().catch(() => null)) as { error?: unknown } | null;
+  return typeof payload?.error === 'string' ? payload.error : undefined;
+}
 
 /**
  * A conta tem senha? Quem só entra pelo Google não tem, e a exclusão não pede
@@ -63,19 +89,41 @@ export async function ServiceAccountHasPassword(): Promise<boolean | null> {
   return accounts.some((account) => (account as { providerId?: unknown })?.providerId === 'credential');
 }
 
-/** Apaga a conta, a empresa e tudo dela (etapa 07, LGPD art. 18). Sem volta. */
-export async function ServiceDeleteAccount(password?: string): Promise<DeleteAccountOutcome> {
-  const res = await requestApi('/api/auth/delete-user', {
+/**
+ * "Excluir minha conta", passo 1 (LGPD art. 18): confere a senha e manda o link de
+ * confirmação ao e-mail da conta. Nada é apagado ainda.
+ */
+export async function ServiceRequestAccountDeletion(password?: string): Promise<DeletionRequestOutcome> {
+  const res = await requestApi('/api/protected/user/account-deletion', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(password ? { password } : {}),
   }).catch(() => null);
   if (!res) return 'failed';
-  if (res.ok) return 'deleted';
-  const payload = (await res.json().catch(() => null)) as { code?: unknown } | null;
-  if (payload?.code === 'INVALID_PASSWORD') return 'wrong_password';
-  if (payload?.code === 'SESSION_EXPIRED') return 'login_again';
-  // Mandou senha para uma conta que só entra pelo Google (não deu para saber antes).
-  if (payload?.code === 'CREDENTIAL_ACCOUNT_NOT_FOUND') return 'no_password';
-  return 'failed';
+  if (res.ok) return 'email_sent';
+  return DELETION_REQUEST_ERRORS[(await readApiError(res)) ?? ''] ?? 'failed';
+}
+
+/** Passo 2: o link do e-mail. A conta fica parada por 15 dias e todas as sessões caem. */
+export async function ServiceConfirmAccountDeletion(token: string): Promise<DeletionConfirmResult> {
+  const res = await requestApi('/api/protected/user/account-deletion/confirm', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token }),
+  }).catch(() => null);
+  if (!res) return { outcome: 'failed' };
+  if (res.ok) {
+    const payload = (await res.json().catch(() => null)) as { deletion_scheduled_for?: unknown } | null;
+    const scheduledFor = payload?.deletion_scheduled_for;
+    return typeof scheduledFor === 'string' ? { outcome: 'scheduled', scheduledFor } : { outcome: 'failed' };
+  }
+  if (res.status === 401) return { outcome: 'not_logged_in' };
+  const error = await readApiError(res);
+  return { outcome: error === 'invalid_deletion_link' || error === 'deletion_already_scheduled' ? 'invalid_link' : 'failed' };
+}
+
+/** Desistência, dentro dos 15 dias, depois de entrar de novo. */
+export async function ServiceCancelAccountDeletion(): Promise<boolean> {
+  const res = await requestApi('/api/protected/user/account-deletion/cancel', { method: 'POST' }).catch(() => null);
+  return Boolean(res?.ok);
 }
