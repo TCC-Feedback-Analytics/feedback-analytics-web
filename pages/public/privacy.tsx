@@ -97,8 +97,9 @@ export default function Privacy() {
 
       <LegalSection title="7. Por quanto tempo guardamos">
         <p>
-          Os dados ficam guardados enquanto a conta do negócio existir. Quando a conta é excluída, os dados da
-          conta e os feedbacks dela são apagados, salvo o que a lei obrigar a manter.
+          Os dados ficam guardados enquanto a conta do negócio existir. O pedido de exclusão é confirmado por um
+          link enviado ao e-mail da conta. Depois disso, a conta fica parada por 15 dias, para que o negócio possa
+          desistir, e então os dados da conta e os feedbacks dela são apagados, salvo o que a lei obrigar a manter.
         </p>
         <p>
           A sessão é apagada quando a pessoa sai da conta. O IP, o navegador e o identificador do aparelho de

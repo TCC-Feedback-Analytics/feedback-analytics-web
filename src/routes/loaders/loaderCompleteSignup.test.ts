@@ -46,6 +46,12 @@ describe('LoaderUserProtected', () => {
     expect(await redirectOf(LoaderUserProtected(args))).toBe('/auth/complete-signup');
   });
 
+  it('com a exclusão agendada, leva ao aviso para desistir em vez do painel', async () => {
+    const data = { ...user('+5511987654321'), deletionScheduledFor: '2026-12-06T12:00:00.000Z' };
+    vi.mocked(loadUserContextData).mockResolvedValue(data as never);
+    expect(await redirectOf(LoaderUserProtected(args))).toBe('/conta/exclusao-agendada');
+  });
+
   it('com telefone devolve o contexto', async () => {
     const data = user('+5511987654321');
     vi.mocked(loadUserContextData).mockResolvedValue(data as never);

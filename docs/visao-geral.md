@@ -75,8 +75,10 @@ As rotas são declaradas em `src/routes/public.tsx` e `src/routes/user.tsx`, mon
 | `/forgot-password` | Recuperação de senha. Com `?error=` (ex.: `INVALID_TOKEN`), avisa que o link de redefinição venceu ou já foi usado |
 | `/auth/reset-password` | Redefinição de senha |
 | `/resend-confirmation` | Reenvio do e-mail de confirmação do cadastro |
-| `/auth/success` | Confirmação de autenticação (e-mail verificado) |
+| `/auth/success` | Volta dos links de e-mail: cadastro confirmado, troca de e-mail aprovada (`?tipo=troca-aprovada`) ou concluída (`?tipo=email-trocado`) |
 | `/auth/link-expired` | Link de ativação/confirmação expirado |
+| `/conta/excluir` | Link do e-mail que confirma a exclusão da conta (só com o clique, no navegador logado) |
+| `/conta/exclusao-agendada` | Conta parada pela exclusão: mostra a data e deixa cancelar ou sair |
 | `/privacidade` | Política de Privacidade |
 | `/termos` | Termos de Serviço |
 | `/feedback/qrcode` | Formulário público de coleta. O mesmo endereço serve a todos os canais; o parâmetro `canal=qr\|link\|nfc\|teste` diz por onde o cliente chegou. Feedbacks com `canal=teste` não entram nas métricas nem na análise da IA |
@@ -96,7 +98,7 @@ As rotas são declaradas em `src/routes/public.tsx` e `src/routes/user.tsx`, mon
 | `/user/feedbacks/:id` | Detalhe de um feedback (tela provisória, sem conteúdo além do id) |
 | `/user/insights/overview` | Análise dos comentários › Resumo: tom, assuntos que mais impactam e resumo com recomendações |
 | `/user/insights/comments` | Análise dos comentários › Comentários, com filtros por tom e pela divergência entre nota e texto |
-| `/user/profile` | Perfil: dados pessoais e acesso, dados da empresa, contexto da empresa para a IA e "Excluir minha conta" (ver [Fluxo de Autenticação](./fluxo-autenticacao.md)) |
+| `/user/profile` | Perfil: dados pessoais e acesso, dados da empresa, contexto da empresa para a IA e "Excluir minha conta", com confirmação pelo e-mail e 15 dias de carência (ver [Fluxo de Autenticação](./fluxo-autenticacao.md)) |
 | `/user/edit/feedback-general` | Avaliação da empresa: perguntas gerais, campo de comentário e canais de coleta (QR Code, link e etiqueta NFC) |
 | `/user/edit/types-feedback` | Catálogo: ativar produtos, serviços e/ou departamentos |
 | `/user/edit/feedback-products` | Catálogo de produtos |
