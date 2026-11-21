@@ -47,7 +47,9 @@ describe('formulário do cliente — campo de comentário do escopo', () => {
     const link = screen.getByRole('link', { name: 'Política de Privacidade' });
     expect(link).toHaveAttribute('href', '/privacidade');
     expect(link).toHaveAttribute('target', '_blank');
-    expect(link.closest('p')).toHaveTextContent('Ao enviar, você concorda com a Política de Privacidade.');
+    expect(link.closest('p')).toHaveTextContent('Seus dados são protegidos. Veja como tratamos suas respostas na Política de Privacidade.');
+    // A base do tratamento é o legítimo interesse, não o consentimento: o aviso não pede que a pessoa concorde.
+    expect(link.closest('p')).not.toHaveTextContent(/concorda/);
   });
 
   it('com o campo oculto, não pede comentário', () => {
